@@ -1,0 +1,195 @@
+*W1: D1
+Squat:
+Hack Squat:
+Leg Extension:
+Leg Curl:
+Lunges:
+Incline Bench:
+Dumbbell Fly:
+Close-Grip Bench:
+Tricep Dip:
+Cable Pull Down:
+
+*W1: D2
+Side Deltoid Raise:
+Front Deltoid Raise:
+Shrugs:
+Bent Over Row:
+Upright Row:
+Shoulder Press:
+One Arm Dumbbell Row:
+Preacher Curl:
+Hammer Curl:
+Reverse Grip barbell curl:
+
+*W1:D3
+Squat:
+Front Squat:
+Leg Extension:
+Leg Curl:
+Incline Dumbbell Fly:
+Bench Press:
+Dumbbell Kickback:
+One Arm Tricep Extension:
+Weighted Oblique Twists:
+Weighted Crunches:
+
+*W1:D4
+Lying Side Deltoid Raise:
+Arnold Press:
+Shrugs:
+Bent Over Row:
+Good Morning:
+One Arm Dumbbell Row:
+Incline Dumbbell Curl:
+Dumbbell Curl:
+Barbell Wrist Curl:
+Reverse Grip Wrist Curl:
+END WEEK
+
+*W2:D1
+Squat:
+Hack Squat:
+Leg Extension:
+Leg Curl:
+Lunges:
+Incline Bench:
+Dumbbell Fly:
+One Arm Tricep Extension:
+Dips:
+Cable Pull Down:
+
+*W2:D2
+Upright Row:
+Side Deltoid Raise:
+Front Deltoid Raise:
+Shrugs:
+Military Press:
+One Arm Dumbbell Rows:
+Cable Row:
+Preacher Curls:
+Incline Hammer Curls:
+Dumbbell Curls:
+
+*W2:D3
+Squat:
+Front Squat:
+Lunges:
+Leg Extension:
+Leg Curls:
+Incline Bench:
+Incline Dumbbell Fly:
+Close-Grip Bench:
+Weighted Oblique Twist:
+Weighted Crunches:
+
+*W2:D4
+Military Press:
+Side Deltoid Raise:
+Front Deltoid Raise:
+Shrugs:
+Cable Row:
+Good Mornings:
+Preacher Curl:
+Forearm Curl:
+Reverse Forearm Curl:
+END WEEK
+
+*W3:D1
+Lunges:
+Front Squat:
+Leg Extension:
+Leg Curl:
+Calve Raise:
+Decline Bench:
+Incline Dumbbell Fly:
+Skull Crusher:
+Dips:
+Cable Pull Down:
+
+*W3:D2
+Lying Side Deltoid raise:
+Side Deltoid raise:
+Front Deltoid raise:
+Shrugs:
+Arnold Press:
+Bent Over Row:
+Cable Row:
+Preacher Curl:
+Hammer Curl:
+Barbell Curl:
+
+*W3:D3
+Squat:
+Front Squat:
+Lunges:
+Leg Extension:
+Leg Curl:
+Leg Press:
+Incline Dumbbell Press:
+Dumbbell Press:
+One Arm Kickback:
+Weighted Oblique Twists:
+Weighted Crunches:
+
+*W3:D4
+Arnold Press:
+Side Deltoid Raise:
+Front Deltoid Raise:
+Reverse Shrugs:
+Bar Pull Down:
+Cable Row:
+Concentration Curls:
+Preacher Curls:
+Forearm Curls:
+Reverse Forearm Curls:
+END WEEK
+
+*W4:D1
+Squat:
+Front Squat:
+Lunges:
+Calve Raise:
+Leg Press:
+Bench Press:
+Incline Bench:
+Skull Crusher:
+One Arm Tricep Extension:
+Cable Pull Down:
+
+*W4:D2
+Military Press:
+Side Deltoid Raise:
+Front Deltoid Raise:
+Shrugs:
+Arnold Press:
+Bent Over Row:
+Good Morning:
+Barbell Curl:
+Reverse Barbell Curl:
+Hammer Curl:
+
+*W4:D3
+Squat:
+Front Squat:
+Lunges:
+Leg Extension:
+Leg Curl:
+Incline Bench:
+Incline Dumbbell Fly:
+Close-Grip Bench:
+Weighted Oblique Twists:
+Weighted Crunches:
+
+*W4:D4
+Arnold Press:
+Side Deltoid Raise:
+Front Deltoid Raise:
+Reverse Shrugs:
+Military Press:
+Bar Pull Down:
+Concentration Curl:
+Incline Hammer Curl:
+Forearm Curl:
+Reverse Forearm Curl:
+END CYCLE
