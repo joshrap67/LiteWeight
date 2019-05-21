@@ -58,15 +58,6 @@ public class NewWorkoutFragment extends Fragment {
             }
         });
 
-        workoutNameInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    hideKeyboard(v);
-                }
-            }
-        });
-
         numWeeks.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -115,14 +106,6 @@ public class NewWorkoutFragment extends Fragment {
             return true;
         }
         return false;
-    }
-
-    public void hideKeyboard(View view) {
-        /*
-            Found on SO
-         */
-        InputMethodManager inputMethodManager =(InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public boolean checkValidDay(String aDay){
