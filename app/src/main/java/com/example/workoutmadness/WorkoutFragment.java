@@ -24,13 +24,16 @@ public class WorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_workout,container,false);
+        getCurrentDay();
         populateWorkouts();
         return view;
     }
 
     public void populateWorkouts(){
+        /*
+        Populates workouts based on the currently selected workout.
+         */
         TableLayout ll = (TableLayout) view.findViewById(R.id.main_table);
-        getCurrentDay();
         for (int i = 0; i <15; i++) {
             TableRow row = new TableRow(getActivity());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);

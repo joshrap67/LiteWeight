@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //TODO implement timer??? For in between reps
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed(){
+        // TODO check if new workout is being created, if so ask if user is sure they want to quit
         if(drawer.isDrawerOpen(GravityCompat.START)){
             drawer.closeDrawer(GravityCompat.START);
         }
@@ -44,14 +46,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        //TODO check if creating new workout, if so ask user are you sure? ask if wanting to save progress
         switch(menuItem.getItemId()){
             case R.id.nav_new_workout:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new NewWorkoutFragment()).commit();
+                        new NewWorkoutFragment(), "NEW_WORKOUT").commit();
                 break;
             case R.id.nav_current_workout:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new WorkoutFragment()).commit();
+                        new WorkoutFragment(), "CURRENT_WORKOUT").commit();
                 break;
 
         }
