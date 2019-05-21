@@ -1,15 +1,16 @@
 package com.example.workoutmadness;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 
 public class NewWorkoutFragment extends Fragment {
     private boolean modified = false;
-    private EditText workoutName, numWeeks, numDays;
+    private EditText workoutNameInput, numWeeks, numDays;
     private TextView numWeeksTV, numDaysTV;
     private Button nextButton;
     private View view;
@@ -30,7 +31,7 @@ public class NewWorkoutFragment extends Fragment {
         return view;
     }
     public void initViews(){
-        workoutName = view.findViewById(R.id.workoutNameInput);
+        workoutNameInput = view.findViewById(R.id.workoutNameInput);
         numWeeks = view.findViewById(R.id.weekInput);
         numDays = view.findViewById(R.id.dayInput);
         numWeeksTV = view.findViewById(R.id.weekTV);
@@ -39,23 +40,33 @@ public class NewWorkoutFragment extends Fragment {
         // TODO hide keyboard when clicking elsewhere
         // TODO check if workout name already exists
         // TODO check if user deleted the name, same with number of weeks and days at the end
-        workoutName.setOnKeyListener(new View.OnKeyListener() {
+        workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if(!workoutName.getText().toString().equalsIgnoreCase("")){
-                        lastName = workoutName.getText().toString();
+                    if(!workoutNameInput.getText().toString().equalsIgnoreCase("")){
+                        lastName = workoutNameInput.getText().toString();
                         numWeeks.setVisibility(View.VISIBLE);
                         numWeeksTV.setVisibility(View.VISIBLE);
                         return true;
                     }
                     else{
-                        workoutName.setText(lastName);
+                        workoutNameInput.setText(lastName);
                         Toast.makeText(getActivity(), "Enter valid name", Toast.LENGTH_LONG).show();
                     }
                 }
                 return false;
             }
         });
+
+        workoutNameInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
         numWeeks.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -104,6 +115,14 @@ public class NewWorkoutFragment extends Fragment {
             return true;
         }
         return false;
+    }
+
+    public void hideKeyboard(View view) {
+        /*
+            Found on SO
+         */
+        InputMethodManager inputMethodManager =(InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public boolean checkValidDay(String aDay){
