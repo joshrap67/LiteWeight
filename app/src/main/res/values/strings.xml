@@ -11,4 +11,5 @@
     <string name="button_continue">Next</string>
     <string name="previous_day_button">Back</string>
     <string name="default_workout_marker">Week/Day</string>
+    <string name="default_workout_name">Workout Madness</string>
 </resources>

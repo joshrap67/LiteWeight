@@ -21,7 +21,8 @@ import java.io.InputStreamReader;
 public class WorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
-    private String currentDay, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY";
+    private String currentDay, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", WORKOUT_FILE="workout.txt";
+    private boolean modified=false;
 
     @Nullable
     @Override
@@ -36,7 +37,9 @@ public class WorkoutFragment extends Fragment {
         /*
         Populates workouts based on the currently selected workout.
          */
-
+        // get the workout name and update the toolbar with the name
+        String workoutName = "Josh's Workout";
+        ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
         //first find the right spot in the file
         currentDay = getCurrentDay();
         BufferedReader reader = null;
@@ -66,6 +69,12 @@ public class WorkoutFragment extends Fragment {
                 row.setLayoutParams(lp);
 
                 CheckBox exercise = new CheckBox(getActivity());
+                exercise.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        modified=true;
+                    }
+                });
                 exercise.setText(strings[0]);
                 row.addView(exercise);
                 if(strings.length==3){
@@ -114,7 +123,13 @@ public class WorkoutFragment extends Fragment {
         return null;
     }
 
-
+    public boolean isModified(){
+        /*
+            Is used to check if the user has made any at all changes to their workout. If so, appropriate
+            action (namely altering the text file) must be taken.
+         */
+        return modified;
+    }
 
     public String getCurrentDay(){
         /*
