@@ -12,4 +12,12 @@
     <string name="previous_day_button">Back</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="default_workout_name">Workout Madness</string>
+    <string name="popup_title">Unsaved Workout!</string>
+    <string name="popup_message">You have a workout currently being created. If you quit now, all progress
+    will be lost! Are you sure you wish to quit?</string>
+    <string name="confirm">Yes</string>
+    <string name="denial">No</string>
+    <string name="nav_workout_icon_title">Current Workout</string>
+    <string name="nav_create_icon_title">Create Workout</string>
+    <string name="nav_list_icon_title">My Workouts</string>
 </resources>
