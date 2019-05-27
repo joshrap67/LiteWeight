@@ -3,7 +3,6 @@ package com.example.workoutmadness;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -13,9 +12,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
@@ -23,8 +19,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,9 +78,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     @Override
     public void onBackPressed() {
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        Fragment currentFragment = (YourFragmentClass)fragmentManager.findFragmentById(R.id.your_fragment_id);
-//        Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment visibleFragment = getVisibleFragment();
         boolean quit = true;
         // TODO check if new workout is being created, if so ask if user is sure they want to quit
@@ -160,33 +151,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        //TODO check if creating new workout, if so ask user are you sure? ask if wanting to save progress
+        //TODO ask if wanting to save progress instead of just losing it all?
         Fragment currentFrag = getVisibleFragment();
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
                 if(currentFrag instanceof NewWorkoutFragment){
                     if(((NewWorkoutFragment) currentFrag).isModified()){
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                        final AlertDialog alertDialog = alertDialogBuilder.create();
-                        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
-                        Button confirmButton = popupView.findViewById(R.id.popupYes);
-                        confirmButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                goToCurrentWorkout();
-                                alertDialog.dismiss();
-                            }
-                        });
-                        Button quitButton = popupView.findViewById(R.id.popupNo);
-                        quitButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                nav.setCheckedItem(R.id.nav_new_workout); // since fragment didn't change, currently selected item is still new workout
-                                alertDialog.dismiss();
-                            }
-                        });
-                        alertDialog.setView(popupView);
-                        alertDialog.show();
+                        showPopup("current_workout");
                     }
                     else{
                         goToCurrentWorkout();
@@ -202,29 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 else if(currentFrag instanceof NewWorkoutFragment){
                     if(((NewWorkoutFragment) currentFrag).isModified()){
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                        final AlertDialog alertDialog = alertDialogBuilder.create();
-                        // TODO change this to the right view once i create the layout
-                        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
-                        Button confirmButton = popupView.findViewById(R.id.popupYes);
-                        confirmButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                goToCurrentWorkout();
-                                alertDialog.dismiss();
-                            }
-                        });
-                        Button quitButton = popupView.findViewById(R.id.popupNo);
-
-                        quitButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                nav.setCheckedItem(R.id.nav_new_workout); // since fragment didn't change, currently selected item is still new workout
-                                alertDialog.dismiss();
-                            }
-                        });
-                        alertDialog.setView(popupView);
-                        alertDialog.show();
+                        showPopup("my_workouts");
                     }
                     else{
                         goToCurrentWorkout();
@@ -258,5 +207,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void goToNewWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new NewWorkoutFragment(), "NEW_WORKOUT").commit();
+    }
+
+    public void showPopup(final String layout_name){
+        /*
+            Is called whenever
+         */
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        // TODO change this to the right view once i create the layout
+        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
+        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (layout_name){
+                    case "current_workout":
+                        goToCurrentWorkout();
+                        break;
+                    case "my_workouts":
+                        // TODO change once layout is made
+                        goToCurrentWorkout();
+                        break;
+                }
+                alertDialog.dismiss();
+            }
+        });
+        Button quitButton = popupView.findViewById(R.id.popupNo);
+
+        quitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nav.setCheckedItem(R.id.nav_new_workout); // since fragment didn't change, currently selected item is still new workout
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 }

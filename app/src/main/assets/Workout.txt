@@ -1,4 +1,4 @@
-TIME*W1:D1
+TIME*W1:D1*1*START
 Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*done
 Hack Squat*https://www.youtube.com/watch?v=EdtaJRBqwes
 Leg Extension*https://www.youtube.com/watch?v=YyvSfVjQeL0
@@ -10,7 +10,7 @@ Close-Grip Bench*https://youtu.be/nEF0bv2FW94?t=18
 Tricep Dip*https://youtu.be/0326dy_-CzM?t=10
 Cable Pull Down*https://youtu.be/2-LAMcpzODU?t=13
 END DAY
-TIME*W1:D2
+TIME*W1:D2*2
 Side Deltoid Raise*
 Front Deltoid Raise*
 Shrugs*
@@ -22,7 +22,7 @@ Preacher Curl*
 Hammer Curl*
 Reverse Grip barbell curl*
 END DAY
-TIME*W1:D3
+TIME*W1:D3*3
 Squat:
 Front Squat:
 Leg Extension:
@@ -34,7 +34,7 @@ One Arm Tricep Extension:
 Weighted Oblique Twists:
 Weighted Crunches:
 END DAY
-TIME*W1:D4
+TIME*W1:D4*4
 Lying Side Deltoid Raise:
 Arnold Press:
 Shrugs:
@@ -46,7 +46,7 @@ Dumbbell Curl:
 Barbell Wrist Curl:
 Reverse Grip Wrist Curl:
 END DAY
-TIME*W2:D1
+TIME*W2:D1*5
 Squat:
 Hack Squat:
 Leg Extension:
@@ -58,7 +58,7 @@ One Arm Tricep Extension:
 Dips:
 Cable Pull Down:
 END DAY
-TIME*W2:D2
+TIME*W2:D2*6
 Upright Row:
 Side Deltoid Raise:
 Front Deltoid Raise:
@@ -70,7 +70,7 @@ Preacher Curls:
 Incline Hammer Curls:
 Dumbbell Curls:
 END DAY
-TIME*W2:D3
+TIME*W2:D3*7
 Squat:
 Front Squat:
 Lunges:
@@ -82,7 +82,7 @@ Close-Grip Bench:
 Weighted Oblique Twist:
 Weighted Crunches:
 END DAY
-TIME*W2:D4
+TIME*W2:D4*8
 Military Press:
 Side Deltoid Raise:
 Front Deltoid Raise:
@@ -93,7 +93,7 @@ Preacher Curl:
 Forearm Curl:
 Reverse Forearm Curl:
 END DAY
-TIME*W3:D1
+TIME*W3:D1*9
 Lunges:
 Front Squat:
 Leg Extension:
@@ -105,7 +105,7 @@ Skull Crusher:
 Dips:
 Cable Pull Down:
 END DAY
-TIME*W3:D2
+TIME*W3:D2*10
 Lying Side Deltoid raise:
 Side Deltoid raise:
 Front Deltoid raise:
@@ -117,7 +117,7 @@ Preacher Curl:
 Hammer Curl:
 Barbell Curl:
 END DAY
-TIME*W3:D3
+TIME*W3:D3*11
 Squat:
 Front Squat:
 Lunges:
@@ -130,7 +130,7 @@ One Arm Kickback:
 Weighted Oblique Twists:
 Weighted Crunches:
 END DAY
-TIME*W3:D4
+TIME*W3:D4*12
 Arnold Press:
 Side Deltoid Raise:
 Front Deltoid Raise:
@@ -142,7 +142,7 @@ Preacher Curls:
 Forearm Curls:
 Reverse Forearm Curls:
 END DAY
-TIME*W4:D1
+TIME*W4:D1*13
 Squat:
 Front Squat:
 Lunges:
@@ -154,7 +154,7 @@ Skull Crusher:
 One Arm Tricep Extension:
 Cable Pull Down:
 END DAY
-TIME*W4:D2
+TIME*W4:D2*14
 Military Press:
 Side Deltoid Raise:
 Front Deltoid Raise:
@@ -166,7 +166,7 @@ Barbell Curl:
 Reverse Barbell Curl:
 Hammer Curl:
 END DAY
-TIME*W4:D3
+TIME*W4:D3*15
 Squat:
 Front Squat:
 Lunges:
@@ -178,7 +178,7 @@ Close-Grip Bench:
 Weighted Oblique Twists:
 Weighted Crunches:
 END DAY
-TIME*W4:D4
+TIME*W4:D4*16*END
 Arnold Press:
 Side Deltoid Raise:
 Front Deltoid Raise:
