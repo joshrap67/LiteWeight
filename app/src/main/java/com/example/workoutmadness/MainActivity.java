@@ -163,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         goToCurrentWorkout();
                     }
                 }
+                else{
+                    goToCurrentWorkout();
+                }
                 break;
 
             case R.id.nav_my_workouts:
@@ -170,13 +173,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if(((WorkoutFragment) currentFrag).isModified()){
                         Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
                     }
+                    goToMyWorkouts();
                 }
                 else if(currentFrag instanceof NewWorkoutFragment){
                     if(((NewWorkoutFragment) currentFrag).isModified()){
                         showPopup("my_workouts");
                     }
                     else{
-                        goToCurrentWorkout();
+                        goToMyWorkouts();
                     }
                 }
                 break;
@@ -209,6 +213,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new NewWorkoutFragment(), "NEW_WORKOUT").commit();
     }
 
+    public void goToMyWorkouts(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new MyWorkoutFragment(), "NY_WORKOUTS").commit();
+    }
+
+
     public void showPopup(final String layout_name){
         /*
             Is called whenever
@@ -226,8 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         goToCurrentWorkout();
                         break;
                     case "my_workouts":
-                        // TODO change once layout is made
-                        goToCurrentWorkout();
+                        goToMyWorkouts();
                         break;
                 }
                 alertDialog.dismiss();
