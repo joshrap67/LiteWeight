@@ -16,6 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 
 public class WorkoutFragment extends Fragment {
@@ -23,9 +27,9 @@ public class WorkoutFragment extends Fragment {
     private TextView dayTV;
     TableLayout table;
     private Button forwardButton, backButton;
-    private int currentDayNum=1;
+    private int currentDayNum;
     private String currentDay, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
-            DAY_DELIM="TIME", WORKOUT_FILE="Workout.txt", CURRENT_WORKOUT = "currentWorkout.txt";
+            DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", CURRENT_WORKOUT_LOG, DIRECTORY_NAME;
     private boolean modified=false, lastDay=false, firstDay=false;
 
     @Nullable
@@ -34,7 +38,10 @@ public class WorkoutFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_workout,container,false);
         forwardButton = view.findViewById(R.id.forwardButton);
         backButton = view.findViewById(R.id.previousDayButton);
-        table = (TableLayout) view.findViewById(R.id.main_table);
+        table = view.findViewById(R.id.main_table);
+        CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
+        DIRECTORY_NAME=((MainActivity)getActivity()).getDirectoryName();
+        getCurrentWorkout();
         getCurrentDayNumber();
         populateWorkouts();
         return view;
@@ -45,17 +52,18 @@ public class WorkoutFragment extends Fragment {
         Populates workouts based on the currently selected workout.
          */
         // get the workout name and update the toolbar with the name
-
-        String workoutName = "Josh's Workout";
+        String[] workoutFile = WORKOUT_FILE.split(".txt");
+        String workoutName = workoutFile[0];
         ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
         BufferedReader reader = null;
         try{
+            // progress through the file until the correct spot is found
             reader = new BufferedReader(new InputStreamReader(getContext().getAssets().open(WORKOUT_FILE)));
             String line;
             while(true){
                 // TODO make this a for loop
                 line=reader.readLine();
-                String day = findDay(line); // the day
+                String day = findDay(line); // possible day, if it is null then it is not the correct day
                 if(day!=null){
                     dayTV = view.findViewById(R.id.dayTextView);
                     dayTV.setText(day);
@@ -73,6 +81,7 @@ public class WorkoutFragment extends Fragment {
                     public void onClick(View v) {
                         currentDayNum--;
                         lastDay=false;
+                        modified=true;
                         table.removeAllViews();
                         populateWorkouts();
                     }
@@ -80,6 +89,7 @@ public class WorkoutFragment extends Fragment {
             }
             if(lastDay){
                 // TODO reset cycle
+                // TODO register on hold listener to this button to reset at any time
                 forwardButton.setText("RESET");
                 forwardButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -95,6 +105,7 @@ public class WorkoutFragment extends Fragment {
                     public void onClick(View v) {
                         currentDayNum++;
                         firstDay=false;
+                        modified=true;
                         table.removeAllViews();
                         populateWorkouts();
                     }
@@ -185,17 +196,19 @@ public class WorkoutFragment extends Fragment {
         return modified;
     }
 
-    public void getCurrentDayNumber(){
+    public void getCurrentWorkout(){
         /*
             This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentDay text file and simply returns the number corresponding to what day the user is on.
+            last left off. It looks into the currentDay text file and simply returns the workout file
+            corresponding to what workout the user currently has selected.
          */
         BufferedReader reader = null;
         try{
-            reader = new BufferedReader(new InputStreamReader(getContext().getAssets().open(CURRENT_WORKOUT)));
-            int dayNumber = Integer.parseInt(reader.readLine().split(SPLIT_DELIM)[1]);
+            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            WORKOUT_FILE = reader.readLine().split(SPLIT_DELIM)[0];
             reader.close();
-            currentDayNum = dayNumber;
         }
         catch (Exception e){
 
@@ -203,5 +216,45 @@ public class WorkoutFragment extends Fragment {
             currentDayNum=-1;
         }
 
+    }
+
+    public void getCurrentDayNumber(){
+        /*
+            This method ensures that when the app is closed and re-opened, it will pick up where the user
+            last left off. It looks into the currentDay text file and simply returns the number corresponding to what day the user is on.
+         */
+        BufferedReader reader = null;
+        try{
+            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            currentDayNum = Integer.parseInt(reader.readLine().split(SPLIT_DELIM)[1]);
+            Log.d("Number", currentDayNum+"");
+            reader.close();
+        }
+        catch (Exception e){
+
+            Log.d("ERROR","Error when trying to read day file!");
+            currentDayNum=-1;
+        }
+
+    }
+
+    public void recordToCurrentWorkoutLog(){
+        /*
+            Is called whenever the user either switches to another fragment, or exits the application. Saves the state of the
+            current workout.
+         */
+        String _data = WORKOUT_FILE+"*"+currentDayNum;
+        try{
+            Log.d("recording", "Recording to log file..."+ _data);
+            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fhandle,false));
+            writer.write(_data);
+            writer.close();
+        }
+        catch (Exception e){
+
+        }
     }
 }

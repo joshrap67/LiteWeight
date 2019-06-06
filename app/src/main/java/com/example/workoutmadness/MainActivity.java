@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
@@ -22,12 +23,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
+    private String DIRECTORY_NAME="bin", CURRENT_WORKOUT_LOG="currentWorkout.log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
+        boolean exists = checkIfDirectoryExists();
+        if(!exists){
+            createDirectory();
+        }
         toggle.syncState();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -52,33 +63,85 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void updateToolbarTitle(String aTitle) {
-        /*
-            Called by other fragments to change the string that the toolbar displays.
-         */
-        toolbarTitleTV.setText(aTitle);
-
-    }
-    public boolean fragModified(){
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        //TODO ask if wanting to save progress instead of just losing it all?
         Fragment currentFrag = getVisibleFragment();
-        if(currentFrag==null){
-            return false;
+        boolean modified = fragModified(currentFrag);
+        switch (menuItem.getItemId()) {
+            case R.id.nav_current_workout:
+                if(currentFrag instanceof NewWorkoutFragment){
+                    if(modified){
+                        showPopup("current_workout");
+                    }
+                    else{
+                        goToCurrentWorkout();
+                    }
+                }
+                else{
+                    goToCurrentWorkout();
+                }
+                break;
+
+            case R.id.nav_my_workouts:
+                if(currentFrag instanceof WorkoutFragment ){
+                    if(modified){
+                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
+                    }
+                    ((WorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                    goToMyWorkouts();
+                }
+                else if(currentFrag instanceof NewWorkoutFragment){
+                    if(modified){
+                        showPopup("my_workouts");
+                    }
+                    else{
+                        goToMyWorkouts();
+                    }
+                }
+                break;
+
+            case R.id.nav_new_workout:
+                if(currentFrag instanceof WorkoutFragment ){
+                    if(modified){
+                        // TODO save to workout file
+                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
+                    }
+                    ((WorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                    goToNewWorkout();
+                }
+                else if(!(currentFrag instanceof NewWorkoutFragment)) {
+                    goToNewWorkout();
+                }
+                break;
+
         }
-        else if(currentFrag instanceof WorkoutFragment){
-            if(((WorkoutFragment) currentFrag).isModified()){
-                return true;
-            }
-        }
-        else if(currentFrag instanceof NewWorkoutFragment){
-            if(((NewWorkoutFragment) currentFrag).isModified()){
-                return true;
-            }
-        }
-        return false;
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
+
+    @Override
+    public void onPause(){
+        Fragment visibleFragment = getVisibleFragment();
+        boolean modified=fragModified(visibleFragment);
+        if(visibleFragment instanceof WorkoutFragment){
+            if(modified){
+                Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
+                ((WorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+            }
+        }
+        else if(visibleFragment instanceof NewWorkoutFragment){
+            if(modified){
+                Toast.makeText(this, "Creating workout was modified", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onPause();
+    }
+
     @Override
     public void onBackPressed() {
         Fragment visibleFragment = getVisibleFragment();
+        boolean modified=fragModified(visibleFragment);
         boolean quit = true;
         // TODO check if new workout is being created, if so ask if user is sure they want to quit
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -87,13 +150,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             quit = false;
         }
         else if(visibleFragment instanceof WorkoutFragment){
-            if(((WorkoutFragment) visibleFragment).isModified()){
+            if(modified){
                 Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
-                quit = false;
+                ((WorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
-            if(((NewWorkoutFragment) visibleFragment).isModified()){
+            if(modified){
                 Toast.makeText(this, "Creating workout was modified", Toast.LENGTH_SHORT).show();
                 quit = false;
             }
@@ -136,6 +199,88 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public boolean checkIfDirectoryExists(){
+        File directoryHandle = getExternalFilesDir(DIRECTORY_NAME);
+        File[] contents = directoryHandle.listFiles();
+        if(contents.length>0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public void createDirectory(){
+        File directoryHandle = getExternalFilesDir(DIRECTORY_NAME);
+        directoryHandle.mkdirs();
+        File fhandle = new File(getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+        try {
+            fhandle.createNewFile();
+        } catch (Exception e) {
+            Log.d("Creating file", "Error when trying to create the "+CURRENT_WORKOUT_LOG+" file!");
+        }
+        copyFile("Josh's Workout.txt");
+        copyFile(CURRENT_WORKOUT_LOG);
+    }
+
+    public String getDirectoryName(){
+        return DIRECTORY_NAME;
+    }
+
+    public String getWorkoutLogName(){
+        return CURRENT_WORKOUT_LOG;
+    }
+
+    public void copyFile(String fileName){
+        /*
+            Would be called first time app is installed. Copies file from asset folder to internal directory of app
+         */
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        try{
+            File fhandle = new File(getExternalFilesDir(DIRECTORY_NAME), fileName);
+            writer = new BufferedWriter(new FileWriter(fhandle,false));
+            reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)));
+            String line;
+            while((line=reader.readLine())!=null){
+                writer.write(line);
+            }
+            writer.close();
+            reader.close();
+        }
+        catch (Exception e){
+
+        }
+
+    }
+
+    public void updateToolbarTitle(String aTitle) {
+        /*
+            Called by other fragments to change the string that the toolbar displays.
+         */
+        toolbarTitleTV.setText(aTitle);
+
+    }
+    public boolean fragModified(Fragment aFragment){
+        /*
+            Checks if passed in fragment has been modified
+         */
+        if(aFragment==null){
+            return false;
+        }
+        else if(aFragment instanceof WorkoutFragment){
+            if(((WorkoutFragment) aFragment).isModified()){
+                return true;
+            }
+        }
+        else if(aFragment instanceof NewWorkoutFragment){
+            if(((NewWorkoutFragment) aFragment).isModified()){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private Fragment getVisibleFragment() {
         /*
             Found on SO
@@ -147,60 +292,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return fragment;
         }
         return null;
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        //TODO ask if wanting to save progress instead of just losing it all?
-        Fragment currentFrag = getVisibleFragment();
-        switch (menuItem.getItemId()) {
-            case R.id.nav_current_workout:
-                if(currentFrag instanceof NewWorkoutFragment){
-                    if(((NewWorkoutFragment) currentFrag).isModified()){
-                        showPopup("current_workout");
-                    }
-                    else{
-                        goToCurrentWorkout();
-                    }
-                }
-                else{
-                    goToCurrentWorkout();
-                }
-                break;
-
-            case R.id.nav_my_workouts:
-                if(currentFrag instanceof WorkoutFragment ){
-                    if(((WorkoutFragment) currentFrag).isModified()){
-                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
-                    }
-                    goToMyWorkouts();
-                }
-                else if(currentFrag instanceof NewWorkoutFragment){
-                    if(((NewWorkoutFragment) currentFrag).isModified()){
-                        showPopup("my_workouts");
-                    }
-                    else{
-                        goToMyWorkouts();
-                    }
-                }
-                break;
-
-            case R.id.nav_new_workout:
-                if(currentFrag instanceof WorkoutFragment ){
-                    if(((WorkoutFragment) currentFrag).isModified()){
-                        // TODO save to file
-                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
-                    }
-                    goToNewWorkout();
-                }
-                else if(!(currentFrag instanceof NewWorkoutFragment)) {
-                    goToNewWorkout();
-                }
-                break;
-
-        }
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     public void goToCurrentWorkout(){
@@ -221,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showPopup(final String layout_name){
         /*
-            Is called whenever
+            Is called whenever the user has unfinished work in the create workout fragment.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final AlertDialog alertDialog = alertDialogBuilder.create();
