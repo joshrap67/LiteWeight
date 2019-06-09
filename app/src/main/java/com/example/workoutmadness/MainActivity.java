@@ -139,6 +139,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void onResume(){
+        Fragment visibleFragment = getVisibleFragment();
+        if(visibleFragment instanceof WorkoutFragment){
+            ((WorkoutFragment) visibleFragment).setModified(false);
+        }
+        else if(visibleFragment instanceof NewWorkoutFragment){
+            ((NewWorkoutFragment) visibleFragment).setModified(false);
+        }
+        super.onResume();
+    }
+
+    @Override
     public void onBackPressed() {
         Fragment visibleFragment = getVisibleFragment();
         boolean modified=fragModified(visibleFragment);
@@ -243,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)));
             String line;
             while((line=reader.readLine())!=null){
-                writer.write(line);
+                writer.write(line+"\n");
             }
             writer.close();
             reader.close();

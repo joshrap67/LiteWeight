@@ -126,4 +126,8 @@ public class NewWorkoutFragment extends Fragment {
          */
         return modified;
     }
+
+    public void setModified(boolean status){
+        modified=status;
+    }
 }

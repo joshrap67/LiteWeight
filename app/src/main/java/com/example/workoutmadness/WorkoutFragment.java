@@ -21,16 +21,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class WorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
     TableLayout table;
     private Button forwardButton, backButton;
-    private int currentDayNum;
-    private String currentDay, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
-            DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", CURRENT_WORKOUT_LOG, DIRECTORY_NAME;
-    private boolean modified=false, lastDay=false, firstDay=false;
+    private int currentDayNum, arrayListIndex;
+    private String currentLine, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
+            DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", EXERCISE_DONE="DONE",
+            CURRENT_WORKOUT_LOG, DIRECTORY_NAME;
+    private boolean modified=false, lastDay=false, firstDay=false, exerciseModified=false;
+    private ArrayList<String> exercises;
 
     @Nullable
     @Override
@@ -41,36 +44,43 @@ public class WorkoutFragment extends Fragment {
         table = view.findViewById(R.id.main_table);
         CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
         DIRECTORY_NAME=((MainActivity)getActivity()).getDirectoryName();
+        exercises = new ArrayList<String>();
         getCurrentWorkout();
         getCurrentDayNumber();
-        populateWorkouts();
+        if(currentDayNum!=-1){
+            populateWorkouts();
+        }
         return view;
     }
 
     public void populateWorkouts(){
         /*
-        Populates workouts based on the currently selected workout.
+        Populates exercises based on the currently selected workout.
          */
         // get the workout name and update the toolbar with the name
+        exerciseModified=false;
+        exercises.clear();
+        arrayListIndex=0;
         String[] workoutFile = WORKOUT_FILE.split(".txt");
         String workoutName = workoutFile[0];
         ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
         BufferedReader reader = null;
         try{
             // progress through the file until the correct spot is found
-            reader = new BufferedReader(new InputStreamReader(getContext().getAssets().open(WORKOUT_FILE)));
+            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
             String line;
-            while(true){
-                // TODO make this a for loop
-                line=reader.readLine();
-                String day = findDay(line); // possible day, if it is null then it is not the correct day
+            while((line=reader.readLine())!=null){
+                String day = findDay(line); // possible day, if it is null then it is not at the current day specified in file
                 if(day!=null){
                     dayTV = view.findViewById(R.id.dayTextView);
                     dayTV.setText(day);
                     break;
                 }
             }
-            // set up the forward and back buttons
+
+            // set up the back button
             if(firstDay){
                 backButton.setVisibility(View.INVISIBLE);
             }
@@ -79,14 +89,19 @@ public class WorkoutFragment extends Fragment {
                 backButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(exerciseModified){
+                            // if any exercise was checked off as completed, write to file before switching to previous day
+                            recordToWorkoutFile();
+                        }
                         currentDayNum--;
-                        lastDay=false;
-                        modified=true;
+                        modified=true; // modified since changed day
                         table.removeAllViews();
+                        lastDay=false;
                         populateWorkouts();
                     }
                 });
             }
+            // set up the forward button
             if(lastDay){
                 // TODO reset cycle
                 // TODO register on hold listener to this button to reset at any time
@@ -103,35 +118,45 @@ public class WorkoutFragment extends Fragment {
                 forwardButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(exerciseModified){
+                            // if any exercise was checked off as completed, write to file before switching to next day
+                            recordToWorkoutFile();
+                        }
                         currentDayNum++;
-                        firstDay=false;
                         modified=true;
                         table.removeAllViews();
+                        firstDay=false;
                         populateWorkouts();
                     }
                 });
             }
             // Now, loop through and populate the scroll view with all the exercises in this day
             int count =0;
-            while(!(line=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
-                final String[] strings = line.split(SPLIT_DELIM);
+            while(!(currentLine=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
+                exercises.add(currentLine);
+                final String[] strings = currentLine.split(SPLIT_DELIM);
                 TableRow row = new TableRow(getActivity());
                 TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
                 row.setLayoutParams(lp);
 
-                CheckBox exercise = new CheckBox(getActivity());
-                exercise.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        modified=true;
-                    }
-                });
-                exercise.setText(strings[0]);
-                row.addView(exercise);
+                final CheckBox exercise = new CheckBox(getActivity());
                 if(strings.length==3){
                     // means that the workout has already been done, so make sure to check the checkbox
                     exercise.setChecked(true);
                 }
+                exercise.setOnClickListener(new View.OnClickListener() {
+                    int index = arrayListIndex;
+                    String line = currentLine;
+                    boolean checked = exercise.isChecked();
+                    @Override
+                    public void onClick(View v) {
+                        updateExercise(index, line, checked);
+                        modified=true;
+                        exerciseModified=true;
+                    }
+                });
+                exercise.setText(strings[0]);
+                row.addView(exercise);
 
                 Button videoButton = new Button(getActivity());
                 videoButton.setText("Video");
@@ -150,6 +175,7 @@ public class WorkoutFragment extends Fragment {
                 });
                 row.addView(videoButton);
                 table.addView(row,count);
+                arrayListIndex++;
                 count++;
             }
             reader.close();
@@ -172,6 +198,7 @@ public class WorkoutFragment extends Fragment {
         if(delim.equalsIgnoreCase(DAY_DELIM)){
             // found a line that represents a day, see if it's the day we are indeed looking for by using the day number
             if(Integer.parseInt(strings[2])==currentDayNum){
+                // indeed the correct day number, now check if it is a last or first day before returning
                 if(strings.length==4){
                     if(strings[3].equalsIgnoreCase(START_CYCLE_DELIM)){
                         firstDay = true;
@@ -199,7 +226,7 @@ public class WorkoutFragment extends Fragment {
     public void getCurrentWorkout(){
         /*
             This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentDay text file and simply returns the workout file
+            last left off. It looks into the currentWorkout log file and simply returns the workout file
             corresponding to what workout the user currently has selected.
          */
         BufferedReader reader = null;
@@ -212,10 +239,35 @@ public class WorkoutFragment extends Fragment {
         }
         catch (Exception e){
 
-            Log.d("ERROR","Error when trying to read day file!");
+            Log.d("ERROR","Error when trying to read current workout file!"+e);
             currentDayNum=-1;
         }
 
+    }
+
+    public void updateExercise(int index, String line, boolean checked){
+        String[] strings = line.split(SPLIT_DELIM);
+        String updatedExercise;
+        if(strings.length>=2){
+            String exercise = strings[0];
+            String video = strings[1];
+            if(checked){
+                updatedExercise = exercise+"*"+video+"*";
+            }
+            else{
+                updatedExercise = exercise+"*"+video+"*"+EXERCISE_DONE;
+            }
+        }
+        else{
+            String exercise = strings[0];
+            if(checked){
+                updatedExercise = exercise+"*";
+            }
+            else{
+                updatedExercise = exercise+"*"+EXERCISE_DONE;
+            }
+        }
+        exercises.set(index, updatedExercise);
     }
 
     public void getCurrentDayNumber(){
@@ -234,7 +286,7 @@ public class WorkoutFragment extends Fragment {
         }
         catch (Exception e){
 
-            Log.d("ERROR","Error when trying to read day file!");
+            Log.d("ERROR","Error when trying to read current workout log!"+e);
             currentDayNum=-1;
         }
 
@@ -254,7 +306,76 @@ public class WorkoutFragment extends Fragment {
             writer.close();
         }
         catch (Exception e){
-
+            Log.d("ERROR","Error when trying to write to current workout log!"+e);
         }
+    }
+
+    public void recordToWorkoutFile(){
+        /*
+            Updates the workout file to include the changes that were made by the user. This
+            is called whenever the user clicks to go to another day or exits out of the fragment.
+         */
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        File fhandleOld = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
+        File fhandleNew = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), "temp");
+        try{
+            // progress through the file until the correct spot is found
+            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
+            FileReader fileR= new FileReader(fhandleOld);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                writer.write(line+"\n");
+                String day = findDay(line); // possible day, if it is null then it is not at the current day specified in file
+                if(day!=null){
+                    break;
+                }
+            }
+            int count = 0;
+            while(!(line=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
+                writer.write(exercises.get(count)+"\n");
+                count++;
+            }
+            writer.write(END_DAY_DELIM+"\n");
+            while((line=reader.readLine())!=null){
+                writer.write(line+"\n");
+            }
+            reader.close();
+            writer.close();
+            fhandleOld.delete();
+            fhandleNew.renameTo(fhandleOld);
+            exercises.clear();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to update workout file!"+e);
+        }
+    }
+
+    public void resetWorkout(){
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        File fhandleOld = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
+        File fhandleNew = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), "temp");
+        try{
+            // progress through the file until the correct spot is found
+            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
+            FileReader fileR= new FileReader(fhandleOld);
+            reader = new BufferedReader(fileR);
+            String line;
+
+            reader.close();
+            writer.close();
+            fhandleOld.delete();
+            fhandleNew.renameTo(fhandleOld);
+            exercises.clear();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to reset workout file!"+e);
+        }
+    }
+
+    public void setModified(boolean status){
+        modified=status;
     }
 }

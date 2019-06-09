@@ -1,5 +1,5 @@
 TIME*W1:D1*1*START
-Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*done
+Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*DONE
 Hack Squat*https://www.youtube.com/watch?v=EdtaJRBqwes
 Leg Extension*https://www.youtube.com/watch?v=YyvSfVjQeL0
 Leg Curl*https://www.youtube.com/watch?v=ELOCsoDSmrg
@@ -11,182 +11,182 @@ Tricep Dip*https://youtu.be/0326dy_-CzM?t=10
 Cable Pull Down*https://youtu.be/2-LAMcpzODU?t=13
 END DAY
 TIME*W1:D2*2
-Side Deltoid Raise*
-Front Deltoid Raise*
-Shrugs*
-Bent Over Row*
-Upright Row*
-Shoulder Press*
-One Arm Dumbbell Row*
-Preacher Curl*
-Hammer Curl*
-Reverse Grip barbell curl*
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Shrugs*NONE
+Bent Over Row*NONE
+Upright Row*NONE
+Shoulder Press*NONE
+One Arm Dumbbell Row*NONE
+Preacher Curl*NONE
+Hammer Curl*NONE
+Reverse Grip barbell curl*NONE
 END DAY
 TIME*W1:D3*3
-Squat*
-Front Squat*
-Leg Extension*
-Leg Curl*
-Incline Dumbbell Fly*
-Bench Press*
-Dumbbell Kickback*
-One Arm Tricep Extension*
-Weighted Oblique Twists*
-Weighted Crunches*
+Squat*NONE
+Front Squat*NONE
+Leg Extension*NONE
+Leg Curl*NONE
+Incline Dumbbell Fly*NONE
+Bench Press*NONE
+Dumbbell Kickback*NONE
+One Arm Tricep Extension*NONE
+Weighted Oblique Twists*NONE
+Weighted Crunches*NONE
 END DAY
 TIME*W1:D4*4
-Lying Side Deltoid Raise*
-Arnold Press*
-Shrugs*
-Bent Over Row*
-Good Morning*
-One Arm Dumbbell Row*
-Incline Dumbbell Curl*
-Dumbbell Curl*
-Barbell Wrist Curl*
-Reverse Grip Wrist Curl*
+Lying Side Deltoid Raise*NONE
+Arnold Press*NONE
+Shrugs*NONE
+Bent Over Row*NONE
+Good Morning*NONE
+One Arm Dumbbell Row*NONE
+Incline Dumbbell Curl*NONE
+Dumbbell Curl*NONE
+Barbell Wrist Curl*NONE
+Reverse Grip Wrist Curl*NONE
 END DAY
 TIME*W2:D1*5
-Squat*
-Hack Squat*
-Leg Extension*
-Leg Curl*
-Lunges*
-Incline Bench*
-Dumbbell Fly*
-One Arm Tricep Extension*
-Dips*
-Cable Pull Down*
+Squat*NONE
+Hack Squat*NONE
+Leg Extension*NONE
+Leg Curl*NONE
+Lunges*NONE
+Incline Bench*NONE
+Dumbbell Fly*NONE
+One Arm Tricep Extension*NONE
+Dips*NONE
+Cable Pull Down*NONE
 END DAY
 TIME*W2:D2*6
-Upright Row*
-Side Deltoid Raise*
-Front Deltoid Raise*
-Shrugs*
-Military Press*
-One Arm Dumbbell Rows*
-Cable Row*
-Preacher Curls*
-Incline Hammer Curls*
-Dumbbell Curls*
+Upright Row*NONE
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Shrugs*NONE
+Military Press*NONE
+One Arm Dumbbell Rows*NONE
+Cable Row*NONE
+Preacher Curls*NONE
+Incline Hammer Curls*NONE
+Dumbbell Curls*NONE
 END DAY
 TIME*W2:D3*7
-Squat*
-Front Squat*
-Lunges*
-Leg Extension*
-Leg Curls*
-Incline Bench*
-Incline Dumbbell Fly*
-Close-Grip Bench*
-Weighted Oblique Twist*
-Weighted Crunches*
+Squat*NONE
+Front Squat*NONE
+Lunges*NONE
+Leg Extension*NONE
+Leg Curls*NONE
+Incline Bench*NONE
+Incline Dumbbell Fly*NONE
+Close-Grip Bench*NONE
+Weighted Oblique Twist*NONE
+Weighted Crunches*NONE
 END DAY
 TIME*W2:D4*8
-Military Press*
-Side Deltoid Raise*
-Front Deltoid Raise*
-Shrugs*
-Cable Row*
-Good Mornings*
-Preacher Curl*
-Forearm Curl*
-Reverse Forearm Curl*
+Military Press*NONE
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Shrugs*NONE
+Cable Row*NONE
+Good Mornings*NONE
+Preacher Curl*NONE
+Forearm Curl*NONE
+Reverse Forearm Curl*NONE
 END DAY
 TIME*W3:D1*9
-Lunges*
-Front Squat*
-Leg Extension*
-Leg Curl*
-Calve Raise*
-Decline Bench*
-Incline Dumbbell Fly*
-Skull Crusher*
-Dips*
-Cable Pull Down*
+Lunges*NONE
+Front Squat*NONE
+Leg Extension*NONE
+Leg Curl*NONE
+Calve Raise*NONE
+Decline Bench*NONE
+Incline Dumbbell Fly*NONE
+Skull Crusher*NONE
+Dips*NONE
+Cable Pull Down*NONE
 END DAY
 TIME*W3:D2*10
-Lying Side Deltoid raise*
-Side Deltoid raise*
-Front Deltoid raise*
-Shrugs*
-Arnold Press*
-Bent Over Row*
-Cable Row*
-Preacher Curl*
-Hammer Curl*
-Barbell Curl*
+Lying Side Deltoid raise*NONE
+Side Deltoid raise*NONE
+Front Deltoid raise*NONE
+Shrugs*NONE
+Arnold Press*NONE
+Bent Over Row*NONE
+Cable Row*NONE
+Preacher Curl*NONE
+Hammer Curl*NONE
+Barbell Curl*NONE
 END DAY
 TIME*W3:D3*11
-Squat*
-Front Squat*
-Lunges*
-Leg Extension*
-Leg Curl*
-Leg Press*
-Incline Dumbbell Press*
-Dumbbell Press*
-One Arm Kickback*
-Weighted Oblique Twists*
-Weighted Crunches*
+Squat*NONE
+Front Squat*NONE
+Lunges*NONE
+Leg Extension*NONE
+Leg Curl*NONE
+Leg Press*NONE
+Incline Dumbbell Press*NONE
+Dumbbell Press*NONE
+One Arm Kickback*NONE
+Weighted Oblique Twists*NONE
+Weighted Crunches*NONE
 END DAY
 TIME*W3:D4*12
-Arnold Press*
-Side Deltoid Raise*
-Front Deltoid Raise*
-Reverse Shrugs*
-Bar Pull Down*
-Cable Row*
-Concentration Curls*
-Preacher Curls*
-Forearm Curls*
-Reverse Forearm Curls*
+Arnold Press*NONE
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Reverse Shrugs*NONE
+Bar Pull Down*NONE
+Cable Row*NONE
+Concentration Curls*NONE
+Preacher Curls*NONE
+Forearm Curls*NONE
+Reverse Forearm Curls*NONE
 END DAY
 TIME*W4:D1*13
-Squat*
-Front Squat*
-Lunges*
-Calve Raise*
-Leg Press*
-Bench Press*
-Incline Bench*
-Skull Crusher*
-One Arm Tricep Extension*
-Cable Pull Down*
+Squat*NONE
+Front Squat*NONE
+Lunges*NONE
+Calve Raise*NONE
+Leg Press*NONE
+Bench Press*NONE
+Incline Bench*NONE
+Skull Crusher*NONE
+One Arm Tricep Extension*NONE
+Cable Pull Down*NONE
 END DAY
 TIME*W4:D2*14
-Military Press*
-Side Deltoid Raise*
-Front Deltoid Raise*
-Shrugs*
-Arnold Press*
-Bent Over Row*
-Good Morning*
-Barbell Curl*
-Reverse Barbell Curl*
-Hammer Curl*
+Military Press*NONE
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Shrugs*NONE
+Arnold Press*NONE
+Bent Over Row*NONE
+Good Morning*NONE
+Barbell Curl*NONE
+Reverse Barbell Curl*NONE
+Hammer Curl*NONE
 END DAY
 TIME*W4:D3*15
-Squat*
-Front Squat*
-Lunges*
-Leg Extension*
-Leg Curl*
-Incline Bench*
-Incline Dumbbell Fly*
-Close-Grip Bench*
-Weighted Oblique Twists*
-Weighted Crunches*
+Squat*NONE
+Front Squat*NONE
+Lunges*NONE
+Leg Extension*NONE
+Leg Curl*NONE
+Incline Bench*NONE
+Incline Dumbbell Fly*NONE
+Close-Grip Bench*NONE
+Weighted Oblique Twists*NONE
+Weighted Crunches*NONE
 END DAY
 TIME*W4:D4*16*END
-Arnold Press*
-Side Deltoid Raise*
-Front Deltoid Raise*
-Reverse Shrugs*
-Military Press*
-Bar Pull Down*
-Concentration Curl*
-Incline Hammer Curl*
-Forearm Curl*
-Reverse Forearm Curl*
+Arnold Press*NONE
+Side Deltoid Raise*NONE
+Front Deltoid Raise*NONE
+Reverse Shrugs*NONE
+Military Press*NONE
+Bar Pull Down*NONE
+Concentration Curl*NONE
+Incline Hammer Curl*NONE
+Forearm Curl*NONE
+Reverse Forearm Curl*NONE
 END DAY
