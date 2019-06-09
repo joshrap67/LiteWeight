@@ -65,7 +65,7 @@ public class CurrentWorkoutFragment extends Fragment {
         arrayListIndex=0;
         String[] workoutFile = WORKOUT_FILE.split(".txt");
         String workoutName = workoutFile[0];
-        ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
+        ((MainActivity)getActivity()).updateToolbarTitle(workoutName); // TODO move this
         BufferedReader reader = null;
         try{
             // progress through the file until the correct spot is found
@@ -81,57 +81,7 @@ public class CurrentWorkoutFragment extends Fragment {
                     break;
                 }
             }
-
-            // set up the back button
-            if(firstDay){
-                backButton.setVisibility(View.INVISIBLE);
-            }
-            else{
-                backButton.setVisibility(View.VISIBLE);
-                backButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(exerciseModified){
-                            // if any exercise status was altered, write to file before switching to previous day
-                            recordToWorkoutFile();
-                        }
-                        currentDayNum--;
-                        modified=true; // modified since changed day
-                        table.removeAllViews();
-                        lastDay=false;
-                        populateWorkouts();
-                    }
-                });
-            }
-            // set up the forward button
-            if(lastDay){
-                // TODO reset cycle
-                // TODO register on hold listener to this button to reset at any time
-                forwardButton.setText("RESET");
-                forwardButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                });
-            }
-            else{
-                forwardButton.setText("Next");
-                forwardButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(exerciseModified){
-                            // if any exercise was checked off as completed, write to file before switching to next day
-                            recordToWorkoutFile();
-                        }
-                        currentDayNum++;
-                        modified=true;
-                        table.removeAllViews();
-                        firstDay=false;
-                        populateWorkouts();
-                    }
-                });
-            }
+            setupButtons();
             // Now, loop through and populate the scroll view with all the exercises in this day
             int count =0;
             while(!(currentLine=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
@@ -194,7 +144,61 @@ public class CurrentWorkoutFragment extends Fragment {
             reader.close();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to read workout file!");
+            Log.d("ERROR","Error when trying to read workout file!"+e);
+        }
+    }
+
+    public void setupButtons(){
+        if(firstDay){
+            backButton.setVisibility(View.INVISIBLE);
+        }
+        else{
+            backButton.setVisibility(View.VISIBLE);
+            backButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(exerciseModified){
+                        // if any exercise status was altered, write to file before switching to previous day
+                        recordToWorkoutFile();
+                    }
+                    currentDayNum--;
+                    modified=true; // modified since changed day
+                    table.removeAllViews();
+                    lastDay=false;
+                    populateWorkouts();
+                }
+            });
+        }
+        // set up the forward button
+        if(lastDay){
+            // TODO register on hold listener to this button to reset at any time
+            forwardButton.setText("RESET");
+            forwardButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO add popup before resetting
+                    table.removeAllViews();
+                    resetWorkout();
+                    populateWorkouts();
+                }
+            });
+        }
+        else{
+            forwardButton.setText("Next");
+            forwardButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(exerciseModified){
+                        // if any exercise was checked off as completed, write to file before switching to next day
+                        recordToWorkoutFile();
+                    }
+                    currentDayNum++;
+                    modified=true;
+                    table.removeAllViews();
+                    firstDay=false;
+                    populateWorkouts();
+                }
+            });
         }
     }
 
@@ -376,12 +380,26 @@ public class CurrentWorkoutFragment extends Fragment {
             FileReader fileR= new FileReader(fhandleOld);
             reader = new BufferedReader(fileR);
             String line;
-
+            while((line=reader.readLine())!=null){
+                String[] strings = line.split(SPLIT_DELIM);
+                if(!strings[0].equalsIgnoreCase(END_DAY_DELIM)&&!strings[0].equalsIgnoreCase(START_CYCLE_DELIM)&&
+                        !strings[0].equalsIgnoreCase(END_DAY_DELIM)&&!strings[0].equalsIgnoreCase(DAY_DELIM)){
+                    String upatedExercise = strings[0]+"*"+strings[1]+"\n";
+                    writer.write(upatedExercise);
+                }
+                else{
+                    writer.write(line+"\n");
+                }
+            }
             reader.close();
             writer.close();
             fhandleOld.delete();
             fhandleNew.renameTo(fhandleOld);
+
             exercises.clear();
+            currentDayNum=1;
+            lastDay=false;
+            firstDay=true;
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to reset workout file!"+e);
