@@ -21,7 +21,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,6 +38,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //TODO implement timer??? For in between reps
+        /*
+        <div>Icons made by <a href="https://www.flaticon.com/authors/monkik" title="monkik">monkik</a> from <a href="https://www.flaticon.com/"
+        title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+        title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -58,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new WorkoutFragment()).commit();
+                    new CurrentWorkoutFragment()).commit();
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
@@ -84,11 +88,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_my_workouts:
-                if(currentFrag instanceof WorkoutFragment ){
+                if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
+                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
                     }
-                    ((WorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
                     goToMyWorkouts();
                 }
                 else if(currentFrag instanceof NewWorkoutFragment){
@@ -102,12 +106,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_new_workout:
-                if(currentFrag instanceof WorkoutFragment ){
+                if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        // TODO save to workout file
-                        Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
+                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
                     }
-                    ((WorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+
                     goToNewWorkout();
                 }
                 else if(!(currentFrag instanceof NewWorkoutFragment)) {
@@ -124,15 +128,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onPause(){
         Fragment visibleFragment = getVisibleFragment();
         boolean modified=fragModified(visibleFragment);
-        if(visibleFragment instanceof WorkoutFragment){
+        if(visibleFragment instanceof CurrentWorkoutFragment){
             if(modified){
-                Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
-                ((WorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
             if(modified){
-                Toast.makeText(this, "Creating workout was modified", Toast.LENGTH_SHORT).show();
+                // TODO idk
             }
         }
         super.onPause();
@@ -141,8 +145,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onResume(){
         Fragment visibleFragment = getVisibleFragment();
-        if(visibleFragment instanceof WorkoutFragment){
-            ((WorkoutFragment) visibleFragment).setModified(false);
+        if(visibleFragment instanceof CurrentWorkoutFragment){
+            /*
+                Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
+                of logical errors. So just delete old fragment and launch new
+            */
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                    new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
             ((NewWorkoutFragment) visibleFragment).setModified(false);
@@ -161,15 +170,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
             quit = false;
         }
-        else if(visibleFragment instanceof WorkoutFragment){
+        else if(visibleFragment instanceof CurrentWorkoutFragment){
             if(modified){
-                Toast.makeText(this, "Workout was modified", Toast.LENGTH_SHORT).show();
-                ((WorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
             if(modified){
-                Toast.makeText(this, "Creating workout was modified", Toast.LENGTH_SHORT).show();
                 quit = false;
             }
         }
@@ -280,8 +287,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(aFragment==null){
             return false;
         }
-        else if(aFragment instanceof WorkoutFragment){
-            if(((WorkoutFragment) aFragment).isModified()){
+        else if(aFragment instanceof CurrentWorkoutFragment){
+            if(((CurrentWorkoutFragment) aFragment).isModified()){
                 return true;
             }
         }
@@ -308,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void goToCurrentWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new WorkoutFragment(), "CURRENT_WORKOUT").commit();
+                new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();
     }
 
     public void goToNewWorkout(){
@@ -328,7 +335,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        // TODO change this to the right view once i create the layout
         final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
         Button confirmButton = popupView.findViewById(R.id.popupYes);
         confirmButton.setOnClickListener(new View.OnClickListener() {

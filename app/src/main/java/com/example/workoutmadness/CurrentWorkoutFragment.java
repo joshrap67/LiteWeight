@@ -1,5 +1,8 @@
 package com.example.workoutmadness;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,10 +23,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class WorkoutFragment extends Fragment {
+public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
     TableLayout table;
@@ -90,7 +92,7 @@ public class WorkoutFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if(exerciseModified){
-                            // if any exercise was checked off as completed, write to file before switching to previous day
+                            // if any exercise status was altered, write to file before switching to previous day
                             recordToWorkoutFile();
                         }
                         currentDayNum--;
@@ -148,6 +150,7 @@ public class WorkoutFragment extends Fragment {
                     int index = arrayListIndex;
                     String line = currentLine;
                     boolean checked = exercise.isChecked();
+
                     @Override
                     public void onClick(View v) {
                         updateExercise(index, line, checked);
@@ -165,12 +168,22 @@ public class WorkoutFragment extends Fragment {
                     public void onClick(View v) {
                         if(strings.length>=2){
                             String URL = strings[1];
-                            // TODO actually launch youtube
-                            Toast.makeText(getActivity(), URL, Toast.LENGTH_LONG).show();
+                            if(!URL.equalsIgnoreCase("none")){
+                                // found on SO
+                                Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                                try{
+                                    getContext().startActivity(appIntent);
+                                }
+                                catch(ActivityNotFoundException ex) {
+                                    getContext().startActivity(webIntent);
+                                }
+                            }
+                            else{
+                                Toast.makeText(getActivity(), "No video found", Toast.LENGTH_LONG).show();
+                            }
                         }
-                        else{
-                            Toast.makeText(getActivity(), "No video found", Toast.LENGTH_LONG).show();
-                        }
+
                     }
                 });
                 row.addView(videoButton);
