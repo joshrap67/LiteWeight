@@ -21,4 +21,7 @@
     <string name="nav_create_icon_title">Create Workout</string>
     <string name="nav_list_icon_title">My Workouts</string>
     <string name="forward_button">Next</string>
+    <string name="reset_workout_title">Reset Workout?</string>
+    <string name="reset_msg">Do you wish to reset this workout? If so, you will be taken back
+    to the first day of the workout with all exercises reset.</string>
 </resources>

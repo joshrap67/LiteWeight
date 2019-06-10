@@ -1,5 +1,6 @@
 package com.example.workoutmadness;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -50,7 +51,13 @@ public class CurrentWorkoutFragment extends Fragment {
         getCurrentWorkout();
         getCurrentDayNumber();
         if(currentDayNum!=-1){
+            String[] workoutFile = WORKOUT_FILE.split(".txt");
+            String workoutName = workoutFile[0];
+            ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
             populateWorkouts();
+        }
+        else{
+            //TODO add error screen
         }
         return view;
     }
@@ -59,13 +66,11 @@ public class CurrentWorkoutFragment extends Fragment {
         /*
         Populates exercises based on the currently selected workout.
          */
-        // get the workout name and update the toolbar with the name
         exerciseModified=false;
         exercises.clear();
         arrayListIndex=0;
-        String[] workoutFile = WORKOUT_FILE.split(".txt");
-        String workoutName = workoutFile[0];
-        ((MainActivity)getActivity()).updateToolbarTitle(workoutName); // TODO move this
+        // get the workout name and update the toolbar with the name
+         // TODO move this
         BufferedReader reader = null;
         try{
             // progress through the file until the correct spot is found
@@ -149,6 +154,7 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public void setupButtons(){
+        // setup back button
         if(firstDay){
             backButton.setVisibility(View.INVISIBLE);
         }
@@ -169,19 +175,16 @@ public class CurrentWorkoutFragment extends Fragment {
                 }
             });
         }
-        // set up the forward button
+        // set up the forward button, make it so user can always reset if holding down button
         if(lastDay){
-            // TODO register on hold listener to this button to reset at any time
             forwardButton.setText("RESET");
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO add popup before resetting
-                    table.removeAllViews();
-                    resetWorkout();
-                    populateWorkouts();
+                    resetPopup();
                 }
             });
+
         }
         else{
             forwardButton.setText("Next");
@@ -197,6 +200,13 @@ public class CurrentWorkoutFragment extends Fragment {
                     table.removeAllViews();
                     firstDay=false;
                     populateWorkouts();
+                }
+            });
+            forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    resetPopup();
+                    return true;
                 }
             });
         }
@@ -406,7 +416,30 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    public void setModified(boolean status){
-        modified=status;
+    public void resetPopup(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        final View popupView = getLayoutInflater().inflate(R.layout.reset_popup, null);
+        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                table.removeAllViews();
+                resetWorkout();
+                populateWorkouts();
+                alertDialog.dismiss();
+            }
+        });
+        Button quitButton = popupView.findViewById(R.id.popupNo);
+
+        quitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 }
