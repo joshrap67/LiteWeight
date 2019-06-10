@@ -51,6 +51,7 @@ public class CurrentWorkoutFragment extends Fragment {
         getCurrentWorkout();
         getCurrentDayNumber();
         if(currentDayNum!=-1){
+            // get the workout name and update the toolbar with the name
             String[] workoutFile = WORKOUT_FILE.split(".txt");
             String workoutName = workoutFile[0];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
@@ -69,8 +70,6 @@ public class CurrentWorkoutFragment extends Fragment {
         exerciseModified=false;
         exercises.clear();
         arrayListIndex=0;
-        // get the workout name and update the toolbar with the name
-         // TODO move this
         BufferedReader reader = null;
         try{
             // progress through the file until the correct spot is found
@@ -153,7 +152,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    public void setupButtons(){
+    private void setupButtons(){
         // setup back button
         if(firstDay){
             backButton.setVisibility(View.INVISIBLE);
@@ -212,7 +211,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    public String findDay(String _data){
+    private String findDay(String _data){
         /*
             This method is used to parse a line of the workout text file. It splits the line on the given
             delimiter and then returns that title of the day.
@@ -250,7 +249,7 @@ public class CurrentWorkoutFragment extends Fragment {
         return modified;
     }
 
-    public void getCurrentWorkout(){
+    private void getCurrentWorkout(){
         /*
             This method ensures that when the app is closed and re-opened, it will pick up where the user
             last left off. It looks into the currentWorkout log file and simply returns the workout file
@@ -272,7 +271,7 @@ public class CurrentWorkoutFragment extends Fragment {
 
     }
 
-    public void updateExercise(int index, String line, boolean checked){
+    private void updateExercise(int index, String line, boolean checked){
         String[] strings = line.split(SPLIT_DELIM);
         String updatedExercise;
         if(strings.length>=2){
@@ -297,7 +296,7 @@ public class CurrentWorkoutFragment extends Fragment {
         exercises.set(index, updatedExercise);
     }
 
-    public void getCurrentDayNumber(){
+    private void getCurrentDayNumber(){
         /*
             This method ensures that when the app is closed and re-opened, it will pick up where the user
             last left off. It looks into the currentDay text file and simply returns the number corresponding to what day the user is on.
