@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
-    TableLayout table;
+    private TableLayout table;
     private Button forwardButton, backButton;
     private int currentDayNum, arrayListIndex;
     private String currentLine, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
@@ -409,6 +409,7 @@ public class CurrentWorkoutFragment extends Fragment {
             currentDayNum=1;
             lastDay=false;
             firstDay=true;
+            modified=true;
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to reset workout file!"+e);
@@ -416,6 +417,9 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public void resetPopup(){
+        if(!exerciseModified && !modified){
+            return;
+        }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         final AlertDialog alertDialog = alertDialogBuilder.create();
         final View popupView = getLayoutInflater().inflate(R.layout.reset_popup, null);

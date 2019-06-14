@@ -24,4 +24,12 @@
     <string name="reset_workout_title">Reset Workout?</string>
     <string name="reset_msg">Do you wish to reset this workout? If so, you will be taken back
     to the first day of the workout with all exercises reset.</string>
+    <string name="exercise_title">Add exercise</string>
+    <string-array name="exercise_clusters">
+        <item>Legs</item>
+        <item>Arms</item>
+        <item>Chest</item>
+        <item>Cardio</item>
+        <item>Back</item>
+    </string-array>
 </resources>

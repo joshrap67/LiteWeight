@@ -77,13 +77,13 @@
         android:layout_marginBottom="8dp"
         android:text="@string/number_of_weeks"
         android:textSize="30sp"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/dayInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/workoutNameTV"
         app:layout_constraintVertical_bias="0.13"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
     <EditText
         android:id="@+id/weekInput"
@@ -97,14 +97,14 @@
         android:layout_marginBottom="64dp"
         android:ems="10"
         android:inputType="number"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/dayTV"
         app:layout_constraintTop_toBottomOf="@+id/workoutNameInput"
         app:layout_constraintVertical_bias="0.218"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/dayTV"
@@ -118,13 +118,13 @@
         android:layout_marginBottom="8dp"
         android:text="@string/number_of_days"
         android:textSize="30sp"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/dayInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weekTV"
         app:layout_constraintVertical_bias="0.18"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
     <EditText
         android:id="@+id/dayInput"
@@ -138,14 +138,14 @@
         android:layout_marginBottom="64dp"
         android:ems="10"
         android:inputType="number"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/dayTV"
         app:layout_constraintTop_toBottomOf="@+id/weekInput"
         app:layout_constraintVertical_bias="0.315"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/nextButton"
@@ -159,11 +159,11 @@
         android:layout_marginBottom="8dp"
         android:background="@android:color/holo_green_dark"
         android:text="@string/button_continue"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dayInput"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

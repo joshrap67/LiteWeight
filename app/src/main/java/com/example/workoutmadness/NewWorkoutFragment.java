@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class NewWorkoutFragment extends Fragment {
-    private boolean modified = false;
-    private EditText workoutNameInput, numWeeks, numDays;
-    private TextView numWeeksTV, numDaysTV;
+    private boolean modified = false, dayValid=false, weekValid=false, nameValid=false;
+    private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button nextButton;
     private View view;
-    private String lastName, lastWeek, lastDay;
+    private int finalDayNum, finalWeekNum;
+    private String finalName;
 
     @Nullable
     @Override
@@ -33,68 +34,88 @@ public class NewWorkoutFragment extends Fragment {
 
     public void initViews() {
         workoutNameInput = view.findViewById(R.id.workoutNameInput);
-        numWeeks = view.findViewById(R.id.weekInput);
-        numDays = view.findViewById(R.id.dayInput);
-        numWeeksTV = view.findViewById(R.id.weekTV);
-        numDaysTV = view.findViewById(R.id.dayTV);
+        numWeeksInput = view.findViewById(R.id.weekInput);
+        numDaysInput = view.findViewById(R.id.dayInput);
         nextButton = view.findViewById(R.id.nextButton);
         // TODO hide keyboard when clicking elsewhere
         // TODO check if workout name already exists
-        // TODO check if user deleted the name, same with number of weeks and days at the end
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     if (!workoutNameInput.getText().toString().equalsIgnoreCase("")) {
-                        lastName = workoutNameInput.getText().toString();
-                        numWeeks.setVisibility(View.VISIBLE);
-                        numWeeksTV.setVisibility(View.VISIBLE);
                         modified = true;
+                        nameValid=true;
                         return true;
                     } else {
-                        workoutNameInput.setText(lastName);
-                        Toast.makeText(getActivity(), "Enter valid name", Toast.LENGTH_SHORT).show();
+                        nameValid=false;
+                        workoutNameInput.setError("Enter valid name!");
                     }
                 }
                 return false;
             }
         });
 
-        numWeeks.setOnKeyListener(new View.OnKeyListener() {
+        numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!numWeeks.getText().toString().equalsIgnoreCase("")) {
-                        boolean validWeek = checkValidWeek(numWeeks.getText().toString());
+                    if (!numWeeksInput.getText().toString().equalsIgnoreCase("")) {
+                        boolean validWeek = checkValidWeek(numWeeksInput.getText().toString());
                         if (validWeek) {
-                            lastWeek = numWeeks.getText().toString();
-                            numDays.setVisibility(View.VISIBLE);
-                            numDaysTV.setVisibility(View.VISIBLE);
+                            modified=true;
+                            weekValid=true;
                             return true;
                         } else {
-                            numWeeks.setText(lastWeek);
-                            Toast.makeText(getActivity(), "Enter value between 1-8", Toast.LENGTH_SHORT).show();
+                            weekValid=false;
+                            numWeeksInput.setError("Enter value between 1-8!");
+                            numWeeksInput.setText("");
                         }
+                    }
+                    else{
+                        weekValid=false;
+                        numWeeksInput.setError("Enter value between 1-8!");
+                        numWeeksInput.setText("");
                     }
                 }
                 return false;
             }
         });
 
-        numDays.setOnKeyListener(new View.OnKeyListener() {
+        numDaysInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!numDays.getText().toString().equalsIgnoreCase("")) {
-                        boolean validDay = checkValidDay(numDays.getText().toString());
+                    if (!numDaysInput.getText().toString().equalsIgnoreCase("")) {
+                        boolean validDay = checkValidDay(numDaysInput.getText().toString());
                         if (validDay) {
-                            lastDay = numDays.getText().toString();
-                            nextButton.setVisibility(View.VISIBLE);
+                            modified=true;
+                            dayValid=true;
                             return true;
                         } else {
-                            numDays.setText(lastDay);
-                            Toast.makeText(getActivity(), "Enter value between 1-7", Toast.LENGTH_SHORT).show();
+                            dayValid=false;
+                            numDaysInput.setError("Enter value between 1-7!");
+                            numDaysInput.setText("");
                         }
+                    }
+                    else{
+                        dayValid=false;
+                        numDaysInput.setError("Enter value between 1-7!");
+                        numDaysInput.setText("");
                     }
                 }
                 return false;
+            }
+        });
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(dayValid && weekValid && nameValid){
+                    finalName=workoutNameInput.getText().toString().trim();
+                    finalDayNum=Integer.parseInt(numDaysInput.getText().toString());
+                    finalWeekNum=Integer.parseInt(numWeeksInput.getText().toString());
+                    createWorkout();
+                }
+                else{
+                    Toast.makeText(getContext(), "Ensure all fields above are valid!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -116,7 +137,13 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public void createWorkout() {
-
+        //TODO change the view
+        for(int i=0;i<finalWeekNum;i++){
+            for(int j=0;j<finalDayNum;j++){
+                String displayedName = "W"+(i+1)+":D"+(j+1);
+                Toast.makeText(getContext(), displayedName, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     public boolean isModified() {
