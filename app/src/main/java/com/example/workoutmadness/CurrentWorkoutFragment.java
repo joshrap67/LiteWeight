@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Chronometer;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -30,13 +32,15 @@ public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
     private TableLayout table;
-    private Button forwardButton, backButton;
+    private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer;
     private int currentDayNum, arrayListIndex;
     private String currentLine, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
             DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", EXERCISE_DONE="DONE",
             CURRENT_WORKOUT_LOG, DIRECTORY_NAME;
-    private boolean modified=false, lastDay=false, firstDay=false, exerciseModified=false;
+    private boolean modified=false, lastDay=false, firstDay=false, exerciseModified=false, timerRunning=false;
     private ArrayList<String> exercises;
+    private Chronometer timer;
+    private long lastTime;
 
     @Nullable
     @Override
@@ -44,10 +48,17 @@ public class CurrentWorkoutFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_workout,container,false);
         forwardButton = view.findViewById(R.id.forwardButton);
         backButton = view.findViewById(R.id.previousDayButton);
+        startTimer=view.findViewById(R.id.start_timer);
+        stopTimer=view.findViewById(R.id.stop_timer);
+        resetTimer=view.findViewById(R.id.reset_timer);
+        hideTimer=view.findViewById(R.id.hide_timer);
         table = view.findViewById(R.id.main_table);
+        timer = view.findViewById(R.id.timer);
+
         CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
         DIRECTORY_NAME=((MainActivity)getActivity()).getDirectoryName();
         exercises = new ArrayList<String>();
+
         getCurrentWorkout();
         getCurrentDayNumber();
         if(currentDayNum!=-1){
@@ -55,6 +66,8 @@ public class CurrentWorkoutFragment extends Fragment {
             String[] workoutFile = WORKOUT_FILE.split(".txt");
             String workoutName = workoutFile[0];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
+            initTimer();
+
             populateWorkouts();
         }
         else{
@@ -445,4 +458,47 @@ public class CurrentWorkoutFragment extends Fragment {
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
     }
+
+    public void initTimer(){
+        startTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startTimer();
+            }
+        });
+        stopTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopTimer();
+            }
+        });
+        resetTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetTimer();
+            }
+        });
+
+    }
+    public void startTimer(){
+        if(!timerRunning){
+            timer.setBase(SystemClock.elapsedRealtime()-lastTime);
+            timer.start();
+            timerRunning=true;
+        }
+    }
+
+    public void stopTimer(){
+        if(timerRunning){
+            timer.stop();
+            lastTime=SystemClock.elapsedRealtime()-timer.getBase();
+            timerRunning=false;
+        }
+    }
+
+    public void resetTimer(){
+        timer.setBase(SystemClock.elapsedRealtime());
+        lastTime=0;
+    }
 }
+
