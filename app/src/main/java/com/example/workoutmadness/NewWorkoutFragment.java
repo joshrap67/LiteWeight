@@ -40,7 +40,7 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    boolean validName = checkValidWeek(workoutNameInput.getText().toString());
+                    boolean validName = checkValidName(workoutNameInput.getText().toString());
                     if (validName) {
                         modified=true;
                         return true;
