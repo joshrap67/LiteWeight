@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         boolean exists = checkIfDirectoryExists();
         if(!exists){
-            createDirectory();
+            createDirectory(DIRECTORY_NAME);
         }
         toggle.syncState();
         if (savedInstanceState == null) {
@@ -229,10 +229,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void createDirectory(){
-        File directoryHandle = getExternalFilesDir(DIRECTORY_NAME);
+    public void createDirectory(String directoryName){
+        File directoryHandle = getExternalFilesDir(directoryName);
         directoryHandle.mkdirs();
-        File fhandle = new File(getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+        File fhandle = new File(getExternalFilesDir(directoryName), CURRENT_WORKOUT_LOG);
         try {
             fhandle.createNewFile();
         } catch (Exception e) {

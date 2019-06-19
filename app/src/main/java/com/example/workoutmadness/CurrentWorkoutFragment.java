@@ -57,7 +57,7 @@ public class CurrentWorkoutFragment extends Fragment {
 
         CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
         DIRECTORY_NAME=((MainActivity)getActivity()).getDirectoryName();
-        exercises = new ArrayList<String>();
+        exercises = new ArrayList<>();
 
         getCurrentWorkout();
         getCurrentDayNumber();
@@ -66,6 +66,7 @@ public class CurrentWorkoutFragment extends Fragment {
             String[] workoutFile = WORKOUT_FILE.split(".txt");
             String workoutName = workoutFile[0];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
+            //TODO find out if the user enabled timer or not? or just require timer for this app
             initTimer();
 
             populateWorkouts();
@@ -482,6 +483,7 @@ public class CurrentWorkoutFragment extends Fragment {
     }
     public void startTimer(){
         if(!timerRunning){
+            // TODO timer is reset when app goes into onpause
             timer.setBase(SystemClock.elapsedRealtime()-lastTime);
             timer.start();
             timerRunning=true;

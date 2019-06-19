@@ -11,11 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class NewWorkoutFragment extends Fragment {
-    private boolean modified = false, dayValid=false, weekValid=false, nameValid=false;
+    private boolean modified = false;
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button nextButton;
     private View view;
@@ -38,17 +37,15 @@ public class NewWorkoutFragment extends Fragment {
         numDaysInput = view.findViewById(R.id.dayInput);
         nextButton = view.findViewById(R.id.nextButton);
         // TODO hide keyboard when clicking elsewhere
-        // TODO check if workout name already exists
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!workoutNameInput.getText().toString().equalsIgnoreCase("")) {
-                        modified = true;
-                        nameValid=true;
+                    boolean validName = checkValidWeek(workoutNameInput.getText().toString());
+                    if (validName) {
+                        modified=true;
                         return true;
                     } else {
-                        nameValid=false;
-                        workoutNameInput.setError("Enter valid name!");
+                        displayNameError();
                     }
                 }
                 return false;
@@ -58,59 +55,48 @@ public class NewWorkoutFragment extends Fragment {
         numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!numWeeksInput.getText().toString().equalsIgnoreCase("")) {
-                        boolean validWeek = checkValidWeek(numWeeksInput.getText().toString());
-                        if (validWeek) {
-                            modified=true;
-                            weekValid=true;
-                            return true;
-                        } else {
-                            weekValid=false;
-                            numWeeksInput.setError("Enter value between 1-8!");
-                            numWeeksInput.setText("");
-                        }
+                    boolean validWeek = checkValidWeek(numWeeksInput.getText().toString());
+                    if (validWeek) {
+                        modified=true;
+                        return true;
                     }
-                    else{
-                        weekValid=false;
-                        numWeeksInput.setError("Enter value between 1-8!");
-                        numWeeksInput.setText("");
+                    else {
+                        displayWeeksError();
+                    }
+                }
+                return false;
+            }
+        });
+        numDaysInput.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
+                if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    boolean validDay = checkValidDay(numDaysInput.getText().toString());
+                    if (validDay) {
+                        modified=true;
+                        return true;
+                    }
+                    else {
+                        displayDaysError();
                     }
                 }
                 return false;
             }
         });
 
-        numDaysInput.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!numDaysInput.getText().toString().equalsIgnoreCase("")) {
-                        boolean validDay = checkValidDay(numDaysInput.getText().toString());
-                        if (validDay) {
-                            modified=true;
-                            dayValid=true;
-                            return true;
-                        } else {
-                            dayValid=false;
-                            numDaysInput.setError("Enter value between 1-7!");
-                            numDaysInput.setText("");
-                        }
-                    }
-                    else{
-                        dayValid=false;
-                        numDaysInput.setError("Enter value between 1-7!");
-                        numDaysInput.setText("");
-                    }
-                }
-                return false;
-            }
-        });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dayValid && weekValid && nameValid){
-                    finalName=workoutNameInput.getText().toString().trim();
-                    finalDayNum=Integer.parseInt(numDaysInput.getText().toString());
-                    finalWeekNum=Integer.parseInt(numWeeksInput.getText().toString());
+                String currentName=workoutNameInput.getText().toString();
+                String currentWeeks=numWeeksInput.getText().toString();
+                String currentDays=numDaysInput.getText().toString();
+                boolean validName = checkValidName(currentName);
+                boolean validWeeks=checkValidWeek(currentWeeks);
+                boolean validDays=checkValidDay(currentDays);
+
+                if(validName&&validWeeks&&validDays){
+                    finalName=currentName.trim();
+                    finalWeekNum=Integer.parseInt(currentWeeks);
+                    finalDayNum=Integer.parseInt(currentDays);
                     createWorkout();
                 }
                 else{
@@ -120,20 +106,54 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
+    public boolean checkValidName(String aName){
+        if((aName.length()>0)&&(aName.length()<500)){
+            return true;
+        }
+        // TODO check if workout name already exists
+        displayNameError();
+        return false;
+    }
+
     public boolean checkValidWeek(String aWeek) {
+        if(aWeek.length()==0){
+            displayWeeksError();
+            return false;
+        }
         int week = Integer.parseInt(aWeek);
         if (week > 0 && week < 9) {
             return true;
         }
+        displayWeeksError();
         return false;
     }
 
     public boolean checkValidDay(String aDay) {
+        if(aDay.length()==0){
+            displayDaysError();
+            return false;
+        }
         int day = Integer.parseInt(aDay);
         if (day > 0 && day < 8) {
             return true;
         }
+        displayDaysError();
         return false;
+    }
+
+    public void displayNameError(){
+        workoutNameInput.setError("Enter a valid name");
+        workoutNameInput.setText("");
+    }
+
+    public void displayWeeksError(){
+        numWeeksInput.setError("Enter value between 1-8!");
+        numWeeksInput.setText("");
+    }
+
+    public void displayDaysError(){
+        numDaysInput.setError("Enter value between 1-7!");
+        numDaysInput.setText("");
     }
 
     public void createWorkout() {
