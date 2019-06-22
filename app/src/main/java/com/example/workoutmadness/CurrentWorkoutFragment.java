@@ -32,7 +32,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
     private TableLayout table;
-    private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer;
+    private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayNum, arrayListIndex;
     private String currentLine, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
             DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", EXERCISE_DONE="DONE",
@@ -52,6 +52,8 @@ public class CurrentWorkoutFragment extends Fragment {
         stopTimer=view.findViewById(R.id.stop_timer);
         resetTimer=view.findViewById(R.id.reset_timer);
         hideTimer=view.findViewById(R.id.hide_timer);
+        showTimer=view.findViewById(R.id.show_timer);
+        showTimer.setVisibility(View.INVISIBLE);
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
 
@@ -479,6 +481,19 @@ public class CurrentWorkoutFragment extends Fragment {
                 resetTimer();
             }
         });
+        hideTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideTimer();
+            }
+        });
+        showTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimer();
+            }
+        });
+
 
     }
     public void startTimer(){
@@ -501,6 +516,26 @@ public class CurrentWorkoutFragment extends Fragment {
     public void resetTimer(){
         timer.setBase(SystemClock.elapsedRealtime());
         lastTime=0;
+    }
+
+    public void hideTimer(){
+        startTimer.setVisibility(View.INVISIBLE);
+        stopTimer.setVisibility(View.INVISIBLE);
+        resetTimer.setVisibility(View.INVISIBLE);
+        hideTimer.setVisibility(View.INVISIBLE);
+        stopTimer();
+        resetTimer();
+        timer.setVisibility(View.INVISIBLE);
+        showTimer.setVisibility(View.VISIBLE);
+    }
+
+    public void showTimer(){
+        startTimer.setVisibility(View.VISIBLE);
+        stopTimer.setVisibility(View.VISIBLE);
+        resetTimer.setVisibility(View.VISIBLE);
+        hideTimer.setVisibility(View.VISIBLE);
+        timer.setVisibility(View.VISIBLE);
+        showTimer.setVisibility(View.INVISIBLE);
     }
 }
 

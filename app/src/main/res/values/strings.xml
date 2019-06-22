@@ -36,4 +36,5 @@
     <string name="stop_button">Stop</string>
     <string name="hide_timer">Hide</string>
     <string name="reset_timer">Reset</string>
+    <string name="show_timer">Timer</string>
 </resources>
