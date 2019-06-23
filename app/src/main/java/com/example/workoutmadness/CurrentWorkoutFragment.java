@@ -114,6 +114,8 @@ public class CurrentWorkoutFragment extends Fragment {
                 final CheckBox exercise = new CheckBox(getActivity());
                 if(strings.length==3){
                     // means that the workout has already been done, so make sure to check the checkbox
+                    //TODO do this in a better way other than the length
+                    exerciseModified=true;
                     exercise.setChecked(true);
                 }
                 exercise.setOnClickListener(new View.OnClickListener() {
@@ -220,7 +222,9 @@ public class CurrentWorkoutFragment extends Fragment {
             forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    resetPopup();
+                    if(exerciseModified){
+                        resetPopup();
+                    }
                     return true;
                 }
             });
@@ -426,6 +430,7 @@ public class CurrentWorkoutFragment extends Fragment {
             lastDay=false;
             firstDay=true;
             modified=true;
+            exerciseModified=false;
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to reset workout file!"+e);
