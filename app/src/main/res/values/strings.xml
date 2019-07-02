@@ -37,4 +37,5 @@
     <string name="hide_timer">Hide</string>
     <string name="reset_timer">Reset</string>
     <string name="show_timer">Timer</string>
+    <string name="add_exercises">Add Exercises</string>
 </resources>

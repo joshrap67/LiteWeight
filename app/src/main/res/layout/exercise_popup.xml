@@ -37,14 +37,14 @@
         android:layout_marginBottom="28dp"
         android:entries="@array/exercise_clusters"
         android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popupTitle" />
 
-    <ListView
-        android:id="@+id/listView"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="336dp"
         android:layout_height="456dp"
         android:layout_marginStart="34dp"
@@ -55,7 +55,14 @@
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clusterSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/clusterSpinner">
+
+        <TableLayout
+            android:id="@+id/main_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="0" />
+    </ScrollView>
 
     <ImageView
         android:id="@+id/imageView"
