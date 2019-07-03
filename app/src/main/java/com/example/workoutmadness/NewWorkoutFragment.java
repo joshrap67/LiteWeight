@@ -24,11 +24,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class NewWorkoutFragment extends Fragment {
     private boolean modified = false, firstDay, lastDay;
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
-    private Button nextButton, previousDayBtn, nextDayBtn;
+    private Button previousDayBtn, nextDayBtn;
     private int finalDayNum, finalWeekNum;
     private String finalName;
     private View view, popupView;
@@ -38,6 +39,7 @@ public class NewWorkoutFragment extends Fragment {
     private int currentDayIndex, maxDayIndex;
     private TextView dayTitle;
     private ViewGroup fragmentContainer;
+    private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
 
 
     @Nullable
@@ -56,7 +58,7 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput = view.findViewById(R.id.workoutNameInput);
         numWeeksInput = view.findViewById(R.id.weekInput);
         numDaysInput = view.findViewById(R.id.dayInput);
-        nextButton = view.findViewById(R.id.nextButton);
+        Button nextButton = view.findViewById(R.id.nextButton);
         // TODO hide keyboard when clicking elsewhere
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
@@ -176,7 +178,6 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public void createWorkout() {
-        // have array of lists. Each index is the day?
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View createWorkoutView = inflater.inflate(R.layout.create_workout, fragmentContainer,false);
         ViewGroup rootView = (ViewGroup) getView();
@@ -185,6 +186,9 @@ public class NewWorkoutFragment extends Fragment {
         displayedExercisesTable = createWorkoutView.findViewById(R.id.main_table);
         dayTitle = createWorkoutView.findViewById(R.id.dayTextView);
         updateDayTitle();
+        for(int i=0;i<=maxDayIndex;i++){
+            exercises.put(i, new ArrayList<String>());
+        }
         setButtons(createWorkoutView);
     }
 
@@ -199,7 +203,7 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public void setButtons(View _view){
-        Button addExercises = _view.findViewById(R.id.add_exercises);
+        final Button addExercises = _view.findViewById(R.id.add_exercises);
         addExercises.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,10 +214,15 @@ public class NewWorkoutFragment extends Fragment {
         previousDayBtn=_view.findViewById(R.id.previousDayButton);
         nextDayBtn=_view.findViewById(R.id.nextDayButton);
         previousDayBtn.setVisibility(View.INVISIBLE);
+        if(maxDayIndex==0){
+            // in case some jabroni only wants to workout one day total
+            nextDayBtn.setText("FINISH");
+        }
         previousDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(currentDayIndex>0){
+                    displayedExercisesTable.removeAllViews();
                     currentDayIndex--;
                 }
                 if(lastDay){
@@ -225,9 +234,7 @@ public class NewWorkoutFragment extends Fragment {
                     previousDayBtn.setVisibility(View.INVISIBLE);
                     firstDay=true;
                 }
-                else{
-                    // go back
-                }
+                addExercises();
                 updateDayTitle();
             }
         });
@@ -235,34 +242,52 @@ public class NewWorkoutFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(currentDayIndex<maxDayIndex) {
+                    displayedExercisesTable.removeAllViews();
                     currentDayIndex++;
-                }
-                if(firstDay){
-                    firstDay=false;
-                    previousDayBtn.setVisibility(View.VISIBLE);
-                }
-                if(currentDayIndex==maxDayIndex){
-                    lastDay=true;
-                    nextDayBtn.setText("FINISH");
-                    //todo finish and write to file
+                    if(firstDay){
+                        firstDay=false;
+                        previousDayBtn.setVisibility(View.VISIBLE);
+                    }
+                    if(currentDayIndex==maxDayIndex){
+                        lastDay=true;
+                        nextDayBtn.setText("FINISH");
+                    }
+                    addExercises();
+                    updateDayTitle();
                 }
                 else{
-                    // go forward
+                    // on the last day so check if every day has at least one exercise in it before writing to file
+                    boolean ready = true;
+                    for(int i=0;i<exercises.size();i++){
+                        if(exercises.get(i)==null){
+                            ready =false;
+                        }
+                        else if(exercises.get(i).isEmpty()){
+                            ready=false;
+                        }
+                    }
+                    if(ready){
+                        //todo write to file and exit
+                    }
+                    else{
+                        Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
+                    }
                 }
-                updateDayTitle();
             }
         });
     }
 
     public void addExercises(){
-        Collections.sort(checkedExercises);
+        Collections.sort(exercises.get(currentDayIndex));
         int count = 0;
-        for (final String exercise : checkedExercises){
+        for (final String exercise : exercises.get(currentDayIndex)){
             final TableRow row = new TableRow(getActivity());
+            row.setBackgroundResource(R.drawable.border);
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
             TextView name = new TextView(getContext());
             name.setText(exercise);
+            name.setTextSize(30);
             row.addView(name);
             ImageView deleteRowIcon = new ImageView(getContext());
             deleteRowIcon.setImageResource(R.drawable.delete_icon);
@@ -270,7 +295,7 @@ public class NewWorkoutFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     displayedExercisesTable.removeView(row);
-                    checkedExercises.remove(exercise);
+                    exercises.get(currentDayIndex).remove(exercise);
                 }
             });
             row.addView(deleteRowIcon);
@@ -294,25 +319,33 @@ public class NewWorkoutFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // done adding
-                //TODO write to the file with these new exercises
-                // will have to have a current day log here too so it writes to appropriate day
-                addExercises();
+                if(checkedExercises.isEmpty()){
+                    alertDialog.dismiss();
+                    return;
+                }
+                for(String exercise : checkedExercises){
+                    exercises.get(currentDayIndex).add(exercise);
+                }
                 checkedExercises.clear();
+                displayedExercisesTable.removeAllViews();
+                addExercises();
                 alertDialog.dismiss();
             }
         });
     }
 
     public void updateListView(String exerciseCluster){
+        String[] exerciseValues;
         switch (exerciseCluster){
-            case "Cardio":
-                //yada
+            case "Chest":
+                exerciseValues=getContext().getResources().getStringArray(R.array.chest_day);
                 break;
             case "Legs":
-                //yada
+                exerciseValues=getContext().getResources().getStringArray(R.array.leg_day);
                 break;
+            default:
+                exerciseValues = new String[] {"somebody","once","told","me"};
         }
-        String[] exerciseValues = new String[] {"somebody","once","told","me"};
         ArrayList<String> sortedExercises = new ArrayList<>();
         for(int i =0;i<exerciseValues.length;i++){
             sortedExercises.add(exerciseValues[i]);
@@ -325,13 +358,15 @@ public class NewWorkoutFragment extends Fragment {
             final CheckBox exercise = new CheckBox(getActivity());
             String exerciseName = sortedExercises.get(i);
             exercise.setText(exerciseName);
-            if(checkedExercises.contains(exerciseName)){
+            if(checkedExercises.contains(exerciseName) || exercises.get(currentDayIndex).contains(exerciseName)){
                 exercise.setChecked(true);
             }
             exercise.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!checkedExercises.contains(exercise.getText().toString())){
+                    if(!checkedExercises.contains(exercise.getText().toString())&&
+                    !exercises.get(currentDayIndex).contains(exercise.getText().toString())){
+                        // prevents exercise from being added twice
                         checkedExercises.add(exercise.getText().toString());
                     }
                     else{

@@ -32,6 +32,25 @@
         <item>Cardio</item>
         <item>Back</item>
     </string-array>
+    <string-array name="leg_day">
+        <item>Squat</item>
+        <item>Hack Squat</item>
+        <item>Lunges</item>
+        <item>Leg Press</item>
+        <item>Leg Curls</item>
+        <item>Leg Extensions</item>
+        <item>Front Squats</item>
+        <item>Calve Raises</item>
+    </string-array>
+    <string-array name="chest_day">
+        <item>Bench Press</item>
+        <item>Incline Bench Press</item>
+        <item>Decline Bench Press</item>
+        <item>Dumbbell Flys</item>
+        <item>Incline Dumbbell Flys</item>
+        <item>Push Ups</item>
+        <item>Cable Flys</item>
+    </string-array>
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>
     <string name="hide_timer">Hide</string>
