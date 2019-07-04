@@ -26,11 +26,11 @@
     to the first day of the workout with all exercises reset.</string>
     <string name="exercise_title">Add exercises</string>
     <string-array name="exercise_clusters">
-        <item>Legs</item>
         <item>Arms</item>
-        <item>Chest</item>
-        <item>Cardio</item>
         <item>Back</item>
+        <item>Cardio</item>
+        <item>Chest</item>
+        <item>Legs</item>
     </string-array>
     <string-array name="leg_day">
         <item>Squat</item>

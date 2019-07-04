@@ -7,34 +7,63 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 public class MyWorkoutFragment extends Fragment {
     private View view;
-    private List<String> workouts =  new ArrayList<String>();
-    private Spinner spinner;
+    private ArrayList<String> workouts = new ArrayList<>();
+    private TextView selectedWorkout, statisticsTV;
+    private ListView listView;
+    private ArrayAdapter<String> arrayAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_my_workouts,container,false);
         ((MainActivity)getActivity()).updateToolbarTitle("My Workouts");
-        spinner = view.findViewById(R.id.spinner);
-        populateSpinner();
+        listView= view.findViewById(R.id.workout_list);
+        selectedWorkout=view.findViewById(R.id.selected_workout_text_view);
+        statisticsTV=view.findViewById(R.id.stat_text_view);
+        populateListView();
         return view;
     }
 
-    public void populateSpinner(){
-        workouts.add("Josh's Workout");
-        workouts.add("Workout 1");
-        workouts.add("Workout 2");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                getActivity(), android.R.layout.simple_spinner_item, workouts);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+    public void populateListView(){
+        //todo when workout is selected it moves to the top of the list.
+        String msg = "Times Completed: 420\nPercentage of Exercises Completed: 69%";
+        statisticsTV.setText(msg);
+        workouts.add("Abc 1");
+        workouts.add("Ce3 2");
+
+        arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, workouts);
+        listView.setAdapter(arrayAdapter);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        Collections.sort(workouts);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String oldText = selectedWorkout.getText().toString();
+                String newText = workouts.get(position);
+                workouts.add(oldText);
+                Collections.sort(workouts);
+                selectedWorkout.setText(newText);
+                workouts.remove(newText);
+                arrayAdapter.notifyDataSetChanged();
+
+            }
+        });
     }
+
+    public void updateWorkoutList(){
+
+    }
+
 }

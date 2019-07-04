@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -277,6 +278,10 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
+    public void writeToFile(){
+
+    }
+
     public void addExercises(){
         Collections.sort(exercises.get(currentDayIndex));
         int count = 0;
@@ -347,9 +352,7 @@ public class NewWorkoutFragment extends Fragment {
                 exerciseValues = new String[] {"somebody","once","told","me"};
         }
         ArrayList<String> sortedExercises = new ArrayList<>();
-        for(int i =0;i<exerciseValues.length;i++){
-            sortedExercises.add(exerciseValues[i]);
-        }
+        Collections.addAll(sortedExercises,exerciseValues);
         Collections.sort(sortedExercises);
         for(int i=0;i<exerciseValues.length;i++){
             TableRow row = new TableRow(getActivity());
