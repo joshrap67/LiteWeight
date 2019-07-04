@@ -1,192 +1,176 @@
-TIME*W1:D1*1*START
-Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*DONE
-Hack Squat*https://www.youtube.com/watch?v=EdtaJRBqwes
-Leg Extension*https://www.youtube.com/watch?v=YyvSfVjQeL0
-Leg Curl*https://www.youtube.com/watch?v=ELOCsoDSmrg
-Lunges*https://youtu.be/D7KaRcUTQeE?t=20
-Incline Bench*https://www.youtube.com/watch?v=jPLdzuHckI8
-Chest Fly*https://youtu.be/Iwe6AmxVf7o?t=17
-Close-Grip Bench*https://youtu.be/nEF0bv2FW94?t=18
-Tricep Dip*https://youtu.be/0326dy_-CzM?t=10
-Cable Pull Down*https://youtu.be/2-LAMcpzODU?t=13
-END DAY
-TIME*W1:D2*2
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Shrugs*NONE
-Bent Over Row*NONE
-Upright Row*NONE
-Shoulder Press*NONE
-One Arm Dumbbell Row*NONE
-Preacher Curl*NONE
-Hammer Curl*NONE
-Reverse Grip barbell curl*NONE
-END DAY
-TIME*W1:D3*3
-Squat*NONE
-Front Squat*NONE
-Leg Extension*NONE
-Leg Curl*NONE
-Incline Dumbbell Fly*NONE
-Bench Press*NONE
-Dumbbell Kickback*NONE
-One Arm Tricep Extension*NONE
-Weighted Oblique Twists*NONE
-Weighted Crunches*NONE
-END DAY
-TIME*W1:D4*4
-Lying Side Deltoid Raise*NONE
-Arnold Press*NONE
-Shrugs*NONE
-Bent Over Row*NONE
-Good Morning*NONE
-One Arm Dumbbell Row*NONE
-Incline Dumbbell Curl*NONE
-Dumbbell Curl*NONE
-Barbell Wrist Curl*NONE
-Reverse Grip Wrist Curl*NONE
-END DAY
-TIME*W2:D1*5
-Squat*NONE
-Hack Squat*NONE
-Leg Extension*NONE
-Leg Curl*NONE
-Lunges*NONE
-Incline Bench*NONE
-Dumbbell Fly*NONE
-One Arm Tricep Extension*NONE
-Dips*NONE
-Cable Pull Down*NONE
-END DAY
-TIME*W2:D2*6
-Upright Row*NONE
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Shrugs*NONE
-Military Press*NONE
-One Arm Dumbbell Rows*NONE
-Cable Row*NONE
-Preacher Curls*NONE
-Incline Hammer Curls*NONE
-Dumbbell Curls*NONE
-END DAY
-TIME*W2:D3*7
-Squat*NONE
-Front Squat*NONE
-Lunges*NONE
-Leg Extension*NONE
-Leg Curls*NONE
-Incline Bench*NONE
-Incline Dumbbell Fly*NONE
-Close-Grip Bench*NONE
-Weighted Oblique Twist*NONE
-Weighted Crunches*NONE
-END DAY
-TIME*W2:D4*8
-Military Press*NONE
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Shrugs*NONE
-Cable Row*NONE
-Good Mornings*NONE
-Preacher Curl*NONE
-Forearm Curl*NONE
-Reverse Forearm Curl*NONE
-END DAY
-TIME*W3:D1*9
-Lunges*NONE
-Front Squat*NONE
-Leg Extension*NONE
-Leg Curl*NONE
-Calve Raise*NONE
-Decline Bench*NONE
-Incline Dumbbell Fly*NONE
-Skull Crusher*NONE
-Dips*NONE
-Cable Pull Down*NONE
-END DAY
-TIME*W3:D2*10
-Lying Side Deltoid raise*NONE
-Side Deltoid raise*NONE
-Front Deltoid raise*NONE
-Shrugs*NONE
-Arnold Press*NONE
-Bent Over Row*NONE
-Cable Row*NONE
-Preacher Curl*NONE
-Hammer Curl*NONE
-Barbell Curl*NONE
-END DAY
-TIME*W3:D3*11
-Squat*NONE
-Front Squat*NONE
-Lunges*NONE
-Leg Extension*NONE
-Leg Curl*NONE
-Leg Press*NONE
-Incline Dumbbell Press*NONE
-Dumbbell Press*NONE
-One Arm Kickback*NONE
-Weighted Oblique Twists*NONE
-Weighted Crunches*NONE
-END DAY
-TIME*W3:D4*12
-Arnold Press*NONE
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Reverse Shrugs*NONE
-Bar Pull Down*NONE
-Cable Row*NONE
-Concentration Curls*NONE
-Preacher Curls*NONE
-Forearm Curls*NONE
-Reverse Forearm Curls*NONE
-END DAY
-TIME*W4:D1*13
-Squat*NONE
-Front Squat*NONE
-Lunges*NONE
-Calve Raise*NONE
-Leg Press*NONE
-Bench Press*NONE
-Incline Bench*NONE
-Skull Crusher*NONE
-One Arm Tricep Extension*NONE
-Cable Pull Down*NONE
-END DAY
-TIME*W4:D2*14
-Military Press*NONE
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Shrugs*NONE
-Arnold Press*NONE
-Bent Over Row*NONE
-Good Morning*NONE
-Barbell Curl*NONE
-Reverse Barbell Curl*NONE
-Hammer Curl*NONE
-END DAY
-TIME*W4:D3*15
-Squat*NONE
-Front Squat*NONE
-Lunges*NONE
-Leg Extension*NONE
-Leg Curl*NONE
-Incline Bench*NONE
-Incline Dumbbell Fly*NONE
-Close-Grip Bench*NONE
-Weighted Oblique Twists*NONE
-Weighted Crunches*NONE
-END DAY
-TIME*W4:D4*16*END
-Arnold Press*NONE
-Side Deltoid Raise*NONE
-Front Deltoid Raise*NONE
-Reverse Shrugs*NONE
-Military Press*NONE
-Bar Pull Down*NONE
-Concentration Curl*NONE
-Incline Hammer Curl*NONE
-Forearm Curl*NONE
-Reverse Forearm Curl*NONE
-END DAY
+TIME*W1:D1
+Squat*INCOMPLETE*https://www.youtube.com/watch?v=MVMNk0HiTMg
+Hack Squat*INCOMPLETE*https://www.youtube.com/watch?v=EdtaJRBqwes
+Leg Extension*INCOMPLETE*https://www.youtube.com/watch?v=YyvSfVjQeL0
+Leg Curl*INCOMPLETE*https://www.youtube.com/watch?v=ELOCsoDSmrg
+Lunges*INCOMPLETE*https://youtu.be/D7KaRcUTQeE?t=20
+Incline Bench*INCOMPLETE*https://www.youtube.com/watch?v=jPLdzuHckI8
+Chest Fly*INCOMPLETE*https://youtu.be/Iwe6AmxVf7o?t=17
+Close-Grip Bench*INCOMPLETE*https://youtu.be/nEF0bv2FW94?t=18
+Tricep Dip*INCOMPLETE*https://youtu.be/0326dy_-CzM?t=10
+Cable Pull Down*INCOMPLETE*https://youtu.be/2-LAMcpzODU?t=13
+TIME*W1:D2
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Bent Over Row*INCOMPLETE*NONE
+Upright Row*INCOMPLETE*NONE
+Shoulder Press*INCOMPLETE*NONE
+One Arm Dumbbell Row*INCOMPLETE*NONE
+Preacher Curl*INCOMPLETE*NONE
+Hammer Curl*INCOMPLETE*NONE
+Reverse Grip barbell curl*INCOMPLETE*NONE
+TIME*W1:D3
+Squat*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curl*INCOMPLETE*NONE
+Incline Dumbbell Fly*INCOMPLETE*NONE
+Bench Press*INCOMPLETE*NONE
+Dumbbell Kickback*INCOMPLETE*NONE
+One Arm Tricep Extension*INCOMPLETE*NONE
+Weighted Oblique Twists*INCOMPLETE*NONE
+Weighted Crunches*INCOMPLETE*NONE
+TIME*W1:D4
+Lying Side Deltoid Raise*INCOMPLETE*NONE
+Arnold Press*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Bent Over Row*INCOMPLETE*NONE
+Good Morning*INCOMPLETE*NONE
+One Arm Dumbbell Row*INCOMPLETE*NONE
+Incline Dumbbell Curl*INCOMPLETE*NONE
+Dumbbell Curl*INCOMPLETE*NONE
+Barbell Wrist Curl*INCOMPLETE*NONE
+Reverse Grip Wrist Curl*INCOMPLETE*NONE
+TIME*W2:D1
+Squat*INCOMPLETE*NONE
+Hack Squat*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curl*INCOMPLETE*NONE
+Lunges*INCOMPLETE*NONE
+Incline Bench*INCOMPLETE*NONE
+Dumbbell Fly*INCOMPLETE*NONE
+One Arm Tricep Extension*INCOMPLETE*NONE
+Dips*INCOMPLETE*NONE
+Cable Pull Down*INCOMPLETE*NONE
+TIME*W2:D2
+Upright Row*INCOMPLETE*NONE
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Military Press*INCOMPLETE*NONE
+One Arm Dumbbell Rows*INCOMPLETE*NONE
+Cable Row*INCOMPLETE*NONE
+Preacher Curls*INCOMPLETE*NONE
+Incline Hammer Curls*INCOMPLETE*NONE
+Dumbbell Curls*INCOMPLETE*NONE
+TIME*W2:D3
+Squat*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Lunges*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curls*INCOMPLETE*NONE
+Incline Bench*INCOMPLETE*NONE
+Incline Dumbbell Fly*INCOMPLETE*NONE
+Close-Grip Bench*INCOMPLETE*NONE
+Weighted Oblique Twist*INCOMPLETE*NONE
+Weighted Crunches*INCOMPLETE*NONE
+TIME*W2:D4
+Military Press*INCOMPLETE*NONE
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Cable Row*INCOMPLETE*NONE
+Good Mornings*INCOMPLETE*NONE
+Preacher Curl*INCOMPLETE*NONE
+Forearm Curl*INCOMPLETE*NONE
+Reverse Forearm Curl*INCOMPLETE*NONE
+TIME*W3:D1
+Lunges*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curl*INCOMPLETE*NONE
+Calve Raise*INCOMPLETE*NONE
+Decline Bench*INCOMPLETE*NONE
+Incline Dumbbell Fly*INCOMPLETE*NONE
+Skull Crusher*INCOMPLETE*NONE
+Dips*INCOMPLETE*NONE
+Cable Pull Down*INCOMPLETE*NONE
+TIME*W3:D2
+Lying Side Deltoid raise*INCOMPLETE*NONE
+Side Deltoid raise*INCOMPLETE*NONE
+Front Deltoid raise*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Arnold Press*INCOMPLETE*NONE
+Bent Over Row*INCOMPLETE*NONE
+Cable Row*INCOMPLETE*NONE
+Preacher Curl*INCOMPLETE*NONE
+Hammer Curl*INCOMPLETE*NONE
+Barbell Curl*INCOMPLETE*NONE
+TIME*W3:D3
+Squat*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Lunges*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curl*INCOMPLETE*NONE
+Leg Press*INCOMPLETE*NONE
+Incline Dumbbell Press*INCOMPLETE*NONE
+Dumbbell Press*INCOMPLETE*NONE
+One Arm Kickback*INCOMPLETE*NONE
+Weighted Oblique Twists*INCOMPLETE*NONE
+Weighted Crunches*INCOMPLETE*NONE
+TIME*W3:D4
+Arnold Press*INCOMPLETE*NONE
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Reverse Shrugs*INCOMPLETE*NONE
+Bar Pull Down*INCOMPLETE*NONE
+Cable Row*INCOMPLETE*NONE
+Concentration Curls*INCOMPLETE*NONE
+Preacher Curls*INCOMPLETE*NONE
+Forearm Curls*INCOMPLETE*NONE
+Reverse Forearm Curls*INCOMPLETE*NONE
+TIME*W4:D1
+Squat*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Lunges*INCOMPLETE*NONE
+Calve Raise*INCOMPLETE*NONE
+Leg Press*INCOMPLETE*NONE
+Bench Press*INCOMPLETE*NONE
+Incline Bench*INCOMPLETE*NONE
+Skull Crusher*INCOMPLETE*NONE
+One Arm Tricep Extension*INCOMPLETE*NONE
+Cable Pull Down*INCOMPLETE*NONE
+TIME*W4:D2
+Military Press*INCOMPLETE*NONE
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Shrugs*INCOMPLETE*NONE
+Arnold Press*INCOMPLETE*NONE
+Bent Over Row*INCOMPLETE*NONE
+Good Morning*INCOMPLETE*NONE
+Barbell Curl*INCOMPLETE*NONE
+Reverse Barbell Curl*INCOMPLETE*NONE
+Hammer Curl*INCOMPLETE*NONE
+TIME*W4:D3
+Squat*INCOMPLETE*NONE
+Front Squat*INCOMPLETE*NONE
+Lunges*INCOMPLETE*NONE
+Leg Extension*INCOMPLETE*NONE
+Leg Curl*INCOMPLETE*NONE
+Incline Bench*INCOMPLETE*NONE
+Incline Dumbbell Fly*INCOMPLETE*NONE
+Close-Grip Bench*INCOMPLETE*NONE
+Weighted Oblique Twists*INCOMPLETE*NONE
+Weighted Crunches*INCOMPLETE*NONE
+TIME*W4:D4
+Arnold Press*INCOMPLETE*NONE
+Side Deltoid Raise*INCOMPLETE*NONE
+Front Deltoid Raise*INCOMPLETE*NONE
+Reverse Shrugs*INCOMPLETE*NONE
+Military Press*INCOMPLETE*NONE
+Bar Pull Down*INCOMPLETE*NONE
+Concentration Curl*INCOMPLETE*NONE
+Incline Hammer Curl*INCOMPLETE*NONE
+Forearm Curl*INCOMPLETE*NONE
+Reverse Forearm Curl*INCOMPLETE*NONE

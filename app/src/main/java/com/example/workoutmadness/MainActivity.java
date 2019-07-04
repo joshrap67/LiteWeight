@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private String DIRECTORY_NAME="bin", CURRENT_WORKOUT_LOG="currentWorkout.log";
+    private static final String WORKOUT_DIRECTORY_NAME ="Workouts", CURRENT_WORKOUT_LOG="currentWorkout.log",
+            USER_SETTINGS_DIRECTORY_NAME="UserSettings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         boolean exists = checkIfDirectoryExists();
         if(!exists){
-            createDirectory(DIRECTORY_NAME);
+            createDirectory(WORKOUT_DIRECTORY_NAME);
         }
         toggle.syncState();
         if (savedInstanceState == null) {
@@ -143,6 +144,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void onDestroy(){
+        Fragment visibleFragment = getVisibleFragment();
+        boolean modified=fragModified(visibleFragment);
+        if(visibleFragment instanceof CurrentWorkoutFragment){
+            if(modified){
+                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
+            }
+        }
+        else if(visibleFragment instanceof NewWorkoutFragment){
+            if(modified){
+                // TODO idk
+            }
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public void onResume(){
         Fragment visibleFragment = getVisibleFragment();
         if(visibleFragment instanceof CurrentWorkoutFragment){
@@ -219,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public boolean checkIfDirectoryExists(){
-        File directoryHandle = getExternalFilesDir(DIRECTORY_NAME);
+        File directoryHandle = getExternalFilesDir(WORKOUT_DIRECTORY_NAME);
         File[] contents = directoryHandle.listFiles();
         if(contents.length>0){
             return true;
@@ -242,8 +261,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         copyFile(CURRENT_WORKOUT_LOG);
     }
 
-    public String getDirectoryName(){
-        return DIRECTORY_NAME;
+    public String getWorkoutDirectoryName(){
+        return WORKOUT_DIRECTORY_NAME;
     }
 
     public String getWorkoutLogName(){
@@ -257,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BufferedReader reader = null;
         BufferedWriter writer = null;
         try{
-            File fhandle = new File(getExternalFilesDir(DIRECTORY_NAME), fileName);
+            File fhandle = new File(getExternalFilesDir(WORKOUT_DIRECTORY_NAME), fileName);
             writer = new BufferedWriter(new FileWriter(fhandle,false));
             reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)));
             String line;

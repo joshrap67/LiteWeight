@@ -27,25 +27,30 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private TextView dayTV;
     private TableLayout table;
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
-    private int currentDayNum, arrayListIndex;
-    private String currentLine, SPLIT_DELIM ="\\*", END_DAY_DELIM="END DAY", END_CYCLE_DELIM="END", START_CYCLE_DELIM="START",
-            DAY_DELIM="TIME", WORKOUT_FILE= "Josh's Workout.txt", EXERCISE_DONE="DONE",
-            CURRENT_WORKOUT_LOG, DIRECTORY_NAME;
-    private boolean modified=false, lastDay=false, firstDay=false, exerciseModified=false, timerRunning=false;
-    private ArrayList<String> exercises;
+    private int currentDayIndex, maxDayIndex;
+    private static final int TIME_INDEX = 0, TIME_TITLE_INDEX = 1, NAME_INDEX = 0, STATUS_INDEX = 1, VIDEO_INDEX = 2,
+            WORKOUT_NAME_INDEX = 0, CURRENT_DAY_INDEX = 1;
+    private String SPLIT_DELIM ="\\*", DAY_DELIM="TIME", EXERCISE_COMPLETE ="COMPLETE", EXERCISE_INCOMPLETE = "INCOMPLETE",
+            WORKOUT_FILE= "Josh's Workout.txt",
+            CURRENT_WORKOUT_LOG, WORKOUT_DIRECTORY_NAME;
+    private boolean modified = false, exerciseModified = false, timerRunning = false;
     private Chronometer timer;
     private long lastTime;
+    private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
+    private HashMap<Integer, String> totalDayTitles = new HashMap<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_workout,container,false);
+        // init all the views
         forwardButton = view.findViewById(R.id.forwardButton);
         backButton = view.findViewById(R.id.previousDayButton);
         startTimer=view.findViewById(R.id.start_timer);
@@ -56,123 +61,82 @@ public class CurrentWorkoutFragment extends Fragment {
         showTimer.setVisibility(View.INVISIBLE);
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
-
+        dayTV = view.findViewById(R.id.dayTextView);
+        // get workout file location information
         CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
-        DIRECTORY_NAME=((MainActivity)getActivity()).getDirectoryName();
-        exercises = new ArrayList<>();
+        WORKOUT_DIRECTORY_NAME =((MainActivity)getActivity()).getWorkoutDirectoryName();
 
-        getCurrentWorkout();
-        getCurrentDayNumber();
-        if(currentDayNum!=-1){
+        boolean flag1 = updateCurrentWorkoutFile();
+        boolean flag2 = updateCurrentDayNumber();
+        // TODO change format of workout log. Have each line correspond to the different workouts in the directory
+        if(flag1&&flag2){
             // get the workout name and update the toolbar with the name
             String[] workoutFile = WORKOUT_FILE.split(".txt");
             String workoutName = workoutFile[0];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
-            //TODO find out if the user enabled timer or not? or just require timer for this app
             initTimer();
-
-            populateWorkouts();
+            populateExercises();
+            populateTable();
         }
         else{
-            //TODO add error screen
+            //TODO add error screen and say to create a workout
+            Log.d("ERROR","Problem with the current workout log!");
         }
         return view;
     }
 
-    public void populateWorkouts(){
+    public void populateExercises(){
         /*
-        Populates exercises based on the currently selected workout.
+            Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
+            instead of disk and makes the entire process of switching days a lot more elegant.
          */
-        exerciseModified=false;
-        exercises.clear();
-        arrayListIndex=0;
         BufferedReader reader = null;
+        int hashIndex = -1;
         try{
-            // progress through the file until the correct spot is found
-            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
+            // progress through the file until a day  is found. Once found, populate with exercises
+            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), WORKOUT_FILE);
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
             String line;
             while((line=reader.readLine())!=null){
-                String day = findDay(line); // possible day, if it is null then it is not at the current day specified in file
-                if(day!=null){
-                    dayTV = view.findViewById(R.id.dayTextView);
-                    dayTV.setText(day);
-                    break;
+                boolean day = isDay(line); // possible day, if it is null then it is not at the current day specified in file
+                if(day){
+                    hashIndex++;
+                    totalExercises.put(hashIndex, new ArrayList<Exercise>());
+                    totalDayTitles.put(hashIndex, line.split(SPLIT_DELIM)[TIME_TITLE_INDEX]); // add day
+                }
+                else{
+                    totalExercises.get(hashIndex).add(new Exercise(line.split(SPLIT_DELIM)));
                 }
             }
-            setupButtons();
-            // Now, loop through and populate the scroll view with all the exercises in this day
-            int count =0;
-            while(!(currentLine=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
-                exercises.add(currentLine);
-                final String[] strings = currentLine.split(SPLIT_DELIM);
-                TableRow row = new TableRow(getActivity());
-                TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-                row.setLayoutParams(lp);
-
-                final CheckBox exercise = new CheckBox(getActivity());
-                if(strings.length==3){
-                    // means that the workout has already been done, so make sure to check the checkbox
-                    //TODO do this in a better way other than the length
-                    exerciseModified=true;
-                    exercise.setChecked(true);
-                }
-                exercise.setOnClickListener(new View.OnClickListener() {
-                    int index = arrayListIndex;
-                    String line = currentLine;
-                    boolean checked = exercise.isChecked();
-
-                    @Override
-                    public void onClick(View v) {
-                        updateExercise(index, line, checked);
-                        modified=true;
-                        exerciseModified=true;
-                    }
-                });
-                exercise.setText(strings[0]);
-                row.addView(exercise);
-
-                Button videoButton = new Button(getActivity());
-                videoButton.setText("Video");
-                videoButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(strings.length>=2){
-                            String URL = strings[1];
-                            if(!URL.equalsIgnoreCase("none")){
-                                // found on SO
-                                Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-                                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-                                try{
-                                    getContext().startActivity(appIntent);
-                                }
-                                catch(ActivityNotFoundException ex) {
-                                    getContext().startActivity(webIntent);
-                                }
-                            }
-                            else{
-                                Toast.makeText(getActivity(), "No video found", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                    }
-                });
-                row.addView(videoButton);
-                table.addView(row,count);
-                arrayListIndex++;
-                count++;
-            }
-            reader.close();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to read workout file!"+e);
+            Log.d("ERROR","Error when trying to read workout file!\n"+e);
         }
+        maxDayIndex = hashIndex;
+    }
+
+    public void populateTable(){
+        /*
+        Populates exercises based on the current day.
+         */
+        table.removeAllViews();
+        dayTV.setText(totalDayTitles.get(currentDayIndex));
+        int count = 0;
+        for(Exercise exercise : totalExercises.get(currentDayIndex)){
+            TableRow row = exercise.getDisplayedRow();
+            table.addView(row,count);
+            count++;
+        }
+        setupButtons();
     }
 
     private void setupButtons(){
-        // setup back button
-        if(firstDay){
+        /*
+            Setup back and forward buttons.
+         */
+        if(currentDayIndex==0){
+            // means it's the first day, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
         }
         else{
@@ -180,20 +144,14 @@ public class CurrentWorkoutFragment extends Fragment {
             backButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(exerciseModified){
-                        // if any exercise status was altered, write to file before switching to previous day
-                        recordToWorkoutFile();
-                    }
-                    currentDayNum--;
+                    currentDayIndex--;
                     modified=true; // modified since changed day
-                    table.removeAllViews();
-                    lastDay=false;
-                    populateWorkouts();
+                    populateTable();
                 }
             });
         }
         // set up the forward button, make it so user can always reset if holding down button
-        if(lastDay){
+        if(currentDayIndex==maxDayIndex){
             forwardButton.setText("RESET");
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -208,15 +166,9 @@ public class CurrentWorkoutFragment extends Fragment {
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(exerciseModified){
-                        // if any exercise was checked off as completed, write to file before switching to next day
-                        recordToWorkoutFile();
-                    }
-                    currentDayNum++;
+                    currentDayIndex++;
                     modified=true;
-                    table.removeAllViews();
-                    firstDay=false;
-                    populateWorkouts();
+                    populateTable();
                 }
             });
             forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -231,111 +183,64 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    private String findDay(String _data){
+    private boolean updateCurrentWorkoutFile(){
         /*
-            This method is used to parse a line of the workout text file. It splits the line on the given
-            delimiter and then returns that title of the day.
+            This method ensures that when the app is closed and re-opened, it will pick up where the user
+            last left off. It looks into the currentWorkout log file and updates the workout file variable to
+            match the workout found in the log.
          */
-        if(_data==null){
-            return null;
+        BufferedReader reader = null;
+        try{
+            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            WORKOUT_FILE = reader.readLine().split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+            reader.close();
+            return true;
         }
-        String[] strings = _data.split(SPLIT_DELIM);
-        String delim = strings[0];
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read current workout file!\n"+e);
+            return false;
+        }
+    }
+
+    private boolean updateCurrentDayNumber(){
+        /*
+            This method ensures that when the app is closed and re-opened, it will pick up where the user
+            last left off. It looks into the currentWorkout log file and updates the current day index to
+            match the index found in the log.
+         */
+        BufferedReader reader = null;
+        try{
+            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            currentDayIndex = Integer.parseInt(reader.readLine().split(SPLIT_DELIM)[CURRENT_DAY_INDEX]);
+            reader.close();
+            return true;
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read current workout log!\n"+e);
+            return false;
+        }
+
+    }
+
+    public boolean isDay(String data){
+        /*
+            Checks if passed in string from file denotes a day or an exercise
+         */
+        if(data==null){
+            return false;
+        }
+        String[] strings = data.split(SPLIT_DELIM);
+        String delim = strings[TIME_INDEX];
         if(delim.equalsIgnoreCase(DAY_DELIM)){
-            // found a line that represents a day, see if it's the day we are indeed looking for by using the day number
-            if(Integer.parseInt(strings[2])==currentDayNum){
-                // indeed the correct day number, now check if it is a last or first day before returning
-                if(strings.length==4){
-                    if(strings[3].equalsIgnoreCase(START_CYCLE_DELIM)){
-                        firstDay = true;
-                    }
-                    else if(strings[3].equalsIgnoreCase(END_CYCLE_DELIM)){
-                        lastDay = true;
-                    }
-                }
-                // return the title of said day, not the day number
-                return strings[1];
-            }
+            // found a line that represents a day
+            return true;
         }
-        // no day was found, return null to signal error
-        return null;
-    }
-
-    public boolean isModified(){
-        /*
-            Is used to check if the user has made any at all changes to their workout. If so, appropriate
-            action (namely altering the text file) must be taken.
-         */
-        return modified;
-    }
-
-    private void getCurrentWorkout(){
-        /*
-            This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentWorkout log file and simply returns the workout file
-            corresponding to what workout the user currently has selected.
-         */
-        BufferedReader reader = null;
-        try{
-            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            WORKOUT_FILE = reader.readLine().split(SPLIT_DELIM)[0];
-            reader.close();
-        }
-        catch (Exception e){
-
-            Log.d("ERROR","Error when trying to read current workout file!"+e);
-            currentDayNum=-1;
-        }
-
-    }
-
-    private void updateExercise(int index, String line, boolean checked){
-        String[] strings = line.split(SPLIT_DELIM);
-        String updatedExercise;
-        if(strings.length>=2){
-            String exercise = strings[0];
-            String video = strings[1];
-            if(checked){
-                updatedExercise = exercise+"*"+video+"*";
-            }
-            else{
-                updatedExercise = exercise+"*"+video+"*"+EXERCISE_DONE;
-            }
-        }
-        else{
-            String exercise = strings[0];
-            if(checked){
-                updatedExercise = exercise+"*";
-            }
-            else{
-                updatedExercise = exercise+"*"+EXERCISE_DONE;
-            }
-        }
-        exercises.set(index, updatedExercise);
-    }
-
-    private void getCurrentDayNumber(){
-        /*
-            This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentDay text file and simply returns the number corresponding to what day the user is on.
-         */
-        BufferedReader reader = null;
-        try{
-            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            currentDayNum = Integer.parseInt(reader.readLine().split(SPLIT_DELIM)[1]);
-            Log.d("Number", currentDayNum+"");
-            reader.close();
-        }
-        catch (Exception e){
-
-            Log.d("ERROR","Error when trying to read current workout log!"+e);
-            currentDayNum=-1;
-        }
-
+        // not a day but an exercise, so return false;
+        return false;
     }
 
     public void recordToCurrentWorkoutLog(){
@@ -343,16 +248,15 @@ public class CurrentWorkoutFragment extends Fragment {
             Is called whenever the user either switches to another fragment, or exits the application. Saves the state of the
             current workout.
          */
-        String _data = WORKOUT_FILE+"*"+currentDayNum;
+        String _data = WORKOUT_FILE+"*"+currentDayIndex;
         try{
-            Log.d("recording", "Recording to log file..."+ _data);
-            File fhandle = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
             BufferedWriter writer = new BufferedWriter(new FileWriter(fhandle,false));
             writer.write(_data);
             writer.close();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to write to current workout log!"+e);
+            Log.d("ERROR","Error when trying to write to current workout log!\n"+e);
         }
     }
 
@@ -361,83 +265,44 @@ public class CurrentWorkoutFragment extends Fragment {
             Updates the workout file to include the changes that were made by the user. This
             is called whenever the user clicks to go to another day or exits out of the fragment.
          */
-        BufferedReader reader = null;
         BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
-        File fhandleNew = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), "temp");
+        File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), WORKOUT_FILE);
         try{
-            // progress through the file until the correct spot is found
-            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
-            FileReader fileR= new FileReader(fhandleOld);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                writer.write(line+"\n");
-                String day = findDay(line); // possible day, if it is null then it is not at the current day specified in file
-                if(day!=null){
-                    break;
+            writer = new BufferedWriter(new FileWriter(fhandle,false));
+            for(int i=0;i<=maxDayIndex;i++){
+                String dayData = DAY_DELIM+"*"+totalDayTitles.get(i);
+                writer.write(dayData+"\n");
+                for(Exercise exercise : totalExercises.get(i)){
+                    String data = exercise.getFormattedLine();
+                    writer.write(data+"\n");
                 }
             }
-            int count = 0;
-            while(!(line=reader.readLine()).equalsIgnoreCase(END_DAY_DELIM)){
-                writer.write(exercises.get(count)+"\n");
-                count++;
-            }
-            writer.write(END_DAY_DELIM+"\n");
-            while((line=reader.readLine())!=null){
-                writer.write(line+"\n");
-            }
-            reader.close();
             writer.close();
-            fhandleOld.delete();
-            fhandleNew.renameTo(fhandleOld);
-            exercises.clear();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to update workout file!"+e);
+            Log.d("ERROR","Error when trying to record to workout file!\n"+e);
         }
     }
 
     public void resetWorkout(){
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), WORKOUT_FILE);
-        File fhandleNew = new File(getContext().getExternalFilesDir(DIRECTORY_NAME), "temp");
-        try{
-            // progress through the file until the correct spot is found
-            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
-            FileReader fileR= new FileReader(fhandleOld);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                String[] strings = line.split(SPLIT_DELIM);
-                if(!strings[0].equalsIgnoreCase(END_DAY_DELIM)&&!strings[0].equalsIgnoreCase(START_CYCLE_DELIM)&&
-                        !strings[0].equalsIgnoreCase(END_DAY_DELIM)&&!strings[0].equalsIgnoreCase(DAY_DELIM)){
-                    String upatedExercise = strings[0]+"*"+strings[1]+"\n";
-                    writer.write(upatedExercise);
-                }
-                else{
-                    writer.write(line+"\n");
-                }
+        /*
+            Reset all of the exercises to being incomplete and then write to the workout file with these changes.
+         */
+        for(int i=0;i<=maxDayIndex;i++){
+            for(Exercise exercise : totalExercises.get(i)){
+                exercise.setStatus(false);
             }
-            reader.close();
-            writer.close();
-            fhandleOld.delete();
-            fhandleNew.renameTo(fhandleOld);
-
-            exercises.clear();
-            currentDayNum=1;
-            lastDay=false;
-            firstDay=true;
-            modified=true;
-            exerciseModified=false;
         }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to reset workout file!"+e);
-        }
+        recordToWorkoutFile();
+        currentDayIndex=0;
+        modified=true;
+        exerciseModified=false;
     }
 
     public void resetPopup(){
+        /*
+            Prompt the user if they wish to reset the current workout. Only can be called if the workout has been modified.
+         */
         if(!exerciseModified && !modified){
             return;
         }
@@ -450,7 +315,7 @@ public class CurrentWorkoutFragment extends Fragment {
             public void onClick(View v) {
                 table.removeAllViews();
                 resetWorkout();
-                populateWorkouts();
+                populateTable();
                 alertDialog.dismiss();
             }
         });
@@ -467,6 +332,19 @@ public class CurrentWorkoutFragment extends Fragment {
         alertDialog.show();
     }
 
+    public boolean isModified(){
+        /*
+            Is used to check if the user has made any at all changes to their workout. If so, appropriate
+            action (namely altering the text file) must be taken.
+         */
+        return modified;
+    }
+
+    /*
+        ***********************************
+        Setting up all of the timer methods
+        ***********************************
+     */
     public void initTimer(){
         startTimer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -542,5 +420,101 @@ public class CurrentWorkoutFragment extends Fragment {
         timer.setVisibility(View.VISIBLE);
         showTimer.setVisibility(View.INVISIBLE);
     }
-}
 
+    private class Exercise{
+        private String name;
+        private String videoURL;
+        private boolean status;
+        private TableRow displayedRow;
+
+        private Exercise(final String[] rawText){
+            if(rawText[STATUS_INDEX].equals(EXERCISE_COMPLETE)){
+                // means that the exercise has already been done, so make sure to set status as so
+                exerciseModified=true;
+                status=true;
+            }
+            else{
+                status=false;
+            }
+            name=rawText[NAME_INDEX];
+            videoURL=rawText[VIDEO_INDEX];
+        }
+        private void setStatus(boolean aStatus){
+            /*
+                Sets the status of the exercise as either being complete or incomplete.
+             */
+            status=aStatus;
+        }
+
+        private TableRow getDisplayedRow(){
+            /*
+                Takes all of the information from the instance variables of this exercise and puts it into a row to be displayed
+                by the main table.
+             */
+            displayedRow = new TableRow(getActivity());
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            displayedRow.setLayoutParams(lp);
+
+            final CheckBox exercise = new CheckBox(getActivity());
+            if(status){
+                exercise.setChecked(true);
+            }
+            exercise.setOnClickListener(new View.OnClickListener() {
+                boolean checked = exercise.isChecked();
+
+                @Override
+                public void onClick(View v) {
+                    if(checked){
+                        status=false;
+                    }
+                    else{
+                        status=true;
+                    }
+                    modified=true;
+                    exerciseModified=true;
+                }
+            });
+            exercise.setText(name);
+            displayedRow.addView(exercise);
+
+            Button videoButton = new Button(getActivity());
+            videoButton.setText("Video");
+            videoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!videoURL.equalsIgnoreCase("none")){
+                        // found on SO
+                        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
+                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
+                        try{
+                            getContext().startActivity(appIntent);
+                        }
+                        catch(ActivityNotFoundException ex) {
+                            getContext().startActivity(webIntent);
+                        }
+                    }
+                    else{
+                        Toast.makeText(getActivity(), "No video found", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            displayedRow.addView(videoButton);
+            return displayedRow;
+        }
+
+        private String getFormattedLine(){
+            /*
+                Utilized whenever writing to a file. This method formats the information of the exercise
+                instance into the proper format specified in this project.
+             */
+            String retVal;
+            if(status){
+                retVal = name+"*"+EXERCISE_COMPLETE+"*"+videoURL;
+            }
+            else{
+                retVal = name+"*"+EXERCISE_INCOMPLETE+"*"+videoURL;
+            }
+            return retVal;
+        }
+    }
+}
