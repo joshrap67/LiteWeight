@@ -14,5 +14,9 @@
             android:id="@+id/nav_new_workout"
             android:icon="@drawable/create_icon"
             android:title="@string/nav_create_icon_title" />
+        <item
+            android:id="@+id/nav_user_settings"
+            android:icon="@drawable/create_icon"
+            android:title="@string/nav_user_settings" />
     </group>
 </menu>

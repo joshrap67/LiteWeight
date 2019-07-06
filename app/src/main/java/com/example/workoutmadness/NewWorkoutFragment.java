@@ -148,9 +148,7 @@ public class NewWorkoutFragment extends Fragment {
             File directoryHandle = getActivity().getExternalFilesDir(WORKOUT_DIRECTORY_NAME);
             File[] contents = directoryHandle.listFiles();
             for(File file : contents){
-                Log.d("fuck","path is"+file.toString());
                 if(file.getName().equalsIgnoreCase(aName+".txt")){
-                    Log.d("fuck",file.toString());
                     displayNameError();
                     return false;
                 }
@@ -319,7 +317,7 @@ public class NewWorkoutFragment extends Fragment {
         File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), finalName+".txt");
         try{
             writer = new BufferedWriter(new FileWriter(fhandle,false));
-            for(int i=0;i<=maxDayIndex;i++){
+            for(int i=0;i<maxDayIndex;i++){
                 int weekNum = (i/finalDayNum)+1;
                 int dayNum = (i%finalDayNum)+1;
                 String dayTitle=DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
@@ -329,6 +327,17 @@ public class NewWorkoutFragment extends Fragment {
                     String exerciseLine = exercise+"*"+"INCOMPLETE"+"*"+"NONE\n";
                     writer.write(exerciseLine);
                 }
+            }
+            //TODO find different way to do this that isn't hacky
+            // prevents extra new line character being put at end of file
+            int weekNum = (maxDayIndex/finalDayNum)+1;
+            int dayNum = (maxDayIndex%finalDayNum)+1;
+            String dayTitle=DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
+            writer.write(dayTitle);
+            for(String exercise : exercises.get(maxDayIndex)){
+                // TODO pull video from the video file
+                String exerciseLine = exercise+"*"+"INCOMPLETE"+"*"+"NONE\n";
+                writer.write(exerciseLine);
             }
             writer.close();
         }
