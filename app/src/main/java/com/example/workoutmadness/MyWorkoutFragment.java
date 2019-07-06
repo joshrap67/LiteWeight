@@ -37,7 +37,10 @@ public class MyWorkoutFragment extends Fragment {
 
     public void populateListView(){
         //todo when workout is selected it moves to the top of the list.
-        String msg = "Times Completed: 420\nPercentage of Exercises Completed: 69%";
+        String msg = "Times Completed: 420\n" +
+                "Average Percentage of Exercises Completed: 69%\n" +
+                "Most Frequent Exercise: Yeeting\n" +
+                "Least Frequent Exercise: Dabbing";
         statisticsTV.setText(msg);
         workouts.add("Abc 1");
         workouts.add("Ce3 2");

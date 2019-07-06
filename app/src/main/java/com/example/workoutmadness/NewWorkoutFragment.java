@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +37,7 @@ public class NewWorkoutFragment extends Fragment {
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button previousDayBtn, nextDayBtn;
     private int finalDayNum, finalWeekNum;
-    private String finalName;
+    private String finalName, WORKOUT_DIRECTORY_NAME, DAY_DELIM="TIME";
     private View view, popupView;
     private AlertDialog alertDialog;
     private ArrayList<String> checkedExercises = new ArrayList<>();
@@ -50,6 +55,7 @@ public class NewWorkoutFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_new, container, false);
         String toolbarName = "Workout Creator";
         ((MainActivity) getActivity()).updateToolbarTitle(toolbarName);
+        WORKOUT_DIRECTORY_NAME= ((MainActivity) getActivity()).getWorkoutDirectoryName();
         currentDayIndex=0;
         initViews();
         return view;
@@ -129,10 +135,28 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public boolean checkValidName(String aName){
+        aName=aName.trim();
         if((aName.length()>0)&&(aName.length()<500)){
+            String[] letters = aName.split("");
+            for(String letter : letters){
+                if(letter.equalsIgnoreCase(".")){
+                    displayNameError();
+                    return false;
+                }
+            }
+            // check if workout name has already been used before
+            File directoryHandle = getActivity().getExternalFilesDir(WORKOUT_DIRECTORY_NAME);
+            File[] contents = directoryHandle.listFiles();
+            for(File file : contents){
+                Log.d("fuck","path is"+file.toString());
+                if(file.getName().equalsIgnoreCase(aName+".txt")){
+                    Log.d("fuck",file.toString());
+                    displayNameError();
+                    return false;
+                }
+            }
             return true;
         }
-        // TODO check if workout name already exists
         displayNameError();
         return false;
     }
@@ -268,7 +292,15 @@ public class NewWorkoutFragment extends Fragment {
                         }
                     }
                     if(ready){
-                        //todo write to file and exit
+                        writeToFile();
+                        Toast.makeText(getContext(), "Workout successfully created!",Toast.LENGTH_SHORT).show();
+                        // restart this fragment
+                        Fragment frag;
+                        frag = getFragmentManager().findFragmentByTag("NEW_WORKOUT");
+                        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.detach(frag);
+                        ft.attach(frag);
+                        ft.commit();
                     }
                     else{
                         Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
@@ -279,7 +311,30 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public void writeToFile(){
-
+        /*
+            Updates the workout file to include the changes that were made by the user. This
+            is called whenever the user clicks to go to another day or exits out of the fragment.
+         */
+        BufferedWriter writer = null;
+        File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), finalName+".txt");
+        try{
+            writer = new BufferedWriter(new FileWriter(fhandle,false));
+            for(int i=0;i<=maxDayIndex;i++){
+                int weekNum = (i/finalDayNum)+1;
+                int dayNum = (i%finalDayNum)+1;
+                String dayTitle=DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
+                writer.write(dayTitle);
+                for(String exercise : exercises.get(i)){
+                    // TODO pull video from the video file
+                    String exerciseLine = exercise+"*"+"INCOMPLETE"+"*"+"NONE\n";
+                    writer.write(exerciseLine);
+                }
+            }
+            writer.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to record to workout file!\n"+e);
+        }
     }
 
     public void addExercises(){
@@ -288,8 +343,8 @@ public class NewWorkoutFragment extends Fragment {
         for (final String exercise : exercises.get(currentDayIndex)){
             final TableRow row = new TableRow(getActivity());
             row.setBackgroundResource(R.drawable.border);
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(lp);
+            TableRow.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            row.setLayoutParams(params);
             TextView name = new TextView(getContext());
             name.setText(exercise);
             name.setTextSize(30);
@@ -303,6 +358,8 @@ public class NewWorkoutFragment extends Fragment {
                     exercises.get(currentDayIndex).remove(exercise);
                 }
             });
+            name.setPadding(50,20,8,8);
+            deleteRowIcon.setPadding(50,35,8,8);
             row.addView(deleteRowIcon);
             displayedExercisesTable.addView(row,count);
             count++;
