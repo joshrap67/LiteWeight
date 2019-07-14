@@ -70,6 +70,9 @@ public class MyWorkoutFragment extends Fragment {
     }
 
     public boolean updateCurrentWorkout(){
+        /*
+            Updates the current workout variable and textview by grabbing the name from the first line of the workout log
+         */
         BufferedReader reader = null;
         try{
             File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
@@ -92,7 +95,11 @@ public class MyWorkoutFragment extends Fragment {
     }
 
     public void updateCurrentWorkoutLog(String workoutName){
-        // structure of the log is that the first line is the current workout
+        /*
+            Called when user selects a workout from the list. The log must be changed so this workout is at the top of the file
+            while all of the other workouts are placed below it.
+            workoutName has no file extension, it is the name of the workout
+         */
         BufferedReader reader = null;
         BufferedWriter writer = null;
         String _data = null;
@@ -135,37 +142,12 @@ public class MyWorkoutFragment extends Fragment {
         }
     }
 
-    public void removeWorkoutFromLog(String workoutName){
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), "temp");
-        try{
-            // progress through the file until the correct spot is found
-            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
-            FileReader fileR= new FileReader(fhandleOld);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                String fileName = line.split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
-                String name = fileName.substring(0,fileName.lastIndexOf("."));
-                if(!(name.equalsIgnoreCase(workoutName))){
-                    // when name is found skip over it
-                    writer.write(line+"\n");
-                    break;
-                }
-            }
-            reader.close();
-            writer.close();
-            fhandleOld.delete();
-            fhandleNew.renameTo(fhandleOld);
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to delete workout from current workout log!\n"+e);
-        }
-    }
 
     public void updateWorkouts(){
+        /*
+            This method loops through all the files in the directory and puts all workouts, excluding the selected one,
+            into an Arraylist
+         */
         File directoryHandle = getActivity().getExternalFilesDir(WORKOUT_DIRECTORY);
         File[] contents = directoryHandle.listFiles();
         for(File file : contents){
@@ -219,7 +201,6 @@ public class MyWorkoutFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(deleteFile(selectedWorkout+WORKOUT_EXT)){
-                    workouts.remove(selectedWorkout);
                     removeWorkoutFromLog(selectedWorkout);
                     updateListView();
                 }
@@ -239,6 +220,7 @@ public class MyWorkoutFragment extends Fragment {
     }
 
     public boolean deleteFile(String fileName){
+        // TODO need to handle when no files left
         String directoryName=null;
         String ext = fileName.substring(fileName.lastIndexOf("."));
         switch (ext){
@@ -247,7 +229,8 @@ public class MyWorkoutFragment extends Fragment {
             case STATISTICS_EXT:
                 break;
         }
-        File file = new File(directoryName,fileName);
+
+        File file = new File(getContext().getExternalFilesDir(directoryName), fileName);
         try{
             return file.delete();
         }
@@ -256,4 +239,37 @@ public class MyWorkoutFragment extends Fragment {
             return false;
         }
     }
+
+    public void removeWorkoutFromLog(String workoutName){
+        /*
+            workoutName has no extension
+         */
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), "temp");
+        try{
+            // progress through the file until the correct spot is found
+            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
+            FileReader fileR= new FileReader(fhandleOld);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                String fileName = line.split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+                String name = fileName.substring(0,fileName.lastIndexOf("."));
+                if(!(name.equalsIgnoreCase(workoutName))){
+                    // when name is found skip over it
+                    writer.write(line+"\n");
+                }
+            }
+            reader.close();
+            writer.close();
+            fhandleOld.delete();
+            fhandleNew.renameTo(fhandleOld);
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to delete workout from current workout log!\n"+e);
+        }
+    }
+
 }

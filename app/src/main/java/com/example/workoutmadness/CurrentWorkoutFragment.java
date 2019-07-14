@@ -68,7 +68,6 @@ public class CurrentWorkoutFragment extends Fragment {
 
         boolean flag1 = updateCurrentWorkoutFile();
         boolean flag2 = updateCurrentDayNumber();
-        // TODO change format of workout log. Have each line correspond to the different workouts in the directory
         if(flag1&&flag2){
             // get the workout name and update the toolbar with the name
             String[] workoutFile = WORKOUT_FILE.split(".txt");
@@ -250,16 +249,6 @@ public class CurrentWorkoutFragment extends Fragment {
             current workout.
          */
         String _data = WORKOUT_FILE+"*"+currentDayIndex;
-//        try{
-//            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(fhandle,false));
-//            writer.write(_data);
-//            writer.close();
-//        }
-//        catch (Exception e){
-//            Log.d("ERROR","Error when trying to write to current workout log!\n"+e);
-//        }
-
         BufferedReader reader = null;
         BufferedWriter writer = null;
         File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
