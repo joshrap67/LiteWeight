@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //TODO implement timer??? For in between reps
         /*
         <div>Icons made by <a href="https://www.flaticon.com/authors/monkik" title="monkik">monkik</a> from <a href="https://www.flaticon.com/"
         title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
-        boolean exists = checkIfDirectoryExists();
+        boolean exists = checkIfDirectoryExists(WORKOUT_DIRECTORY_NAME);
         if(!exists){
             createDirectory(WORKOUT_DIRECTORY_NAME);
         }
@@ -83,7 +82,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         goToCurrentWorkout();
                     }
                 }
-                else{
+                else if(currentFrag instanceof UserSettingsFragment){
+                    // check if they are modifiing the custom exercises or videos
+                    if(modified){
+                        // todo popup
+                    }
+                    else{
+                        goToCurrentWorkout();
+                    }
+                }
+                else if(!(currentFrag instanceof CurrentWorkoutFragment)){
                     goToCurrentWorkout();
                 }
                 break;
@@ -104,6 +112,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         goToMyWorkouts();
                     }
                 }
+                else if(currentFrag instanceof UserSettingsFragment){
+                    // check if they are modifying the custom exercises or videos
+                    if(modified){
+                        showPopup("my_workouts");
+                    }
+                    else{
+                        goToMyWorkouts();
+                    }
+                }
+                else if(!(currentFrag instanceof MyWorkoutFragment)){
+                    goToMyWorkouts();
+                }
                 break;
 
             case R.id.nav_new_workout:
@@ -115,8 +135,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     goToNewWorkout();
                 }
+                else if(currentFrag instanceof UserSettingsFragment){
+                    // check if they are modifying the custom exercises or videos
+                    if(modified){
+                        showPopup("new_workout");
+                    }
+                    else{
+                        goToNewWorkout();
+                    }
+                }
                 else if(!(currentFrag instanceof NewWorkoutFragment)) {
                     goToNewWorkout();
+                }
+                break;
+
+            case R.id.nav_user_settings:
+                if(currentFrag instanceof CurrentWorkoutFragment){
+                    if(modified){
+                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+                    }
+                    goToUserSettings();
+                }
+                else if(currentFrag instanceof NewWorkoutFragment){
+                    if(modified){
+                        showPopup("user_settings");
+                    }
+                    else{
+                        goToUserSettings();
+                    }
+                }
+                else if(!(currentFrag instanceof UserSettingsFragment)) {
+                    goToUserSettings();
+                }
+                break;
+
+            case R.id.nav_about:
+                if(currentFrag instanceof CurrentWorkoutFragment){
+                    if(modified){
+                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+                    }
+                    goToAbout();
+                }
+                else if(currentFrag instanceof NewWorkoutFragment){
+                    if(modified){
+                        showPopup("about");
+                    }
+                    else{
+                        goToAbout();
+                    }
+                }
+                else if(currentFrag instanceof UserSettingsFragment){
+                    // check if they are modifying the custom exercises or videos
+                    if(modified){
+                        showPopup("about");
+                    }
+                    else{
+                        goToAbout();
+                    }
+                }
+                else if(!(currentFrag instanceof AboutFragment)){
+                    goToAbout();
                 }
                 break;
 
@@ -237,8 +317,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public boolean checkIfDirectoryExists(){
-        File directoryHandle = getExternalFilesDir(WORKOUT_DIRECTORY_NAME);
+    public boolean checkIfDirectoryExists(String directoryName){
+        File directoryHandle = getExternalFilesDir(directoryName);
         File[] contents = directoryHandle.listFiles();
         if(contents.length>0){
             return true;
@@ -287,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             reader.close();
         }
         catch (Exception e){
-
+            Log.d("ERROR","Error when trying to copy "+fileName+"\n"+e);
         }
 
     }
@@ -307,14 +387,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
         }
         else if(aFragment instanceof CurrentWorkoutFragment){
-            if(((CurrentWorkoutFragment) aFragment).isModified()){
-                return true;
-            }
+            return ((CurrentWorkoutFragment) aFragment).isModified();
         }
         else if(aFragment instanceof NewWorkoutFragment){
-            if(((NewWorkoutFragment) aFragment).isModified()){
-                return true;
-            }
+            return ((NewWorkoutFragment) aFragment).isModified();
+        }
+        else if(aFragment instanceof UserSettingsFragment){
+            return ((UserSettingsFragment) aFragment).isModified();
         }
         return false;
     }
@@ -344,7 +423,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void goToMyWorkouts(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutFragment(), "NY_WORKOUTS").commit();
+                new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+    }
+
+    public void goToUserSettings(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new UserSettingsFragment(), "USER_SETTINGS").commit();
+    }
+
+    public void goToAbout(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new AboutFragment(), "ABOUT").commit();
     }
 
 
@@ -365,6 +454,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     case "my_workouts":
                         goToMyWorkouts();
+                        break;
+                    case "user_settings":
+                        goToUserSettings();
+                        break;
+                    case "about":
+                        goToAbout();
                         break;
                 }
                 alertDialog.dismiss();

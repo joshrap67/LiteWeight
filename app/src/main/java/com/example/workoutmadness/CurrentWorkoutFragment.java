@@ -76,6 +76,7 @@ public class CurrentWorkoutFragment extends Fragment {
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
             initTimer();
             populateExercises();
+            // TODO need to put error checking here in case file gets wiped.
             populateTable();
         }
         else{
@@ -249,15 +250,40 @@ public class CurrentWorkoutFragment extends Fragment {
             current workout.
          */
         String _data = WORKOUT_FILE+"*"+currentDayIndex;
+//        try{
+//            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+//            BufferedWriter writer = new BufferedWriter(new FileWriter(fhandle,false));
+//            writer.write(_data);
+//            writer.close();
+//        }
+//        catch (Exception e){
+//            Log.d("ERROR","Error when trying to write to current workout log!\n"+e);
+//        }
+
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), "temp");
         try{
-            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(fhandle,false));
-            writer.write(_data);
+            // progress through the file until the correct spot is found
+            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
+            FileReader fileR= new FileReader(fhandleOld);
+            reader = new BufferedReader(fileR);
+            String line;
+            writer.write(_data+"\n"); // put the current workout at top of file
+            reader.readLine(); // skip over first line when copying over from previous log since we just updated in the line above
+            while(((line=reader.readLine())!=null)){
+                writer.write(line+"\n");
+            }
+            reader.close();
             writer.close();
+            fhandleOld.delete();
+            fhandleNew.renameTo(fhandleOld);
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to write to current workout log!\n"+e);
         }
+
     }
 
     public void recordToWorkoutFile(){
