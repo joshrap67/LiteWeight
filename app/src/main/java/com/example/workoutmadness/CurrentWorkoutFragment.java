@@ -48,11 +48,11 @@ public class CurrentWorkoutFragment extends Fragment {
         // init all the views
         forwardButton = view.findViewById(R.id.forwardButton);
         backButton = view.findViewById(R.id.previousDayButton);
-        startTimer=view.findViewById(R.id.start_timer);
-        stopTimer=view.findViewById(R.id.stop_timer);
-        resetTimer=view.findViewById(R.id.reset_timer);
-        hideTimer=view.findViewById(R.id.hide_timer);
-        showTimer=view.findViewById(R.id.show_timer);
+        startTimer = view.findViewById(R.id.start_timer);
+        stopTimer = view.findViewById(R.id.stop_timer);
+        resetTimer = view.findViewById(R.id.reset_timer);
+        hideTimer = view.findViewById(R.id.hide_timer);
+        showTimer = view.findViewById(R.id.show_timer);
         showTimer.setVisibility(View.INVISIBLE);
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
@@ -62,8 +62,7 @@ public class CurrentWorkoutFragment extends Fragment {
         boolean flag2 = updateCurrentDayNumber();
         if(flag1&&flag2){
             // get the workout name and update the toolbar with the name
-            String[] workoutFile = WORKOUT_FILE.split(".txt");
-            String workoutName = workoutFile[0];
+            String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
             initTimer();
             populateExercises();
@@ -98,11 +97,8 @@ public class CurrentWorkoutFragment extends Fragment {
                     totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
                 }
                 else{
-                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM));
-                    if(!exerciseModified){
-                        // check if an exercise has been marked complete
-                    }
-                    totalExercises.get(hashIndex).add(new Exercise(line.split(Variables.SPLIT_DELIM)));
+                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this);
+                    totalExercises.get(hashIndex).add(exercise);
                 }
             }
         }
@@ -351,6 +347,14 @@ public class CurrentWorkoutFragment extends Fragment {
         return modified;
     }
 
+    public void setModified(boolean status){
+        modified=status;
+    }
+
+    public void setPreviouslyModified(boolean status){
+        exerciseModified=status;
+    }
+
     /*
         ***********************************
         Setting up all of the timer methods
@@ -430,102 +434,5 @@ public class CurrentWorkoutFragment extends Fragment {
         hideTimer.setVisibility(View.VISIBLE);
         timer.setVisibility(View.VISIBLE);
         showTimer.setVisibility(View.INVISIBLE);
-    }
-
-    private class Exercise{
-        private String name;
-        private String videoURL;
-        private boolean status;
-        private TableRow displayedRow;
-
-        private Exercise(final String[] rawText){
-            if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
-                // means that the exercise has already been done, so make sure to set status as so
-                exerciseModified=true;
-                status=true;
-            }
-            else{
-                status=false;
-            }
-            name=rawText[Variables.NAME_INDEX];
-            videoURL=rawText[Variables.VIDEO_INDEX];
-        }
-        private void setStatus(boolean aStatus){
-            /*
-                Sets the status of the exercise as either being complete or incomplete.
-             */
-            status=aStatus;
-        }
-
-        private TableRow getDisplayedRow(){
-            /*
-                Takes all of the information from the instance variables of this exercise and puts it into a row to be displayed
-                by the main table.
-             */
-            displayedRow = new TableRow(getActivity());
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            displayedRow.setLayoutParams(lp);
-
-            final CheckBox exercise = new CheckBox(getActivity());
-            if(status){
-                exercise.setChecked(true);
-            }
-            exercise.setOnClickListener(new View.OnClickListener() {
-                boolean checked = exercise.isChecked();
-
-                @Override
-                public void onClick(View v) {
-                    if(checked){
-                        status=false;
-                    }
-                    else{
-                        status=true;
-                    }
-                    modified=true;
-                    exerciseModified=true;
-                }
-            });
-            exercise.setText(name);
-            displayedRow.addView(exercise);
-
-            Button videoButton = new Button(getActivity());
-            videoButton.setText("Video");
-            videoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(!videoURL.equalsIgnoreCase("none")){
-                        // found on SO
-                        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                        try{
-                            getContext().startActivity(appIntent);
-                        }
-                        catch(ActivityNotFoundException ex) {
-                            getContext().startActivity(webIntent);
-                        }
-                    }
-                    else{
-                        Toast.makeText(getActivity(), "No video found", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-            displayedRow.addView(videoButton);
-            return displayedRow;
-        }
-
-        private String getFormattedLine(){
-            /*
-                Utilized whenever writing to a file. This method formats the information of the exercise
-                instance into the proper format specified in this project.
-             */
-            String retVal;
-            if(status){
-                retVal = name+"*"+Variables.EXERCISE_COMPLETE+"*"+videoURL;
-            }
-            else{
-                retVal = name+"*"+Variables.EXERCISE_INCOMPLETE+"*"+videoURL;
-            }
-            return retVal;
-        }
     }
 }

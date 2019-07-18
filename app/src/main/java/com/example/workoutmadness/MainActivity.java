@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private static final String WORKOUT_DIRECTORY_NAME ="Workouts", CURRENT_WORKOUT_LOG="currentWorkout.log",
-            USER_SETTINGS_DIRECTORY_NAME="UserSettings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +53,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
-        boolean exists = checkIfDirectoryExists(WORKOUT_DIRECTORY_NAME);
+        boolean exists = checkIfDirectoryExists(Variables.WORKOUT_DIRECTORY);
         if(!exists){
-            createDirectory(WORKOUT_DIRECTORY_NAME);
+            createDirectory(Variables.WORKOUT_DIRECTORY);
         }
         toggle.syncState();
         if (savedInstanceState == null) {
@@ -331,22 +329,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void createDirectory(String directoryName){
         File directoryHandle = getExternalFilesDir(directoryName);
         directoryHandle.mkdirs();
-        File fhandle = new File(getExternalFilesDir(directoryName), CURRENT_WORKOUT_LOG);
+        File fhandle = new File(getExternalFilesDir(directoryName), Variables.CURRENT_WORKOUT_LOG);
         try {
             fhandle.createNewFile();
         } catch (Exception e) {
-            Log.d("Creating file", "Error when trying to create the "+CURRENT_WORKOUT_LOG+" file!");
+            Log.d("Creating file", "Error when trying to create the "+Variables.CURRENT_WORKOUT_LOG+" file!");
         }
         copyFile("Josh's Workout.txt");
-        copyFile(CURRENT_WORKOUT_LOG);
-    }
-
-    public String getWorkoutDirectoryName(){
-        return WORKOUT_DIRECTORY_NAME;
-    }
-
-    public String getWorkoutLogName(){
-        return CURRENT_WORKOUT_LOG;
+        copyFile(Variables.CURRENT_WORKOUT_LOG);
     }
 
     public void copyFile(String fileName){
@@ -356,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BufferedReader reader = null;
         BufferedWriter writer = null;
         try{
-            File fhandle = new File(getExternalFilesDir(WORKOUT_DIRECTORY_NAME), fileName);
+            File fhandle = new File(getExternalFilesDir(Variables.WORKOUT_DIRECTORY), fileName);
             writer = new BufferedWriter(new FileWriter(fhandle,false));
             reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)));
             String line;

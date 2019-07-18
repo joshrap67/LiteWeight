@@ -308,38 +308,4 @@ public class MyWorkoutFragment extends Fragment {
         String delim = strings[Variables.TIME_INDEX];
         return delim.equalsIgnoreCase(Variables.DAY_DELIM); // return true if this indeed is a day
     }
-
-    private class Exercise{
-        private String name;
-        private String videoURL;
-        private boolean status;
-
-        private Exercise(final String[] rawText){
-            if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
-                // means that the exercise has already been done, so make sure to set status as so
-                status=true;
-            }
-            else{
-                status=false;
-            }
-            name=rawText[Variables.NAME_INDEX];
-            videoURL=rawText[Variables.VIDEO_INDEX];
-        }
-
-        private String getFormattedLine(){
-            /*
-                Utilized whenever writing to a file. This method formats the information of the exercise
-                instance into the proper format specified in this project.
-             */
-            String retVal;
-            if(status){
-                retVal = name+"*"+Variables.EXERCISE_COMPLETE+"*"+videoURL;
-            }
-            else{
-                retVal = name+"*"+Variables.EXERCISE_INCOMPLETE+"*"+videoURL;
-            }
-            return retVal;
-        }
-    }
-
 }
