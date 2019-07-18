@@ -30,16 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CurrentWorkoutFragment extends Fragment {
-    private View view;
     private TextView dayTV;
     private TableLayout table;
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
-    private static final int TIME_INDEX = 0, TIME_TITLE_INDEX = 1, NAME_INDEX = 0, STATUS_INDEX = 1, VIDEO_INDEX = 2,
-            WORKOUT_NAME_INDEX = 0, CURRENT_DAY_INDEX = 1;
-    private String SPLIT_DELIM ="\\*", DAY_DELIM="TIME", EXERCISE_COMPLETE ="COMPLETE", EXERCISE_INCOMPLETE = "INCOMPLETE",
-            WORKOUT_FILE= "Josh's Workout.txt",
-            CURRENT_WORKOUT_LOG, WORKOUT_DIRECTORY_NAME;
+    private String WORKOUT_FILE;
     private boolean modified = false, exerciseModified = false, timerRunning = false;
     private Chronometer timer;
     private long lastTime;
@@ -49,7 +44,7 @@ public class CurrentWorkoutFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_workout,container,false);
+        View view = inflater.inflate(R.layout.fragment_workout,container,false);
         // init all the views
         forwardButton = view.findViewById(R.id.forwardButton);
         backButton = view.findViewById(R.id.previousDayButton);
@@ -62,9 +57,6 @@ public class CurrentWorkoutFragment extends Fragment {
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
         dayTV = view.findViewById(R.id.dayTextView);
-        // get workout file location information
-        CURRENT_WORKOUT_LOG = ((MainActivity)getActivity()).getWorkoutLogName();
-        WORKOUT_DIRECTORY_NAME =((MainActivity)getActivity()).getWorkoutDirectoryName();
 
         boolean flag1 = updateCurrentWorkoutFile();
         boolean flag2 = updateCurrentDayNumber();
@@ -94,7 +86,7 @@ public class CurrentWorkoutFragment extends Fragment {
         int hashIndex = -1;
         try{
             // progress through the file until a day  is found. Once found, populate with exercises
-            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), WORKOUT_FILE);
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), WORKOUT_FILE);
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
             String line;
@@ -103,10 +95,14 @@ public class CurrentWorkoutFragment extends Fragment {
                 if(day){
                     hashIndex++;
                     totalExercises.put(hashIndex, new ArrayList<Exercise>());
-                    totalDayTitles.put(hashIndex, line.split(SPLIT_DELIM)[TIME_TITLE_INDEX]); // add day
+                    totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
                 }
                 else{
-                    totalExercises.get(hashIndex).add(new Exercise(line.split(SPLIT_DELIM)));
+                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM));
+                    if(!exerciseModified){
+                        // check if an exercise has been marked complete
+                    }
+                    totalExercises.get(hashIndex).add(new Exercise(line.split(Variables.SPLIT_DELIM)));
                 }
             }
         }
@@ -191,10 +187,10 @@ public class CurrentWorkoutFragment extends Fragment {
          */
         BufferedReader reader = null;
         try{
-            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
-            WORKOUT_FILE = reader.readLine().split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+            WORKOUT_FILE = reader.readLine().split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
             reader.close();
             return true;
         }
@@ -212,10 +208,10 @@ public class CurrentWorkoutFragment extends Fragment {
          */
         BufferedReader reader = null;
         try{
-            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
-            currentDayIndex = Integer.parseInt(reader.readLine().split(SPLIT_DELIM)[CURRENT_DAY_INDEX]);
+            currentDayIndex = Integer.parseInt(reader.readLine().split(Variables.SPLIT_DELIM)[Variables.CURRENT_DAY_INDEX]);
             reader.close();
             return true;
         }
@@ -233,9 +229,9 @@ public class CurrentWorkoutFragment extends Fragment {
         if(data==null){
             return false;
         }
-        String[] strings = data.split(SPLIT_DELIM);
-        String delim = strings[TIME_INDEX];
-        if(delim.equalsIgnoreCase(DAY_DELIM)){
+        String[] strings = data.split(Variables.SPLIT_DELIM);
+        String delim = strings[Variables.TIME_INDEX];
+        if(delim.equalsIgnoreCase(Variables.DAY_DELIM)){
             // found a line that represents a day
             return true;
         }
@@ -251,8 +247,8 @@ public class CurrentWorkoutFragment extends Fragment {
         String _data = WORKOUT_FILE+"*"+currentDayIndex;
         BufferedReader reader = null;
         BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), "temp");
+        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
         try{
             // progress through the file until the correct spot is found
             writer = new BufferedWriter(new FileWriter(fhandleNew,true));
@@ -281,11 +277,11 @@ public class CurrentWorkoutFragment extends Fragment {
             is called whenever the user clicks to go to another day or exits out of the fragment.
          */
         BufferedWriter writer = null;
-        File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), WORKOUT_FILE);
+        File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), WORKOUT_FILE);
         try{
             writer = new BufferedWriter(new FileWriter(fhandle,false));
             for(int i=0;i<=maxDayIndex;i++){
-                String dayData = DAY_DELIM+"*"+totalDayTitles.get(i);
+                String dayData = Variables.DAY_DELIM+"*"+totalDayTitles.get(i);
                 writer.write(dayData+"\n");
                 for(Exercise exercise : totalExercises.get(i)){
                     String data = exercise.getFormattedLine();
@@ -443,7 +439,7 @@ public class CurrentWorkoutFragment extends Fragment {
         private TableRow displayedRow;
 
         private Exercise(final String[] rawText){
-            if(rawText[STATUS_INDEX].equals(EXERCISE_COMPLETE)){
+            if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
                 // means that the exercise has already been done, so make sure to set status as so
                 exerciseModified=true;
                 status=true;
@@ -451,8 +447,8 @@ public class CurrentWorkoutFragment extends Fragment {
             else{
                 status=false;
             }
-            name=rawText[NAME_INDEX];
-            videoURL=rawText[VIDEO_INDEX];
+            name=rawText[Variables.NAME_INDEX];
+            videoURL=rawText[Variables.VIDEO_INDEX];
         }
         private void setStatus(boolean aStatus){
             /*
@@ -524,10 +520,10 @@ public class CurrentWorkoutFragment extends Fragment {
              */
             String retVal;
             if(status){
-                retVal = name+"*"+EXERCISE_COMPLETE+"*"+videoURL;
+                retVal = name+"*"+Variables.EXERCISE_COMPLETE+"*"+videoURL;
             }
             else{
-                retVal = name+"*"+EXERCISE_INCOMPLETE+"*"+videoURL;
+                retVal = name+"*"+Variables.EXERCISE_INCOMPLETE+"*"+videoURL;
             }
             return retVal;
         }

@@ -39,8 +39,7 @@ public class NewWorkoutFragment extends Fragment {
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button previousDayBtn, nextDayBtn;
     private int finalDayNum, finalWeekNum;
-    private String finalName, WORKOUT_DIRECTORY_NAME, CURRENT_WORKOUT_LOG, DAY_DELIM="TIME", SPLIT_DELIM="\\*";
-    private static final String WORKOUT_EXT = ".txt", STATISTICS_EXT = ".stat";
+    private String finalName;
     private View view, popupView;
     private AlertDialog alertDialog;
     private ArrayList<String> checkedExercises = new ArrayList<>();
@@ -56,10 +55,7 @@ public class NewWorkoutFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentContainer=container;
         view = inflater.inflate(R.layout.fragment_new, container, false);
-        String toolbarName = "Workout Creator";
-        ((MainActivity) getActivity()).updateToolbarTitle(toolbarName);
-        WORKOUT_DIRECTORY_NAME= ((MainActivity) getActivity()).getWorkoutDirectoryName();
-        CURRENT_WORKOUT_LOG = ((MainActivity) getActivity()).getWorkoutLogName();
+        ((MainActivity) getActivity()).updateToolbarTitle("Workout Creator");
         currentDayIndex=0;
         initViews();
         return view;
@@ -141,7 +137,7 @@ public class NewWorkoutFragment extends Fragment {
                 }
             }
             // check if workout name has already been used before
-            File directoryHandle = getActivity().getExternalFilesDir(WORKOUT_DIRECTORY_NAME);
+            File directoryHandle = getActivity().getExternalFilesDir(Variables.WORKOUT_DIRECTORY);
             File[] contents = directoryHandle.listFiles();
             for(File file : contents){
                 if(file.getName().equalsIgnoreCase(aName+".txt")){
@@ -312,13 +308,13 @@ public class NewWorkoutFragment extends Fragment {
             is called whenever the user clicks to go to another day or exits out of the fragment.
          */
         BufferedWriter writer = null;
-        File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), finalName+WORKOUT_EXT);
+        File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), finalName+Variables.WORKOUT_EXT);
         try{
             writer = new BufferedWriter(new FileWriter(fhandle,false));
             for(int i=0;i<maxDayIndex;i++){
                 int weekNum = (i/finalDayNum)+1;
                 int dayNum = (i%finalDayNum)+1;
-                String dayTitle=DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
+                String dayTitle=Variables.DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
                 writer.write(dayTitle);
                 for(String exercise : exercises.get(i)){
                     // TODO pull video from the video file
@@ -330,7 +326,7 @@ public class NewWorkoutFragment extends Fragment {
             // prevents extra new line character being put at end of file
             int weekNum = (maxDayIndex/finalDayNum)+1;
             int dayNum = (maxDayIndex%finalDayNum)+1;
-            String dayTitle=DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
+            String dayTitle=Variables.DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
             writer.write(dayTitle);
             for(String exercise : exercises.get(maxDayIndex)){
                 // TODO pull video from the video file
@@ -338,7 +334,7 @@ public class NewWorkoutFragment extends Fragment {
                 writer.write(exerciseLine);
             }
             writer.close();
-            updateCurrentWorkoutLog(finalName+WORKOUT_EXT);
+            updateCurrentWorkoutLog(finalName+Variables.WORKOUT_EXT);
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to record to workout file!\n"+e);
@@ -445,8 +441,8 @@ public class NewWorkoutFragment extends Fragment {
         BufferedReader reader = null;
         BufferedWriter writer = null;
         String _data = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY_NAME), "temp");
+        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
         try{
             // progress through the file until the correct spot is found
             writer = new BufferedWriter(new FileWriter(fhandleNew,true));

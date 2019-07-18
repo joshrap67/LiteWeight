@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class MyWorkoutFragment extends Fragment {
     private View view;
@@ -30,18 +31,17 @@ public class MyWorkoutFragment extends Fragment {
     private TextView selectedWorkoutTV, statisticsTV;
     private ListView listView;
     private ArrayAdapter<String> arrayAdapter;
-    private static final String WORKOUT_EXT = ".txt", STATISTICS_EXT = ".stat";
-    private String WORKOUT_DIRECTORY, CURRENT_WORKOUT_LOG, STATISTICS_DIRECTORY, SPLIT_DELIM="\\*", selectedWorkout;
+    private String selectedWorkout;
     private Button resetStatisticsBtn, editBtn, deleteBtn;
-    private int WORKOUT_NAME_INDEX=0;
+    private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
+    private HashMap<Integer, String> totalDayTitles = new HashMap<>();
+    private int maxDayIndex;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_my_workouts,container,false);
         ((MainActivity)getActivity()).updateToolbarTitle("My Workouts");
-        WORKOUT_DIRECTORY = ((MainActivity) getActivity()).getWorkoutDirectoryName();
-        CURRENT_WORKOUT_LOG = ((MainActivity) getActivity()).getWorkoutLogName();
         listView= view.findViewById(R.id.workout_list);
         selectedWorkoutTV =view.findViewById(R.id.selected_workout_text_view);
         statisticsTV=view.findViewById(R.id.stat_text_view);
@@ -49,14 +49,24 @@ public class MyWorkoutFragment extends Fragment {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                promptDelete();
+                File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
+                if(!(fhandle.length()==0)){
+                    promptDelete();
+                }
             }
         });
-        if(updateCurrentWorkout()){
-            updateWorkouts();
-            populateListView();
-            updateStatistics();
-        }
+        arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, workouts);
+        listView.setAdapter(arrayAdapter);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                updateCurrentWorkoutLog(workouts.get(position));
+                updateListView();
+            }
+        });
+        updateListView();
+        // TODO add sorting for listview?
         return view;
     }
 
@@ -64,28 +74,38 @@ public class MyWorkoutFragment extends Fragment {
         // dummy stuff for now
         String msg = "Times Completed: 420\n" +
                 "Average Percentage of Exercises Completed: 69%\n" +
-                "Most Frequent Exercise: Yeeting\n" +
-                "Least Frequent Exercise: Dabbing";
+                "Most Frequent Exercise: Dabbing\n" +
+                "Least Frequent Exercise: Yeeting";
         statisticsTV.setText(msg);
     }
 
-    public boolean updateCurrentWorkout(){
+    public boolean selectWorkout(){
         /*
-            Updates the current workout variable and textview by grabbing the name from the first line of the workout log
+            Updates the current workout variable and TextView by grabbing the name from the first line of the workout log.
+            Then, it grabs the rest of the workouts in the log and adds them to the list in order of most recently accessed.
          */
         BufferedReader reader = null;
         try{
-            File fhandle = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
             if(fhandle.length()==0){
                 // somehow is empty, so return for error
                 return false;
             }
+            workouts.clear(); // clear any previous workouts when re doing this.
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
-            String line = reader.readLine().split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+            String line = reader.readLine().split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
             selectedWorkout=line.substring(0,line.lastIndexOf("."));
-            reader.close();
             selectedWorkoutTV.setText(selectedWorkout);
+            // now grab the rest of the workouts to put into the list
+            while(!((line=reader.readLine())==null)){
+                String workout = line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
+                int extIndex = workout.lastIndexOf(".");
+                workout = line.substring(0, extIndex);
+                workouts.add(workout);
+            }
+            arrayAdapter.notifyDataSetChanged();
+            reader.close();
             return true;
         }
         catch (Exception e){
@@ -103,8 +123,8 @@ public class MyWorkoutFragment extends Fragment {
         BufferedReader reader = null;
         BufferedWriter writer = null;
         String _data = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), "temp");
+        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
         try{
             // progress through the file until the correct spot is found
             writer = new BufferedWriter(new FileWriter(fhandleNew,true));
@@ -112,7 +132,7 @@ public class MyWorkoutFragment extends Fragment {
             reader = new BufferedReader(fileR);
             String line;
             while((line=reader.readLine())!=null){
-                String fileName = line.split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+                String fileName = line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
                 String name = fileName.substring(0,fileName.lastIndexOf("."));
                 if(name.equalsIgnoreCase(workoutName)){
                     // found the workout data so preserve it
@@ -142,49 +162,9 @@ public class MyWorkoutFragment extends Fragment {
         }
     }
 
-
-    public void updateWorkouts(){
-        /*
-            This method loops through all the files in the directory and puts all workouts, excluding the selected one,
-            into an Arraylist
-         */
-        File directoryHandle = getActivity().getExternalFilesDir(WORKOUT_DIRECTORY);
-        File[] contents = directoryHandle.listFiles();
-        for(File file : contents){
-            String workout = file.getName();
-            if (workout.indexOf(".") > 0) {
-                int extIndex = workout.lastIndexOf(".");
-                String ext = workout.substring(extIndex);
-                if(!ext.equalsIgnoreCase(".log")){
-                    workout = workout.substring(0, extIndex);
-                    if(!(workout.equalsIgnoreCase(selectedWorkout))){
-                        workouts.add(workout);
-                    }
-                }
-            }
-        }
-        Collections.sort(workouts);
-    }
-
-    public void populateListView(){
-        arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, workouts);
-        listView.setAdapter(arrayAdapter);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                updateCurrentWorkoutLog(workouts.get(position));
-                updateListView();
-            }
-        });
-    }
-
     public void updateListView(){
-        if(updateCurrentWorkout()){
-            workouts.clear();
-            arrayAdapter.notifyDataSetChanged();
-            updateWorkouts();
-            populateListView();
+        if(selectWorkout()){
+            updateStatistics();
         }
         else{
             // display error message
@@ -200,7 +180,7 @@ public class MyWorkoutFragment extends Fragment {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(deleteFile(selectedWorkout+WORKOUT_EXT)){
+                if(deleteFile(selectedWorkout+Variables.WORKOUT_EXT)){
                     removeWorkoutFromLog(selectedWorkout);
                     updateListView();
                 }
@@ -224,9 +204,9 @@ public class MyWorkoutFragment extends Fragment {
         String directoryName=null;
         String ext = fileName.substring(fileName.lastIndexOf("."));
         switch (ext){
-            case WORKOUT_EXT:
-                directoryName=WORKOUT_DIRECTORY;
-            case STATISTICS_EXT:
+            case Variables.WORKOUT_EXT:
+                directoryName=Variables.WORKOUT_DIRECTORY;
+            case Variables.STATISTICS_EXT:
                 break;
         }
 
@@ -246,8 +226,8 @@ public class MyWorkoutFragment extends Fragment {
          */
         BufferedReader reader = null;
         BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(WORKOUT_DIRECTORY), "temp");
+        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
+        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
         try{
             // progress through the file until the correct spot is found
             writer = new BufferedWriter(new FileWriter(fhandleNew,true));
@@ -255,7 +235,7 @@ public class MyWorkoutFragment extends Fragment {
             reader = new BufferedReader(fileR);
             String line;
             while((line=reader.readLine())!=null){
-                String fileName = line.split(SPLIT_DELIM)[WORKOUT_NAME_INDEX];
+                String fileName = line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
                 String name = fileName.substring(0,fileName.lastIndexOf("."));
                 if(!(name.equalsIgnoreCase(workoutName))){
                     // when name is found skip over it
@@ -266,9 +246,99 @@ public class MyWorkoutFragment extends Fragment {
             writer.close();
             fhandleOld.delete();
             fhandleNew.renameTo(fhandleOld);
+            if(fhandleNew.length()==0){
+                // all the workouts have now been deleted, so update text view to alert user
+                // TODO put some type of popup to tell them to go create a workout?
+                selectedWorkoutTV.setText("No Workouts Found!");
+            }
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to delete workout from current workout log!\n"+e);
+        }
+    }
+    /*
+        **************************
+        Edit Workout Methods
+        **************************
+     */
+    public void editWorkout(){
+        // TODO change layout
+        // TODO init the buttons
+        // TODO update list view
+    }
+
+    public void populateExercises(){
+        /*
+            Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
+            instead of disk and makes the entire process of switching days a lot more elegant.
+         */
+        BufferedReader reader = null;
+        int hashIndex = -1;
+        try{
+            // progress through the file until a day  is found. Once found, populate with exercises
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), selectedWorkout+Variables.WORKOUT_EXT);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                boolean day = isDay(line); // possible day, if it is null then it is not at the current day specified in file
+                if(day){
+                    hashIndex++;
+                    exercises.put(hashIndex, new ArrayList<String>());
+                    totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
+                }
+                else{
+                    exercises.get(hashIndex).add(line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX]);
+                }
+            }
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read "+selectedWorkout+" file!\n"+e);
+        }
+        maxDayIndex = hashIndex;
+    }
+    public boolean isDay(String data){
+        /*
+            Checks if passed in string from file denotes a day or an exercise
+         */
+        if(data==null){
+            return false;
+        }
+        String[] strings = data.split(Variables.SPLIT_DELIM);
+        String delim = strings[Variables.TIME_INDEX];
+        return delim.equalsIgnoreCase(Variables.DAY_DELIM); // return true if this indeed is a day
+    }
+
+    private class Exercise{
+        private String name;
+        private String videoURL;
+        private boolean status;
+
+        private Exercise(final String[] rawText){
+            if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
+                // means that the exercise has already been done, so make sure to set status as so
+                status=true;
+            }
+            else{
+                status=false;
+            }
+            name=rawText[Variables.NAME_INDEX];
+            videoURL=rawText[Variables.VIDEO_INDEX];
+        }
+
+        private String getFormattedLine(){
+            /*
+                Utilized whenever writing to a file. This method formats the information of the exercise
+                instance into the proper format specified in this project.
+             */
+            String retVal;
+            if(status){
+                retVal = name+"*"+Variables.EXERCISE_COMPLETE+"*"+videoURL;
+            }
+            else{
+                retVal = name+"*"+Variables.EXERCISE_INCOMPLETE+"*"+videoURL;
+            }
+            return retVal;
         }
     }
 

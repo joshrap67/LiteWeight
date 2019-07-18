@@ -19,6 +19,7 @@
     <string name="denial">No</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="done">Done</string>
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_create_icon_title">Create Workout</string>
     <string name="nav_list_icon_title">My Workouts</string>
