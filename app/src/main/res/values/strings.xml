@@ -20,6 +20,16 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="done">Done</string>
+    <string name="import_btn">Import</string>
+    <string name="export_btn">Export</string>
+    <string name="video_switch">Videos</string>
+    <string name="timer_switch">Timer</string>
+    <string name="cluster_label">Clusters</string>
+    <string name="exercise_label">Exercises</string>
+    <string name="edit_videos">Edit Videos</string>
+    <string name="new_exercise">Create New</string>
+    <string name="custom_exercises">Custom Exercises</string>
+    <!--layout for yada-->
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_create_icon_title">Create Workout</string>
     <string name="nav_list_icon_title">My Workouts</string>

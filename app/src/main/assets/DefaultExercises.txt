@@ -1,0 +1,64 @@
+CLUSTER*Arms
+Preacher Curl
+Hammer Curl
+Barbell Curl
+Reverse Grip Barbell Curl
+Dumbbell Kickback
+One Arm Tricep Extension
+Push-Ups
+Farmer Walk
+Barbell Wrist Curl
+Reverse Grip Wrist Curl
+Incline Dumbbell Curl
+Cable Pull Down
+Close Grip Bench
+Concentration Curls
+Skullcrushers
+CLUSTER*Back & Shoulders
+Side Deltoid Raise
+Front Deltoid Raise
+Shrugs
+Bent Over Row
+Uptight Row
+Shoulder Press
+One Arm Dumbbell Row
+Good Morning
+Arnold Press
+Lying Side Deltoid Raise
+Military Press
+Lat Pulldown
+Reverse Shrugs
+CLUSTER*Cardio & Core
+Sit-Ups
+Swimming
+Running
+Cycling
+Planks
+Weighted Oblique Twists
+Weighted Sit-Ups
+Push-Ups
+Burpees
+CLUSTER*Chest
+Bench Press
+Close Grip Bench
+Incline Bench Press
+Decline Bench Press
+Dumbbell Press
+Incline Dumbbell Press
+Dumbbell Flys
+Incline Dumbbell Flys
+Push-Ups
+Cable Flys
+CLUSTER*Legs
+Squat
+Hack Squat
+Lunges
+Leg Press
+Leg Curls
+Leg Extensions
+Front Squats
+Calve Raises
+CLUSTER*Strength Training
+Deadlifts
+Bench Press
+Squats
