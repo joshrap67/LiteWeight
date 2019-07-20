@@ -20,7 +20,6 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -69,6 +68,7 @@ public class UserSettingsFragment extends Fragment {
         ((MainActivity)getActivity()).updateToolbarTitle("Settings");
         // todo make rows "raised" so they are clearly clickable
 //        editUrlPopup();
+        editExercisePopup();
         return view;
     }
 
@@ -200,6 +200,12 @@ public class UserSettingsFragment extends Fragment {
         });
     }
 
+    /*
+        -----------------
+        Popups
+        -----------------
+     */
+
     public void editUrlPopup(){
         /*
             User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
@@ -211,13 +217,58 @@ public class UserSettingsFragment extends Fragment {
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
-        Button doneButton = popupView.findViewById(R.id.done_button);
+        Button doneButton = popupView.findViewById(R.id.done_btn);
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
         exerciseName.setText("Squats");
         TextView oldURL = popupView.findViewById(R.id.old_url);
         oldURL.setText("https://www.youtube.com/watch?v=Vyqz_-sJGFk");
-        EditText userInput = popupView.findViewById(R.id.edit_url_text);
+        EditText userInput = popupView.findViewById(R.id.edit_url_txt);
         doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    public void editExercisePopup(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialog = alertDialogBuilder.create();
+        View popupView = getLayoutInflater().inflate(R.layout.popup_edit_custom_exercise, null);
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+        Button renameBtn = popupView.findViewById(R.id.rename_btn);
+        Button deleteBtn = popupView.findViewById(R.id.delete_btn);
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        exerciseName.setText("Squats");
+        EditText userInput = popupView.findViewById(R.id.edit_name_txt);
+        renameBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    public void newExercisePopup(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialog = alertDialogBuilder.create();
+        View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+        Button doneBtn = popupView.findViewById(R.id.done_btn);
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        EditText userInput = popupView.findViewById(R.id.edit_name_txt);
+        doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();

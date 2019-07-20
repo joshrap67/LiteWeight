@@ -22,38 +22,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.07999998" />
-
-    <TextView
-        android:id="@+id/old_url"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="52dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:text="URL"
-        android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exercise_name" />
+        app:layout_constraintVertical_bias="0.070000002" />
 
     <EditText
-        android:id="@+id/edit_url_txt"
+        android:id="@+id/edit_name_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="110dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginBottom="239dp"
         android:ems="10"
-        android:hint="Video URL"
+        android:hint="Name"
         android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/done_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/old_url" />
+        app:layout_constraintTop_toBottomOf="@+id/exercise_name" />
 
     <Button
         android:id="@+id/done_btn"
@@ -71,6 +58,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_url_txt" />
+        app:layout_constraintTop_toBottomOf="@+id/edit_name_txt" />
 
 </android.support.constraint.ConstraintLayout>
