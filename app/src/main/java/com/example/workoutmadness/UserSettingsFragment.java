@@ -41,7 +41,7 @@ public class UserSettingsFragment extends Fragment {
     private ConstraintLayout constraintLayout;
     private RadioGroup radioGroup;
     private HashMap<String, ArrayList<String>> exerciseVideos = new HashMap<>();
-    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
+    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>(); // TODO put in global class?
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
 
     @Nullable
@@ -67,8 +67,6 @@ public class UserSettingsFragment extends Fragment {
 
         ((MainActivity)getActivity()).updateToolbarTitle("Settings");
         // todo make rows "raised" so they are clearly clickable
-//        editUrlPopup();
-        editExercisePopup();
         return view;
     }
 
@@ -146,12 +144,19 @@ public class UserSettingsFragment extends Fragment {
             case "videos":
                 view = inflater.inflate(R.layout.video_list, constraintLayout,false);
                 constraintLayout.addView(view);
-                populateClusterList(view);
+                populateClusterList(view, "videos");
                 break;
             case "exercises":
                 view = inflater.inflate(R.layout.custom_exercises, constraintLayout,false);
                 constraintLayout.addView(view);
-                populateClusterList(view);
+                Button createBtn = view.findViewById(R.id.new_exercise_btn);
+                createBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        newExercisePopup();
+                    }
+                });
+                populateClusterList(view,"exercises");
                 break;
             default:
                 break;
@@ -159,7 +164,7 @@ public class UserSettingsFragment extends Fragment {
 
     }
 
-    public void populateClusterList(final View view){
+    public void populateClusterList(final View view, final String mode){
         final ListView listView = view.findViewById(R.id.cluster_list);
         ArrayList<String> clusters = new ArrayList<>();
         for(String key : defaultExercises.keySet()){
@@ -173,14 +178,13 @@ public class UserSettingsFragment extends Fragment {
             private View parentView = view;
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                populateCustomExercises(parentView, listView.getItemAtPosition(position).toString());
+                populateCustomExercises(parentView, listView.getItemAtPosition(position).toString(),mode);
             }
         });
-        listView.setItemChecked(0,true);
     }
 
-    public void populateCustomExercises(View view, String cluster){
-        ListView listView = view.findViewById(R.id.exercise_list);
+    public void populateCustomExercises(View view, String cluster, final String mode){
+        final ListView listView = view.findViewById(R.id.exercise_list);
         ArrayList<String> exercises = new ArrayList<>();
         if(defaultExercises.get(cluster)==null){
             return;
@@ -196,6 +200,14 @@ public class UserSettingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // TODO populate exercise
+                switch (mode){
+                    case "videos":
+                        editUrlPopup(listView.getItemAtPosition(position).toString());
+                        break;
+                    case "exercises":
+                        editExercisePopup(listView.getItemAtPosition(position).toString());
+                        break;
+                }
             }
         });
     }
@@ -206,7 +218,7 @@ public class UserSettingsFragment extends Fragment {
         -----------------
      */
 
-    public void editUrlPopup(){
+    public void editUrlPopup(String name){
         /*
             User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
             that is programmed to list all exercises for a given exercise cluster.
@@ -219,7 +231,7 @@ public class UserSettingsFragment extends Fragment {
         alertDialog.show();
         Button doneButton = popupView.findViewById(R.id.done_btn);
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
-        exerciseName.setText("Squats");
+        exerciseName.setText(name);
         TextView oldURL = popupView.findViewById(R.id.old_url);
         oldURL.setText("https://www.youtube.com/watch?v=Vyqz_-sJGFk");
         EditText userInput = popupView.findViewById(R.id.edit_url_txt);
@@ -231,7 +243,7 @@ public class UserSettingsFragment extends Fragment {
         });
     }
 
-    public void editExercisePopup(){
+    public void editExercisePopup(String name){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_edit_custom_exercise, null);
@@ -241,7 +253,7 @@ public class UserSettingsFragment extends Fragment {
         Button renameBtn = popupView.findViewById(R.id.rename_btn);
         Button deleteBtn = popupView.findViewById(R.id.delete_btn);
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
-        exerciseName.setText("Squats");
+        exerciseName.setText(name);
         EditText userInput = popupView.findViewById(R.id.edit_name_txt);
         renameBtn.setOnClickListener(new View.OnClickListener() {
             @Override

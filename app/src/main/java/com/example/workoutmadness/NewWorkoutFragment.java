@@ -275,7 +275,7 @@ public class NewWorkoutFragment extends Fragment {
                     }
                     if(currentDayIndex == maxDayIndex){
                         lastDay = true;
-                        nextDayBtn.setText("FINISH");
+                        nextDayBtn.setText("Finish");
                     }
                     addExercisesToTable();
                     updateDayTitle();

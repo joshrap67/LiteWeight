@@ -144,7 +144,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         // set up the forward button, make it so user can always reset if holding down button
         if(currentDayIndex==maxDayIndex){
-            forwardButton.setText("RESET");
+            forwardButton.setText("Reset");
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
