@@ -176,6 +176,8 @@ public class MyWorkoutFragment extends Fragment {
         final AlertDialog alertDialog = alertDialogBuilder.create();
         final View popupView = getLayoutInflater().inflate(R.layout.delete_popup, null);
         Button confirmButton = popupView.findViewById(R.id.popupYes);
+        TextView workoutName = popupView.findViewById(R.id.workout_name);
+        workoutName.setText(selectedWorkout);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
