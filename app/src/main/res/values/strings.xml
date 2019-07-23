@@ -24,8 +24,10 @@
     <string name="export_btn">Export</string>
     <string name="video_switch">Videos</string>
     <string name="timer_switch">Timer</string>
-    <string name="cluster_label">Clusters</string>
-    <string name="exercise_label">Exercises</string>
+    <string name="cluster_label">Cluster</string>
+    <string name="filter_custom">Filter Custom</string>
+    <string name="my_exercises">My Exercises</string>
+    <string name="exercise_label">Exercise</string>
     <string name="edit_videos">Edit Exercise Videos</string>
     <string name="new_exercise">Create New</string>
     <string name="custom_exercises">Edit Custom Exercises</string>

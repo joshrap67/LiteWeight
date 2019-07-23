@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -34,39 +33,35 @@ import java.util.HashMap;
 public class UserSettingsFragment extends Fragment {
     private View view;
     private boolean modifed;
-    private Switch videoSwitch, timerSwitch;
+    private Switch videoSwitch, timerSwitch, filterSwitch;
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
     private ConstraintLayout constraintLayout;
-    private RadioGroup radioGroup;
-    private HashMap<String, ArrayList<String>> exerciseVideos = new HashMap<>();
+    private HashMap<String, ArrayList<String>> defaultExerciseVideos = new HashMap<>();
+    private HashMap<String, ArrayList<String>> customExerciseVideos = new HashMap<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>(); // TODO put in global class?
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ((MainActivity)getActivity()).updateToolbarTitle("Settings");
         view = inflater.inflate(R.layout.fragment_user_settings,container,false);
         constraintLayout = view.findViewById(R.id.constraintLayout);
         fragmentContainer = container;
         videoSwitch = view.findViewById(R.id.video_switch);
-        populateDefaultExercises();
-        radioGroup = (RadioGroup)view.findViewById(R.id.radioGroup);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        filterSwitch = view.findViewById(R.id.filter_switch);
+        Button createBtn = view.findViewById(R.id.new_exercise_btn);
+        createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.custom_exercise_radio_btn) {
-                    inflateCustomLayout("exercises");
-                }
-                else if(checkedId == R.id.edit_video_radio_btn) {
-                    inflateCustomLayout("videos");
-                }
+            public void onClick(View v) {
+                newExercisePopup();
             }
         });
-
-        ((MainActivity)getActivity()).updateToolbarTitle("Settings");
-        // todo make rows "raised" so they are clearly clickable
+        populateDefaultExercises();
+        populateClusterList();
+        // todo make rows "raised" so they are clearly clickable?
         return view;
     }
 
@@ -136,35 +131,7 @@ public class UserSettingsFragment extends Fragment {
         }
     }
 
-    public void inflateCustomLayout(String mode){
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        constraintLayout.removeAllViews();
-        View view = null;
-        switch (mode){
-            case "videos":
-                view = inflater.inflate(R.layout.video_list, constraintLayout,false);
-                constraintLayout.addView(view);
-                populateClusterList(view, "videos");
-                break;
-            case "exercises":
-                view = inflater.inflate(R.layout.custom_exercises, constraintLayout,false);
-                constraintLayout.addView(view);
-                Button createBtn = view.findViewById(R.id.new_exercise_btn);
-                createBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        newExercisePopup();
-                    }
-                });
-                populateClusterList(view,"exercises");
-                break;
-            default:
-                break;
-        }
-
-    }
-
-    public void populateClusterList(final View view, final String mode){
+    public void populateClusterList(){
         final ListView listView = view.findViewById(R.id.cluster_list);
         ArrayList<String> clusters = new ArrayList<>();
         for(String key : defaultExercises.keySet()){
@@ -175,19 +142,17 @@ public class UserSettingsFragment extends Fragment {
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            private View parentView = view;
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                populateCustomExercises(parentView, listView.getItemAtPosition(position).toString(),mode);
+                populateCustomExercises(listView.getItemAtPosition(position).toString());
             }
         });
         // programmatically select first item
         listView.performItemClick(listView.getAdapter().getView(0, null, null), 0, 0);
         listView.setSelection(0);
-//        listView.setItemChecked(1, true);
     }
 
-    public void populateCustomExercises(View view, String cluster, final String mode){
+    public void populateCustomExercises(String cluster){
         final ListView listView = view.findViewById(R.id.exercise_list);
         ArrayList<String> exercises = new ArrayList<>();
         if(defaultExercises.get(cluster)==null){
@@ -204,14 +169,8 @@ public class UserSettingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // TODO populate exercise
-                switch (mode){
-                    case "videos":
-                        editUrlPopup(listView.getItemAtPosition(position).toString());
-                        break;
-                    case "exercises":
-                        editExercisePopup(listView.getItemAtPosition(position).toString());
-                        break;
-                }
+                editExercisePopup(listView.getItemAtPosition(position).toString());
+//                editUrlPopup(listView.getItemAtPosition(position).toString());
             }
         });
     }

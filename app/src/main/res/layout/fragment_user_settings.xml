@@ -6,28 +6,31 @@
     android:layout_height="match_parent">
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="395dp"
-        android:layout_height="0dp"
+        android:id="@+id/constraintLayout1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
         android:background="@drawable/border"
-        app:layout_constraintBottom_toTopOf="@+id/radioGroup"
+        app:layout_constraintBottom_toTopOf="@+id/container_title"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Switch
             android:id="@+id/video_switch"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/video_switch"
+            app:layout_constraintBottom_toTopOf="@+id/switch2"
+            app:layout_constraintEnd_toStartOf="@+id/import_btn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,75 +40,92 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/timer_switch"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/export_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/video_switch" />
 
         <Button
             android:id="@+id/import_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="200dp"
+            android:layout_marginLeft="200dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/import_btn"
             android:textAllCaps="false"
+            app:layout_constraintBottom_toTopOf="@+id/export_btn"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/video_switch"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/export_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="208dp"
+            android:layout_marginLeft="208dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginBottom="16dp"
             android:text="@string/export_btn"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/switch2"
+            app:layout_constraintTop_toBottomOf="@+id/import_btn" />
 
     </android.support.constraint.ConstraintLayout>
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/container_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        android:text="@string/my_exercises"
+        android:textColor="@android:color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/filter_switch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.90999997">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout1">
 
-        <RadioButton
-            android:id="@+id/edit_video_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/edit_videos" />
+    </TextView>
 
-        <RadioButton
-            android:id="@+id/custom_exercise_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:checked="false"
-            android:text="@string/custom_exercises" />
-    </RadioGroup>
+    <Switch
+        android:id="@+id/filter_switch"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/filter_custom"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.909"
+        app:layout_constraintStart_toEndOf="@+id/container_title"
+        app:layout_constraintTop_toBottomOf="@+id/container_title"
+        app:layout_constraintVertical_bias="0.49" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout"
-        android:layout_width="395dp"
-        android:layout_height="478dp"
+        android:id="@+id/constraintLayout2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="16dp"
@@ -113,7 +133,76 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"></android.support.constraint.ConstraintLayout>
+        app:layout_constraintTop_toBottomOf="@+id/filter_switch">
+
+        <TextView
+            android:id="@+id/cluster_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginRight="60dp"
+            android:text="@string/cluster_label"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toStartOf="@+id/exercise_text_view"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/exercise_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/exercise_label"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cluster_text_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ListView
+            android:id="@+id/cluster_list"
+            android:layout_width="150dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cluster_text_view" />
+
+        <ListView
+            android:id="@+id/exercise_list"
+            android:layout_width="200dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/new_exercise_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/cluster_list"
+            app:layout_constraintTop_toBottomOf="@+id/exercise_text_view"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/new_exercise_btn"
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:text="@string/new_exercise"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.92"
+            app:layout_constraintStart_toEndOf="@+id/cluster_list"
+            app:layout_constraintTop_toBottomOf="@+id/exercise_list" />
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
