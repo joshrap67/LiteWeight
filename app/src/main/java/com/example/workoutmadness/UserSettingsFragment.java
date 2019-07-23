@@ -171,9 +171,9 @@ public class UserSettingsFragment extends Fragment {
             clusters.add(key);
         }
         Collections.sort(clusters);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, clusters);
+        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_activated_1, clusters);
         listView.setAdapter(arrayAdapter);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             private View parentView = view;
             @Override
@@ -181,6 +181,10 @@ public class UserSettingsFragment extends Fragment {
                 populateCustomExercises(parentView, listView.getItemAtPosition(position).toString(),mode);
             }
         });
+        // programmatically select first item
+        listView.performItemClick(listView.getAdapter().getView(0, null, null), 0, 0);
+        listView.setSelection(0);
+//        listView.setItemChecked(1, true);
     }
 
     public void populateCustomExercises(View view, String cluster, final String mode){
