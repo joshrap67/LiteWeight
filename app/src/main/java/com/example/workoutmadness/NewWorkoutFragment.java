@@ -241,7 +241,7 @@ public class NewWorkoutFragment extends Fragment {
         previousDayBtn.setVisibility(View.INVISIBLE);
         if(maxDayIndex == 0){
             // in case some jabroni only wants to workout one day total
-            nextDayBtn.setText("FINISH");
+            nextDayBtn.setText("Finish");
         }
         previousDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -252,7 +252,7 @@ public class NewWorkoutFragment extends Fragment {
                 }
                 if(lastDay){
                     lastDay = false;
-                    nextDayBtn.setText("NEXT");
+                    nextDayBtn.setText("Next");
                 }
 
                 if(currentDayIndex == 0){
@@ -369,14 +369,14 @@ public class NewWorkoutFragment extends Fragment {
     public void popupExercises(){
         /*
             User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
-            that is programmed to list all exercises for a given exercise cluster.
+            that is programmed to list all exercises for a given exercise focus.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         popupView = getLayoutInflater().inflate(R.layout.exercise_popup, null);
-        Spinner clusterSpinner = popupView.findViewById(R.id.clusterSpinner);
+        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
         pickExerciseTable = popupView.findViewById(R.id.main_table);
-        clusterSpinner.setOnItemSelectedListener(new SpinnerListener());
+        focusSpinner.setOnItemSelectedListener(new SpinnerListener());
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
@@ -400,12 +400,12 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
-    public void updateExerciseChoices(String exerciseCluster){
+    public void updateExerciseChoices(String exerciseFocus){
         /*
-            Given a value from the exercise cluster spinner, list all the exercises associate with it.
+            Given a value from the exercise focus spinner, list all the exercises associate with it.
          */
         String[] exerciseValues;
-        switch (exerciseCluster){
+        switch (exerciseFocus){
             case "Chest":
                 exerciseValues=getContext().getResources().getStringArray(R.array.chest_day);
                 break;
@@ -494,9 +494,9 @@ public class NewWorkoutFragment extends Fragment {
     private class SpinnerListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            String selectedExerciseCluster = parent.getItemAtPosition(pos).toString();
+            String selectedExerciseFocus = parent.getItemAtPosition(pos).toString();
             pickExerciseTable.removeAllViews();
-            updateExerciseChoices(selectedExerciseCluster);
+            updateExerciseChoices(selectedExerciseFocus);
         }
 
         public void onNothingSelected(AdapterView parent) {

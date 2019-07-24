@@ -41,8 +41,7 @@ public class UserSettingsFragment extends Fragment {
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
-    private ConstraintLayout constraintLayout;
-    private ArrayList<String> clusters;
+    private ArrayList<String> focuses;
     private HashMap<String, ArrayList<String>> defaultExerciseVideos = new HashMap<>();
     private HashMap<String, ArrayList<String>> customExerciseVideos = new HashMap<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
@@ -53,7 +52,6 @@ public class UserSettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((MainActivity)getActivity()).updateToolbarTitle("Settings");
         view = inflater.inflate(R.layout.fragment_user_settings,container,false);
-        constraintLayout = view.findViewById(R.id.constraintLayout1);
         fragmentContainer = container;
         videoSwitch = view.findViewById(R.id.video_switch);
         filterSwitch = view.findViewById(R.id.filter_switch);
@@ -61,7 +59,7 @@ public class UserSettingsFragment extends Fragment {
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 filterCustom=isChecked;
-                populateClusterList();
+                populateFocusList();
             }
         });
         Button createBtn = view.findViewById(R.id.new_exercise_btn);
@@ -72,7 +70,7 @@ public class UserSettingsFragment extends Fragment {
             }
         });
         populateDefaultExercises();
-        populateClusterList();
+        populateFocusList();
         // todo make rows "raised" so they are clearly clickable?
         return view;
     }
@@ -82,15 +80,15 @@ public class UserSettingsFragment extends Fragment {
         try{
             reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
             String line;
-            String cluster=null;
+            String focus=null;
             while((line=reader.readLine())!=null){
-                if(line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_INDEX].equals(Variables.CLUSTER_DELIM)){
-                    cluster = line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_NAME_INDEX];
-                    defaultExercises.put(cluster,new ArrayList<String>());
-                    customExercises.put(cluster,new ArrayList<String>());
+                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
+                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
+                    defaultExercises.put(focus,new ArrayList<String>());
+                    customExercises.put(focus,new ArrayList<String>());
                 }
                 else{
-                    defaultExercises.get(cluster).add(line);
+                    defaultExercises.get(focus).add(line);
                 }
             }
             reader.close();
@@ -108,13 +106,13 @@ public class UserSettingsFragment extends Fragment {
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
             String line;
-            String cluster=null;
+            String focus=null;
             while((line=reader.readLine())!=null){
-                if(line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_INDEX].equals(Variables.CLUSTER_DELIM)){
-                    cluster = line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_NAME_INDEX];
+                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
+                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
                 }
                 else{
-                    customExercises.get(cluster).add(line);
+                    customExercises.get(focus).add(line);
                 }
             }
             reader.close();
@@ -143,14 +141,14 @@ public class UserSettingsFragment extends Fragment {
         }
     }
 
-    public void populateClusterList(){
-        final ListView listView = view.findViewById(R.id.cluster_list);
-        clusters = new ArrayList<>();
+    public void populateFocusList(){
+        final ListView listView = view.findViewById(R.id.focus_list);
+        focuses = new ArrayList<>();
         for(String key : defaultExercises.keySet()){
-            clusters.add(key);
+            focuses.add(key);
         }
-        Collections.sort(clusters);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_activated_1, clusters);
+        Collections.sort(focuses);
+        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_activated_1, focuses);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -164,18 +162,18 @@ public class UserSettingsFragment extends Fragment {
         listView.setSelection(0);
     }
 
-    public void populateExercises(String cluster){
+    public void populateExercises(String focus){
         final ListView listView = view.findViewById(R.id.exercise_list);
         ArrayList<String> exercises = new ArrayList<>();
-        if(defaultExercises.get(cluster)==null){
+        if(defaultExercises.get(focus)==null){
             return;
         }
         if(!filterCustom){
-            for(String exercise : defaultExercises.get(cluster)){
+            for(String exercise : defaultExercises.get(focus)){
                 exercises.add(exercise);
             }
         }
-        for(String exercise : customExercises.get(cluster)){
+        for(String exercise : customExercises.get(focus)){
             exercises.add(exercise);
         }
         Collections.sort(exercises);
@@ -221,7 +219,7 @@ public class UserSettingsFragment extends Fragment {
     }
 
     public void newExercisePopup(){
-        final ArrayList<String> selectedClusters = new ArrayList<>();
+        final ArrayList<String> selectedFocuses = new ArrayList<>();
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
@@ -233,9 +231,9 @@ public class UserSettingsFragment extends Fragment {
             public void onClick(View v) {
                 if(validateNewExercise(exerciseNameInput, editURL)){
                     // TODO add the exercise to file
-                    for(String cluster : selectedClusters){
-                        customExercises.get(cluster).add(exerciseNameInput.getText().toString());
-                        populateClusterList();
+                    for(String focus : selectedFocuses){
+                        customExercises.get(focus).add(exerciseNameInput.getText().toString());
+                        populateFocusList();
                     }
                     // TODO add the exercise to file
                     Toast.makeText(getContext(),"Exercise successfully created!",Toast.LENGTH_SHORT).show();
@@ -247,26 +245,26 @@ public class UserSettingsFragment extends Fragment {
             }
         });
         TableLayout table = popupView.findViewById(R.id.table_layout);
-        for(int i=0;i<clusters.size();i++){
-            // add a checkbox for each cluster that is available
+        for(int i=0;i<focuses.size();i++){
+            // add a checkbox for each focus that is available
             TableRow row = new TableRow(getActivity());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
-            final CheckBox cluster = new CheckBox(getContext());
-            cluster.setText(clusters.get(i));
-            cluster.setOnClickListener(new View.OnClickListener() {
-                boolean checked = cluster.isChecked();
+            final CheckBox focus = new CheckBox(getContext());
+            focus.setText(focuses.get(i));
+            focus.setOnClickListener(new View.OnClickListener() {
+                boolean checked = focus.isChecked();
                 @Override
                 public void onClick(View v) {
                     if(checked){
-                        selectedClusters.remove(cluster.getText().toString());
+                        selectedFocuses.remove(focus.getText().toString());
                     }
                     else{
-                        selectedClusters.add(cluster.getText().toString());
+                        selectedFocuses.add(focus.getText().toString());
                     }
                 }
             });
-            row.addView(cluster);
+            row.addView(focus);
             table.addView(row,i);
         }
         // show the popup
@@ -276,18 +274,23 @@ public class UserSettingsFragment extends Fragment {
     }
 
     public boolean validateNewExercise(TextView nameInput, TextView urlInput){
+        // TODO do any validation on number of total exercises here? Absolute worst case scenario stuff but still
+        String potentialName = nameInput.getText().toString();
+        if(potentialName.isEmpty()){
+            return false;
+        }
         String potentialURL = nameInput.getText().toString();
-        // loop over default to see if this exercise already exists in some cluster
-        for(String cluster : defaultExercises.keySet()){
-            for(String exercise : defaultExercises.get(cluster)){
-                if(exercise.equalsIgnoreCase(nameInput.getText().toString())){
+        // loop over default to see if this exercise already exists in some focus
+        for(String focus : defaultExercises.keySet()){
+            for(String exercise : defaultExercises.get(focus)){
+                if(exercise.equalsIgnoreCase(potentialName)){
                     return false;
                 }
             }
         }
-        for(String cluster : customExercises.keySet()){
-            for(String exercise : customExercises.get(cluster)){
-                if(exercise.equalsIgnoreCase(nameInput.getText().toString())){
+        for(String focus : customExercises.keySet()){
+            for(String exercise : customExercises.get(focus)){
+                if(exercise.equalsIgnoreCase(potentialName)){
                     return false;
                 }
             }

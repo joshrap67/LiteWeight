@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,9 +36,10 @@ public class CurrentWorkoutFragment extends Fragment {
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
     private String WORKOUT_FILE;
-    private boolean modified = false, exerciseModified = false, timerRunning = false;
+    private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled;
     private Chronometer timer;
     private long lastTime;
+    private ConstraintLayout timerContainer;
     private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
     private HashMap<Integer, String> totalDayTitles = new HashMap<>();
 
@@ -57,6 +59,7 @@ public class CurrentWorkoutFragment extends Fragment {
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
         dayTV = view.findViewById(R.id.dayTextView);
+        timerContainer = view.findViewById(R.id.constraint_layout);
 
         boolean flag1 = updateCurrentWorkoutFile();
         boolean flag2 = updateCurrentDayNumber();
@@ -64,7 +67,13 @@ public class CurrentWorkoutFragment extends Fragment {
             // get the workout name and update the toolbar with the name
             String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
-            initTimer();
+            timerEnabled=true;
+            if(timerEnabled){
+                initTimer();
+            }
+            else{
+                timerContainer.setVisibility(View.GONE);
+            }
             populateExercises();
             // TODO need to put error checking here in case file gets wiped.
             populateTable();
@@ -116,7 +125,7 @@ public class CurrentWorkoutFragment extends Fragment {
         dayTV.setText(totalDayTitles.get(currentDayIndex));
         int count = 0;
         for(Exercise exercise : totalExercises.get(currentDayIndex)){
-            TableRow row = exercise.getDisplayedRow();
+            View row = exercise.getDisplayedRow();
             table.addView(row,count);
             count++;
         }

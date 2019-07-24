@@ -136,13 +136,13 @@
         app:layout_constraintTop_toBottomOf="@+id/filter_switch">
 
         <TextView
-            android:id="@+id/cluster_text_view"
+            android:id="@+id/focus_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="60dp"
             android:layout_marginRight="60dp"
-            android:text="@string/cluster_label"
+            android:text="@string/focus_label"
             android:textSize="30sp"
             app:layout_constraintEnd_toStartOf="@+id/exercise_text_view"
             app:layout_constraintHorizontal_bias="0.0"
@@ -161,11 +161,11 @@
             android:text="@string/exercise_label"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/cluster_text_view"
+            app:layout_constraintStart_toEndOf="@+id/focus_text_view"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ListView
-            android:id="@+id/cluster_list"
+            android:id="@+id/focus_list"
             android:layout_width="150dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
@@ -174,7 +174,7 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cluster_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/focus_text_view" />
 
         <ListView
             android:id="@+id/exercise_list"
@@ -188,7 +188,7 @@
             app:layout_constraintBottom_toTopOf="@+id/new_exercise_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/cluster_list"
+            app:layout_constraintStart_toEndOf="@+id/focus_list"
             app:layout_constraintTop_toBottomOf="@+id/exercise_text_view"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -201,7 +201,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.92"
-            app:layout_constraintStart_toEndOf="@+id/cluster_list"
+            app:layout_constraintStart_toEndOf="@+id/focus_list"
             app:layout_constraintTop_toBottomOf="@+id/exercise_list" />
     </android.support.constraint.ConstraintLayout>
 

@@ -8,8 +8,8 @@ public class Variables {
             VIDEO_INDEX = 2,
             WORKOUT_NAME_INDEX = 0,
             CURRENT_DAY_INDEX = 1,
-            CLUSTER_INDEX = 0,
-            CLUSTER_NAME_INDEX =1;
+            FOCUS_INDEX = 0,
+            FOCUS_NAME_INDEX =1;
     public static final String WORKOUT_DIRECTORY="Workouts",
             CURRENT_WORKOUT_LOG="currentWorkout.log",
             DEFAULT_EXERCISES_FILE ="DefaultExercises.txt",
@@ -21,7 +21,7 @@ public class Variables {
             USER_SETTINGS_FILE="Settings.txt",
             SPLIT_DELIM="\\*",
             DAY_DELIM="TIME",
-            CLUSTER_DELIM="CLUSTER",
+            FOCUS_DELIM="FOCUS",
             EXERCISE_COMPLETE ="COMPLETE",
             EXERCISE_INCOMPLETE = "INCOMPLETE",
             WORKOUT_EXT = ".txt",

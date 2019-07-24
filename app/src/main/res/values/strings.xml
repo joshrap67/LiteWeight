@@ -24,7 +24,7 @@
     <string name="export_btn">Export</string>
     <string name="video_switch">Videos</string>
     <string name="timer_switch">Timer</string>
-    <string name="cluster_label">Cluster</string>
+    <string name="focus_label">Focus</string>
     <string name="filter_custom">Filter Custom</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
@@ -46,7 +46,7 @@
     to the first day of the workout with all exercises reset.</string>
     <string name="delete_msg">Are you sure you wish to delete this workout? If so, all statistics for it will also be deleted.</string>
     <string name="exercise_title">Add exercises</string>
-    <string-array name="exercise_clusters">
+    <string-array name="exercise_focuses">
         <item>Arms</item>
         <item>Back</item>
         <item>Cardio</item>

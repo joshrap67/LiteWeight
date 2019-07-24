@@ -1,4 +1,4 @@
-CLUSTER*Arms
+FOCUS*Arms
 Preacher Curl
 Hammer Curl
 Barbell Curl
@@ -14,7 +14,7 @@ Cable Pull Down
 Close Grip Bench
 Concentration Curls
 Skullcrushers
-CLUSTER*Back & Shoulders
+FOCUS*Back & Shoulders
 Side Deltoid Raise
 Front Deltoid Raise
 Shrugs
@@ -28,7 +28,7 @@ Lying Side Deltoid Raise
 Military Press
 Lat Pulldown
 Reverse Shrugs
-CLUSTER*Cardio & Core
+FOCUS*Cardio & Core
 Sit-Ups
 Swimming
 Running
@@ -38,7 +38,7 @@ Weighted Oblique Twists
 Weighted Sit-Ups
 Push-Ups
 Burpees
-CLUSTER*Chest
+FOCUS*Chest
 Bench Press
 Close Grip Bench
 Incline Bench Press
@@ -49,7 +49,7 @@ Dumbbell Flys
 Incline Dumbbell Flys
 Push-Ups
 Cable Flys
-CLUSTER*Legs
+FOCUS*Legs
 Squat
 Hack Squat
 Lunges
@@ -58,7 +58,7 @@ Leg Curls
 Leg Extensions
 Front Squats
 Calve Raises
-CLUSTER*Strength Training
+FOCUS*Strength Training
 Deadlifts
 Bench Press
 Squats

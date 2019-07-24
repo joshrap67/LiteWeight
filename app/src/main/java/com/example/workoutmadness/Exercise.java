@@ -6,10 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.TableRow;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Exercise{
@@ -18,7 +19,6 @@ public class Exercise{
     private String name;
     private String videoURL;
     private boolean status;
-    private TableRow displayedRow;
     private Fragment fragment;
 
     public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment){
@@ -45,22 +45,20 @@ public class Exercise{
         status=aStatus;
     }
 
-    public TableRow getDisplayedRow(){
+    public View getDisplayedRow(){
             /*
                 Takes all of the information from the instance variables of this exercise and puts it into a row to be displayed
                 by the main table.
              */
-        displayedRow = new TableRow(activity);
-        TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-        displayedRow.setLayoutParams(lp);
-
-        final CheckBox exercise = new CheckBox(activity);
+        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View row = inflater.inflate(R.layout.exercise_row,null);
+        final CheckBox exerciseName = row.findViewById(R.id.exercise_name);
+        exerciseName.setText(name);
         if(status){
-            exercise.setChecked(true);
+            exerciseName.setChecked(true);
         }
-        exercise.setOnClickListener(new View.OnClickListener() {
-            boolean checked = exercise.isChecked();
-
+        exerciseName.setOnClickListener(new View.OnClickListener() {
+            boolean checked = exerciseName.isChecked();
             @Override
             public void onClick(View v) {
                 if(checked){
@@ -75,11 +73,7 @@ public class Exercise{
                 }
             }
         });
-        exercise.setText(name);
-        displayedRow.addView(exercise);
-
-        Button videoButton = new Button(activity);
-        videoButton.setText("Video");
+        ImageView videoButton = row.findViewById(R.id.launch_video);
         videoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,8 +93,7 @@ public class Exercise{
                 }
             }
         });
-        displayedRow.addView(videoButton);
-        return displayedRow;
+        return row;
     }
 
     public String getFormattedLine(){
