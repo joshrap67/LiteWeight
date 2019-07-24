@@ -1,7 +1,6 @@
 package com.example.workoutmadness;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,10 +14,15 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -32,15 +36,16 @@ import java.util.HashMap;
 
 public class UserSettingsFragment extends Fragment {
     private View view;
-    private boolean modifed;
+    private boolean modifed, filterCustom;
     private Switch videoSwitch, timerSwitch, filterSwitch;
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
     private ConstraintLayout constraintLayout;
+    private ArrayList<String> clusters;
     private HashMap<String, ArrayList<String>> defaultExerciseVideos = new HashMap<>();
     private HashMap<String, ArrayList<String>> customExerciseVideos = new HashMap<>();
-    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>(); // TODO put in global class?
+    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
 
     @Nullable
@@ -48,10 +53,17 @@ public class UserSettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((MainActivity)getActivity()).updateToolbarTitle("Settings");
         view = inflater.inflate(R.layout.fragment_user_settings,container,false);
-        constraintLayout = view.findViewById(R.id.constraintLayout);
+        constraintLayout = view.findViewById(R.id.constraintLayout1);
         fragmentContainer = container;
         videoSwitch = view.findViewById(R.id.video_switch);
         filterSwitch = view.findViewById(R.id.filter_switch);
+        filterCustom=false;
+        filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterCustom=isChecked;
+                populateClusterList();
+            }
+        });
         Button createBtn = view.findViewById(R.id.new_exercise_btn);
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,7 +80,6 @@ public class UserSettingsFragment extends Fragment {
     public void populateDefaultExercises(){
         BufferedReader reader = null;
         try{
-            File fhandle = new File(getActivity().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.DEFAULT_EXERCISES_FILE);
             reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
             String line;
             String cluster=null;
@@ -76,6 +87,7 @@ public class UserSettingsFragment extends Fragment {
                 if(line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_INDEX].equals(Variables.CLUSTER_DELIM)){
                     cluster = line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_NAME_INDEX];
                     defaultExercises.put(cluster,new ArrayList<String>());
+                    customExercises.put(cluster,new ArrayList<String>());
                 }
                 else{
                     defaultExercises.get(cluster).add(line);
@@ -88,9 +100,10 @@ public class UserSettingsFragment extends Fragment {
         }
     }
 
-    public void populateCustomExercises(){
+    public void populateExercises(){
         BufferedReader reader;
         try{
+            //TODO need to ensure this file isn't null
             File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.CUSTOM_EXERCISES);
             FileReader fileR= new FileReader(fhandle);
             reader = new BufferedReader(fileR);
@@ -99,16 +112,15 @@ public class UserSettingsFragment extends Fragment {
             while((line=reader.readLine())!=null){
                 if(line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_INDEX].equals(Variables.CLUSTER_DELIM)){
                     cluster = line.split(Variables.SPLIT_DELIM)[Variables.CLUSTER_NAME_INDEX];
-                    defaultExercises.put(cluster,new ArrayList<String>());
                 }
                 else{
-                    defaultExercises.get(cluster).add(line);
+                    customExercises.get(cluster).add(line);
                 }
             }
             reader.close();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to populate from default exercises file\n"+e);
+            Log.d("ERROR","Error when trying to populate from custom exercises file\n"+e);
         }
     }
 
@@ -133,7 +145,7 @@ public class UserSettingsFragment extends Fragment {
 
     public void populateClusterList(){
         final ListView listView = view.findViewById(R.id.cluster_list);
-        ArrayList<String> clusters = new ArrayList<>();
+        clusters = new ArrayList<>();
         for(String key : defaultExercises.keySet()){
             clusters.add(key);
         }
@@ -144,7 +156,7 @@ public class UserSettingsFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                populateCustomExercises(listView.getItemAtPosition(position).toString());
+                populateExercises(listView.getItemAtPosition(position).toString());
             }
         });
         // programmatically select first item
@@ -152,13 +164,18 @@ public class UserSettingsFragment extends Fragment {
         listView.setSelection(0);
     }
 
-    public void populateCustomExercises(String cluster){
+    public void populateExercises(String cluster){
         final ListView listView = view.findViewById(R.id.exercise_list);
         ArrayList<String> exercises = new ArrayList<>();
         if(defaultExercises.get(cluster)==null){
             return;
         }
-        for(String exercise : defaultExercises.get(cluster)){
+        if(!filterCustom){
+            for(String exercise : defaultExercises.get(cluster)){
+                exercises.add(exercise);
+            }
+        }
+        for(String exercise : customExercises.get(cluster)){
             exercises.add(exercise);
         }
         Collections.sort(exercises);
@@ -168,44 +185,15 @@ public class UserSettingsFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO populate exercise
                 editExercisePopup(listView.getItemAtPosition(position).toString());
-//                editUrlPopup(listView.getItemAtPosition(position).toString());
             }
         });
     }
-
     /*
         -----------------
         Popups
         -----------------
      */
-
-    public void editUrlPopup(String name){
-        /*
-            User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
-            that is programmed to list all exercises for a given exercise cluster.
-         */
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialog = alertDialogBuilder.create();
-        View popupView = getLayoutInflater().inflate(R.layout.popup_edit_url, null);
-        alertDialog.setView(popupView);
-        alertDialog.setCanceledOnTouchOutside(true);
-        alertDialog.show();
-        Button doneButton = popupView.findViewById(R.id.done_btn);
-        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
-        exerciseName.setText(name);
-        TextView oldURL = popupView.findViewById(R.id.old_url);
-        oldURL.setText("https://www.youtube.com/watch?v=Vyqz_-sJGFk");
-        EditText userInput = popupView.findViewById(R.id.edit_url_txt);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
-    }
-
     public void editExercisePopup(String name){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
@@ -224,7 +212,6 @@ public class UserSettingsFragment extends Fragment {
                 alertDialog.dismiss();
             }
         });
-
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,21 +221,78 @@ public class UserSettingsFragment extends Fragment {
     }
 
     public void newExercisePopup(){
+        final ArrayList<String> selectedClusters = new ArrayList<>();
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
-        alertDialog.setView(popupView);
-        alertDialog.setCanceledOnTouchOutside(true);
-        alertDialog.show();
         Button doneBtn = popupView.findViewById(R.id.done_btn);
-        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
-        EditText userInput = popupView.findViewById(R.id.edit_name_txt);
+        final EditText exerciseNameInput = popupView.findViewById(R.id.edit_name_txt);
+        final EditText editURL = popupView.findViewById(R.id.edit_url_txt);
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertDialog.dismiss();
+                if(validateNewExercise(exerciseNameInput, editURL)){
+                    // TODO add the exercise to file
+                    for(String cluster : selectedClusters){
+                        customExercises.get(cluster).add(exerciseNameInput.getText().toString());
+                        populateClusterList();
+                    }
+                    // TODO add the exercise to file
+                    Toast.makeText(getContext(),"Exercise successfully created!",Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                }
+                else{
+                    Toast.makeText(getContext(),"Exercise already exists",Toast.LENGTH_SHORT).show();
+                }
             }
         });
+        TableLayout table = popupView.findViewById(R.id.table_layout);
+        for(int i=0;i<clusters.size();i++){
+            // add a checkbox for each cluster that is available
+            TableRow row = new TableRow(getActivity());
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            row.setLayoutParams(lp);
+            final CheckBox cluster = new CheckBox(getContext());
+            cluster.setText(clusters.get(i));
+            cluster.setOnClickListener(new View.OnClickListener() {
+                boolean checked = cluster.isChecked();
+                @Override
+                public void onClick(View v) {
+                    if(checked){
+                        selectedClusters.remove(cluster.getText().toString());
+                    }
+                    else{
+                        selectedClusters.add(cluster.getText().toString());
+                    }
+                }
+            });
+            row.addView(cluster);
+            table.addView(row,i);
+        }
+        // show the popup
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+    }
+
+    public boolean validateNewExercise(TextView nameInput, TextView urlInput){
+        String potentialURL = nameInput.getText().toString();
+        // loop over default to see if this exercise already exists in some cluster
+        for(String cluster : defaultExercises.keySet()){
+            for(String exercise : defaultExercises.get(cluster)){
+                if(exercise.equalsIgnoreCase(nameInput.getText().toString())){
+                    return false;
+                }
+            }
+        }
+        for(String cluster : customExercises.keySet()){
+            for(String exercise : customExercises.get(cluster)){
+                if(exercise.equalsIgnoreCase(nameInput.getText().toString())){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean isModified(){

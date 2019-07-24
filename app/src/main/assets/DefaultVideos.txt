@@ -1,27 +1,27 @@
-Preacher Curl
-Hammer Curl
-Barbell Curl
-Reverse Grip Barbell Curl
-Dumbbell Kickback
-One Arm Tricep Extension
+Preacher Curls
+Hammer Curls
+Barbell Curls
+Reverse Grip Barbell Curls
+Dumbbell Kickbacks
+One Arm Tricep Extensions
 Push-Ups
-Farmer Walk
-Barbell Wrist Curl
-Reverse Grip Wrist Curl
-Incline Dumbbell Curl
-Cable Pull Down
-Close Grip Bench
+Farmer Walks
+Barbell Wrist Curls
+Reverse Grip Wrist Curls
+Incline Dumbbell Curls
+Cable Pull Downs
+Close Grip Benches
 Concentration Curls
 Skullcrushers
-Side Deltoid Raise
-Front Deltoid Raise
+Side Deltoid Raises
+Front Deltoid Raises
 Shrugs
-Bent Over Row
-Uptight Row
-Shoulder Press
-One Arm Dumbbell Row
-Good Morning
-Arnold Press
+Bent Over Rows
+Uptight Rows
+Shoulder Presses
+One Arm Dumbbell Rows
+Good Mornings
+Arnold Presses
 Lying Side Deltoid Raise
 Military Press
 Lat Pulldown
@@ -45,8 +45,7 @@ Dumbbell Flys
 Incline Dumbbell Flys
 Push-Ups
 Cable Flys
-Squat
-Hack Squat
+Hack Squats
 Lunges
 Leg Press
 Leg Curls
