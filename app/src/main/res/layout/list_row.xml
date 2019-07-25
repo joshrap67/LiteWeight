@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/delete_exercise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,12 +30,11 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:background="@drawable/delete_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/delete_icon"
-        tools:srcCompat="@drawable/delete_icon" />
+        app:srcCompat="@android:drawable/ic_delete"
+        tools:srcCompat="@android:drawable/ic_delete" />
 
 </android.support.constraint.ConstraintLayout>

@@ -36,7 +36,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
     private String WORKOUT_FILE;
-    private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled;
+    private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled, videosEnabled;
     private Chronometer timer;
     private long lastTime;
     private ConstraintLayout timerContainer;
@@ -61,13 +61,13 @@ public class CurrentWorkoutFragment extends Fragment {
         dayTV = view.findViewById(R.id.dayTextView);
         timerContainer = view.findViewById(R.id.constraint_layout);
 
+        checkUserSettings();
         boolean flag1 = updateCurrentWorkoutFile();
         boolean flag2 = updateCurrentDayNumber();
         if(flag1&&flag2){
             // get the workout name and update the toolbar with the name
             String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
-            timerEnabled=true;
             if(timerEnabled){
                 initTimer();
             }
@@ -85,6 +85,33 @@ public class CurrentWorkoutFragment extends Fragment {
         return view;
     }
 
+    public void checkUserSettings(){
+        BufferedReader reader;
+        try{
+            // check if videos and timer are enabled from user settings
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
+            if(fhandle.length()==0){
+                // settings fragment has somehow never been touched, so just show them the damn videos
+                timerEnabled = videosEnabled = true;
+            }
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                String val = line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_INDEX];
+                if(val.equals(Variables.TIMER_DELIM)){
+                    timerEnabled = Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]);
+                }
+                else if(val.equals(Variables.VIDEO_DELIM)){
+                    videosEnabled = Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]);
+                }
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read user settings file!\n"+e);
+        }
+    }
     public void populateExercises(){
         /*
             Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
@@ -106,10 +133,11 @@ public class CurrentWorkoutFragment extends Fragment {
                     totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
                 }
                 else{
-                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this);
+                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this,videosEnabled);
                     totalExercises.get(hashIndex).add(exercise);
                 }
             }
+            reader.close();
         }
         catch (Exception e){
             Log.d("ERROR","Error when trying to read workout file!\n"+e);

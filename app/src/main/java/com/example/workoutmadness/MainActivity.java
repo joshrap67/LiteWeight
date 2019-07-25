@@ -53,10 +53,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
-        boolean exists = checkIfDirectoryExists(Variables.WORKOUT_DIRECTORY);
-        if(!exists){
-            createDirectory(Variables.WORKOUT_DIRECTORY);
+        // check if directories are there
+        boolean workoutsExist = checkIfDirectoryExists(Variables.WORKOUT_DIRECTORY);
+        if(!workoutsExist){
+            createWorkoutDirectory();
         }
+        boolean settingsExist = checkIfDirectoryExists(Variables.USER_SETTINGS_DIRECTORY_NAME);
+        if(!settingsExist){
+            createUserSettingsDirectory();
+        }
+
         toggle.syncState();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -326,17 +332,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void createDirectory(String directoryName){
-        File directoryHandle = getExternalFilesDir(directoryName);
+    public void createWorkoutDirectory(){
+        File directoryHandle = getExternalFilesDir(Variables.WORKOUT_DIRECTORY);
         directoryHandle.mkdirs();
-        File fhandle = new File(getExternalFilesDir(directoryName), Variables.CURRENT_WORKOUT_LOG);
+        File logFile = new File(getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
         try {
-            fhandle.createNewFile();
-        } catch (Exception e) {
+            logFile.createNewFile();
+        }
+        catch (Exception e) {
             Log.d("Creating file", "Error when trying to create the "+Variables.CURRENT_WORKOUT_LOG+" file!");
         }
-        copyFile("Josh's Workout.txt");
-        copyFile(Variables.CURRENT_WORKOUT_LOG);
+        copyFile("Josh's Workout.txt"); // TODO remove
+    }
+
+    public void createUserSettingsDirectory(){
+        File directoryHandle = getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME);
+        directoryHandle.mkdirs();
+        File settingsFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
+        File customExercisesFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.CUSTOM_EXERCISES);
+        File exerciseVideosFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.EXERCISE_VIDEOS);
+        try {
+            settingsFile.createNewFile();
+            customExercisesFile.createNewFile();
+            exerciseVideosFile.createNewFile();
+        }
+        catch (Exception e) {
+            Log.d("Creating file", "Error when trying to create the user settings directory!");
+        }
     }
 
     public void copyFile(String fileName){

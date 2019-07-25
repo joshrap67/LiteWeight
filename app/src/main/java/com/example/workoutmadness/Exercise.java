@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,15 +17,15 @@ import android.widget.Toast;
 public class Exercise{
     private Context context;
     private Activity activity;
-    private String name;
-    private String videoURL;
-    private boolean status;
+    private String name, videoURL;
+    private boolean status, videos;
     private Fragment fragment;
 
-    public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment){
-        context=aContext;
-        activity=anActivity;
-        fragment=aFragment;
+    public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled){
+        context = aContext;
+        activity = anActivity;
+        fragment = aFragment;
+        videos = videosEnabled;
         if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
             // means that the exercise has already been done, so make sure to set status as so
             if(fragment instanceof CurrentWorkoutFragment){
@@ -35,8 +36,8 @@ public class Exercise{
         else{
             status=false;
         }
-        name=rawText[Variables.NAME_INDEX];
-        videoURL=rawText[Variables.VIDEO_INDEX];
+        name = rawText[Variables.NAME_INDEX];
+        videoURL = rawText[Variables.VIDEO_INDEX];
     }
     public void setStatus(boolean aStatus){
             /*
@@ -73,26 +74,33 @@ public class Exercise{
                 }
             }
         });
-        ImageView videoButton = row.findViewById(R.id.launch_video);
-        videoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!videoURL.equalsIgnoreCase("none")){
-                    // found on SO
-                    Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                    try{
-                        context.startActivity(appIntent);
+        if(videos){
+            ImageButton videoButton = row.findViewById(R.id.launch_video);
+            videoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!videoURL.equalsIgnoreCase("none")){
+                        // found on SO
+                        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
+                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
+                        try{
+                            context.startActivity(appIntent);
+                        }
+                        catch(ActivityNotFoundException ex) {
+                            context.startActivity(webIntent);
+                        }
                     }
-                    catch(ActivityNotFoundException ex) {
-                        context.startActivity(webIntent);
+                    else{
+                        Toast.makeText(activity, "No video found", Toast.LENGTH_LONG).show();
                     }
                 }
-                else{
-                    Toast.makeText(activity, "No video found", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+            });
+        }
+        else{
+            ImageView videoButton = row.findViewById(R.id.launch_video);
+            videoButton.setVisibility(View.GONE);
+        }
+
         return row;
     }
 

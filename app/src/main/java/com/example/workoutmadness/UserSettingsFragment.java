@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,7 +20,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Switch;
+import android.support.v7.widget.SwitchCompat;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -37,7 +39,7 @@ import java.util.HashMap;
 public class UserSettingsFragment extends Fragment {
     private View view;
     private boolean modifed, filterCustom;
-    private Switch videoSwitch, timerSwitch, filterSwitch;
+    private SwitchCompat videoSwitch, timerSwitch, filterSwitch;
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
@@ -55,11 +57,24 @@ public class UserSettingsFragment extends Fragment {
         fragmentContainer = container;
         videoSwitch = view.findViewById(R.id.video_switch);
         filterSwitch = view.findViewById(R.id.filter_switch);
+        timerSwitch = view.findViewById(R.id.timer_switch);
+
         filterCustom=false;
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 filterCustom=isChecked;
                 populateFocusList();
+            }
+        });
+        initSwitches();
+        timerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateSettingsFile();
+            }
+        });
+        videoSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateSettingsFile();
             }
         });
         Button createBtn = view.findViewById(R.id.new_exercise_btn);
@@ -74,7 +89,47 @@ public class UserSettingsFragment extends Fragment {
         // todo make rows "raised" so they are clearly clickable?
         return view;
     }
-
+    public void initSwitches(){
+        BufferedReader reader;
+        try{
+            // check if videos and timer are enabled from user settings
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
+            if(fhandle.length()==0){
+                // settings fragment has somehow never been touched, so just show them the damn videos
+            }
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                String val = line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_INDEX];
+                if(val.equals(Variables.TIMER_DELIM)){
+                    timerSwitch.setChecked(Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]));
+                }
+                else if(val.equals(Variables.VIDEO_DELIM)){
+                    videoSwitch.setChecked(Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]));
+                }
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read user settings file!\n"+e);
+        }
+    }
+    public void updateSettingsFile(){
+        String videoString = Variables.VIDEO_DELIM+"*"+videoSwitch.isChecked()+"\n";
+        String timerString = Variables.TIMER_DELIM+"*"+timerSwitch.isChecked();
+        BufferedWriter writer = null;
+        File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
+        try{
+            writer = new BufferedWriter(new FileWriter(fhandle,false));
+            writer.write(videoString);
+            writer.write(timerString);
+            writer.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to record to user settings file!\n"+e);
+        }
+    }
     public void populateDefaultExercises(){
         BufferedReader reader = null;
         try{
@@ -155,6 +210,9 @@ public class UserSettingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 populateExercises(listView.getItemAtPosition(position).toString());
+                Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
+                animation1.setDuration(50);
+                view.startAnimation(animation1);
             }
         });
         // programmatically select first item

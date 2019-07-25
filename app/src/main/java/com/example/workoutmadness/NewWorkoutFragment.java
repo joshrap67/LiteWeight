@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -353,7 +354,7 @@ public class NewWorkoutFragment extends Fragment {
             final View row = inflater.inflate(R.layout.list_row,null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
-            ImageView deleteIcon = row.findViewById(R.id.delete_exercise);
+            ImageButton deleteIcon = row.findViewById(R.id.delete_exercise);
             deleteIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

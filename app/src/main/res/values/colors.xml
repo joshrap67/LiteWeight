@@ -3,7 +3,7 @@
     <color name="colorPrimary">#540404</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#4c4a4a</color>
-    <color name="popupBackground">#a0a4aa</color>
-    <color name="row_activated">#919190</color>
-    <color name="row_pressed">#858583</color>
+    <color name="popupBackground">#A0A4AA</color>
+    <color name="row_activated">#d1cdcd</color>
+    <color name="row_pressed">#c4c4c2</color>
 </resources>
