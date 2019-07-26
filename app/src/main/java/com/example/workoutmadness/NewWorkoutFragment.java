@@ -51,7 +51,7 @@ public class NewWorkoutFragment extends Fragment {
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
-
+    private Validator validator;
 
     @Nullable
     @Override
@@ -60,6 +60,7 @@ public class NewWorkoutFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_new, container, false);
         ((MainActivity) getActivity()).updateToolbarTitle("Workout Creator");
         currentDayIndex = 0;
+        validator= new Validator(getActivity());
         initViews();
         return view;
     }
@@ -76,10 +77,13 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    boolean validName = checkValidName(workoutNameInput.getText().toString());
-                    if (validName) {
+                    String errorMsg = validator.checkValidName(workoutNameInput.getText().toString());
+                    if (errorMsg==null) {
                         modified = true;
                         return true;
+                    }
+                    else{
+                        displayErrorMessage("Name",errorMsg);
                     }
                 }
                 return false;
@@ -89,10 +93,13 @@ public class NewWorkoutFragment extends Fragment {
         numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    boolean validWeek = checkValidWeek(numWeeksInput.getText().toString());
-                    if (validWeek) {
+                    String errorMsg = validator.checkValidWeek(numWeeksInput.getText().toString());
+                    if (errorMsg==null) {
                         modified=true;
                         return true;
+                    }
+                    else{
+                        displayErrorMessage("Weeks",errorMsg);
                     }
                 }
                 return false;
@@ -101,10 +108,13 @@ public class NewWorkoutFragment extends Fragment {
         numDaysInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    boolean validDay = checkValidDay(numDaysInput.getText().toString());
-                    if (validDay) {
+                    String errorMsg = validator.checkValidDay(numDaysInput.getText().toString());
+                    if (errorMsg==null) {
                         modified = true;
                         return true;
+                    }
+                    else{
+                        displayErrorMessage("Days",errorMsg);
                     }
                 }
                 return false;
@@ -117,11 +127,11 @@ public class NewWorkoutFragment extends Fragment {
                 String currentName = workoutNameInput.getText().toString();
                 String currentWeeks = numWeeksInput.getText().toString();
                 String currentDays = numDaysInput.getText().toString();
-                boolean validName = checkValidName(currentName);
-                boolean validWeeks = checkValidWeek(currentWeeks);
-                boolean validDays = checkValidDay(currentDays);
+                String nameError = validator.checkValidName(currentName);
+                String weekError = validator.checkValidWeek(currentWeeks);
+                String dayError = validator.checkValidDay(currentDays);
 
-                if(validName && validWeeks && validDays){
+                if(nameError==null && weekError==null && dayError==null){
                     finalName = currentName.trim();
                     finalWeekNum = Integer.parseInt(currentWeeks);
                     finalDayNum = Integer.parseInt(currentDays);
@@ -130,57 +140,6 @@ public class NewWorkoutFragment extends Fragment {
                 }
             }
         });
-    }
-
-    public boolean checkValidName(String aName){
-        aName = aName.trim();
-        if((aName.length() > 0) && (aName.length() < 500)){
-            String[] letters = aName.split("");
-            for(String letter : letters){
-                if(letter.equalsIgnoreCase(".")){
-                    displayErrorMessage("Name","No special characters allowed!");
-                    return false;
-                }
-            }
-            // check if workout name has already been used before
-            File directoryHandle = getActivity().getExternalFilesDir(Variables.WORKOUT_DIRECTORY);
-            File[] contents = directoryHandle.listFiles();
-            for(File file : contents){
-                if(file.getName().equalsIgnoreCase(aName+".txt")){
-                    displayErrorMessage("Name","Workout name already exists!");
-                    return false;
-                }
-            }
-            return true;
-        }
-        displayErrorMessage("Name","Workout name has too few or too many characters!");
-        return false;
-    }
-
-    public boolean checkValidWeek(String aWeek) {
-        if(aWeek.length() == 0){
-            displayErrorMessage("Weeks","Enter value between 1-8!");
-            return false;
-        }
-        int week = Integer.parseInt(aWeek);
-        if (week > 0 && week < 9) {
-            return true;
-        }
-        displayErrorMessage("Weeks","Enter value between 1-8!");
-        return false;
-    }
-
-    public boolean checkValidDay(String aDay) {
-        if(aDay.length() == 0){
-            displayErrorMessage("Days","Enter value between 1-7!");
-            return false;
-        }
-        int day = Integer.parseInt(aDay);
-        if (day > 0 && day < 8) {
-            return true;
-        }
-        displayErrorMessage("Days","Enter value between 1-7!");
-        return false;
     }
 
     public void displayErrorMessage(String editText, String msg){
