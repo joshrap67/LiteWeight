@@ -21,7 +21,10 @@ public class Exercise{
     private boolean status, videos;
     private Fragment fragment;
 
-    public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled){
+    public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled, String URL){
+        /*
+            Constructor utilized by the current workout fragment
+         */
         context = aContext;
         activity = anActivity;
         fragment = aFragment;
@@ -37,8 +40,17 @@ public class Exercise{
             status=false;
         }
         name = rawText[Variables.NAME_INDEX];
-        videoURL = rawText[Variables.VIDEO_INDEX];
+        videoURL = URL;
     }
+
+    public Exercise(String exerciseName){
+        /*
+            Constructor utilized by the new workout fragment when writing to a file
+         */
+        name = exerciseName;
+        status = false;
+    }
+
     public void setStatus(boolean aStatus){
             /*
                 Sets the status of the exercise as either being complete or incomplete.
@@ -111,10 +123,10 @@ public class Exercise{
              */
         String retVal;
         if(status){
-            retVal = name+"*"+Variables.EXERCISE_COMPLETE+"*"+videoURL;
+            retVal = name+"*"+Variables.EXERCISE_COMPLETE;
         }
         else{
-            retVal = name+"*"+Variables.EXERCISE_INCOMPLETE+"*"+videoURL;
+            retVal = name+"*"+Variables.EXERCISE_INCOMPLETE;
         }
         return retVal;
     }

@@ -153,7 +153,7 @@ public class UserSettingsFragment extends Fragment {
         }
     }
 
-    public void populateExercises(){
+    public void populateCustomExercises(){
         BufferedReader reader;
         try{
             //TODO need to ensure this file isn't null

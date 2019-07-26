@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -29,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +48,10 @@ public class NewWorkoutFragment extends Fragment {
     private ViewGroup fragmentContainer;
     private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
+    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
+    private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
+    private ArrayList<String> focusList = new ArrayList<>();
+
 
     @Nullable
     @Override
@@ -210,6 +216,7 @@ public class NewWorkoutFragment extends Fragment {
             // create the hash map that maps day numbers to lists of exercises
             exercises.put(i, new ArrayList<String>());
         }
+        populateDefaultExercises();
         setButtons(createWorkoutView);
     }
 
@@ -329,9 +336,9 @@ public class NewWorkoutFragment extends Fragment {
                 int size = exercises.get(i).size();
                 // loop through exercises of a specific day
                 for(int j=0;j<size;j++){
-                    String exercise = exercises.get(i).get(j);
-                    // TODO pull video from the video file in the current workout fragment, not here
-                    String exerciseLine = exercise+"*"+"INCOMPLETE"+"*"+"NONE"+((i == maxDayIndex && j == (size-1))?"":"\n");
+                    String exerciseName = exercises.get(i).get(j);
+                    Exercise exercise = new Exercise(exerciseName);
+                    String exerciseLine = exercise.getFormattedLine()+((i == maxDayIndex && j == (size-1))?"":"\n"); // avoid new line at end of file
                     writer.write(exerciseLine);
                 }
             }
@@ -375,8 +382,12 @@ public class NewWorkoutFragment extends Fragment {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         popupView = getLayoutInflater().inflate(R.layout.exercise_popup, null);
-        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
         pickExerciseTable = popupView.findViewById(R.id.main_table);
+        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
+        Collections.sort(focusList);
+        ArrayAdapter<String> focusAdapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
+        focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new SpinnerListener());
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
@@ -401,25 +412,47 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
+    public void populateDefaultExercises(){
+        /*
+            Obtain all the default exercises from the asset folder. The focus list is also populated here and the custom exercise hash
+            table is initialized with empty array lists at each focus key.
+         */
+        BufferedReader reader;
+        try{
+            reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
+            String line;
+            String focus=null;
+            while((line=reader.readLine())!=null){
+                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
+                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
+                    focusList.add(focus);
+                    defaultExercises.put(focus,new ArrayList<String>());
+                    customExercises.put(focus,new ArrayList<String>());
+                }
+                else{
+                    defaultExercises.get(focus).add(line);
+                }
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to populate from default exercises file\n"+e);
+        }
+    }
+
     public void updateExerciseChoices(String exerciseFocus){
         /*
             Given a value from the exercise focus spinner, list all the exercises associate with it.
          */
-        String[] exerciseValues;
-        switch (exerciseFocus){
-            case "Chest":
-                exerciseValues=getContext().getResources().getStringArray(R.array.chest_day);
-                break;
-            case "Legs":
-                exerciseValues=getContext().getResources().getStringArray(R.array.leg_day);
-                break;
-            default:
-                exerciseValues = new String[] {"work","it","harder","better","faster"};
-        }
         ArrayList<String> sortedExercises = new ArrayList<>();
-        Collections.addAll(sortedExercises,exerciseValues);
+        for(String exercise : defaultExercises.get(exerciseFocus)){
+            sortedExercises.add(exercise);
+        }
+        for(String exercise : customExercises.get(exerciseFocus)){
+            sortedExercises.add(exercise);
+        }
         Collections.sort(sortedExercises);
-        for(int i=0;i<exerciseValues.length;i++){
+        for(int i=0;i<sortedExercises.size();i++){
             TableRow row = new TableRow(getActivity());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
@@ -454,9 +487,8 @@ public class NewWorkoutFragment extends Fragment {
             of the workout followed by the current day of the workout. Thus it is imperative to not lose the old workouts when
             adding this new one.
          */
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        String _data = null;
+        BufferedReader reader;
+        BufferedWriter writer;
         File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
         File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
         try{

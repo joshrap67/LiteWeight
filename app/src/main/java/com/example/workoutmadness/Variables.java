@@ -5,7 +5,7 @@ public class Variables {
             TIME_TITLE_INDEX = 1,
             NAME_INDEX = 0,
             STATUS_INDEX = 1,
-            VIDEO_INDEX = 2,
+            VIDEO_INDEX = 1,
             WORKOUT_NAME_INDEX = 0,
             CURRENT_DAY_INDEX = 1, // TODO rename
             FOCUS_INDEX = 0,

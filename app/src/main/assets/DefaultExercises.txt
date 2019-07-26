@@ -5,19 +5,19 @@ Barbell Curl
 Reverse Grip Barbell Curl
 Dumbbell Kickback
 One Arm Tricep Extension
-Push-Ups
+Push-Up
 Farmer Walk
 Barbell Wrist Curl
 Reverse Grip Wrist Curl
 Incline Dumbbell Curl
 Cable Pull Down
 Close Grip Bench
-Concentration Curls
-Skullcrushers
-FOCUS*Back & Shoulders
+Concentration Curl
+Skullcrusher
+FOCUS*Back & Shoulder
 Side Deltoid Raise
 Front Deltoid Raise
-Shrugs
+Shrug
 Bent Over Row
 Uptight Row
 Shoulder Press
@@ -29,15 +29,15 @@ Military Press
 Lat Pulldown
 Reverse Shrugs
 FOCUS*Cardio & Core
-Sit-Ups
+Sit-Up
 Swimming
 Running
 Cycling
-Planks
-Weighted Oblique Twists
-Weighted Sit-Ups
-Push-Ups
-Burpees
+Plank
+Weighted Oblique Twist
+Weighted Sit-Up
+Push-Up
+Burpee
 FOCUS*Chest
 Bench Press
 Close Grip Bench
@@ -45,20 +45,20 @@ Incline Bench Press
 Decline Bench Press
 Dumbbell Press
 Incline Dumbbell Press
-Dumbbell Flys
-Incline Dumbbell Flys
-Push-Ups
-Cable Flys
+Dumbbell Fly
+Incline Dumbbell Fly
+Push-Up
+Cable Fly
 FOCUS*Legs
 Squat
 Hack Squat
-Lunges
+Lunge
 Leg Press
-Leg Curls
-Leg Extensions
-Front Squats
-Calve Raises
+Leg Curl
+Leg Extension
+Front Squat
+Calve Raise
 FOCUS*Strength Training
-Deadlifts
+Deadlift
 Bench Press
-Squats
+Squat

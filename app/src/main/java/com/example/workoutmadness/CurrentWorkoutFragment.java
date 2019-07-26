@@ -27,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -42,6 +43,8 @@ public class CurrentWorkoutFragment extends Fragment {
     private ConstraintLayout timerContainer;
     private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
     private HashMap<Integer, String> totalDayTitles = new HashMap<>();
+    private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
+    private HashMap<String, String> customExerciseVideos = new HashMap<>();
 
     @Nullable
     @Override
@@ -74,6 +77,8 @@ public class CurrentWorkoutFragment extends Fragment {
             else{
                 timerContainer.setVisibility(View.GONE);
             }
+            getDefaultExerciseVideos();
+            getCustomExerciseVideos();
             populateExercises();
             // TODO need to put error checking here in case file gets wiped.
             populateTable();
@@ -112,6 +117,48 @@ public class CurrentWorkoutFragment extends Fragment {
             Log.d("ERROR","Error when trying to read user settings file!\n"+e);
         }
     }
+    public void getDefaultExerciseVideos(){
+        /*
+            Reads the asset folder and populates a hash table with the exercise name as the key and its corresponding URL as the value
+         */
+        BufferedReader reader;
+        try{
+            reader = new BufferedReader(new InputStreamReader(getContext().getAssets().open(Variables.DEFAULT_EXERCISE_VIDEOS)));
+            String line;
+            while((line=reader.readLine())!=null){
+                defaultExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
+                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
+        }
+    }
+
+    public void getCustomExerciseVideos(){
+        /*
+            Reads the custom video file and populates a hash table with the exercise name as the key and its
+            corresponding URL as the value. Note that any URL for a default exercise found in this file then the default
+            URL will not be used.
+         */
+        BufferedReader reader;
+        try {
+            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.EXERCISE_VIDEOS);
+            FileReader fileR= new FileReader(fhandle);
+            reader = new BufferedReader(fileR);
+            String line;
+            while((line=reader.readLine())!=null){
+                customExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
+                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
+        }
+    }
+
     public void populateExercises(){
         /*
             Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
@@ -133,7 +180,18 @@ public class CurrentWorkoutFragment extends Fragment {
                     totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
                 }
                 else{
-                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this,videosEnabled);
+                    String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
+                    String URL;
+                    if(customExerciseVideos.get(name)!=null){
+                        URL=customExerciseVideos.get(name);
+                    }
+                    else if(defaultExerciseVideos.get(name)!=null){
+                        URL=defaultExerciseVideos.get(name);
+                    }
+                    else{
+                        URL="NONE";
+                    }
+                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this, videosEnabled,URL);
                     totalExercises.get(hashIndex).add(exercise);
                 }
             }
@@ -147,7 +205,7 @@ public class CurrentWorkoutFragment extends Fragment {
 
     public void populateTable(){
         /*
-        Populates exercises based on the current day.
+            Populates exercises based on the current day.
          */
         table.removeAllViews();
         dayTV.setText(totalDayTitles.get(currentDayIndex));

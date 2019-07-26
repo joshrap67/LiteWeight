@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!settingsExist){
             createUserSettingsDirectory();
         }
-
+        // TODO check if custom exercises exist? if file is empty or isn't there, just populate it with the focuses
         toggle.syncState();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
