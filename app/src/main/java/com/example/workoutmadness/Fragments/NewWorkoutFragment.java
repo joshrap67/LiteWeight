@@ -1,4 +1,4 @@
-package com.example.workoutmadness;
+package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -24,6 +24,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.workoutmadness.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

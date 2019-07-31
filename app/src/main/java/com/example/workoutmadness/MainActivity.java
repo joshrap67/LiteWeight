@@ -22,6 +22,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.workoutmadness.Fragments.*;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!settingsExist){
             createUserSettingsDirectory();
         }
+        // TODO handle screen orientation changes!
         // TODO check if custom exercises exist? if file is empty or isn't there, just populate it with the focuses
         toggle.syncState();
         if (savedInstanceState == null) {

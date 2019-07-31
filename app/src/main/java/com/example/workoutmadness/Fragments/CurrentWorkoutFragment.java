@@ -1,9 +1,6 @@
-package com.example.workoutmadness;
+package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -15,12 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.example.workoutmadness.Exercise;
+import com.example.workoutmadness.MainActivity;
+import com.example.workoutmadness.R;
+import com.example.workoutmadness.Variables;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

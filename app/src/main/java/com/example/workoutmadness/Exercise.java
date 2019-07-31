@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.example.workoutmadness.Fragments.*;
 import android.widget.Toast;
 
 public class Exercise{
