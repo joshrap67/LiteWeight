@@ -1,4 +1,4 @@
-package com.example.workoutmadness.Database;
+package com.example.workoutmadness.Database.ViewModels;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -6,13 +6,15 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import com.example.workoutmadness.Database.Entities.*;
+import com.example.workoutmadness.Database.Repositories.*;
 
 import java.util.List;
 
 public class LogViewModel extends AndroidViewModel {
     private WorkoutRepository repository;
     private LiveData<List<LogEntity>> allLogs;
-    private MutableLiveData<String> currentWorkout = new MutableLiveData<>();
+    private String currentWorkout;
 
     public LogViewModel(@NonNull Application application) {
         super(application);
@@ -41,8 +43,11 @@ public class LogViewModel extends AndroidViewModel {
         return allLogs;
     }
 
-    public LiveData<String> getCurrentWorkout(){
+    public void getCurrentWorkout(){
         repository.getCurrentWorkout();
-        return currentWorkout;
+    }
+
+    public String getCurrentWorkoutResult(){
+        return repository.getCurrentWorkoutResult();
     }
 }

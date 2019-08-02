@@ -1,7 +1,8 @@
-package com.example.workoutmadness.Database;
+package com.example.workoutmadness.Database.Entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+
 
 @Entity(tableName = "log_table")
 public class LogEntity {

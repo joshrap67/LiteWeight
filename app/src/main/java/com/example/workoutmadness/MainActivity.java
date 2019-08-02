@@ -24,7 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.workoutmadness.Fragments.*;
-import com.example.workoutmadness.Database.*;
+import com.example.workoutmadness.Database.ViewModels.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

@@ -28,10 +28,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.workoutmadness.*;
-import com.example.workoutmadness.Database.LogEntity;
-import com.example.workoutmadness.Database.LogViewModel;
-import com.example.workoutmadness.Database.WorkoutEntity;
-import com.example.workoutmadness.Database.WorkoutViewModel;
+import com.example.workoutmadness.Database.Entities.*;
+import com.example.workoutmadness.Database.ViewModels.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

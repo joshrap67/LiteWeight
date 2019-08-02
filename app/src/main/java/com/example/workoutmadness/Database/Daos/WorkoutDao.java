@@ -1,4 +1,4 @@
-package com.example.workoutmadness.Database;
+package com.example.workoutmadness.Database.Daos;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -6,6 +6,8 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
+import com.example.workoutmadness.Database.Entities.*;
+
 
 import java.util.List;
 
@@ -23,6 +25,8 @@ public interface WorkoutDao {
     void deleteAllWorkouts();
     @Query("SELECT * FROM workout_table")
     LiveData<List<WorkoutEntity>> getAllWorkouts();
+    @Query("SELECT * FROM workout_table WHERE workout=:workoutName")
+    List<WorkoutEntity> getExercises(String workoutName);
     // todo add query by day and workout name
     // todo add query by unique workout name
 }

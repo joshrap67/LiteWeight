@@ -1,4 +1,4 @@
-package com.example.workoutmadness.Database;
+package com.example.workoutmadness.Database.Daos;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -6,6 +6,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
+import com.example.workoutmadness.Database.Entities.*;
 
 import java.util.List;
 
@@ -23,6 +24,6 @@ public interface LogDao {
     void deleteAllLogs();
     @Query("SELECT * FROM log_table")
     LiveData<List<LogEntity>> getAllLogs();
-    @Query("SELECT workoutName FROM log_table WHERE current='true'")
+    @Query("SELECT workoutName FROM log_table WHERE current=1")
     String getCurrentWorkout();
 }

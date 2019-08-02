@@ -1,11 +1,15 @@
-package com.example.workoutmadness.Database;
+package com.example.workoutmadness.Database.Repositories;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.workoutmadness.Database.Daos.*;
+import com.example.workoutmadness.Database.Entities.*;
+import com.example.workoutmadness.Database.*;
+
+import java.util.Collections;
 import java.util.List;
 
 public class WorkoutRepository {
@@ -13,10 +17,8 @@ public class WorkoutRepository {
     private LogDao logDao;
     private LiveData<List<WorkoutEntity>> allWorkouts;
     private LiveData<List<LogEntity>> allLogs;
-    private MutableLiveData<String> currentWorkout = new MutableLiveData<String>();
-    private void asyncFinished(String result) {
-        currentWorkout.setValue(result);
-    }
+    private List<WorkoutEntity> exercises;
+    private String currentWorkout;
 
     public WorkoutRepository(Application application){
         WorkoutDatabase database = WorkoutDatabase.getInstance(application);
@@ -26,7 +28,8 @@ public class WorkoutRepository {
         allLogs = logDao.getAllLogs();
     }
 
-    // region View Model methods for workout table
+    // region
+    // View Model methods for workout table
     public void insertWorkoutEntity(WorkoutEntity workout){
         new InsertWorkoutAsyncTask(workoutDao).execute(workout);
     }
@@ -41,12 +44,24 @@ public class WorkoutRepository {
         new DeleteAllWorkoutAsyncTask(workoutDao).execute();
     }
 
+    public void getExercises(String workout){
+        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao,workout);
+        task.delegate = this;
+        task.execute();
+    }
+
+    public List<WorkoutEntity> getExercisesResult(){
+        return exercises;
+    }
+
+
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
         return allWorkouts;
     }
     // endregion
 
-    // region View Model methods for log table
+    // region
+    // View Model methods for log table
     public void insertLogEntity(LogEntity log){
         new InsertLogAsyncTask(logDao).execute(log);
     }
@@ -64,12 +79,20 @@ public class WorkoutRepository {
         task.delegate = this;
         task.execute();
     }
+
+    public String getCurrentWorkoutResult(){
+        return currentWorkout;
+    }
+
     public LiveData<List<LogEntity>> getAllLogs() {
         return allLogs;
     }
+
+
     // endregion
 
-    // region Private classes used to execute the workout queries using the database access objects (DAOs)
+    // region
+    // Private classes used to execute the workout queries using the database access objects (DAOs)
 
     private static class InsertWorkoutAsyncTask extends AsyncTask<WorkoutEntity, Void, Void>{
         private WorkoutDao workoutDao;
@@ -122,9 +145,38 @@ public class WorkoutRepository {
             return null;
         }
     }
+
+    private static class GetExercisesAsyncTask extends AsyncTask<Void, Void, List<WorkoutEntity>>{
+        private WorkoutDao workoutDao;
+        private WorkoutRepository delegate = null;
+        private String workoutSearch;
+
+        private GetExercisesAsyncTask(WorkoutDao _workoutDao, String workout){
+            workoutDao = _workoutDao;
+            workoutSearch = workout;
+        }
+        @Override
+        protected List<WorkoutEntity> doInBackground(Void... params) {
+            return workoutDao.getExercises(workoutSearch);
+        }
+        @Override
+        protected void onPostExecute(List<WorkoutEntity> result){
+            delegate.getExercisesFinished(result);
+        }
+    }
+
+    private void getExercisesFinished(List<WorkoutEntity> results) {
+        /*
+            Called whenever GetExercisesAsyncTask is finished
+        */
+        for(WorkoutEntity entity : results){
+            exercises.add(entity);
+        }
+    }
     // endregion
 
-    // region Private classes used to execute the log queries using the database access objects (DAOs)
+    // region
+    // Private classes used to execute the log queries using the database access objects (DAOs)
     private static class InsertLogAsyncTask extends AsyncTask<LogEntity, Void, Void>{
         private LogDao logDao;
 
@@ -179,7 +231,7 @@ public class WorkoutRepository {
 
     private static class GetCurrentWorkoutAsyncTask extends AsyncTask<Void, Void, String>{
         private LogDao logDao;
-        private WorkoutRepository delegate=null;
+        private WorkoutRepository delegate = null;
 
         private GetCurrentWorkoutAsyncTask(LogDao _logDao){
             logDao = _logDao;
@@ -190,9 +242,15 @@ public class WorkoutRepository {
         }
         @Override
         protected void onPostExecute(String result) {
-            delegate.asyncFinished(result);
+            delegate.getWorkoutFinished(result);
         }
 
+    }
+    private void getWorkoutFinished(String result) {
+        /*
+            Called whenever GetExercisesAsyncTask is finished
+        */
+        currentWorkout = result;
     }
     // endregion
 }

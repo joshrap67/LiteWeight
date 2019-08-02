@@ -5,6 +5,9 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
+import com.example.workoutmadness.Database.Entities.*;
+import com.example.workoutmadness.Database.Daos.*;
+
 @Database(entities = {WorkoutEntity.class, LogEntity.class},version = 2,exportSchema = false)
 public abstract class WorkoutDatabase extends RoomDatabase {
     private static WorkoutDatabase instance;
