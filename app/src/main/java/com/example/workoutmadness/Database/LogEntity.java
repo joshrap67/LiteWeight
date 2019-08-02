@@ -13,15 +13,17 @@ public class LogEntity {
     private String dateCreated;
     private int timesCompleted;
     private double percentageExercisesCompleted;
+    private boolean current;
 
-    public LogEntity(String workout, int day, String dateLast, String dateCreated, int timesCompleted,
-                     double percentageExercisesCompleted) {
-        this.workoutName =workout;
-        this.currentDay = day;
-        this.dateLast=dateLast;
-        this.dateCreated=dateCreated;
-        this.timesCompleted=timesCompleted;
-        this.percentageExercisesCompleted=percentageExercisesCompleted;
+    public LogEntity(String workoutName, int currentDay, String dateLast, String dateCreated, int timesCompleted,
+                     double percentageExercisesCompleted, boolean current) {
+        this.workoutName = workoutName;
+        this.currentDay = currentDay;
+        this.dateLast = dateLast;
+        this.dateCreated = dateCreated;
+        this.timesCompleted = timesCompleted;
+        this.percentageExercisesCompleted = percentageExercisesCompleted;
+        this.current = current;
     }
 
     public void setId(int id) {
@@ -52,8 +54,18 @@ public class LogEntity {
         return percentageExercisesCompleted;
     }
 
+    public boolean getCurrent() {
+        return current;
+    }
+
     public int getCurrentDay() {
         return currentDay;
+    }
+
+    @Override
+    public String toString(){
+        return "Workout: "+workoutName+" CurrentDay: "+currentDay+"DateLast: "+dateLast+" DateCreated: "+dateCreated+
+                " TimesCompleted: "+timesCompleted+ "Percentage "+percentageExercisesCompleted+" Current: "+current;
     }
 
 }

@@ -159,7 +159,7 @@ public class MyWorkoutFragment extends Fragment {
             fhandleNew.renameTo(fhandleOld);
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to update current workout log!\n"+e);
+            Log.d("ERROR","Error when trying to updateWorkoutEntity current workout log!\n"+e);
         }
     }
 
@@ -218,7 +218,7 @@ public class MyWorkoutFragment extends Fragment {
             return file.delete();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to delete "+fileName+"\n"+e);
+            Log.d("ERROR","Error when trying to deleteWorkoutEntity "+fileName+"\n"+e);
             return false;
         }
     }
@@ -250,13 +250,13 @@ public class MyWorkoutFragment extends Fragment {
             fhandleOld.delete();
             fhandleNew.renameTo(fhandleOld);
             if(fhandleNew.length()==0){
-                // all the workouts have now been deleted, so update text view to alert user
+                // all the workouts have now been deleted, so updateWorkoutEntity text view to alert user
                 // TODO put some type of popup to tell them to go create a workout?
                 selectedWorkoutTV.setText("No Workouts Found!");
             }
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to delete workout from current workout log!\n"+e);
+            Log.d("ERROR","Error when trying to deleteWorkoutEntity workout from current workout log!\n"+e);
         }
     }
     /*
@@ -267,7 +267,7 @@ public class MyWorkoutFragment extends Fragment {
     public void editWorkout(){
         // TODO change layout
         // TODO init the buttons
-        // TODO update list view
+        // TODO updateWorkoutEntity list view
     }
 
     public void populateExercises(){

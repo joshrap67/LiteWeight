@@ -2,6 +2,7 @@ package com.example.workoutmadness;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -23,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.workoutmadness.Fragments.*;
+import com.example.workoutmadness.Database.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
+    private WorkoutViewModel workoutViewModel;
+    private LogViewModel logViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
+        workoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class); // get model that will interact with repo
+        logViewModel = ViewModelProviders.of(this).get(LogViewModel.class); // get model that will interact with repo
+
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         nav.setNavigationItemSelectedListener(this);
@@ -254,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(visibleFragment instanceof CurrentWorkoutFragment){
             /*
                 Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
-                of logical errors. So just delete old fragment and launch new
+                of logical errors. So just deleteWorkoutEntity old fragment and launch new
             */
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();

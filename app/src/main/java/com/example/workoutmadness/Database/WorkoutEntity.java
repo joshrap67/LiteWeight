@@ -43,4 +43,11 @@ public class WorkoutEntity {
         return day;
     }
 
+    @Override
+    public String toString(){
+        /*
+            Great for debugging
+         */
+        return "Workout: "+this.workout+" Exercise: "+this.exercise+" Day: "+this.day+" Status: "+this.status;
+    }
 }

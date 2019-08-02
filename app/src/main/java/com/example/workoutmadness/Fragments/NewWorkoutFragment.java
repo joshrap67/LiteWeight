@@ -1,6 +1,8 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,6 +28,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.workoutmadness.*;
+import com.example.workoutmadness.Database.LogEntity;
+import com.example.workoutmadness.Database.LogViewModel;
+import com.example.workoutmadness.Database.WorkoutEntity;
+import com.example.workoutmadness.Database.WorkoutViewModel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,9 +42,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class NewWorkoutFragment extends Fragment {
-    private boolean modified = false, firstDay, lastDay;
+    private boolean modified = false, firstDay, lastDay, firstWorkout = false;
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button previousDayBtn, nextDayBtn;
     private int finalDayNum, finalWeekNum,currentDayIndex, maxDayIndex;
@@ -48,6 +55,8 @@ public class NewWorkoutFragment extends Fragment {
     private TableLayout pickExerciseTable, displayedExercisesTable;
     private TextView dayTitle;
     private ViewGroup fragmentContainer;
+    private WorkoutViewModel workoutModel;
+    private LogViewModel viewModel;
     private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
@@ -63,6 +72,27 @@ public class NewWorkoutFragment extends Fragment {
         ((MainActivity) getActivity()).updateToolbarTitle("Workout Creator");
         currentDayIndex = 0;
         validator= new Validator(getActivity());
+        workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
+        workoutModel.getAllWorkouts().observe(this, new Observer<List<WorkoutEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<WorkoutEntity> workoutEntities) {
+                if(workoutEntities!=null){
+                    // TODO probably not needed here...
+                }
+            }
+        });
+        viewModel = ViewModelProviders.of(getActivity()).get(LogViewModel.class);
+        viewModel.getAllLogs().observe(this, new Observer<List<LogEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<LogEntity> logEntities) {
+                if(logEntities==null){
+                    // database has no entries, so assign the new one as the currently selected workout since its the only one
+                    firstWorkout = true;
+                }
+            }
+        });
+        LogEntity entity = new LogEntity("ok",0,"yuh","yuh",0,0.0,true);
+        viewModel.delete(entity);
         initViews();
         return view;
     }
@@ -261,7 +291,8 @@ public class NewWorkoutFragment extends Fragment {
                         }
                     }
                     if(ready){
-                        writeToFile();
+//                        writeToFile();
+                        writeToDatabase();
                         modified = false;
                         Toast.makeText(getContext(), "Workout successfully created!",Toast.LENGTH_SHORT).show();
                         // restart this fragment
@@ -278,6 +309,22 @@ public class NewWorkoutFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void writeToDatabase(){
+        for(int i=0;i<=maxDayIndex;i++){
+            // loop through all the days of the workouts
+            for(String exercise : exercises.get(i)){
+                // loop through exercises of a specific day
+                WorkoutEntity workoutEntity = new WorkoutEntity(exercise,finalName,i,false);
+                workoutModel.insert(workoutEntity);
+            }
+        }
+        // write the log to the log table
+        // TODO get current time and such from system
+        LogEntity log = new LogEntity(finalName,0,"yuh","yuh",0,0,firstWorkout);
+        viewModel.insert(log);
+
     }
 
     public void writeToFile(){
@@ -469,7 +516,7 @@ public class NewWorkoutFragment extends Fragment {
             fhandleNew.renameTo(fhandleOld);
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to update current workout log!\n"+e);
+            Log.d("ERROR","Error when trying to updateWorkoutEntity current workout log!\n"+e);
         }
     }
 

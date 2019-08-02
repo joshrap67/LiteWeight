@@ -1,6 +1,8 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -15,6 +17,12 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.workoutmadness.Database.LogEntity;
+import com.example.workoutmadness.Database.LogViewModel;
+import com.example.workoutmadness.Database.WorkoutEntity;
+import com.example.workoutmadness.Database.WorkoutViewModel;
 import com.example.workoutmadness.Exercise;
 import com.example.workoutmadness.MainActivity;
 import com.example.workoutmadness.R;
@@ -28,6 +36,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class CurrentWorkoutFragment extends Fragment {
     private TextView dayTV;
@@ -35,14 +44,17 @@ public class CurrentWorkoutFragment extends Fragment {
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
     private String WORKOUT_FILE;
-    private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled, videosEnabled;
+    private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled, videosEnabled, firstTime = true;
     private Chronometer timer;
     private long lastTime;
     private ConstraintLayout timerContainer;
+    private WorkoutViewModel workoutModel;
+    private LogViewModel logModel;
     private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
     private HashMap<Integer, String> totalDayTitles = new HashMap<>();
     private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
     private HashMap<String, String> customExerciseVideos = new HashMap<>();
+    private ArrayList<WorkoutEntity> entities;
 
     @Nullable
     @Override
@@ -61,12 +73,109 @@ public class CurrentWorkoutFragment extends Fragment {
         timer = view.findViewById(R.id.timer);
         dayTV = view.findViewById(R.id.dayTextView);
         timerContainer = view.findViewById(R.id.constraint_layout);
+        entities = new ArrayList<>();
+        /*
+            Set up the view models
+         */
+        logModel = ViewModelProviders.of(getActivity()).get(LogViewModel.class);
+        logModel.getCurrentWorkout().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                if(s!=null){
+                    Log.d("Fucking hell","Workout name is: "+s);
+                }
+                else{
+                    Log.d("Fucking hell","No workout found!");
+                }
+            }
+        });
+        logModel.getAllLogs().observe(this, new Observer<List<LogEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<LogEntity> entities) {
+                if(entities!=null){
+                    Log.d("Fucking hell","Workouts are:");
+                    for(LogEntity entity : entities){
+                        Log.d("Fucking hell",entity.toString());
+                    }
+                }
+                else{
+                    Log.d("Fucking hell","No workout found!");
+                }
+            }
+        });
+        Log.d("Fuck","Fucking kill me");
 
+        workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
+        workoutModel.getAllWorkouts().observe(this, new Observer<List<WorkoutEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<WorkoutEntity> workoutEntities) {
+                if(workoutEntities!=null&&firstTime){
+                    Log.d("Fuck","Database not empty");
+                    // TODO probably not needed here...
+                    for(WorkoutEntity entity : workoutEntities){
+//                        Log.d("Fuck","Entity is: "+entity.toString());
+                        entities.add(entity);
+                    }
+                    firstTime=false;
+                    proceed();
+//                    entities = new ArrayList<>(workoutEntities);
+                }
+                else{
+                    Log.d("Fuck","Database empty or not first time");
+                }
+            }
+        });
+//
+//        LiveData<List<WorkoutEntity>> testing = workoutModel.getAllWorkouts();
+////        entities = new ArrayList<>(testing.getValue());
+//        if(entities != null){
+//            // DB query was successful, so populate values
+//            Log.d("Fuck","Entities is not null");
+//            for(WorkoutEntity entity : entities){
+//                Log.d("Fuck","Entity outside observer is: "+entity.toString());
+//            }
+//            populateExercises();
+//        }
+//        else{
+//            Log.d("Fuck","Entities is null");
+//            return null;
+//        }
+//        checkUserSettings();
+//        boolean flag1 = updateCurrentWorkoutFile();
+//        boolean flag2 = updateCurrentDayNumber();
+//        if(flag1&&flag2){
+//            // get the workout name and updateWorkoutEntity the toolbar with the name
+//            String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
+//            ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
+//            if(timerEnabled){
+//                initTimer();
+//            }
+//            else{
+//                timerContainer.setVisibility(View.GONE);
+//            }
+//            getDefaultExerciseVideos();
+//            getCustomExerciseVideos();
+//            populateExercises();
+//            // TODO need to put error checking here in case file gets wiped.
+//            populateTable();
+//        }
+//        else{
+//            //TODO add error screen and say to create a workout
+//            Log.d("ERROR","Problem with the current workout log!");
+//        }
+        return view;
+    }
+
+
+    public void proceed(){
+        for(WorkoutEntity entity : entities){
+            Log.d("Fuck","Entity inside proceed is: "+entity.toString());
+        }
         checkUserSettings();
         boolean flag1 = updateCurrentWorkoutFile();
         boolean flag2 = updateCurrentDayNumber();
         if(flag1&&flag2){
-            // get the workout name and update the toolbar with the name
+            // get the workout name and updateWorkoutEntity the toolbar with the name
             String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
             ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
             if(timerEnabled){
@@ -85,7 +194,11 @@ public class CurrentWorkoutFragment extends Fragment {
             //TODO add error screen and say to create a workout
             Log.d("ERROR","Problem with the current workout log!");
         }
-        return view;
+    }
+    public String generateDayTitle(){
+//        int weekNum = (i / finalDayNum)+1;
+//        int dayNum = (i % finalDayNum)+1;
+        return null;
     }
 
     public void checkUserSettings(){
