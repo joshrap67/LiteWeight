@@ -103,28 +103,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 }
             }
         });
-        Log.d("Fuck","Fucking kill me");
 
-        workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
-        workoutModel.getAllWorkouts().observe(this, new Observer<List<WorkoutEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<WorkoutEntity> workoutEntities) {
-                if(workoutEntities!=null&&firstTime){
-                    Log.d("Fuck","Database not empty");
-                    // TODO probably not needed here...
-                    for(WorkoutEntity entity : workoutEntities){
-//                        Log.d("Fuck","Entity is: "+entity.toString());
-                        entities.add(entity);
-                    }
-                    firstTime=false;
-                    proceed();
-//                    entities = new ArrayList<>(workoutEntities);
-                }
-                else{
-                    Log.d("Fuck","Database empty or not first time");
-                }
-            }
-        });
 //
 //        LiveData<List<WorkoutEntity>> testing = workoutModel.getAllWorkouts();
 ////        entities = new ArrayList<>(testing.getValue());
@@ -163,37 +142,57 @@ public class CurrentWorkoutFragment extends Fragment {
 //            //TODO add error screen and say to create a workout
 //            Log.d("ERROR","Problem with the current workout log!");
 //        }
+        nextStep();
         return view;
     }
 
+    public void nextStep(){
+        workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
+        workoutModel.getAllWorkouts().observe(this, new Observer<List<WorkoutEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<WorkoutEntity> workoutEntities) {
+                if(workoutEntities!=null&&firstTime){
+                    Log.d("Fuck","Database not empty. Size: "+workoutEntities.size());
+                    for(WorkoutEntity entity : workoutEntities){
+                        entities.add(entity);
+                    }
+                    firstTime=false;
+                    proceed();
+                }
+                else{
+                    Log.d("Fuck","Database empty or not first time");
+                }
+            }
+        });
+    }
 
     public void proceed(){
         for(WorkoutEntity entity : entities){
             Log.d("Fuck","Entity inside proceed is: "+entity.toString());
         }
-        checkUserSettings();
-        boolean flag1 = updateCurrentWorkoutFile();
-        boolean flag2 = updateCurrentDayNumber();
-        if(flag1&&flag2){
-            // get the workout name and updateWorkoutEntity the toolbar with the name
-            String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
-            ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
-            if(timerEnabled){
-                initTimer();
-            }
-            else{
-                timerContainer.setVisibility(View.GONE);
-            }
-            getDefaultExerciseVideos();
-            getCustomExerciseVideos();
-            populateExercises();
-            // TODO need to put error checking here in case file gets wiped.
-            populateTable();
-        }
-        else{
-            //TODO add error screen and say to create a workout
-            Log.d("ERROR","Problem with the current workout log!");
-        }
+//        checkUserSettings();
+//        boolean flag1 = updateCurrentWorkoutFile();
+//        boolean flag2 = updateCurrentDayNumber();
+//        if(flag1&&flag2){
+//            // get the workout name and updateWorkoutEntity the toolbar with the name
+//            String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
+//            ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
+//            if(timerEnabled){
+//                initTimer();
+//            }
+//            else{
+//                timerContainer.setVisibility(View.GONE);
+//            }
+//            getDefaultExerciseVideos();
+//            getCustomExerciseVideos();
+//            populateExercises();
+//            // TODO need to put error checking here in case file gets wiped.
+//            populateTable();
+//        }
+//        else{
+//            //TODO add error screen and say to create a workout
+//            Log.d("ERROR","Problem with the current workout log!");
+//        }
     }
     public String generateDayTitle(){
 //        int weekNum = (i / finalDayNum)+1;

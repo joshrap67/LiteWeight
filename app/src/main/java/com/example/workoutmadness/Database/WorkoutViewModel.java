@@ -29,7 +29,7 @@ public class WorkoutViewModel extends AndroidViewModel {
         repository.deleteWorkoutEntity(entity);
     }
 
-    public void deleteAllNotes() {
+    public void deleteAllWorkouts() {
         repository.deleteAllWorkouts();
     }
 

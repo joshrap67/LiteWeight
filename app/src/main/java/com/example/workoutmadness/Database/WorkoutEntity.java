@@ -48,6 +48,6 @@ public class WorkoutEntity {
         /*
             Great for debugging
          */
-        return "Workout: "+this.workout+" Exercise: "+this.exercise+" Day: "+this.day+" Status: "+this.status;
+        return "Id: "+this.getId()+" Workout: "+this.workout+" Exercise: "+this.exercise+" Day: "+this.day+" Status: "+this.status;
     }
 }

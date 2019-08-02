@@ -91,6 +91,7 @@ public class NewWorkoutFragment extends Fragment {
                 }
             }
         });
+        workoutModel.deleteAllWorkouts();
         initViews();
         return view;
     }
@@ -99,6 +100,10 @@ public class NewWorkoutFragment extends Fragment {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
+        for(int i=0;i<1000;i++){
+            WorkoutEntity workoutEntity = new WorkoutEntity("yuh",finalName,i,false);
+            workoutModel.insert(workoutEntity);
+        }
         workoutNameInput = view.findViewById(R.id.workoutNameInput);
         numWeeksInput = view.findViewById(R.id.weekInput);
         numDaysInput = view.findViewById(R.id.dayInput);
