@@ -85,14 +85,12 @@ public class NewWorkoutFragment extends Fragment {
         viewModel.getAllLogs().observe(this, new Observer<List<LogEntity>>() {
             @Override
             public void onChanged(@Nullable List<LogEntity> logEntities) {
-                if(logEntities==null){
+                if(logEntities.isEmpty()){
                     // database has no entries, so assign the new one as the currently selected workout since its the only one
                     firstWorkout = true;
                 }
             }
         });
-        LogEntity entity = new LogEntity("ok",0,"yuh","yuh",0,0.0,true);
-        viewModel.delete(entity);
         initViews();
         return view;
     }

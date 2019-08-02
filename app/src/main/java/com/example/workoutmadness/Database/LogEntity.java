@@ -64,7 +64,7 @@ public class LogEntity {
 
     @Override
     public String toString(){
-        return "Workout: "+workoutName+" CurrentDay: "+currentDay+"DateLast: "+dateLast+" DateCreated: "+dateCreated+
+        return "Id:"+getId()+" Workout: "+workoutName+" CurrentDay: "+currentDay+"DateLast: "+dateLast+" DateCreated: "+dateCreated+
                 " TimesCompleted: "+timesCompleted+ "Percentage "+percentageExercisesCompleted+" Current: "+current;
     }
 
