@@ -31,7 +31,7 @@ public class WorkoutEntity {
         return workout;
     }
 
-    public boolean isStatus() {
+    public boolean getStatus() {
         return status;
     }
 

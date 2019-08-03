@@ -4,27 +4,29 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
 
-@Entity(tableName = "log_table")
-public class LogEntity {
+@Entity(tableName = "meta_table")
+public class MetaEntity {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String workoutName;
     private int currentDay;
+    private int totalDays;
     private String dateLast;
     private String dateCreated;
     private int timesCompleted;
     private double percentageExercisesCompleted;
-    private boolean current;
+    private boolean currentWorkout;
 
-    public LogEntity(String workoutName, int currentDay, String dateLast, String dateCreated, int timesCompleted,
-                     double percentageExercisesCompleted, boolean current) {
+    public MetaEntity(String workoutName, int currentDay, int totalDays, String dateLast, String dateCreated, int timesCompleted,
+                      double percentageExercisesCompleted, boolean currentWorkout) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
         this.dateCreated = dateCreated;
         this.timesCompleted = timesCompleted;
         this.percentageExercisesCompleted = percentageExercisesCompleted;
-        this.current = current;
+        this.currentWorkout = currentWorkout;
+        this.totalDays = totalDays;
     }
 
     public void setId(int id) {
@@ -55,18 +57,23 @@ public class LogEntity {
         return percentageExercisesCompleted;
     }
 
-    public boolean getCurrent() {
-        return current;
+    public boolean getCurrentWorkout() {
+        return currentWorkout;
     }
 
     public int getCurrentDay() {
         return currentDay;
     }
 
+    public int getTotalDays() {
+        return totalDays;
+    }
+
     @Override
     public String toString(){
-        return "Id:"+getId()+" Workout: "+workoutName+" CurrentDay: "+currentDay+"DateLast: "+dateLast+" DateCreated: "+dateCreated+
-                " TimesCompleted: "+timesCompleted+ "Percentage "+percentageExercisesCompleted+" Current: "+current;
+        return "Id:"+getId()+" Workout: "+workoutName+" CurrentDay: "+currentDay+" TotalDays: "+totalDays+" DateLast: "+dateLast+
+                " DateCreated: "+dateCreated+ " TimesCompleted: "+timesCompleted+ "Percentage "+
+                percentageExercisesCompleted+" CurrentWorkout: "+currentWorkout;
     }
 
 }

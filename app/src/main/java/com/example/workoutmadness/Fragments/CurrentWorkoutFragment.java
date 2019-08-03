@@ -1,7 +1,6 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.ViewModels.*;
@@ -34,7 +32,6 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class CurrentWorkoutFragment extends Fragment {
     private TextView dayTV;
@@ -42,12 +39,13 @@ public class CurrentWorkoutFragment extends Fragment {
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
     private String WORKOUT_FILE, currentWorkout;
+    private MetaEntity currentWorkoutEntity;
     private boolean modified = false, exerciseModified = false, timerRunning = false, timerEnabled, videosEnabled, firstTime = true;
     private Chronometer timer;
     private long lastTime;
     private ConstraintLayout timerContainer;
     private WorkoutViewModel workoutModel;
-    private LogViewModel logModel;
+    private MetaViewModel metaModel;
     private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
     private HashMap<Integer, String> totalDayTitles = new HashMap<>();
     private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
@@ -75,7 +73,7 @@ public class CurrentWorkoutFragment extends Fragment {
         /*
             Set up the view models
          */
-        logModel = ViewModelProviders.of(getActivity()).get(LogViewModel.class);
+        metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
 
         GetCurrentWorkoutTask task = new GetCurrentWorkoutTask();
@@ -87,19 +85,25 @@ public class CurrentWorkoutFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            logModel.getCurrentWorkout();
+            // get the current workout from the database
+            metaModel.getCurrentWorkoutMeta();
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            if(logModel.getCurrentWorkoutResult()!=null) {
-                currentWorkout = logModel.getCurrentWorkoutResult();
+            if(metaModel.getCurrentWorkoutMetaResult()!=null) {
+                // database found a workout, so assign it then move to the next stop in the chain
+                currentWorkoutEntity = metaModel.getCurrentWorkoutMetaResult();
+                currentWorkout = currentWorkoutEntity.getWorkoutName();
+                currentDayIndex = currentWorkoutEntity.getCurrentDay();
+                maxDayIndex = currentWorkoutEntity.getTotalDays();
+                Log.d("TAG","CurrentWorkout: "+currentWorkoutEntity.toString());
                 getExercises();
             }
             else{
                 // no workout found,error
-                Log.d("Fuck","Get current workout result was null!");
+                Log.d("TAG","Get current workout result was null!");
             }
         }
     }
@@ -109,63 +113,51 @@ public class CurrentWorkoutFragment extends Fragment {
         task.execute();
     }
 
-    private class GetExercisesTask extends AsyncTask<Void, Void, Void>{
+    private class GetExercisesTask extends AsyncTask<Void, Void, Boolean>{
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            workoutModel.getExercises(currentWorkout);
-            return null;
+        protected Boolean doInBackground(Void... voids) {
+            // get the exercises from the database
+            return workoutModel.getExercises(currentWorkout);
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(Boolean result) {
+//            super.onPostExecute(result);
             if(workoutModel.getExercisesResult()!=null){
-                testing(workoutModel.getExercisesResult());
+                // all of the exercises have been loaded into the view model's list member variable since the query is complete
+                populateExercises(workoutModel.getExercisesResult());
             }
             else{
-                Log.d("Fuck","Get exercises result was null!");
+                Log.d("TAG","Get exercises result was null!");
             }
         }
     }
 
-    public void testing(List<WorkoutEntity> rawData){
-        for(WorkoutEntity entity : rawData){
-            Log.d("Fuck","Entity is: "+entity.toString());
+    public void populateExercises(ArrayList<WorkoutEntity> rawData){
+//        Log.d("TAG","Rawdata size: "+rawData.size());
+//        int count = 0;
+//        for(WorkoutEntity entity : rawData){
+////            Log.d("TAG","Entity is: "+entity.toString());
+//            count++;
+//        }
+//        Log.d("TAG","Count is: "+count);
+        // TODO handle case where custom workout is deleted but it still is in a workout
+        // init the hash table
+        for(int i = 0;i<=maxDayIndex;i++){
+            totalExercises.put(0, new ArrayList<Exercise>());
         }
+        for(WorkoutEntity entity : rawData){
+            Exercise exercise = new Exercise(entity,getContext(),getActivity(),this,false,"hey",workoutModel);
+            totalExercises.get(entity.getDay()).add(exercise);
+        }
+        populateTable();
     }
 
-    public void proceed(){
-        for(WorkoutEntity entity : entities){
-            Log.d("Fuck","Entity inside proceed is: "+entity.toString());
-        }
-//        checkUserSettings();
-//        boolean flag1 = updateCurrentWorkoutFile();
-//        boolean flag2 = updateCurrentDayNumber();
-//        if(flag1&&flag2){
-//            // get the workout name and updateWorkoutEntity the toolbar with the name
-//            String workoutName = WORKOUT_FILE.split(Variables.WORKOUT_EXT)[Variables.WORKOUT_NAME_INDEX];
-//            ((MainActivity)getActivity()).updateToolbarTitle(workoutName);
-//            if(timerEnabled){
-//                initTimer();
-//            }
-//            else{
-//                timerContainer.setVisibility(View.GONE);
-//            }
-//            getDefaultExerciseVideos();
-//            getCustomExerciseVideos();
-//            populateExercises();
-//            // TODO need to put error checking here in case file gets wiped.
-//            populateTable();
-//        }
-//        else{
-//            //TODO add error screen and say to create a workout
-//            Log.d("ERROR","Problem with the current workout log!");
-//        }
-    }
-    public String generateDayTitle(){
-//        int weekNum = (i / finalDayNum)+1;
-//        int dayNum = (i % finalDayNum)+1;
-        return null;
+    public String generateDayTitle(int num){
+        int weekNum = (num / maxDayIndex)+1;
+        int dayNum = (num % maxDayIndex)+1;
+        return weekNum+":"+dayNum;
     }
 
     public void checkUserSettings(){
@@ -286,7 +278,7 @@ public class CurrentWorkoutFragment extends Fragment {
             Populates exercises based on the current day.
          */
         table.removeAllViews();
-        dayTV.setText(totalDayTitles.get(currentDayIndex));
+        dayTV.setText(generateDayTitle(currentDayIndex));
         int count = 0;
         for(Exercise exercise : totalExercises.get(currentDayIndex)){
             View row = exercise.getDisplayedRow();

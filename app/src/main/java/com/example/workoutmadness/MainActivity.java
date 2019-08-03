@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView toolbarTitleTV;
     private NavigationView nav;
     private WorkoutViewModel workoutViewModel;
-    private LogViewModel logViewModel;
+    private MetaViewModel logViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         workoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class); // get model that will interact with repo
-        logViewModel = ViewModelProviders.of(this).get(LogViewModel.class); // get model that will interact with repo
+        logViewModel = ViewModelProviders.of(this).get(MetaViewModel.class); // get model that will interact with repo
 
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);

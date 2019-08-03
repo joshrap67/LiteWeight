@@ -3,29 +3,33 @@ package com.example.workoutmadness.Database.Repositories;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.workoutmadness.Database.Daos.*;
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.*;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkoutRepository {
     private WorkoutDao workoutDao;
-    private LogDao logDao;
+    private MetaDao metaDao;
+    private ExerciseDao exerciseDao;
     private LiveData<List<WorkoutEntity>> allWorkouts;
-    private LiveData<List<LogEntity>> allLogs;
-    private List<WorkoutEntity> exercises;
-    private String currentWorkout;
+    private LiveData<List<MetaEntity>> allMetadata;
+    private ArrayList<WorkoutEntity> exercises;
+    private ArrayList<ExerciseEntity> allExercises;
+    private MetaEntity currentWorkoutMeta;
+    private List<WorkoutEntity> exerciseResults;
+    private List<ExerciseEntity> allExercisesResults;
 
     public WorkoutRepository(Application application){
         WorkoutDatabase database = WorkoutDatabase.getInstance(application);
         workoutDao = database.workoutDao();
-        logDao = database.logDao();
+        metaDao = database.logDao();
+        exerciseDao = database.exerciseDao();
         allWorkouts = workoutDao.getAllWorkouts();
-        allLogs = logDao.getAllLogs();
+        allMetadata = metaDao.getAllMetadata();
     }
 
     // region
@@ -44,16 +48,21 @@ public class WorkoutRepository {
         new DeleteAllWorkoutAsyncTask(workoutDao).execute();
     }
 
-    public void getExercises(String workout){
-        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao,workout);
-        task.delegate = this;
-        task.execute();
+    public boolean getExercises(String workout){
+        exerciseResults = workoutDao.getExercises(workout);
+        return true;
+//        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao, workout);
+//        task.delegate = this;
+//        task.execute();
     }
 
-    public List<WorkoutEntity> getExercisesResult(){
+    public ArrayList<WorkoutEntity> getExercisesResult(){
+        exercises = new ArrayList<>();
+        for(WorkoutEntity entity : exerciseResults){
+            exercises.add(entity);
+        }
         return exercises;
     }
-
 
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
         return allWorkouts;
@@ -61,34 +70,63 @@ public class WorkoutRepository {
     // endregion
 
     // region
-    // View Model methods for log table
-    public void insertLogEntity(LogEntity log){
-        new InsertLogAsyncTask(logDao).execute(log);
+    // View Model methods for meta table
+    public void insertMetaEntity(MetaEntity metaEntity){
+        new InsertMetaAsyncTask(metaDao).execute(metaEntity);
     }
-    public void updateLogEntity(LogEntity log){
-        new UpdateLogAsyncTask(logDao).execute(log);
+    public void updateMetaEntity(MetaEntity metaEntity){
+        new UpdateMetaAsyncTask(metaDao).execute(metaEntity);
     }
-    public void deleteLogEntity(LogEntity log){
-        new DeleteLogAsyncTask(logDao).execute(log);
+    public void deleteMetaEntity(MetaEntity metaEntity){
+        new DeleteMetaAsyncTask(metaDao).execute(metaEntity);
     }
-    public void deleteAllLogs(){
-        new DeleteAllLogsAsyncTask(logDao).execute();
+    public void deleteAllMetadata(){
+        new DeleteAllMetadataAsyncTask(metaDao).execute();
     }
-    public void getCurrentWorkout(){
-        GetCurrentWorkoutAsyncTask task = new GetCurrentWorkoutAsyncTask(logDao);
-        task.delegate = this;
-        task.execute();
-    }
-
-    public String getCurrentWorkoutResult(){
-        return currentWorkout;
+    public void getCurrentWorkoutMeta(){
+        currentWorkoutMeta = metaDao.getCurrentWorkoutMeta();
+//        GetCurrentWorkoutMetaAsyncTask task = new GetCurrentWorkoutMetaAsyncTask(metaDao);
+//        task.delegate = this;
+//        task.execute();
     }
 
-    public LiveData<List<LogEntity>> getAllLogs() {
-        return allLogs;
+    public MetaEntity getCurrentWorkoutMetaResult(){
+        return currentWorkoutMeta;
+    }
+
+    public LiveData<List<MetaEntity>> getAllMetadata() {
+        return allMetadata;
     }
 
 
+    // endregion
+
+    // region
+    // ViewModel methods for exercise table
+    public void insertExerciseEntity(ExerciseEntity entity){
+        new InsertExerciseAsyncTask(exerciseDao).execute(entity);
+    }
+    public void updateExerciseEntity(ExerciseEntity entity){
+        new UpdateExerciseAsyncTask(exerciseDao).execute(entity);
+    }
+    public void deleteExerciseEntity(ExerciseEntity entity){
+        new DeleteExerciseAsyncTask(exerciseDao).execute(entity);
+    }
+    public void deleteAllExerciseEntities(){
+        new DeleteAllExercisesAsyncTask(exerciseDao).execute();
+    }
+    public boolean getAllExercises(){
+        allExercisesResults = exerciseDao.getAllExercises();
+        return true;
+    }
+
+    public ArrayList<ExerciseEntity> getAllExercisesResult(){
+        allExercises = new ArrayList<>();
+        for(ExerciseEntity entity : allExercisesResults){
+            allExercises.add(entity);
+        }
+        return allExercises;
+    }
     // endregion
 
     // region
@@ -169,6 +207,7 @@ public class WorkoutRepository {
         /*
             Called whenever GetExercisesAsyncTask is finished
         */
+        exercises = new ArrayList<>();
         for(WorkoutEntity entity : results){
             exercises.add(entity);
         }
@@ -176,81 +215,159 @@ public class WorkoutRepository {
     // endregion
 
     // region
-    // Private classes used to execute the log queries using the database access objects (DAOs)
-    private static class InsertLogAsyncTask extends AsyncTask<LogEntity, Void, Void>{
-        private LogDao logDao;
+    // Private classes used to execute the metadata queries using the database access objects (DAOs)
+    private static class InsertMetaAsyncTask extends AsyncTask<MetaEntity, Void, Void>{
+        private MetaDao metaDao;
 
-        private InsertLogAsyncTask(LogDao _logDao){
-            logDao=_logDao;
+        private InsertMetaAsyncTask(MetaDao metaDao){
+            this.metaDao = metaDao;
         }
         @Override
-        protected Void doInBackground(LogEntity... logEntities) {
-            logDao.insert(logEntities[0]);
+        protected Void doInBackground(MetaEntity... metaEntities) {
+            metaDao.insert(metaEntities[0]);
             return null;
         }
     }
 
-    private static class UpdateLogAsyncTask extends AsyncTask<LogEntity, Void, Void>{
-        private LogDao logDao;
+    private static class UpdateMetaAsyncTask extends AsyncTask<MetaEntity, Void, Void>{
+        private MetaDao metaDao;
 
-        private UpdateLogAsyncTask(LogDao _logDao){
-            logDao=_logDao;
+        private UpdateMetaAsyncTask(MetaDao metaDao){
+            this.metaDao=metaDao;
         }
         @Override
-        protected Void doInBackground(LogEntity... logEntities) {
-            logDao.update(logEntities[0]);
+        protected Void doInBackground(MetaEntity... metaEntities) {
+            metaDao.update(metaEntities[0]);
             return null;
         }
     }
 
-    private static class DeleteLogAsyncTask extends AsyncTask<LogEntity, Void, Void>{
-        private LogDao logDao;
+    private static class DeleteMetaAsyncTask extends AsyncTask<MetaEntity, Void, Void>{
+        private MetaDao metaDao;
 
-        private DeleteLogAsyncTask(LogDao _logDao){
-            logDao=_logDao;
+        private DeleteMetaAsyncTask(MetaDao metaDao){
+            this.metaDao=metaDao;
         }
         @Override
-        protected Void doInBackground(LogEntity... logEntities) {
-            logDao.delete(logEntities[0]);
+        protected Void doInBackground(MetaEntity... metaEntities) {
+            metaDao.delete(metaEntities[0]);
             return null;
         }
     }
 
-    private static class DeleteAllLogsAsyncTask extends AsyncTask<Void, Void, Void>{
-        private LogDao logDao;
+    private static class DeleteAllMetadataAsyncTask extends AsyncTask<Void, Void, Void>{
+        private MetaDao metaDao;
 
-        private DeleteAllLogsAsyncTask(LogDao _logDao){
-            logDao=_logDao;
+        private DeleteAllMetadataAsyncTask(MetaDao metaDao){
+            this.metaDao=metaDao;
         }
         @Override
         protected Void doInBackground(Void... voids) {
-            logDao.deleteAllLogs();
+            metaDao.deleteAllMetadata();
             return null;
         }
     }
 
-    private static class GetCurrentWorkoutAsyncTask extends AsyncTask<Void, Void, String>{
-        private LogDao logDao;
+    private static class GetCurrentWorkoutMetaAsyncTask extends AsyncTask<Void, Void, MetaEntity>{
+        private MetaDao metaDao;
         private WorkoutRepository delegate = null;
 
-        private GetCurrentWorkoutAsyncTask(LogDao _logDao){
-            logDao = _logDao;
+        private GetCurrentWorkoutMetaAsyncTask(MetaDao metaDao){
+            this.metaDao = metaDao;
         }
         @Override
-        protected String doInBackground(Void... voids) {
-            return logDao.getCurrentWorkout();
+        protected MetaEntity doInBackground(Void... voids) {
+            return metaDao.getCurrentWorkoutMeta();
         }
         @Override
-        protected void onPostExecute(String result) {
-            delegate.getWorkoutFinished(result);
+        protected void onPostExecute(MetaEntity result) {
+            delegate.getCurrentWorkoutMetaFinished(result);
         }
 
     }
-    private void getWorkoutFinished(String result) {
+    private void getCurrentWorkoutMetaFinished(MetaEntity result) {
         /*
             Called whenever GetExercisesAsyncTask is finished
         */
-        currentWorkout = result;
+        currentWorkoutMeta = result;
+    }
+    // endregion
+    // region
+    // Private classes used to execute the exercise queries using the database access objects (DAOs)
+    private static class InsertExerciseAsyncTask extends AsyncTask<ExerciseEntity, Void, Void>{
+        private ExerciseDao exerciseDao;
+
+        private InsertExerciseAsyncTask(ExerciseDao exerciseDao){
+            this.exerciseDao=exerciseDao;
+        }
+        @Override
+        protected Void doInBackground(ExerciseEntity... exerciseEntities) {
+            exerciseDao.insert(exerciseEntities[0]);
+            return null;
+        }
+    }
+
+    private static class UpdateExerciseAsyncTask extends AsyncTask<ExerciseEntity, Void, Void>{
+        private ExerciseDao exerciseDao;
+
+        private UpdateExerciseAsyncTask(ExerciseDao exerciseDao){
+            this.exerciseDao=exerciseDao;
+        }
+        @Override
+        protected Void doInBackground(ExerciseEntity... exerciseEntities) {
+            exerciseDao.update(exerciseEntities[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteExerciseAsyncTask extends AsyncTask<ExerciseEntity, Void, Void>{
+        private ExerciseDao exerciseDao;
+
+        private DeleteExerciseAsyncTask(ExerciseDao exerciseDao){
+            this.exerciseDao=exerciseDao;
+        }
+        @Override
+        protected Void doInBackground(ExerciseEntity... exerciseEntities) {
+            exerciseDao.delete(exerciseEntities[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteAllExercisesAsyncTask extends AsyncTask<Void, Void, Void>{
+        private ExerciseDao exerciseDao;
+
+        private DeleteAllExercisesAsyncTask(ExerciseDao exerciseDao){
+            this.exerciseDao = exerciseDao;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            exerciseDao.deleteAllExercises();
+            return null;
+        }
+    }
+
+    private static class GetAllExercisesAsyncTask extends AsyncTask<Void, Void, List<ExerciseEntity>>{
+        private ExerciseDao exerciseDao;
+        private WorkoutRepository delegate = null;
+
+        private GetAllExercisesAsyncTask(ExerciseDao exerciseDao){
+            this.exerciseDao = exerciseDao;
+        }
+        @Override
+        protected List<ExerciseEntity> doInBackground(Void... voids) {
+            return exerciseDao.getAllExercises();
+        }
+        @Override
+        protected void onPostExecute(List<ExerciseEntity> result) {
+            delegate.getAllExercisesFinished(result);
+        }
+
+    }
+    private void getAllExercisesFinished(List<ExerciseEntity> result) {
+        /*
+            Called whenever GetExercisesAsyncTask is finished
+        */
+        allExercisesResults = result;
     }
     // endregion
 }

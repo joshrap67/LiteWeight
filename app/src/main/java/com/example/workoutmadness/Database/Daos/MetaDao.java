@@ -10,20 +10,18 @@ import com.example.workoutmadness.Database.Entities.*;
 
 import java.util.List;
 
-import static android.icu.text.MessagePattern.ArgType.SELECT;
-
 @Dao
-public interface LogDao {
+public interface MetaDao {
     @Insert
-    void insert(LogEntity entity);
+    void insert(MetaEntity entity);
     @Update
-    void update(LogEntity entity);
+    void update(MetaEntity entity);
     @Delete
-    void delete(LogEntity entity);
-    @Query("DELETE FROM log_table")
-    void deleteAllLogs();
-    @Query("SELECT * FROM log_table")
-    LiveData<List<LogEntity>> getAllLogs();
-    @Query("SELECT workoutName FROM log_table WHERE current=1")
-    String getCurrentWorkout();
+    void delete(MetaEntity entity);
+    @Query("DELETE FROM meta_table")
+    void deleteAllMetadata();
+    @Query("SELECT * FROM meta_table")
+    LiveData<List<MetaEntity>> getAllMetadata();
+    @Query("SELECT * FROM meta_table WHERE currentWorkout=1")
+    MetaEntity getCurrentWorkoutMeta();
 }

@@ -4,9 +4,12 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.Repositories.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkoutViewModel extends AndroidViewModel {
@@ -39,11 +42,13 @@ public class WorkoutViewModel extends AndroidViewModel {
         return allWorkouts;
     }
 
-    public void getExercises(String workout){
-        repository.getExercises(workout);
+    public boolean getExercises(String workout){
+        return repository.getExercises(workout);
     }
 
-    public List<WorkoutEntity> getExercisesResult(){
+    public ArrayList<WorkoutEntity> getExercisesResult(){
+//        Log.d("Fuck","Finished Size is: "+repository.getExercisesResult().size());
+
         return repository.getExercisesResult();
     }
 }

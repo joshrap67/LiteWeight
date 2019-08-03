@@ -8,10 +8,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 import com.example.workoutmadness.Database.Entities.*;
 
-
 import java.util.List;
-
-import static android.icu.text.MessagePattern.ArgType.SELECT;
 
 @Dao
 public interface WorkoutDao {
@@ -27,6 +24,4 @@ public interface WorkoutDao {
     LiveData<List<WorkoutEntity>> getAllWorkouts();
     @Query("SELECT * FROM workout_table WHERE workout=:workoutName")
     List<WorkoutEntity> getExercises(String workoutName);
-    // todo add query by day and workout name
-    // todo add query by unique workout name
 }

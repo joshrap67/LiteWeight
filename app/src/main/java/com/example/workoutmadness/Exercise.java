@@ -12,8 +12,13 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.workoutmadness.Database.Entities.WorkoutEntity;
+import com.example.workoutmadness.Database.ViewModels.WorkoutViewModel;
 import com.example.workoutmadness.Fragments.*;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class Exercise{
     private Context context;
@@ -21,6 +26,7 @@ public class Exercise{
     private String name, videoURL;
     private boolean status, videos;
     private Fragment fragment;
+    private WorkoutViewModel viewModel;
 
     public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled, String URL){
         /*
@@ -41,6 +47,28 @@ public class Exercise{
             status=false;
         }
         name = rawText[Variables.NAME_INDEX];
+        videoURL = URL;
+    }
+    public Exercise(final WorkoutEntity entity, Context aContext, Activity anActivity,
+                    Fragment aFragment, boolean videosEnabled, String URL, WorkoutViewModel model){
+        /*
+            Constructor utilized for database stuff
+         */
+        context = aContext;
+        activity = anActivity;
+        fragment = aFragment;
+        videos = videosEnabled;
+        viewModel = model;
+        if(entity.getStatus()){
+            if(fragment instanceof CurrentWorkoutFragment){
+                ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
+            }
+            status=true;
+        }
+        else{
+            status=false;
+        }
+        name = entity.getExercise();
         videoURL = URL;
     }
 
@@ -76,6 +104,7 @@ public class Exercise{
             @Override
             public void onClick(View v) {
                 if(checked){
+                    // TODO update the DB
                     status=false;
                 }
                 else{

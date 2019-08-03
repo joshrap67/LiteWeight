@@ -54,7 +54,7 @@ public class NewWorkoutFragment extends Fragment {
     private TextView dayTitle;
     private ViewGroup fragmentContainer;
     private WorkoutViewModel workoutModel;
-    private LogViewModel viewModel;
+    private MetaViewModel metaViewModel;
     private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
@@ -70,19 +70,14 @@ public class NewWorkoutFragment extends Fragment {
         ((MainActivity) getActivity()).updateToolbarTitle("Workout Creator");
         currentDayIndex = 0;
         validator= new Validator(getActivity());
+        /*
+            Setup view models
+         */
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
-        workoutModel.getAllWorkouts().observe(this, new Observer<List<WorkoutEntity>>() {
+        metaViewModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
+        metaViewModel.getAllMetadata().observe(this, new Observer<List<MetaEntity>>() {
             @Override
-            public void onChanged(@Nullable List<WorkoutEntity> workoutEntities) {
-                if(workoutEntities!=null){
-                    // TODO probably not needed here...
-                }
-            }
-        });
-        viewModel = ViewModelProviders.of(getActivity()).get(LogViewModel.class);
-        viewModel.getAllLogs().observe(this, new Observer<List<LogEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<LogEntity> logEntities) {
+            public void onChanged(@Nullable List<MetaEntity> logEntities) {
                 if(logEntities.isEmpty()){
                     // database has no entries, so assign the new one as the currently selected workout since its the only one
                     firstWorkout = true;
@@ -90,6 +85,7 @@ public class NewWorkoutFragment extends Fragment {
             }
         });
         workoutModel.deleteAllWorkouts();
+//        metaViewModel.deleteAllMetadata();
         initViews();
         return view;
     }
@@ -98,7 +94,7 @@ public class NewWorkoutFragment extends Fragment {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
-        for(int i=0;i<1000;i++){
+        for(int i=0;i<10000;i++){
             WorkoutEntity workoutEntity = new WorkoutEntity("yuh",finalName,i,false);
             workoutModel.insert(workoutEntity);
         }
@@ -323,8 +319,8 @@ public class NewWorkoutFragment extends Fragment {
         }
         // write the log to the log table
         // TODO get current time and such from system
-        LogEntity log = new LogEntity(finalName,0,"yuh","yuh",0,0,firstWorkout);
-        viewModel.insert(log);
+        MetaEntity log = new MetaEntity(finalName,0,1,"yuh","yuh",0,0,firstWorkout);
+        metaViewModel.insert(log);
 
     }
 
