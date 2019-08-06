@@ -47,12 +47,13 @@ public class MyWorkoutFragment extends Fragment {
     private Button resetStatisticsBtn, editBtn, deleteBtn;
     private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
     private HashMap<Integer, String> totalDayTitles = new HashMap<>();
+    private HashMap<String, MetaEntity> workoutNameToEntity = new HashMap<>();
     private int maxDayIndex;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
-    private Stack<String> sortedWorkoutNames = new Stack<>();
-    private Stack<MetaEntity> sortedWorkouts = new Stack<>();
+//    private Stack<String> sortedWorkoutNames = new Stack<>();
+    private ArrayList<String> workoutNames = new ArrayList<>();
 
     @Nullable
     @Override
@@ -88,7 +89,6 @@ public class MyWorkoutFragment extends Fragment {
     public void initViews(){
         // TODO switch to appropriate view
         listView = view.findViewById(R.id.workout_list);
-        ArrayList<String> workoutNames = new ArrayList<>();
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_text_view);
         statisticsTV = view.findViewById(R.id.stat_text_view);
         deleteBtn = view.findViewById(R.id.delete_button);
@@ -101,7 +101,9 @@ public class MyWorkoutFragment extends Fragment {
             else{
                 workoutNames.add(entity.getWorkoutName());
             }
+            workoutNameToEntity.put(entity.toString(),entity);
         }
+        workoutNames.add(0, selectedWorkout.toString()); // put selected at the top of the list
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,8 +113,8 @@ public class MyWorkoutFragment extends Fragment {
             }
         });
         // TODO sort by date
-        sortWorkouts(workoutNames);
-        arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, sortedWorkoutNames);
+        sortWorkouts();
+        arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, workoutNames);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -123,27 +125,23 @@ public class MyWorkoutFragment extends Fragment {
         });
     }
 
-    public void sortWorkouts(ArrayList<String> workoutNames){
+    public void sortWorkouts(){
         Collections.sort(workoutNames);
-        for(String name : workoutNames){
-            sortedWorkoutNames.add(name);
-        }
-        sortedWorkoutNames.push(selectedWorkout.getWorkoutName());
+//        Collections.addAll(sortedWorkoutNames,workoutNames)
+//        sortedWorkoutNames.push(selectedWorkout.getWorkoutName());
+        // TODO sort by date and possible give other options?
     }
 
     public void selectWorkout(String workoutName){
         // TODO update the entity with new date
-        String oldWorkout = selectedWorkout.getWorkoutName();
-        sortedWorkoutNames.remove(workoutName);
-        sortedWorkoutNames.push(workoutName);
-        sortedWorkoutNames.push(oldWorkout);
-        for(MetaEntity entity : metaEntities){
-            if(entity.getWorkoutName().equals(workoutName)){
-                selectedWorkout = entity;
-                break;
-            }
+        workoutNames.remove(workoutName);
+        workoutNames.add(0,workoutName);
+        selectedWorkout = workoutNameToEntity.get(workoutName);
+        if(selectedWorkout==null){
+            // uh oh
+            Log.d("TAG","Selected workout was somehow null");
         }
-        selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
+        selectedWorkoutTV.setText(workoutName);
         updateStatistics();
     }
     public void updateStatistics(){
@@ -183,7 +181,33 @@ public class MyWorkoutFragment extends Fragment {
     public void deleteWorkout(){
         // TODO need to handle when no workouts left
         metaEntities.remove(selectedWorkout);
-        metaModel.delete(selectedWorkout);
+        workoutNames.remove(selectedWorkout.getWorkoutName());
+        DeleteWorkoutAsync task = new DeleteWorkoutAsync();
+        task.execute(selectedWorkout);
+        if(!workoutNames.isEmpty()){
+            selectedWorkout = workoutNameToEntity.get(workoutNames.get(0)); // get the top of the list
+            selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
+            // TODO update the date last of this workout
+        }
+        else{
+            // signal to go make a new workout
+        }
+    }
+
+    private class DeleteWorkoutAsync extends AsyncTask<MetaEntity, Void, Void> {
+
+        @Override
+        protected Void doInBackground(MetaEntity... param) {
+            // get the current workout from the database
+            metaModel.delete(param[0]);
+//            workoutModel.delete();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            // TODO put a lock here that prevents user from leaving until it's done
+        }
     }
 
     public void removeWorkoutFromLog(String workoutName){

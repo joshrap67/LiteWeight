@@ -65,10 +65,10 @@ public class Exercise{
             if(fragment instanceof CurrentWorkoutFragment){
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
             }
-            this.status=true;
+            this.status = true;
         }
         else{
-            this.status=false;
+            this.status = false;
         }
         this.name = entity.getExercise();
         this.videoURL = videoURL;
@@ -102,18 +102,18 @@ public class Exercise{
             exerciseName.setChecked(true);
         }
         exerciseName.setOnClickListener(new View.OnClickListener() {
-            boolean checked = exerciseName.isChecked();
+//            boolean checked = exerciseName.isChecked();
             @Override
             public void onClick(View v) {
-                if(checked){
+                if(status){
                     entity.setStatus(false);
                     viewModel.update(entity);
-                    status=false;
+                    status = false;
                 }
                 else{
                     entity.setStatus(true);
                     viewModel.update(entity);
-                    status=true;
+                    status = true;
                 }
                 if(fragment instanceof CurrentWorkoutFragment){
                     ((CurrentWorkoutFragment) fragment).setModified(true);
