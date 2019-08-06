@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,8 +38,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,29 +78,40 @@ public class NewWorkoutFragment extends Fragment {
          */
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         metaViewModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
-        metaViewModel.getAllMetadata().observe(this, new Observer<List<MetaEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<MetaEntity> logEntities) {
-                if(logEntities.isEmpty()){
-                    // database has no entries, so assign the new one as the currently selected workout since its the only one
-                    firstWorkout = true;
+        GetAllWorkoutsTask task = new GetAllWorkoutsTask();
+        task.execute();
+        return view;
+    }
+
+    private class GetAllWorkoutsTask extends AsyncTask<Void, Void, List<MetaEntity>> {
+
+        @Override
+        protected List<MetaEntity> doInBackground(Void... voids) {
+            // get the current workout from the database
+            return metaViewModel.getAllMetadata();
+        }
+
+        @Override
+        protected void onPostExecute(List<MetaEntity> result) {
+            if(result!=null) {
+                for(MetaEntity entity : result){
+                    Log.d("TAG","Meta entity: "+entity.toString());
+                    // TODO put in list to make sure same name isn't picked
                 }
             }
-        });
-        workoutModel.deleteAllWorkouts();
-//        metaViewModel.deleteAllMetadata();
-        initViews();
-        return view;
+            else{
+                // no workouts found
+                firstWorkout = true;
+                Log.d("TAG","Get all metadata result was null!");
+            }
+            initViews();
+        }
     }
 
     public void initViews() {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
-        for(int i=0;i<10000;i++){
-            WorkoutEntity workoutEntity = new WorkoutEntity("yuh",finalName,i,false);
-            workoutModel.insert(workoutEntity);
-        }
         workoutNameInput = view.findViewById(R.id.workoutNameInput);
         numWeeksInput = view.findViewById(R.id.weekInput);
         numDaysInput = view.findViewById(R.id.dayInput);
@@ -309,6 +323,13 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     public void writeToDatabase(){
+        // write the metadata to the meta table
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        Date date = new Date();
+        MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,formatter.format(date),formatter.format(date),
+                0,0,firstWorkout);
+        metaViewModel.insert(log);
+        // write to the workout table
         for(int i=0;i<=maxDayIndex;i++){
             // loop through all the days of the workouts
             for(String exercise : exercises.get(i)){
@@ -317,10 +338,7 @@ public class NewWorkoutFragment extends Fragment {
                 workoutModel.insert(workoutEntity);
             }
         }
-        // write the log to the log table
-        // TODO get current time and such from system
-        MetaEntity log = new MetaEntity(finalName,0,1,"yuh","yuh",0,0,firstWorkout);
-        metaViewModel.insert(log);
+
 
     }
 

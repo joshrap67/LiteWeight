@@ -18,6 +18,8 @@ public interface WorkoutDao {
     void update(WorkoutEntity entity);
     @Delete
     void delete(WorkoutEntity entity);
+    @Query("DELETE FROM workout_table WHERE workout=:name")
+    void deleteEntireWorkout(String name);
     @Query("DELETE FROM workout_table")
     void deleteAllWorkouts();
     @Query("SELECT * FROM workout_table")

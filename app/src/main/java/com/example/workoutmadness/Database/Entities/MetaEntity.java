@@ -65,6 +65,10 @@ public class MetaEntity {
         return currentDay;
     }
 
+    public void setCurrentDay(int currentDay) {
+        this.currentDay = currentDay;
+    }
+
     public int getTotalDays() {
         return totalDays;
     }

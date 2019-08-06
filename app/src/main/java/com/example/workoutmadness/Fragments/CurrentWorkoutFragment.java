@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.ViewModels.*;
 import com.example.workoutmadness.Exercise;
+import com.example.workoutmadness.MainActivity;
 import com.example.workoutmadness.R;
 import com.example.workoutmadness.Variables;
 
@@ -124,7 +125,7 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean result) {
 //            super.onPostExecute(result);
-            if(workoutModel.getExercisesResult()!=null){
+            if(workoutModel.getExercisesResult() != null){
                 // all of the exercises have been loaded into the view model's list member variable since the query is complete
                 populateExercises(workoutModel.getExercisesResult());
             }
@@ -135,7 +136,9 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public void populateExercises(ArrayList<WorkoutEntity> rawData){
-//        Log.d("TAG","Rawdata size: "+rawData.size());
+        Log.d("TAG","Rawdata size: "+rawData.size());
+        ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
+
 //        int count = 0;
 //        for(WorkoutEntity entity : rawData){
 ////            Log.d("TAG","Entity is: "+entity.toString());
@@ -145,7 +148,7 @@ public class CurrentWorkoutFragment extends Fragment {
         // TODO handle case where custom workout is deleted but it still is in a workout
         // init the hash table
         for(int i = 0;i<=maxDayIndex;i++){
-            totalExercises.put(0, new ArrayList<Exercise>());
+            totalExercises.put(i, new ArrayList<Exercise>());
         }
         for(WorkoutEntity entity : rawData){
             Exercise exercise = new Exercise(entity,getContext(),getActivity(),this,false,"hey",workoutModel);
@@ -155,9 +158,9 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public String generateDayTitle(int num){
-        int weekNum = (num / maxDayIndex)+1;
-        int dayNum = (num % maxDayIndex)+1;
-        return weekNum+":"+dayNum;
+        int weekNum = (num / (maxDayIndex+1))+1;
+        int dayNum = (num % (maxDayIndex+1))+1;
+        return "W"+weekNum+":D"+dayNum;
     }
 
     public void checkUserSettings(){
@@ -302,6 +305,8 @@ public class CurrentWorkoutFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     currentDayIndex--;
+                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
+                    metaModel.update(currentWorkoutEntity);
                     modified=true; // modified since changed day
                     populateTable();
                 }
@@ -324,6 +329,8 @@ public class CurrentWorkoutFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     currentDayIndex++;
+                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
+                    metaModel.update(currentWorkoutEntity);
                     modified=true;
                     populateTable();
                 }
@@ -467,6 +474,8 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         recordToWorkoutFile();
         currentDayIndex=0;
+        currentWorkoutEntity.setCurrentDay(currentDayIndex);
+        metaModel.update(currentWorkoutEntity);
         modified=true;
         exerciseModified=false;
     }

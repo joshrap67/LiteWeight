@@ -21,7 +21,7 @@ public interface MetaDao {
     @Query("DELETE FROM meta_table")
     void deleteAllMetadata();
     @Query("SELECT * FROM meta_table")
-    LiveData<List<MetaEntity>> getAllMetadata();
+    List<MetaEntity> getAllMetadata();
     @Query("SELECT * FROM meta_table WHERE currentWorkout=1")
     MetaEntity getCurrentWorkoutMeta();
 }

@@ -35,6 +35,10 @@ public class WorkoutEntity {
         return status;
     }
 
+    public void setStatus(boolean status){
+        this.status = status;
+    }
+
     public String getExercise() {
         return exercise;
     }

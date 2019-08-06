@@ -31,6 +31,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView nav;
     private WorkoutViewModel workoutViewModel;
     private MetaViewModel logViewModel;
+    private ExerciseViewModel exerciseViewModel;
+    private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         workoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class); // get model that will interact with repo
         logViewModel = ViewModelProviders.of(this).get(MetaViewModel.class); // get model that will interact with repo
+        exerciseViewModel = ViewModelProviders.of(this).get(ExerciseViewModel.class); // get model that will interact with repo
 
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
@@ -72,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             createUserSettingsDirectory();
         }
         // TODO handle screen orientation changes!
-        // TODO check if custom exercises exist? if file is empty or isn't there, just populate it with the focuses
+        // TODO check if database is empty. if so, populate exercise table with default exercises and videos
+        // TODO use shared preferences to tell if the database is empty so not constantly doing queries
         toggle.syncState();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -80,7 +86,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
-
+    public void getDefaultVideos(){
+        BufferedReader reader;
+        try{
+            reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISE_VIDEOS)));
+            String line;
+            while((line=reader.readLine())!=null){
+                defaultExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
+                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
+            }
+            reader.close();
+        }
+        catch (Exception e){
+            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
+        }
+    }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         //TODO ask if wanting to save progress instead of just losing it all?
@@ -113,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_my_workouts:
                 if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
                     }
                     goToMyWorkouts();
                 }

@@ -27,6 +27,7 @@ public class Exercise{
     private boolean status, videos;
     private Fragment fragment;
     private WorkoutViewModel viewModel;
+    private WorkoutEntity entity;
 
     public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled, String URL){
         /*
@@ -49,27 +50,28 @@ public class Exercise{
         name = rawText[Variables.NAME_INDEX];
         videoURL = URL;
     }
-    public Exercise(final WorkoutEntity entity, Context aContext, Activity anActivity,
-                    Fragment aFragment, boolean videosEnabled, String URL, WorkoutViewModel model){
+    public Exercise(final WorkoutEntity entity, Context context, Activity activity,
+                    Fragment fragment, boolean videos, String videoURL, WorkoutViewModel viewModel){
         /*
             Constructor utilized for database stuff
          */
-        context = aContext;
-        activity = anActivity;
-        fragment = aFragment;
-        videos = videosEnabled;
-        viewModel = model;
+        this.entity = entity;
+        this.context = context;
+        this.activity = activity;
+        this.fragment = fragment;
+        this.videos = videos;
+        this.viewModel = viewModel;
         if(entity.getStatus()){
             if(fragment instanceof CurrentWorkoutFragment){
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
             }
-            status=true;
+            this.status=true;
         }
         else{
-            status=false;
+            this.status=false;
         }
-        name = entity.getExercise();
-        videoURL = URL;
+        this.name = entity.getExercise();
+        this.videoURL = videoURL;
     }
 
     public Exercise(String exerciseName){
@@ -84,7 +86,7 @@ public class Exercise{
             /*
                 Sets the status of the exercise as either being complete or incomplete.
              */
-        status=aStatus;
+        status = aStatus;
     }
 
     public View getDisplayedRow(){
@@ -104,10 +106,13 @@ public class Exercise{
             @Override
             public void onClick(View v) {
                 if(checked){
-                    // TODO update the DB
+                    entity.setStatus(false);
+                    viewModel.update(entity);
                     status=false;
                 }
                 else{
+                    entity.setStatus(true);
+                    viewModel.update(entity);
                     status=true;
                 }
                 if(fragment instanceof CurrentWorkoutFragment){

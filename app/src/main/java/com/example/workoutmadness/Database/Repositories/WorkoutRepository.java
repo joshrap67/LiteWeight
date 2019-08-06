@@ -29,7 +29,7 @@ public class WorkoutRepository {
         metaDao = database.logDao();
         exerciseDao = database.exerciseDao();
         allWorkouts = workoutDao.getAllWorkouts();
-        allMetadata = metaDao.getAllMetadata();
+//        allMetadata = metaDao.getAllMetadata();
     }
 
     // region
@@ -94,8 +94,8 @@ public class WorkoutRepository {
         return currentWorkoutMeta;
     }
 
-    public LiveData<List<MetaEntity>> getAllMetadata() {
-        return allMetadata;
+    public List<MetaEntity> getAllMetadata() {
+        return metaDao.getAllMetadata();
     }
 
 

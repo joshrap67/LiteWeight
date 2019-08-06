@@ -8,17 +8,19 @@ import android.support.annotation.NonNull;
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.Repositories.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MetaViewModel extends AndroidViewModel {
     private WorkoutRepository repository;
-    private LiveData<List<MetaEntity>> allMetadata;
+    private ArrayList<MetaEntity> allMetadata;
     private String currentWorkout;
 
     public MetaViewModel(@NonNull Application application) {
         super(application);
         repository = new WorkoutRepository(application);
-        allMetadata = repository.getAllMetadata();
+//        allMetadata = repository.getAllMetadata();
 
     }
 
@@ -34,11 +36,13 @@ public class MetaViewModel extends AndroidViewModel {
         repository.deleteMetaEntity(entity);
     }
 
-    public void deletaAllMeta() {
+    public void deleteAllMeta() {
         repository.deleteAllMetadata();
     }
 
-    public LiveData<List<MetaEntity>> getAllMetadata() {
+    public ArrayList<MetaEntity> getAllMetadata() {
+        allMetadata = new ArrayList<>();
+        allMetadata.addAll(repository.getAllMetadata());
         return allMetadata;
     }
 
