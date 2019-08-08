@@ -1,6 +1,9 @@
 package com.example.workoutmadness;
 
 public class Variables {
+    /*
+        Contains static variables and helper methods
+     */
     public static final int TIME_INDEX = 0,
             TIME_TITLE_INDEX = 1,
             NAME_INDEX = 0,
@@ -33,4 +36,9 @@ public class Variables {
             SHARED_PREF_NAME = "userSettings",
             VIDEO_KEY = "Videos",
             TIMER_KEY = "Timer";
+    public static String generateDayTitle(int num, int maxDayIndex){
+        int weekNum = (num / (maxDayIndex+1))+1;
+        int dayNum = (num % (maxDayIndex+1))+1;
+        return "W"+weekNum+":D"+dayNum;
+    }
 }

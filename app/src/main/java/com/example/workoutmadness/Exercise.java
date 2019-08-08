@@ -28,6 +28,7 @@ public class Exercise{
     private Fragment fragment;
     private WorkoutViewModel viewModel;
     private WorkoutEntity entity;
+    private int weight;
 
     public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled, String URL){
         /*
@@ -51,7 +52,7 @@ public class Exercise{
         videoURL = URL;
     }
     public Exercise(final WorkoutEntity entity, Context context, Activity activity,
-                    Fragment fragment, boolean videos, String videoURL, WorkoutViewModel viewModel){
+                    Fragment fragment, boolean videos, String videoURL, int weight, WorkoutViewModel viewModel){
         /*
             Constructor utilized for database stuff
          */
@@ -61,6 +62,7 @@ public class Exercise{
         this.fragment = fragment;
         this.videos = videos;
         this.viewModel = viewModel;
+        this.weight = weight;
         if(entity.getStatus()){
             if(fragment instanceof CurrentWorkoutFragment){
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
@@ -87,6 +89,19 @@ public class Exercise{
                 Sets the status of the exercise as either being complete or incomplete.
              */
         status = aStatus;
+        entity.setStatus(aStatus);
+    }
+
+    public void setWeight(int weight){
+        this.weight = weight;
+    }
+
+    public WorkoutEntity getEntity(){
+        return this.entity;
+    }
+
+    public String getName(){
+        return this.name;
     }
 
     public View getDisplayedRow(){
@@ -101,6 +116,7 @@ public class Exercise{
         if(status){
             exerciseName.setChecked(true);
         }
+        // TODO setup weight textview
         exerciseName.setOnClickListener(new View.OnClickListener() {
 //            boolean checked = exerciseName.isChecked();
             @Override

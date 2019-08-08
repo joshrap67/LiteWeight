@@ -40,7 +40,7 @@ import java.util.Stack;
 
 public class MyWorkoutFragment extends Fragment {
     private View view;
-    private TextView selectedWorkoutTV, statisticsTV;
+    private TextView selectedWorkoutTV, statisticsTV, defaultTV;
     private ListView listView;
     private ArrayAdapter<String> arrayAdapter;
     private MetaEntity selectedWorkout;
@@ -52,16 +52,21 @@ public class MyWorkoutFragment extends Fragment {
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
-//    private Stack<String> sortedWorkoutNames = new Stack<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
+    private ViewGroup fragmentContainer;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_my_workouts,container,false);
+        view = inflater.inflate(R.layout.default_layout,container,false);
+        fragmentContainer = container;
+        defaultTV = view.findViewById(R.id.default_tv);
+        defaultTV.setVisibility(View.GONE);
         ((MainActivity)getActivity()).updateToolbarTitle("My Workouts");
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
+        GetAllWorkoutsTask task = new GetAllWorkoutsTask();
+        task.execute();
         // TODO add sorting for listview?
         return view;
     }
@@ -76,34 +81,41 @@ public class MyWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<MetaEntity> result) {
-            if(result!=null) {
+            if(!result.isEmpty()) {
+                Log.d("TAG","Result size: "+result.size());
                 metaEntities = result;
                 initViews();
             }
             else{
+                defaultTV.setVisibility(View.VISIBLE);
                 Log.d("TAG","No workouts found!");
             }
         }
     }
 
     public void initViews(){
-        // TODO switch to appropriate view
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        view = inflater.inflate(R.layout.fragment_my_workouts, fragmentContainer,false);
+        ViewGroup rootView = (ViewGroup) getView();
+        rootView.removeAllViews();
+        rootView.addView(view);
         listView = view.findViewById(R.id.workout_list);
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_text_view);
         statisticsTV = view.findViewById(R.id.stat_text_view);
         deleteBtn = view.findViewById(R.id.delete_button);
+
         for(MetaEntity entity : metaEntities){
             Log.d("TAG","Meta entity: "+entity.toString());
             if(entity.getCurrentWorkout()){
                 selectedWorkout = entity;
                 selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
+                updateStatistics();
             }
             else{
                 workoutNames.add(entity.getWorkoutName());
             }
-            workoutNameToEntity.put(entity.toString(),entity);
+            workoutNameToEntity.put(entity.getWorkoutName(),entity);
         }
-        workoutNames.add(0, selectedWorkout.toString()); // put selected at the top of the list
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,13 +147,19 @@ public class MyWorkoutFragment extends Fragment {
     public void selectWorkout(String workoutName){
         // TODO update the entity with new date
         workoutNames.remove(workoutName);
-        workoutNames.add(0,workoutName);
+        // TODO would do this part differently if different sorting method
+        workoutNames.add(0,selectedWorkout.getWorkoutName());
+        selectedWorkout.setCurrentWorkout(false);
+        metaModel.update(selectedWorkout);
         selectedWorkout = workoutNameToEntity.get(workoutName);
+        selectedWorkout.setCurrentWorkout(true);
+        metaModel.update(selectedWorkout);
         if(selectedWorkout==null){
             // uh oh
             Log.d("TAG","Selected workout was somehow null");
         }
         selectedWorkoutTV.setText(workoutName);
+        arrayAdapter.notifyDataSetChanged();
         updateStatistics();
     }
     public void updateStatistics(){
@@ -179,71 +197,42 @@ public class MyWorkoutFragment extends Fragment {
         alertDialog.show();
     }
     public void deleteWorkout(){
-        // TODO need to handle when no workouts left
         metaEntities.remove(selectedWorkout);
-        workoutNames.remove(selectedWorkout.getWorkoutName());
         DeleteWorkoutAsync task = new DeleteWorkoutAsync();
         task.execute(selectedWorkout);
-        if(!workoutNames.isEmpty()){
-            selectedWorkout = workoutNameToEntity.get(workoutNames.get(0)); // get the top of the list
-            selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
-            // TODO update the date last of this workout
-        }
-        else{
-            // signal to go make a new workout
-        }
+
     }
 
     private class DeleteWorkoutAsync extends AsyncTask<MetaEntity, Void, Void> {
 
         @Override
         protected Void doInBackground(MetaEntity... param) {
-            // get the current workout from the database
+            // TODO put a lock here that prevents user from leaving until it's done
             metaModel.delete(param[0]);
-//            workoutModel.delete();
+            workoutModel.deleteEntireWorkout(param[0].getWorkoutName());
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            // TODO put a lock here that prevents user from leaving until it's done
-        }
-    }
+            if(!workoutNames.isEmpty()){
+                selectedWorkout = workoutNameToEntity.get(workoutNames.get(0)); // get the top of the list
+                workoutNames.remove(selectedWorkout.getWorkoutName());
+                selectedWorkout.setCurrentWorkout(true);
+                // TODO update the date last of this workout
+                metaModel.update(selectedWorkout);
 
-    public void removeWorkoutFromLog(String workoutName){
-        /*
-            workoutName has no extension
-         */
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
-        try{
-            // progress through the file until the correct spot is found
-            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
-            FileReader fileR= new FileReader(fhandleOld);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                String fileName = line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
-                String name = fileName.substring(0,fileName.lastIndexOf("."));
-                if(!(name.equalsIgnoreCase(workoutName))){
-                    // when name is found skip over it
-                    writer.write(line+"\n");
-                }
+                selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
+                arrayAdapter.notifyDataSetChanged();
             }
-            reader.close();
-            writer.close();
-            fhandleOld.delete();
-            fhandleNew.renameTo(fhandleOld);
-            if(fhandleNew.length()==0){
-                // all the workouts have now been deleted, so updateWorkoutEntity text view to alert user
-                // TODO put some type of popup to tell them to go create a workout?
-                selectedWorkoutTV.setText("No Workouts Found!");
+            else{
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.default_layout, fragmentContainer,false);
+                ViewGroup rootView = (ViewGroup) getView();
+                rootView.removeAllViews();
+                rootView.addView(view);
+                // signal to go make a new workout
             }
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to deleteWorkoutEntity workout from current workout log!\n"+e);
         }
     }
     /*

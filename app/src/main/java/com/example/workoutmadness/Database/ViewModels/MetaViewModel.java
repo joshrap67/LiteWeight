@@ -14,14 +14,10 @@ import java.util.List;
 
 public class MetaViewModel extends AndroidViewModel {
     private WorkoutRepository repository;
-    private ArrayList<MetaEntity> allMetadata;
-    private String currentWorkout;
 
     public MetaViewModel(@NonNull Application application) {
         super(application);
         repository = new WorkoutRepository(application);
-//        allMetadata = repository.getAllMetadata();
-
     }
 
     public void insert(MetaEntity entity) {
@@ -41,16 +37,10 @@ public class MetaViewModel extends AndroidViewModel {
     }
 
     public ArrayList<MetaEntity> getAllMetadata() {
-        allMetadata = new ArrayList<>();
-        allMetadata.addAll(repository.getAllMetadata());
-        return allMetadata;
+        return new ArrayList<>(repository.getAllMetadata());
     }
 
-    public void getCurrentWorkoutMeta(){
-        repository.getCurrentWorkoutMeta();
-    }
-
-    public MetaEntity getCurrentWorkoutMetaResult(){
-        return repository.getCurrentWorkoutMetaResult();
+    public MetaEntity getCurrentWorkoutMeta(){
+        return repository.getCurrentWorkoutMeta();
     }
 }

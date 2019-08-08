@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.workoutmadness.Fragments.*;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MetaViewModel logViewModel;
     private ExerciseViewModel exerciseViewModel;
     private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
+    private ProgressBar progressBar;
 
 
     @Override
@@ -61,7 +63,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         workoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class); // get model that will interact with repo
         logViewModel = ViewModelProviders.of(this).get(MetaViewModel.class); // get model that will interact with repo
         exerciseViewModel = ViewModelProviders.of(this).get(ExerciseViewModel.class); // get model that will interact with repo
-
+        progressBar = findViewById(R.id.progress_bar);
+        setProgressBar(false);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         nav.setNavigationItemSelectedListener(this);
@@ -89,6 +92,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
+
+    public void setProgressBar(boolean status){
+        if(status){
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else{
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
     public void getDefaultVideos(){
         BufferedReader reader;
         try{
@@ -166,8 +179,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_new_workout:
                 if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
                     }
 
                     goToNewWorkout();
@@ -189,8 +203,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_user_settings:
                 if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
+
                     }
                     goToUserSettings();
                 }
@@ -210,8 +226,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_about:
                 if(currentFrag instanceof CurrentWorkoutFragment){
                     if(modified){
-                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
+//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
+                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
                     }
                     goToAbout();
                 }
@@ -248,8 +265,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean modified=fragModified(visibleFragment);
         if(visibleFragment instanceof CurrentWorkoutFragment){
             if(modified){
-                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
-                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
+//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+//                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
+                // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
@@ -266,8 +284,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean modified=fragModified(visibleFragment);
         if(visibleFragment instanceof CurrentWorkoutFragment){
             if(modified){
-                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
-                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
+//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+//                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
+                // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
@@ -308,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if(visibleFragment instanceof CurrentWorkoutFragment){
             if(modified){
-                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
+//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
             }
         }
         else if(visibleFragment instanceof NewWorkoutFragment){

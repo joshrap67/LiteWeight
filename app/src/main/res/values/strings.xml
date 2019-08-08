@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">WorkoutMadness</string>
+    <string name="no_workouts_found">
+        No workouts found! Please navigate to the "Create Workout" tab in the navigation pane to get started!
+    </string>
     <string name="nav_draw_open">Open Nav</string>
     <string name="nav_draw_close">Close Nav</string>
     <string name="nav_title">Weigh Your Options</string>

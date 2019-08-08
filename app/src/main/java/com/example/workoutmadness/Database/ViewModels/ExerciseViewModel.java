@@ -36,11 +36,7 @@ public class ExerciseViewModel extends AndroidViewModel {
         repository.deleteAllExerciseEntities();
     }
 
-    public boolean getAllExercises(){
-        return repository.getAllExercises();
-    }
-
-    public ArrayList<ExerciseEntity> getAllExercisesResult(){
-        return repository.getAllExercisesResult();
+    public ArrayList<ExerciseEntity> getAllExercises(){
+        return new ArrayList<>(repository.getAllExercises());
     }
 }

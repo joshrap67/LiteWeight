@@ -33,10 +33,6 @@ import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.ViewModels.*;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +59,7 @@ public class NewWorkoutFragment extends Fragment {
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
+    private ArrayList<String> workoutNames = new ArrayList<>();
     private Validator validator;
 
     @Nullable
@@ -93,16 +90,17 @@ public class NewWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<MetaEntity> result) {
-            if(result!=null) {
+            if(!result.isEmpty()) {
                 for(MetaEntity entity : result){
                     Log.d("TAG","Meta entity: "+entity.toString());
+                    workoutNames.add(entity.getWorkoutName());
                     // TODO put in list to make sure same name isn't picked
                 }
             }
             else{
                 // no workouts found
                 firstWorkout = true;
-                Log.d("TAG","Get all metadata result was null!");
+                Log.d("TAG","Get all metadata result was empty!");
             }
             initViews();
         }
@@ -120,7 +118,7 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = validator.checkValidName(workoutNameInput.getText().toString());
+                    String errorMsg = validator.checkValidName(workoutNameInput.getText().toString(),workoutNames);
                     if (errorMsg==null) {
                         modified = true;
                         return true;
@@ -170,7 +168,7 @@ public class NewWorkoutFragment extends Fragment {
                 String currentName = workoutNameInput.getText().toString();
                 String currentWeeks = numWeeksInput.getText().toString();
                 String currentDays = numDaysInput.getText().toString();
-                String nameError = validator.checkValidName(currentName);
+                String nameError = validator.checkValidName(currentName,workoutNames);
                 String weekError = validator.checkValidWeek(currentWeeks);
                 String dayError = validator.checkValidDay(currentDays);
 
@@ -302,8 +300,7 @@ public class NewWorkoutFragment extends Fragment {
                         }
                     }
                     if(ready){
-//                        writeToFile();
-                        writeToDatabase();
+                        writeToDatabase(); // TODO make async?
                         modified = false;
                         Toast.makeText(getContext(), "Workout successfully created!",Toast.LENGTH_SHORT).show();
                         // restart this fragment
@@ -340,37 +337,6 @@ public class NewWorkoutFragment extends Fragment {
         }
 
 
-    }
-
-    public void writeToFile(){
-        /*
-            Writes all of the exercises the user has picked into the correct file format
-         */
-        BufferedWriter writer = null;
-        File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), finalName+Variables.WORKOUT_EXT);
-        try{
-            writer = new BufferedWriter(new FileWriter(fhandle,false));
-            for(int i=0;i<=maxDayIndex;i++){
-                // loop through all the days of the workouts
-                int weekNum = (i / finalDayNum)+1;
-                int dayNum = (i % finalDayNum)+1;
-                String dayTitle=Variables.DAY_DELIM+"*"+"W"+weekNum+":D"+dayNum+"\n";
-                writer.write(dayTitle);
-                int size = exercises.get(i).size();
-                // loop through exercises of a specific day
-                for(int j=0;j<size;j++){
-                    String exerciseName = exercises.get(i).get(j);
-                    Exercise exercise = new Exercise(exerciseName);
-                    String exerciseLine = exercise.getFormattedLine()+((i == maxDayIndex && j == (size-1))?"":"\n"); // avoid new line at end of file
-                    writer.write(exerciseLine);
-                }
-            }
-            writer.close();
-            updateCurrentWorkoutLog(finalName+Variables.WORKOUT_EXT);
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to record to workout file!\n"+e);
-        }
     }
 
     public void addExercisesToTable(){
@@ -501,37 +467,6 @@ public class NewWorkoutFragment extends Fragment {
             });
             row.addView(exercise);
             pickExerciseTable.addView(row,i);
-        }
-    }
-
-    public void updateCurrentWorkoutLog(String workoutName){
-        /*
-            Add the new workout to the bottom of the workout log. Recall that each line of the log represents the file name
-            of the workout followed by the current day of the workout. Thus it is imperative to not lose the old workouts when
-            adding this new one.
-         */
-        BufferedReader reader;
-        BufferedWriter writer;
-        File fhandleOld = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
-        File fhandleNew = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), "temp");
-        try{
-            // progress through the file until the correct spot is found
-            writer = new BufferedWriter(new FileWriter(fhandleNew,true));
-            FileReader fileR = new FileReader(fhandleOld);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                writer.write(line+"\n");
-            }
-            // add the new workout to the log and start it at day 0
-            writer.write(workoutName+"*0");
-            reader.close();
-            writer.close();
-            fhandleOld.delete();
-            fhandleNew.renameTo(fhandleOld);
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to updateWorkoutEntity current workout log!\n"+e);
         }
     }
 

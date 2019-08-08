@@ -61,6 +61,10 @@ public class MetaEntity {
         return currentWorkout;
     }
 
+    public void setCurrentWorkout(boolean status){
+        this.currentWorkout=status;
+    }
+
     public int getCurrentDay() {
         return currentDay;
     }

@@ -16,12 +16,7 @@ public class WorkoutRepository {
     private MetaDao metaDao;
     private ExerciseDao exerciseDao;
     private LiveData<List<WorkoutEntity>> allWorkouts;
-    private LiveData<List<MetaEntity>> allMetadata;
     private ArrayList<WorkoutEntity> exercises;
-    private ArrayList<ExerciseEntity> allExercises;
-    private MetaEntity currentWorkoutMeta;
-    private List<WorkoutEntity> exerciseResults;
-    private List<ExerciseEntity> allExercisesResults;
 
     public WorkoutRepository(Application application){
         WorkoutDatabase database = WorkoutDatabase.getInstance(application);
@@ -44,24 +39,18 @@ public class WorkoutRepository {
     public void deleteWorkoutEntity(WorkoutEntity workout){
         new DeleteWorkoutAsyncTask(workoutDao).execute(workout);
     }
+    public void deleteEntireWorkout(String workoutName){
+        workoutDao.deleteEntireWorkout(workoutName);
+    }
     public void deleteAllWorkouts(){
         new DeleteAllWorkoutAsyncTask(workoutDao).execute();
     }
 
     public List<WorkoutEntity> getExercises(String workout){
-        exerciseResults = workoutDao.getExercises(workout);
         return workoutDao.getExercises(workout);
 //        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao, workout);
 //        task.delegate = this;
 //        task.execute();
-    }
-
-    public ArrayList<WorkoutEntity> getExercisesResult(){
-        exercises = new ArrayList<>();
-        for(WorkoutEntity entity : exerciseResults){
-            exercises.add(entity);
-        }
-        return exercises;
     }
 
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
@@ -83,15 +72,12 @@ public class WorkoutRepository {
     public void deleteAllMetadata(){
         new DeleteAllMetadataAsyncTask(metaDao).execute();
     }
-    public void getCurrentWorkoutMeta(){
-        currentWorkoutMeta = metaDao.getCurrentWorkoutMeta();
+    public MetaEntity getCurrentWorkoutMeta(){
+        return metaDao.getCurrentWorkoutMeta();
+//        currentWorkoutMeta = metaDao.getCurrentWorkoutMeta();
 //        GetCurrentWorkoutMetaAsyncTask task = new GetCurrentWorkoutMetaAsyncTask(metaDao);
 //        task.delegate = this;
 //        task.execute();
-    }
-
-    public MetaEntity getCurrentWorkoutMetaResult(){
-        return currentWorkoutMeta;
     }
 
     public List<MetaEntity> getAllMetadata() {
@@ -115,17 +101,8 @@ public class WorkoutRepository {
     public void deleteAllExerciseEntities(){
         new DeleteAllExercisesAsyncTask(exerciseDao).execute();
     }
-    public boolean getAllExercises(){
-        allExercisesResults = exerciseDao.getAllExercises();
-        return true;
-    }
-
-    public ArrayList<ExerciseEntity> getAllExercisesResult(){
-        allExercises = new ArrayList<>();
-        for(ExerciseEntity entity : allExercisesResults){
-            allExercises.add(entity);
-        }
-        return allExercises;
+    public List<ExerciseEntity> getAllExercises(){
+        return exerciseDao.getAllExercises();
     }
     // endregion
 
@@ -281,16 +258,16 @@ public class WorkoutRepository {
         }
         @Override
         protected void onPostExecute(MetaEntity result) {
-            delegate.getCurrentWorkoutMetaFinished(result);
+//            delegate.getCurrentWorkoutMetaFinished(result);
         }
 
     }
-    private void getCurrentWorkoutMetaFinished(MetaEntity result) {
-        /*
-            Called whenever GetExercisesAsyncTask is finished
-        */
-        currentWorkoutMeta = result;
-    }
+//    private void getCurrentWorkoutMetaFinished(MetaEntity result) {
+//        /*
+//            Called whenever GetExercisesAsyncTask is finished
+//        */
+//        currentWorkoutMeta = result;
+//    }
     // endregion
     // region
     // Private classes used to execute the exercise queries using the database access objects (DAOs)
@@ -359,15 +336,15 @@ public class WorkoutRepository {
         }
         @Override
         protected void onPostExecute(List<ExerciseEntity> result) {
-            delegate.getAllExercisesFinished(result);
+//            delegate.getAllExercisesFinished(result);
         }
 
     }
-    private void getAllExercisesFinished(List<ExerciseEntity> result) {
-        /*
-            Called whenever GetExercisesAsyncTask is finished
-        */
-        allExercisesResults = result;
-    }
+//    private void getAllExercisesFinished(List<ExerciseEntity> result) {
+//        /*
+//            Called whenever GetExercisesAsyncTask is finished
+//        */
+//        allExercisesResults = result;
+//    }
     // endregion
 }

@@ -3,6 +3,7 @@ package com.example.workoutmadness;
 import android.app.Activity;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class Validator {
     // TODO will use this class for any and all user input validation
@@ -12,7 +13,7 @@ public class Validator {
         activity=anActivity;
     }
 
-    public String checkValidName(String aName){
+    public String checkValidName(String aName, ArrayList<String> workoutNames){
         aName = aName.trim();
         if((aName.length() > 0) && (aName.length() < 500)){
             String[] letters = aName.split("");
@@ -22,10 +23,8 @@ public class Validator {
                 }
             }
             // check if workout name has already been used before
-            File directoryHandle = activity.getExternalFilesDir(Variables.WORKOUT_DIRECTORY);
-            File[] contents = directoryHandle.listFiles();
-            for(File file : contents){
-                if(file.getName().equalsIgnoreCase(aName+Variables.WORKOUT_EXT)){
+            for(String workout : workoutNames){
+                if(workout.equals(aName)){
                     return "Workout name already exists!";
                 }
             }
