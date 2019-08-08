@@ -1,6 +1,7 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -49,6 +50,7 @@ public class UserSettingsFragment extends Fragment {
     private HashMap<String, ArrayList<String>> customExerciseVideos = new HashMap<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
+    private SharedPreferences.Editor editor;
 
     @Nullable
     @Override
@@ -59,23 +61,29 @@ public class UserSettingsFragment extends Fragment {
         videoSwitch = view.findViewById(R.id.video_switch);
         filterSwitch = view.findViewById(R.id.filter_switch);
         timerSwitch = view.findViewById(R.id.timer_switch);
+        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
+        editor = pref.edit();
 
-        filterCustom=false;
+        filterCustom = false;
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                filterCustom=isChecked;
+                filterCustom = isChecked;
                 populateFocusList();
             }
         });
         initSwitches();
+        timerSwitch.setChecked(pref.getBoolean(Variables.TIMER_KEY,true));
         timerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateSettingsFile();
+                editor.putBoolean(Variables.TIMER_KEY,isChecked);
+                editor.apply();
             }
         });
+        videoSwitch.setChecked(pref.getBoolean(Variables.VIDEO_KEY,true));
         videoSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateSettingsFile();
+                editor.putBoolean(Variables.VIDEO_KEY,isChecked);
+                editor.apply();
             }
         });
         Button createBtn = view.findViewById(R.id.new_exercise_btn);

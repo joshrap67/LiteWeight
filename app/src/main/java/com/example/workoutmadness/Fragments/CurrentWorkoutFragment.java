@@ -2,6 +2,7 @@ package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -71,6 +72,12 @@ public class CurrentWorkoutFragment extends Fragment {
         dayTV = view.findViewById(R.id.dayTextView);
         timerContainer = view.findViewById(R.id.constraint_layout);
         entities = new ArrayList<>();
+
+        /*
+            Get shared preferences data
+         */
+        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0); // 0 - for private mode
+        videosEnabled = pref.getBoolean(Variables.VIDEO_KEY,true);
         /*
             Set up the view models
          */
@@ -114,20 +121,19 @@ public class CurrentWorkoutFragment extends Fragment {
         task.execute();
     }
 
-    private class GetExercisesTask extends AsyncTask<Void, Void, Boolean>{
+    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>>{
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
             // get the exercises from the database
             return workoutModel.getExercises(currentWorkout);
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-//            super.onPostExecute(result);
-            if(workoutModel.getExercisesResult() != null){
-                // all of the exercises have been loaded into the view model's list member variable since the query is complete
-                populateExercises(workoutModel.getExercisesResult());
+        protected void onPostExecute(ArrayList<WorkoutEntity> result) {
+            if(result != null){
+                // query produced a valid list, so populate it in local memory
+                populateExercises(result);
             }
             else{
                 Log.d("TAG","Get exercises result was null!");
@@ -138,20 +144,23 @@ public class CurrentWorkoutFragment extends Fragment {
     public void populateExercises(ArrayList<WorkoutEntity> rawData){
         Log.d("TAG","Rawdata size: "+rawData.size());
         ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
-
-//        int count = 0;
-//        for(WorkoutEntity entity : rawData){
-////            Log.d("TAG","Entity is: "+entity.toString());
-//            count++;
-//        }
-//        Log.d("TAG","Count is: "+count);
-        // TODO handle case where custom workout is deleted but it still is in a workout
+        // TODO handle case where custom exercise is deleted but it still is in a workout (
+        //  since will be trying to pull video from the exercise table
         // init the hash table
         for(int i = 0;i<=maxDayIndex;i++){
             totalExercises.put(i, new ArrayList<Exercise>());
         }
+//        if(customExerciseVideos.get(name)!=null){
+//            URL=customExerciseVideos.get(name);
+//        }
+//        else if(defaultExerciseVideos.get(name)!=null){
+//            URL=defaultExerciseVideos.get(name);
+//        }
+//        else{
+//            URL="NONE";
+//        }
         for(WorkoutEntity entity : rawData){
-            Exercise exercise = new Exercise(entity,getContext(),getActivity(),this,false,"hey",workoutModel);
+            Exercise exercise = new Exercise(entity,getContext(),getActivity(),this,videosEnabled,"hey",workoutModel);
             totalExercises.get(entity.getDay()).add(exercise);
         }
         populateTable();
@@ -189,91 +198,6 @@ public class CurrentWorkoutFragment extends Fragment {
         catch (Exception e){
             Log.d("ERROR","Error when trying to read user settings file!\n"+e);
         }
-    }
-    public void getDefaultExerciseVideos(){
-        /*
-            Reads the asset folder and populates a hash table with the exercise name as the key and its corresponding URL as the value
-         */
-        BufferedReader reader;
-        try{
-            reader = new BufferedReader(new InputStreamReader(getContext().getAssets().open(Variables.DEFAULT_EXERCISE_VIDEOS)));
-            String line;
-            while((line=reader.readLine())!=null){
-                defaultExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
-                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
-        }
-    }
-
-    public void getCustomExerciseVideos(){
-        /*
-            Reads the custom video file and populates a hash table with the exercise name as the key and its
-            corresponding URL as the value. Note that any URL for a default exercise found in this file then the default
-            URL will not be used.
-         */
-        BufferedReader reader;
-        try {
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.EXERCISE_VIDEOS);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                customExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
-                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
-        }
-    }
-
-    public void populateExercises(){
-        /*
-            Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
-            instead of disk and makes the entire process of switching days a lot more elegant.
-         */
-        BufferedReader reader = null;
-        int hashIndex = -1;
-        try{
-            // progress through the file until a day  is found. Once found, populate with exercises
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), WORKOUT_FILE);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                boolean day = isDay(line); // possible day, if it is null then it is not at the current day specified in file
-                if(day){
-                    hashIndex++;
-                    totalExercises.put(hashIndex, new ArrayList<Exercise>());
-                    totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
-                }
-                else{
-                    String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
-                    String URL;
-                    if(customExerciseVideos.get(name)!=null){
-                        URL=customExerciseVideos.get(name);
-                    }
-                    else if(defaultExerciseVideos.get(name)!=null){
-                        URL=defaultExerciseVideos.get(name);
-                    }
-                    else{
-                        URL="NONE";
-                    }
-                    Exercise exercise = new Exercise(line.split(Variables.SPLIT_DELIM),getContext(),getActivity(),this, videosEnabled,URL);
-                    totalExercises.get(hashIndex).add(exercise);
-                }
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read workout file!\n"+e);
-        }
-        maxDayIndex = hashIndex;
     }
 
     public void populateTable(){
@@ -345,49 +269,6 @@ public class CurrentWorkoutFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private boolean updateCurrentWorkoutFile(){
-        /*
-            This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentWorkout log file and updates the workout file variable to
-            match the workout found in the log.
-         */
-        BufferedReader reader = null;
-        try{
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            WORKOUT_FILE = reader.readLine().split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX];
-            reader.close();
-            return true;
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read current workout file!\n"+e);
-            return false;
-        }
-    }
-
-    private boolean updateCurrentDayNumber(){
-        /*
-            This method ensures that when the app is closed and re-opened, it will pick up where the user
-            last left off. It looks into the currentWorkout log file and updates the current day index to
-            match the index found in the log.
-         */
-        BufferedReader reader = null;
-        try{
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            currentDayIndex = Integer.parseInt(reader.readLine().split(Variables.SPLIT_DELIM)[Variables.CURRENT_DAY_INDEX]);
-            reader.close();
-            return true;
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read current workout log!\n"+e);
-            return false;
-        }
-
     }
 
     public boolean isDay(String data){

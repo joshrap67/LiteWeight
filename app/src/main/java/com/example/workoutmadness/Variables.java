@@ -29,5 +29,8 @@ public class Variables {
             EXERCISE_COMPLETE ="COMPLETE",
             EXERCISE_INCOMPLETE = "INCOMPLETE",
             WORKOUT_EXT = ".txt",
-            STATISTICS_EXT = ".stat";
+            STATISTICS_EXT = ".stat",
+            SHARED_PREF_NAME = "userSettings",
+            VIDEO_KEY = "Videos",
+            TIMER_KEY = "Timer";
 }

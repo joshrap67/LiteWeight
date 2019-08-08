@@ -42,13 +42,9 @@ public class WorkoutViewModel extends AndroidViewModel {
         return allWorkouts;
     }
 
-    public boolean getExercises(String workout){
-        return repository.getExercises(workout);
-    }
-
-    public ArrayList<WorkoutEntity> getExercisesResult(){
-//        Log.d("Fuck","Finished Size is: "+repository.getExercisesResult().size());
-
-        return repository.getExercisesResult();
+    public ArrayList<WorkoutEntity> getExercises(String workout){
+        ArrayList<WorkoutEntity> retList = new ArrayList<>();
+        retList.addAll(repository.getExercises(workout));
+        return retList;
     }
 }

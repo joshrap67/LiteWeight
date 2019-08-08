@@ -48,9 +48,9 @@ public class WorkoutRepository {
         new DeleteAllWorkoutAsyncTask(workoutDao).execute();
     }
 
-    public boolean getExercises(String workout){
+    public List<WorkoutEntity> getExercises(String workout){
         exerciseResults = workoutDao.getExercises(workout);
-        return true;
+        return workoutDao.getExercises(workout);
 //        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao, workout);
 //        task.delegate = this;
 //        task.execute();
