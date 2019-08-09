@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.workoutmadness.Database.Entities.ExerciseEntity;
 import com.example.workoutmadness.Fragments.*;
 import com.example.workoutmadness.Database.ViewModels.*;
 
@@ -33,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ExerciseViewModel exerciseViewModel;
     private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
     private ProgressBar progressBar;
+    private Bundle state;
+    private Toolbar toolbar;
 
 
     @Override
@@ -56,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
@@ -67,6 +72,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setProgressBar(false);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
+        state = savedInstanceState;
+        GetExercisesTask task = new GetExercisesTask();
+        task.execute();
+    }
+
+    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
+        @Override
+        protected void onPreExecute(){
+            setProgressBar(true);
+        }
+
+        @Override
+        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
+            // get the exercises from the database
+            return exerciseViewModel.getAllExercises();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
+            setProgressBar(false);
+            if(result.isEmpty()){
+                // first time user has started the app, so populate exercise table using default exercise file
+                Log.d("TAG","Begin reading default exercise file...");
+                updateExercisesTable();
+            }
+            else{
+                initViews();
+                Log.d("TAG","Exercise table has already been set up");
+            }
+        }
+    }
+    public void updateExercisesTable(){
+        UpdateExercisesAsync task = new UpdateExercisesAsync();
+        task.execute();
+    }
+
+    private class UpdateExercisesAsync extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute(){
+            setProgressBar(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            // update the exercises in the database using the default exercise file in the app's asset folder
+            BufferedReader reader;
+            try{
+                reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
+                String line;
+                while((line=reader.readLine())!=null){
+                    String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
+                    String video = line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX];
+                    String focuses = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX_FILE];
+                    ExerciseEntity entity = new ExerciseEntity(name,focuses,video,true,0,0,0,0);
+                    exerciseViewModel.insert(entity);
+                }
+                reader.close();
+            }
+            catch (Exception e){
+                Log.d("ERROR","Error when trying to read default exercise file!\n"+e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            setProgressBar(false);
+            initViews();
+        }
+    }
+
+    public void initViews(){
         nav.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
@@ -83,10 +160,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
         // TODO handle screen orientation changes!
-        // TODO check if database is empty. if so, populate exercise table with default exercises and videos
-        // TODO use shared preferences to tell if the database is empty so not constantly doing queries
         toggle.syncState();
-        if (savedInstanceState == null) {
+        if (state == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment()).commit();
             nav.setCheckedItem(R.id.nav_current_workout);
@@ -99,22 +174,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else{
             progressBar.setVisibility(View.GONE);
-        }
-    }
-
-    public void getDefaultVideos(){
-        BufferedReader reader;
-        try{
-            reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISE_VIDEOS)));
-            String line;
-            while((line=reader.readLine())!=null){
-                defaultExerciseVideos.put(line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX],
-                        line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX]);
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read default exercise videos file!\n"+e);
         }
     }
     @Override

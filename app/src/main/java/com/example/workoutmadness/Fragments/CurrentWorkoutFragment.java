@@ -55,6 +55,7 @@ public class CurrentWorkoutFragment extends Fragment {
         defaultTV = view.findViewById(R.id.default_tv);
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
+        ((MainActivity)getActivity()).updateToolbarTitle("");
         // Set up the view models
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
@@ -117,7 +118,7 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
             ((MainActivity)getActivity()).setProgressBar(false);
-            if(result != null){
+            if(!result.isEmpty()){
                 for(ExerciseEntity entity : result){
                     exerciseVideos.put(entity.getExerciseName(),entity.getUrl());
                 }
@@ -195,8 +196,7 @@ public class CurrentWorkoutFragment extends Fragment {
         Log.d("TAG","Rawdata size: "+rawData.size());
         ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
         // TODO handle case where custom exercise is deleted but it still is in a workout
-        // TODO handle concurrency problems?
-        //  since will be trying to pull video from the exercise table
+        // TODO handle concurrency problems? since will be trying to pull video from the exercise table
         // init the hash table
         for(int i = 0;i<=maxDayIndex;i++){
             totalExercises.put(i, new ArrayList<Exercise>());

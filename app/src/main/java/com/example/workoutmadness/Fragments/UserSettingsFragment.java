@@ -1,7 +1,9 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.workoutmadness.*;
+import com.example.workoutmadness.Database.Entities.ExerciseEntity;
+import com.example.workoutmadness.Database.ViewModels.ExerciseViewModel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,12 +49,13 @@ public class UserSettingsFragment extends Fragment {
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
-    private ArrayList<String> focuses;
-    private HashMap<String, ArrayList<String>> defaultExerciseVideos = new HashMap<>();
-    private HashMap<String, ArrayList<String>> customExerciseVideos = new HashMap<>();
-    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
+    private ArrayList<String> focusList = new ArrayList<>();
+    private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
+    private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
     private SharedPreferences.Editor editor;
+    private ExerciseViewModel exerciseViewModel;
+    private SharedPreferences pref;
 
     @Nullable
     @Override
@@ -59,19 +64,12 @@ public class UserSettingsFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_user_settings,container,false);
         fragmentContainer = container;
         videoSwitch = view.findViewById(R.id.video_switch);
+        exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
         filterSwitch = view.findViewById(R.id.filter_switch);
         timerSwitch = view.findViewById(R.id.timer_switch);
-        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
+        pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         editor = pref.edit();
-
-        filterCustom = false;
-        filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                filterCustom = isChecked;
-                populateFocusList();
-            }
-        });
-        initSwitches();
+        // have the switches setup here because otherwise there's a little bit of a delay due to the async task and it looks ugly
         timerSwitch.setChecked(pref.getBoolean(Variables.TIMER_KEY,true));
         timerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -86,6 +84,59 @@ public class UserSettingsFragment extends Fragment {
                 editor.apply();
             }
         });
+        GetExercisesTask task = new GetExercisesTask();
+        task.execute();
+
+        // todo make rows "raised" so they are clearly clickable?
+        return view;
+    }
+
+    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
+        @Override
+        protected void onPreExecute(){
+            ((MainActivity)getActivity()).setProgressBar(false);
+        }
+
+        @Override
+        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
+            // get the exercises from the database
+            return exerciseViewModel.getAllExercises();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
+            ((MainActivity)getActivity()).setProgressBar(false);
+            if(!result.isEmpty()){
+                for(ExerciseEntity entity : result){
+                    String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
+                    for(String focus : focuses){
+                        if(!focusList.contains(focus)){
+                            focusList.add(focus);
+                            exercises.put(focus,new ArrayList<String>());
+                            customExercises.put(focus,new ArrayList<String>());
+                        }
+                        exercises.get(focus).add(entity.getExerciseName());
+                    }
+                    exerciseEntities.add(entity);
+                }
+                initViews();
+            }
+            else{
+                // uh oh
+                Log.d("ERROR","Exercise table has is somehow empty!");
+            }
+        }
+    }
+
+    public void initViews(){
+        filterCustom = false;
+        filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterCustom = isChecked;
+                populateFocusList();
+            }
+        });
+
         Button createBtn = view.findViewById(R.id.new_exercise_btn);
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,126 +144,13 @@ public class UserSettingsFragment extends Fragment {
                 newExercisePopup();
             }
         });
-        populateDefaultExercises();
         populateFocusList();
-        // todo make rows "raised" so they are clearly clickable?
-        return view;
-    }
-    public void initSwitches(){
-        BufferedReader reader;
-        try{
-            // check if videos and timer are enabled from user settings
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
-            if(fhandle.length()==0){
-                // settings fragment has somehow never been touched, so just show them the damn videos
-            }
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                String val = line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_INDEX];
-                if(val.equals(Variables.TIMER_DELIM)){
-                    timerSwitch.setChecked(Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]));
-                }
-                else if(val.equals(Variables.VIDEO_DELIM)){
-                    videoSwitch.setChecked(Boolean.parseBoolean(line.split(Variables.SPLIT_DELIM)[Variables.SETTINGS_VALUE_INDEX]));
-                }
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read user settings file!\n"+e);
-        }
-    }
-    public void updateSettingsFile(){
-        String videoString = Variables.VIDEO_DELIM+"*"+videoSwitch.isChecked()+"\n";
-        String timerString = Variables.TIMER_DELIM+"*"+timerSwitch.isChecked();
-        BufferedWriter writer = null;
-        File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
-        try{
-            writer = new BufferedWriter(new FileWriter(fhandle,false));
-            writer.write(videoString);
-            writer.write(timerString);
-            writer.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to record to user settings file!\n"+e);
-        }
-    }
-    public void populateDefaultExercises(){
-        BufferedReader reader = null;
-        try{
-            reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
-            String line;
-            String focus=null;
-            while((line=reader.readLine())!=null){
-                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
-                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
-                    defaultExercises.put(focus,new ArrayList<String>());
-                    customExercises.put(focus,new ArrayList<String>());
-                }
-                else{
-                    defaultExercises.get(focus).add(line);
-                }
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to populate from default exercises file\n"+e);
-        }
-    }
-
-    public void populateCustomExercises(){
-        BufferedReader reader;
-        try{
-            //TODO need to ensure this file isn't null
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.CUSTOM_EXERCISES);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            String line;
-            String focus=null;
-            while((line=reader.readLine())!=null){
-                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
-                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
-                }
-                else{
-                    customExercises.get(focus).add(line);
-                }
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to populate from custom exercises file\n"+e);
-        }
-    }
-
-    public void writeToExerciseFile(){
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        try{
-            File fhandle = new File(getActivity().getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.DEFAULT_EXERCISES_FILE);
-            writer = new BufferedWriter(new FileWriter(fhandle,false));
-            reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
-            String line;
-            while((line=reader.readLine())!=null){
-                writer.write(line+"\n");
-            }
-            writer.close();
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to write to exercises file\n"+e);
-        }
     }
 
     public void populateFocusList(){
         final ListView listView = view.findViewById(R.id.focus_list);
-        focuses = new ArrayList<>();
-        for(String key : defaultExercises.keySet()){
-            focuses.add(key);
-        }
-        Collections.sort(focuses);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_activated_1, focuses);
+        Collections.sort(focusList);
+        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -231,20 +169,20 @@ public class UserSettingsFragment extends Fragment {
 
     public void populateExercises(String focus){
         final ListView listView = view.findViewById(R.id.exercise_list);
-        ArrayList<String> exercises = new ArrayList<>();
-        if(defaultExercises.get(focus)==null){
+        ArrayList<String> exercisesTotal = new ArrayList<>();
+        if(exercises.get(focus)==null){
             return;
         }
         if(!filterCustom){
-            for(String exercise : defaultExercises.get(focus)){
-                exercises.add(exercise);
+            for(String exercise : exercises.get(focus)){
+                exercisesTotal.add(exercise);
             }
         }
         for(String exercise : customExercises.get(focus)){
-            exercises.add(exercise);
+            exercisesTotal.add(exercise);
         }
-        Collections.sort(exercises);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, exercises);
+        Collections.sort(exercisesTotal);
+        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, exercisesTotal);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -254,11 +192,8 @@ public class UserSettingsFragment extends Fragment {
             }
         });
     }
-    /*
-        -----------------
-        Popups
-        -----------------
-     */
+    // region
+    // Popup methods
     public void editExercisePopup(String name){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
@@ -312,13 +247,13 @@ public class UserSettingsFragment extends Fragment {
             }
         });
         TableLayout table = popupView.findViewById(R.id.table_layout);
-        for(int i=0;i<focuses.size();i++){
+        for(int i=0;i<focusList.size();i++){
             // add a checkbox for each focus that is available
             TableRow row = new TableRow(getActivity());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
             final CheckBox focus = new CheckBox(getContext());
-            focus.setText(focuses.get(i));
+            focus.setText(focusList.get(i));
             focus.setOnClickListener(new View.OnClickListener() {
                 boolean checked = focus.isChecked();
                 @Override
@@ -348,8 +283,8 @@ public class UserSettingsFragment extends Fragment {
         }
         String potentialURL = nameInput.getText().toString();
         // loop over default to see if this exercise already exists in some focus
-        for(String focus : defaultExercises.keySet()){
-            for(String exercise : defaultExercises.get(focus)){
+        for(String focus : exercises.keySet()){
+            for(String exercise : exercises.get(focus)){
                 if(exercise.equalsIgnoreCase(potentialName)){
                     return false;
                 }
@@ -364,7 +299,7 @@ public class UserSettingsFragment extends Fragment {
         }
         return true;
     }
-
+    //endregion
     public boolean isModified(){
         return modifed;
     }

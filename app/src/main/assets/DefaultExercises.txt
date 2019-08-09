@@ -1,64 +1,55 @@
-FOCUS*Arms
-Preacher Curl
-Hammer Curl
-Barbell Curl
-Reverse Grip Barbell Curl
-Dumbbell Kickback
-One Arm Tricep Extension
-Push-Up
-Farmer Walk
-Barbell Wrist Curl
-Reverse Grip Wrist Curl
-Incline Dumbbell Curl
-Cable Pull Down
-Close Grip Bench
-Concentration Curl
-Skullcrusher
-FOCUS*Back & Shoulder
-Side Deltoid Raise
-Front Deltoid Raise
-Shrug
-Bent Over Row
-Uptight Row
-Shoulder Press
-One Arm Dumbbell Row
-Good Morning
-Arnold Press
-Lying Side Deltoid Raise
-Military Press
-Lat Pulldown
-Reverse Shrugs
-FOCUS*Cardio & Core
-Sit-Up
-Swimming
-Running
-Cycling
-Plank
-Weighted Oblique Twist
-Weighted Sit-Up
-Push-Up
-Burpee
-FOCUS*Chest
-Bench Press
-Close Grip Bench
-Incline Bench Press
-Decline Bench Press
-Dumbbell Press
-Incline Dumbbell Press
-Dumbbell Fly
-Incline Dumbbell Fly
-Push-Up
-Cable Fly
-FOCUS*Legs
-Squat
-Hack Squat
-Lunge
-Leg Press
-Leg Curl
-Leg Extension
-Front Squat
-Calve Raise
-FOCUS*Strength Training
-Deadlift
-Bench Press
-Squat
+Arnold Press*NONE*Back & Shoulders
+Barbell Curl*NONE*Arms
+Barbell Wrist Curl*NONE*Arms
+Bench Press*NONE*Chest,Strength Training
+Bent Over Row*NONE*Back & Shoulders
+Burpee*NONE*Cardio
+Cable Fly*NONE*Chest
+Cable Pull Down*https://youtu.be/2-LAMcpzODU?t=13*Back & Shoulders
+Calve Raise*NONE*Legs
+Chest Fly*https://youtu.be/Iwe6AmxVf7o?t=17*Chest
+Chin Up*NONE*Arms,Back & Shoulders
+Close Grip Bench*https://youtu.be/nEF0bv2FW94?t=18*Arms,Chest
+Concentration Curl*NONE*Arms
+Cycling*NONE*Cardio
+Deadlift*NONE*Back & Shoulders,Legs,Strength Training
+Decline Bench Press*NONE*Chest
+Dumbbell Fly*NONE*Arms,Chest
+Dumbbell Kickback*NONE*Arms
+Dumbbell Press*NONE*Chest,Strength Training
+Farmer Walk*NONE*Arms
+Front Deltoid Raise*NONE*Back & Shoulders
+Front Squat*NONE*Legs,Strength Training
+Good Morning*NONE*Back & Shoulders
+Hack Squat*https://www.youtube.com/watch?v=EdtaJRBqwes*Legs
+Hammer Curl*NONE*Arms
+Incline Bench Press*https://www.youtube.com/watch?v=jPLdzuHckI8*Chest,Strength Training
+Incline Dumbbell Curl*NONE*Arms
+Incline Dumbbell Fly*NONE*Arms
+Incline Dumbbell Press*NONE*Chest,Strength Training
+Lat Pulldown*NONE*Back & Shoulders
+Leg Curl*https://www.youtube.com/watch?v=ELOCsoDSmrg*Legs
+Leg Extension*https://www.youtube.com/watch?v=YyvSfVjQeL0*Legs
+Leg Press*NONE*Legs
+Lunge*https://youtu.be/D7KaRcUTQeE?t=20*Legs
+Lying Side Deltoid Raise*NONE*Back & Shoulders
+Military Press*NONE*Back & Shoulders
+One Arm Dumbbell Row*NONE*Arms,Back & Shoulders
+One Arm Tricep Extension*NONE*Arms
+Plank*NONE*Cardio
+Preacher Curl*NONE*Arms
+Pull-Up*NONE*Arms,Back & Shoulders,Strength Training
+Push-Up*NONE*Arms,Chest,Strength Training
+Reverse Grip Wrist Curl*NONE*Arms
+Reverse Shrug*NONE*Back & Shoulders
+Running*NONE*Cardio
+Shrug*NONE*Back & Shoulders
+Side Deltoid Raise*NONE*Back & Shoulders
+Sit-Up*NONE*Cardio
+Skullcrusher*NONE*Arms
+Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*Legs,Strength Training
+Swimming*NONE*Cardio
+Tricep Dip*https://youtu.be/0326dy_-CzM?t=10*Arms
+Uptight Row*NONE*Back & Shoulders
+Weighted Oblique Twist*NONE*Cardio
+Weighted Sit-Up*NONE*Cardio,Strength Training

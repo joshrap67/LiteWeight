@@ -1,7 +1,6 @@
 package com.example.workoutmadness.Fragments;
 
 import android.app.AlertDialog;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -54,10 +53,12 @@ public class NewWorkoutFragment extends Fragment {
     private ViewGroup fragmentContainer;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaViewModel;
-    private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
+    private ExerciseViewModel exerciseViewModel;
+    private HashMap<Integer, ArrayList<String>> selectedExercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
-    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
-    private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
+    private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
+    private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
+//    private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
     private Validator validator;
@@ -75,6 +76,7 @@ public class NewWorkoutFragment extends Fragment {
          */
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         metaViewModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
+        exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
         GetAllWorkoutsTask task = new GetAllWorkoutsTask();
         task.execute();
         return view;
@@ -101,6 +103,42 @@ public class NewWorkoutFragment extends Fragment {
                 // no workouts found
                 firstWorkout = true;
                 Log.d("TAG","Get all metadata result was empty!");
+            }
+            getExercises();
+        }
+    }
+
+    public void getExercises(){
+        GetAllExercisesTask task = new GetAllExercisesTask();
+        task.execute();
+    }
+
+    private class GetAllExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
+
+        @Override
+        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
+            // get the current workout from the database
+            return exerciseViewModel.getAllExercises();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
+            if(!result.isEmpty()) {
+                for(ExerciseEntity entity : result){
+                    String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
+                    for(String focus : focuses){
+                        if(!focusList.contains(focus)){
+                            focusList.add(focus);
+                            exercises.put(focus,new ArrayList<String>());
+                        }
+                        exercises.get(focus).add(entity.getExerciseName());
+                    }
+                    exerciseEntities.add(entity);
+                }
+            }
+            else{
+                // no workouts found
+                Log.d("TAG","Get all selectedExercises result was empty!");
             }
             initViews();
         }
@@ -201,7 +239,7 @@ public class NewWorkoutFragment extends Fragment {
 
     public void createWorkout() {
         /*
-            After parameters are validated, inflate the view that allows the user to start picking specific exercises for this
+            After parameters are validated, inflate the view that allows the user to start picking specific selectedExercises for this
             new workout.
          */
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -213,10 +251,10 @@ public class NewWorkoutFragment extends Fragment {
         dayTitle = createWorkoutView.findViewById(R.id.dayTextView);
         updateDayTitle();
         for(int i=0;i<= maxDayIndex;i++){
-            // create the hash map that maps day numbers to lists of exercises
-            exercises.put(i, new ArrayList<String>());
+            // create the hash map that maps day numbers to lists of selectedExercises
+            selectedExercises.put(i, new ArrayList<String>());
         }
-        populateDefaultExercises();
+        populateExercises();
         setButtons(createWorkoutView);
     }
 
@@ -291,11 +329,11 @@ public class NewWorkoutFragment extends Fragment {
                 else{
                     // on the last day so check if every day has at least one exercise in it before writing to file
                     boolean ready = true;
-                    for(int i =0;i<exercises.size();i++){
-                        if(exercises.get(i) == null){
+                    for(int i = 0; i< selectedExercises.size(); i++){
+                        if(selectedExercises.get(i) == null){
                             ready = false;
                         }
-                        else if(exercises.get(i).isEmpty()){
+                        else if(selectedExercises.get(i).isEmpty()){
                             ready = false;
                         }
                     }
@@ -329,8 +367,8 @@ public class NewWorkoutFragment extends Fragment {
         // write to the workout table
         for(int i=0;i<=maxDayIndex;i++){
             // loop through all the days of the workouts
-            for(String exercise : exercises.get(i)){
-                // loop through exercises of a specific day
+            for(String exercise : selectedExercises.get(i)){
+                // loop through selectedExercises of a specific day
                 WorkoutEntity workoutEntity = new WorkoutEntity(exercise,finalName,i,false);
                 workoutModel.insert(workoutEntity);
             }
@@ -343,10 +381,10 @@ public class NewWorkoutFragment extends Fragment {
         /*
             After user has selected exercises from the popup, add them to the table view and allow for them to be deleted.
          */
-        Collections.sort(exercises.get(currentDayIndex));
+        Collections.sort(selectedExercises.get(currentDayIndex));
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         int count = 0;
-        for (final String exercise : exercises.get(currentDayIndex)){
+        for (final String exercise : selectedExercises.get(currentDayIndex)){
             final View row = inflater.inflate(R.layout.list_row,null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
@@ -355,7 +393,7 @@ public class NewWorkoutFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     displayedExercisesTable.removeView(row);
-                    exercises.get(currentDayIndex).remove(exercise);
+                    selectedExercises.get(currentDayIndex).remove(exercise);
                 }
             });
             displayedExercisesTable.addView(row,count);
@@ -365,8 +403,8 @@ public class NewWorkoutFragment extends Fragment {
 
     public void popupExercises(){
         /*
-            User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
-            that is programmed to list all exercises for a given exercise focus.
+            User has indicated they wish to add selectedExercises to this specific day. Show a popup that provides a spinner
+            that is programmed to list all selectedExercises for a given exercise focus.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
@@ -391,7 +429,7 @@ public class NewWorkoutFragment extends Fragment {
                     return;
                 }
                 for(String exercise : checkedExercises){
-                    exercises.get(currentDayIndex).add(exercise);
+                    selectedExercises.get(currentDayIndex).add(exercise);
                 }
                 checkedExercises.clear();
                 displayedExercisesTable.removeAllViews();
@@ -401,9 +439,9 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
-    public void populateDefaultExercises(){
+    public void populateExercises(){
         /*
-            Obtain all the default exercises from the asset folder. The focus list is also populated here and the custom exercise hash
+            Obtain all the default selectedExercises from the asset folder. The focus list is also populated here and the custom exercise hash
             table is initialized with empty array lists at each focus key.
          */
         BufferedReader reader;
@@ -415,29 +453,25 @@ public class NewWorkoutFragment extends Fragment {
                 if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
                     focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
                     focusList.add(focus);
-                    defaultExercises.put(focus,new ArrayList<String>());
-                    customExercises.put(focus,new ArrayList<String>());
+                    exercises.put(focus,new ArrayList<String>());
                 }
                 else{
-                    defaultExercises.get(focus).add(line);
+                    exercises.get(focus).add(line);
                 }
             }
             reader.close();
         }
         catch (Exception e){
-            Log.d("ERROR","Error when trying to populate from default exercises file\n"+e);
+            Log.d("ERROR","Error when trying to populate from default selectedExercises file\n"+e);
         }
     }
 
     public void updateExerciseChoices(String exerciseFocus){
         /*
-            Given a value from the exercise focus spinner, list all the exercises associate with it.
+            Given a value from the exercise focus spinner, list all the selectedExercises associate with it.
          */
         ArrayList<String> sortedExercises = new ArrayList<>();
-        for(String exercise : defaultExercises.get(exerciseFocus)){
-            sortedExercises.add(exercise);
-        }
-        for(String exercise : customExercises.get(exerciseFocus)){
+        for(String exercise : exercises.get(exerciseFocus)){
             sortedExercises.add(exercise);
         }
         Collections.sort(sortedExercises);
@@ -448,14 +482,14 @@ public class NewWorkoutFragment extends Fragment {
             final CheckBox exercise = new CheckBox(getActivity());
             String exerciseName = sortedExercises.get(i);
             exercise.setText(exerciseName);
-            if(checkedExercises.contains(exerciseName) || exercises.get(currentDayIndex).contains(exerciseName)){
+            if(checkedExercises.contains(exerciseName) || selectedExercises.get(currentDayIndex).contains(exerciseName)){
                 exercise.setChecked(true);
             }
             exercise.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(!checkedExercises.contains(exercise.getText().toString()) &&
-                    !exercises.get(currentDayIndex).contains(exercise.getText().toString())){
+                    !selectedExercises.get(currentDayIndex).contains(exercise.getText().toString())){
                         // prevents exercise from being added twice
                         checkedExercises.add(exercise.getText().toString());
                     }
