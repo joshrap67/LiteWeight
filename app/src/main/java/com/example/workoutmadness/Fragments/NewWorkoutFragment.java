@@ -249,23 +249,13 @@ public class NewWorkoutFragment extends Fragment {
         rootView.addView(createWorkoutView);
         displayedExercisesTable = createWorkoutView.findViewById(R.id.main_table);
         dayTitle = createWorkoutView.findViewById(R.id.dayTextView);
-        updateDayTitle();
+        dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
         for(int i=0;i<= maxDayIndex;i++){
             // create the hash map that maps day numbers to lists of selectedExercises
             selectedExercises.put(i, new ArrayList<String>());
         }
         populateExercises();
         setButtons(createWorkoutView);
-    }
-
-    public void updateDayTitle(){
-        /*
-            Updates the day title in a cyclic fashion given from user input
-         */
-        int weekNum = (currentDayIndex / finalDayNum)+1;
-        int dayNum = (currentDayIndex % finalDayNum)+1;
-        String displayTitle="W"+weekNum+":D"+dayNum;
-        dayTitle.setText(displayTitle);
     }
 
     public void setButtons(View _view){
@@ -306,7 +296,7 @@ public class NewWorkoutFragment extends Fragment {
                     firstDay = true;
                 }
                 addExercisesToTable();
-                updateDayTitle();
+                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
             }
         });
         nextDayBtn.setOnClickListener(new View.OnClickListener() {
@@ -324,7 +314,7 @@ public class NewWorkoutFragment extends Fragment {
                         nextDayBtn.setText("Finish");
                     }
                     addExercisesToTable();
-                    updateDayTitle();
+                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
                 }
                 else{
                     // on the last day so check if every day has at least one exercise in it before writing to file

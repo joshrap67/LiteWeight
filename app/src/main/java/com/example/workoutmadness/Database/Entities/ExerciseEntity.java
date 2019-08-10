@@ -57,6 +57,22 @@ public class ExerciseEntity {
         return currentWeight;
     }
 
+    public void setExerciseName(String exerciseName) {
+        this.exerciseName = exerciseName;
+    }
+
+    public void setCurrentWeight(int currentWeight) {
+        this.currentWeight = currentWeight;
+    }
+
+    public void setMinWeight(int minWeight) {
+        this.minWeight = minWeight;
+    }
+
+    public void setMaxWeight(int maxWeight) {
+        this.maxWeight = maxWeight;
+    }
+
     public int getMinWeight() {
         return minWeight;
     }
@@ -70,9 +86,9 @@ public class ExerciseEntity {
     }
 
     @Override
-    public String toString(){
-        return "Id:"+getId()+" Exercise: "+exerciseName+" URL: "+url+" defaultExercise: "+defaultExercise+
-                " currentWeight: "+currentWeight+ " minWeight: "+minWeight+ " maxWeight: "+maxWeight+ "timesCompleted "+
+    public String toString() {
+        return "Id:" + getId() + " Exercise: " + exerciseName + " URL: " + url + " defaultExercise: " + defaultExercise +
+                " currentWeight: " + currentWeight + " minWeight: " + minWeight + " maxWeight: " + maxWeight + "timesCompleted " +
                 timesCompleted;
     }
 

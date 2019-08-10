@@ -15,7 +15,8 @@ public class Variables {
             FOCUS_NAME_INDEX = 1,
             SETTINGS_INDEX=0,
             SETTINGS_VALUE_INDEX=1,
-            FOCUS_INDEX_FILE=2;
+            FOCUS_INDEX_FILE=2,
+            IGNORE_WEIGHT_VALUE=-1;
     public static final String WORKOUT_DIRECTORY="Workouts",
             CURRENT_WORKOUT_LOG="currentWorkout.log",
             DEFAULT_EXERCISES_FILE ="DefaultExercises.txt",
@@ -38,7 +39,8 @@ public class Variables {
             SHARED_PREF_NAME = "userSettings",
             VIDEO_KEY = "Videos",
             TIMER_KEY = "Timer",
-            DB_KEY = "DB_EMPTY";
+            DB_KEY = "DB_EMPTY",
+            UNIT_KEY="METRIC";
     public static String generateDayTitle(int num, int maxDayIndex){
         int weekNum = (num / (maxDayIndex+1))+1;
         int dayNum = (num % (maxDayIndex+1))+1;

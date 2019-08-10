@@ -23,6 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.support.v7.widget.SwitchCompat;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -81,6 +82,14 @@ public class UserSettingsFragment extends Fragment {
         videoSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 editor.putBoolean(Variables.VIDEO_KEY,isChecked);
+                editor.apply();
+            }
+        });
+        Switch unitSwitch = view.findViewById(R.id.unit_switch);
+        unitSwitch.setChecked(pref.getBoolean(Variables.UNIT_KEY,false));
+        unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                editor.putBoolean(Variables.UNIT_KEY,isChecked);
                 editor.apply();
             }
         });

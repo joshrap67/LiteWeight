@@ -37,14 +37,14 @@ public class CurrentWorkoutFragment extends Fragment {
     private int currentDayIndex, maxDayIndex;
     private String WORKOUT_FILE, currentWorkout;
     private MetaEntity currentWorkoutEntity;
-    private boolean modified = false, exerciseModified = false, timerRunning = false, videosEnabled;
+    private boolean modified = false, exerciseModified = false, timerRunning = false;
     private Chronometer timer;
     private long lastTime;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseModel;
     private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
-    private HashMap<String, String> exerciseVideos = new HashMap<>();
+    private HashMap<String, ExerciseEntity> exerciseToExerciseEntity = new HashMap<>();
     private View view;
     private ViewGroup fragmentContainer;
 
@@ -120,7 +120,7 @@ public class CurrentWorkoutFragment extends Fragment {
             ((MainActivity)getActivity()).setProgressBar(false);
             if(!result.isEmpty()){
                 for(ExerciseEntity entity : result){
-                    exerciseVideos.put(entity.getExerciseName(),entity.getUrl());
+                    exerciseToExerciseEntity.put(entity.getExerciseName(),entity);
                 }
                 getExercises();
             }
@@ -185,7 +185,8 @@ public class CurrentWorkoutFragment extends Fragment {
             Get shared preferences data
          */
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
-        videosEnabled = pref.getBoolean(Variables.VIDEO_KEY,true);
+        boolean videosEnabled = pref.getBoolean(Variables.VIDEO_KEY,true);
+        boolean metricUnits = pref.getBoolean(Variables.UNIT_KEY,false);
         if(pref.getBoolean(Variables.TIMER_KEY,true)){
             initTimer();
         }
@@ -203,14 +204,10 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         // fill the hash table with exercises
         for(WorkoutEntity entity : rawData){
-            String URL = exerciseVideos.get(entity.getExercise());
-            if(URL!=null){
-                URL = exerciseVideos.get(entity.getExercise());
-            }
-            else{
-                URL = "NONE";
-            }
-            Exercise exercise = new Exercise(entity,getContext(),getActivity(),this,videosEnabled,URL,0,workoutModel);
+            String exerciseName = entity.getExercise();
+            Exercise exercise = new Exercise(entity,exerciseToExerciseEntity.get(exerciseName),getContext(),
+                    getActivity(),this,videosEnabled,metricUnits,
+                    exerciseToExerciseEntity.get(exerciseName).getCurrentWeight(), workoutModel,exerciseModel);
             totalExercises.get(entity.getDay()).add(exercise);
         }
         populateTable();
@@ -304,7 +301,7 @@ public class CurrentWorkoutFragment extends Fragment {
         for(int i=0;i<=maxDayIndex;i++){
             for(Exercise exercise : totalExercises.get(i)){
                 exercise.setStatus(false);
-                workoutModel.update(exercise.getEntity());
+                workoutModel.update(exercise.getWorkoutEntity());
                 // TODO would do any statistics stuff here
             }
         }
