@@ -58,7 +58,6 @@ public class NewWorkoutFragment extends Fragment {
     private ArrayList<String> checkedExercises = new ArrayList<>();
     private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
     private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
-//    private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
     private Validator validator;

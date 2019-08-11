@@ -13,10 +13,11 @@ public class Variables {
             CURRENT_DAY_INDEX = 1, // TODO rename
             FOCUS_INDEX = 0,
             FOCUS_NAME_INDEX = 1,
-            SETTINGS_INDEX=0,
-            SETTINGS_VALUE_INDEX=1,
-            FOCUS_INDEX_FILE=2,
-            IGNORE_WEIGHT_VALUE=-1;
+            SETTINGS_INDEX = 0,
+            SETTINGS_VALUE_INDEX = 1,
+            FOCUS_INDEX_FILE = 2,
+            IGNORE_WEIGHT_VALUE = -1;
+    public static final double KG = 0.45392;
     public static final String WORKOUT_DIRECTORY="Workouts",
             CURRENT_WORKOUT_LOG="currentWorkout.log",
             DEFAULT_EXERCISES_FILE ="DefaultExercises.txt",

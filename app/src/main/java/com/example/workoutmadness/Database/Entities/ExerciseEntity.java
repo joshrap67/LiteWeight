@@ -12,13 +12,13 @@ public class ExerciseEntity {
     private String focus;
     private String url;
     private boolean defaultExercise;
-    private int currentWeight;
-    private int minWeight;
-    private int maxWeight;
+    private double currentWeight;
+    private double minWeight;
+    private double maxWeight;
     private int timesCompleted;
 
-    public ExerciseEntity(String exerciseName, String focus, String url, boolean defaultExercise, int currentWeight, int minWeight,
-                          int maxWeight, int timesCompleted) {
+    public ExerciseEntity(String exerciseName, String focus, String url, boolean defaultExercise, double currentWeight, double minWeight,
+                          double maxWeight, int timesCompleted) {
         this.exerciseName = exerciseName;
         this.focus = focus;
         this.url = url;
@@ -53,7 +53,7 @@ public class ExerciseEntity {
         return defaultExercise;
     }
 
-    public int getCurrentWeight() {
+    public double getCurrentWeight() {
         return currentWeight;
     }
 
@@ -61,23 +61,23 @@ public class ExerciseEntity {
         this.exerciseName = exerciseName;
     }
 
-    public void setCurrentWeight(int currentWeight) {
+    public void setCurrentWeight(double currentWeight) {
         this.currentWeight = currentWeight;
     }
 
-    public void setMinWeight(int minWeight) {
+    public void setMinWeight(double minWeight) {
         this.minWeight = minWeight;
     }
 
-    public void setMaxWeight(int maxWeight) {
+    public void setMaxWeight(double maxWeight) {
         this.maxWeight = maxWeight;
     }
 
-    public int getMinWeight() {
+    public double getMinWeight() {
         return minWeight;
     }
 
-    public int getMaxWeight() {
+    public double getMaxWeight() {
         return maxWeight;
     }
 

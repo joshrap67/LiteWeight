@@ -35,7 +35,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private TableLayout table;
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
     private int currentDayIndex, maxDayIndex;
-    private String WORKOUT_FILE, currentWorkout;
+    private String currentWorkout;
     private MetaEntity currentWorkoutEntity;
     private boolean modified = false, exerciseModified = false, timerRunning = false;
     private Chronometer timer;
@@ -226,16 +226,6 @@ public class CurrentWorkoutFragment extends Fragment {
             count++;
         }
         setupButtons();
-    }
-
-    public void updateExeriseWeight(String exercise, int weight){
-        for(int i =0; i<totalExercises.size();i++){
-            for(Exercise exerciseObj : totalExercises.get(currentDayIndex)){
-                if(exerciseObj.getName().equals(exercise)){
-                    exerciseObj.setWeight(weight);
-                }
-            }
-        }
     }
 
     private void setupButtons(){

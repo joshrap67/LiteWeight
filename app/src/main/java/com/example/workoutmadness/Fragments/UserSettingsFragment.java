@@ -33,12 +33,6 @@ import com.example.workoutmadness.*;
 import com.example.workoutmadness.Database.Entities.ExerciseEntity;
 import com.example.workoutmadness.Database.ViewModels.ExerciseViewModel;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,7 +45,7 @@ public class UserSettingsFragment extends Fragment {
     private ViewGroup fragmentContainer;
     private AlertDialog alertDialog;
     private ArrayList<String> focusList = new ArrayList<>();
-    private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
+    private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
     private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
     private SharedPreferences.Editor editor;
@@ -95,8 +89,6 @@ public class UserSettingsFragment extends Fragment {
         });
         GetExercisesTask task = new GetExercisesTask();
         task.execute();
-
-        // todo make rows "raised" so they are clearly clickable?
         return view;
     }
 
@@ -108,7 +100,7 @@ public class UserSettingsFragment extends Fragment {
 
         @Override
         protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
-            // get the exercises from the database
+            // get the defaultExercises from the database
             return exerciseViewModel.getAllExercises();
         }
 
@@ -120,11 +112,17 @@ public class UserSettingsFragment extends Fragment {
                     String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
                     for(String focus : focuses){
                         if(!focusList.contains(focus)){
+                            // found a new focus, so init the hash map with it
                             focusList.add(focus);
-                            exercises.put(focus,new ArrayList<String>());
+                            defaultExercises.put(focus,new ArrayList<String>());
                             customExercises.put(focus,new ArrayList<String>());
                         }
-                        exercises.get(focus).add(entity.getExerciseName());
+                        if(entity.isDefaultExercise()){
+                            defaultExercises.get(focus).add(entity.getExerciseName());
+                        }
+                        else{
+                            customExercises.get(focus).add(entity.getExerciseName());
+                        }
                     }
                     exerciseEntities.add(entity);
                 }
@@ -176,14 +174,14 @@ public class UserSettingsFragment extends Fragment {
         listView.setSelection(0);
     }
 
-    public void populateExercises(String focus){
+    public void populateExercises(final String focus){
         final ListView listView = view.findViewById(R.id.exercise_list);
         ArrayList<String> exercisesTotal = new ArrayList<>();
-        if(exercises.get(focus)==null){
+        if(defaultExercises.get(focus)==null){
             return;
         }
         if(!filterCustom){
-            for(String exercise : exercises.get(focus)){
+            for(String exercise : defaultExercises.get(focus)){
                 exercisesTotal.add(exercise);
             }
         }
@@ -197,13 +195,17 @@ public class UserSettingsFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editExercisePopup(listView.getItemAtPosition(position).toString());
+                editExercisePopup(listView.getItemAtPosition(position).toString(),focus);
             }
         });
     }
     // region
     // Popup methods
-    public void editExercisePopup(String name){
+    public void editExercisePopup(String name, String focus){
+        boolean defaultExercise = false;
+        if(defaultExercises.get(focus).contains(name)){
+            defaultExercise = true;
+        }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_edit_custom_exercise, null);
@@ -212,6 +214,10 @@ public class UserSettingsFragment extends Fragment {
         alertDialog.show();
         Button renameBtn = popupView.findViewById(R.id.rename_btn);
         Button deleteBtn = popupView.findViewById(R.id.delete_btn);
+        if(!defaultExercise){
+            renameBtn.setVisibility(View.INVISIBLE);
+            deleteBtn.setVisibility(View.INVISIBLE);
+        }
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
         exerciseName.setText(name);
         EditText userInput = popupView.findViewById(R.id.edit_name_txt);
@@ -240,12 +246,26 @@ public class UserSettingsFragment extends Fragment {
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String exerciseName = exerciseNameInput.getText().toString();
+                String url = editURL.getText().toString();
                 if(validateNewExercise(exerciseNameInput, editURL)){
                     // TODO add the exercise to file
-                    for(String focus : selectedFocuses){
-                        customExercises.get(focus).add(exerciseNameInput.getText().toString());
-                        populateFocusList();
+                    StringBuilder sb = new StringBuilder();
+
+                    for(int i=0;i<selectedFocuses.size();i++){
+                        customExercises.get(selectedFocuses.get(i)).add(exerciseNameInput.getText().toString());
+                        sb.append(selectedFocuses.get(i)+((i==selectedFocuses.size()-1)?"":","));
                     }
+                    String focusEntry=sb.toString();
+                    Log.d("focus entry",focusEntry);
+                    ExerciseEntity newEntity = new ExerciseEntity(exerciseName,focusEntry,url,false,0,
+                            0,0,0);
+                    exerciseViewModel.insert(newEntity);
+//                    for(String focus : selectedFocuses){
+//                        customExercises.get(focus).add(exerciseNameInput.getText().toString());
+//                        populateFocusList();
+//                    }
+
                     // TODO add the exercise to file
                     Toast.makeText(getContext(),"Exercise successfully created!",Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
@@ -285,15 +305,15 @@ public class UserSettingsFragment extends Fragment {
     }
 
     public boolean validateNewExercise(TextView nameInput, TextView urlInput){
-        // TODO do any validation on number of total exercises here? Absolute worst case scenario stuff but still
+        // TODO do any validation on number of total defaultExercises here? Absolute worst case scenario stuff but still
         String potentialName = nameInput.getText().toString();
         if(potentialName.isEmpty()){
             return false;
         }
         String potentialURL = nameInput.getText().toString();
         // loop over default to see if this exercise already exists in some focus
-        for(String focus : exercises.keySet()){
-            for(String exercise : exercises.get(focus)){
+        for(String focus : defaultExercises.keySet()){
+            for(String exercise : defaultExercises.get(focus)){
                 if(exercise.equalsIgnoreCase(potentialName)){
                     return false;
                 }
