@@ -134,7 +134,6 @@ public class Exercise{
             exerciseName.setChecked(true);
         }
         exerciseName.setOnClickListener(new View.OnClickListener() {
-//            boolean checked = exerciseName.isChecked();
             @Override
             public void onClick(View v) {
                 if(status){
@@ -162,7 +161,7 @@ public class Exercise{
             weight = exerciseEntity.getCurrentWeight();
         }
         formattedWeight = formatWeight(weight);
-        if(weight>=0){
+        if(weight >= 0){
             weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
         }
         else{
@@ -177,19 +176,26 @@ public class Exercise{
                 alertDialog.setView(popupView);
                 alertDialog.setCanceledOnTouchOutside(true);
                 alertDialog.show();
+
                 TextView exerciseName = popupView.findViewById(R.id.exercise_name);
                 exerciseName.setText(name);
                 final EditText weightInput = popupView.findViewById(R.id.weight_input);
                 weightInput.setHint(formattedWeight);
                 final Switch ignoreWeightSwitch = popupView.findViewById(R.id.ignore_weight_switch);
                 if(weight < 0){
+                    Log.d("TAG","Weight: "+weight);
                     ignoreWeightSwitch.setChecked(true);
                     ignoreWeight = true;
                     weightInput.setVisibility(View.INVISIBLE);
                 }
+                else{
+                    ignoreWeight = false;
+                    ignoreWeightSwitch.setChecked(false);
+                }
                 ignoreWeightSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ignoreWeight = isChecked;
+                        Log.d("TAG","Ignoreweight: "+ignoreWeight);
                         if(ignoreWeight){
                             weightInput.setVisibility(View.INVISIBLE);
                         }
@@ -204,25 +210,27 @@ public class Exercise{
                     @Override
                     public void onClick(View v) {
                         if(ignoreWeight){
-                            exerciseEntity.setCurrentWeight(Variables.IGNORE_WEIGHT_VALUE);
+                            weight = Variables.IGNORE_WEIGHT_VALUE;
+                            exerciseEntity.setCurrentWeight(weight);
                             weightButton.setText("N/A");
                             exerciseViewModel.update(exerciseEntity);
                             alertDialog.dismiss();
                         }
                         else if(!weightInput.getText().toString().equals("")){
-                            double newWeight = Double.parseDouble(weightInput.getText().toString());
-                            weightButton.setText(formatWeight(newWeight)+(metricUnits?" kg":" lb"));
+                            weight = Double.parseDouble(weightInput.getText().toString());
+                            formattedWeight = formatWeight(weight);
+                            weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
                             if(metricUnits){
                                 // convert if in metric
-                                newWeight/=Variables.KG;
+                                weight /= Variables.KG;
                             }
-                            if(newWeight>exerciseEntity.getMaxWeight()){
-                                exerciseEntity.setMaxWeight(newWeight);
+                            if(weight > exerciseEntity.getMaxWeight()){
+                                exerciseEntity.setMaxWeight(weight);
                             }
-                            else if(newWeight<exerciseEntity.getMinWeight()){
-                                exerciseEntity.setMinWeight(newWeight);
+                            else if(weight < exerciseEntity.getMinWeight()){
+                                exerciseEntity.setMinWeight(weight);
                             }
-                            exerciseEntity.setCurrentWeight(newWeight);
+                            exerciseEntity.setCurrentWeight(weight);
                             exerciseViewModel.update(exerciseEntity);
                             alertDialog.dismiss();
                         }
@@ -260,7 +268,6 @@ public class Exercise{
             ImageView videoButton = row.findViewById(R.id.launch_video);
             videoButton.setVisibility(View.GONE);
         }
-
         return row;
     }
 
@@ -275,21 +282,6 @@ public class Exercise{
         }
         else{
             retVal = String.format("%.2f", aWeight);
-        }
-        return retVal;
-    }
-
-    public String getFormattedLine(){
-            /*
-                Utilized whenever writing to a file. This method formats the information of the exercise
-                instance into the proper format specified in this project.
-             */
-        String retVal;
-        if(status){
-            retVal = name+"*"+Variables.EXERCISE_COMPLETE;
-        }
-        else{
-            retVal = name+"*"+Variables.EXERCISE_INCOMPLETE;
         }
         return retVal;
     }

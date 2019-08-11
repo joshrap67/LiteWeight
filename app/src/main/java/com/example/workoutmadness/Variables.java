@@ -17,7 +17,7 @@ public class Variables {
             SETTINGS_VALUE_INDEX = 1,
             FOCUS_INDEX_FILE = 2,
             IGNORE_WEIGHT_VALUE = -1;
-    public static final double KG = 0.45392;
+    public static final double KG = 0.45359237;
     public static final String WORKOUT_DIRECTORY="Workouts",
             CURRENT_WORKOUT_LOG="currentWorkout.log",
             DEFAULT_EXERCISES_FILE ="DefaultExercises.txt",
