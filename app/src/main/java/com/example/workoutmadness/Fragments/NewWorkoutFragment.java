@@ -31,8 +31,6 @@ import com.example.workoutmadness.*;
 import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Database.ViewModels.*;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +42,7 @@ public class NewWorkoutFragment extends Fragment {
     private boolean modified = false, firstDay, lastDay, firstWorkout = false;
     private EditText workoutNameInput, numWeeksInput, numDaysInput;
     private Button previousDayBtn, nextDayBtn;
-    private int finalDayNum, finalWeekNum,currentDayIndex, maxDayIndex;
+    private int finalDayNum, finalWeekNum, currentDayIndex, maxDayIndex;
     private String finalName;
     private View view, popupView;
     private AlertDialog alertDialog;
@@ -56,8 +54,7 @@ public class NewWorkoutFragment extends Fragment {
     private ExerciseViewModel exerciseViewModel;
     private HashMap<Integer, ArrayList<String>> selectedExercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
-    private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
-    private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
+    private HashMap<String, ArrayList<String>> exercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
 
@@ -93,7 +90,6 @@ public class NewWorkoutFragment extends Fragment {
                 for(MetaEntity entity : result){
                     Log.d("TAG","Meta entity: "+entity.toString());
                     workoutNames.add(entity.getWorkoutName());
-                    // TODO put in list to make sure same name isn't picked
                 }
             }
             else{
@@ -130,7 +126,6 @@ public class NewWorkoutFragment extends Fragment {
                         }
                         exercises.get(focus).add(entity.getExerciseName());
                     }
-                    exerciseEntities.add(entity);
                 }
             }
             else{
@@ -251,7 +246,6 @@ public class NewWorkoutFragment extends Fragment {
             // create the hash map that maps day numbers to lists of selectedExercises
             selectedExercises.put(i, new ArrayList<String>());
         }
-        populateExercises();
         setButtons(createWorkoutView);
     }
 
@@ -360,8 +354,6 @@ public class NewWorkoutFragment extends Fragment {
                 workoutModel.insert(workoutEntity);
             }
         }
-
-
     }
 
     public void addExercisesToTable(){
@@ -371,7 +363,7 @@ public class NewWorkoutFragment extends Fragment {
         Collections.sort(selectedExercises.get(currentDayIndex));
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         int count = 0;
-        for (final String exercise : selectedExercises.get(currentDayIndex)){
+        for(final String exercise : selectedExercises.get(currentDayIndex)){
             final View row = inflater.inflate(R.layout.list_row,null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
@@ -426,32 +418,7 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
-    public void populateExercises(){
-        /*
-            Obtain all the default selectedExercises from the asset folder. The focus list is also populated here and the custom exercise hash
-            table is initialized with empty array lists at each focus key.
-         */
-        BufferedReader reader;
-        try{
-            reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
-            String line;
-            String focus=null;
-            while((line=reader.readLine())!=null){
-                if(line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX].equals(Variables.FOCUS_DELIM)){
-                    focus = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_NAME_INDEX];
-                    focusList.add(focus);
-                    exercises.put(focus,new ArrayList<String>());
-                }
-                else{
-                    exercises.get(focus).add(line);
-                }
-            }
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to populate from default selectedExercises file\n"+e);
-        }
-    }
+
 
     public void updateExerciseChoices(String exerciseFocus){
         /*
@@ -462,11 +429,10 @@ public class NewWorkoutFragment extends Fragment {
             sortedExercises.add(exercise);
         }
         Collections.sort(sortedExercises);
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         for(int i=0;i<sortedExercises.size();i++){
-            TableRow row = new TableRow(getActivity());
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(lp);
-            final CheckBox exercise = new CheckBox(getActivity());
+            final View row = inflater.inflate(R.layout.row_add_exercise,null);
+            final CheckBox exercise = row.findViewById(R.id.exercise_checkbox);
             String exerciseName = sortedExercises.get(i);
             exercise.setText(exerciseName);
             if(checkedExercises.contains(exerciseName) || selectedExercises.get(currentDayIndex).contains(exerciseName)){
@@ -486,7 +452,6 @@ public class NewWorkoutFragment extends Fragment {
 
                 }
             });
-            row.addView(exercise);
             pickExerciseTable.addView(row,i);
         }
     }

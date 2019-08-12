@@ -245,46 +245,4 @@ public class MyWorkoutFragment extends Fragment {
         // TODO init the buttons
         // TODO updateWorkoutEntity list view
     }
-
-    public void populateExercises(){
-        /*
-            Reads the file and populates the hash map with the exercises. This allows for memory to be utilized
-            instead of disk and makes the entire process of switching days a lot more elegant.
-         */
-        BufferedReader reader = null;
-        int hashIndex = -1;
-        try{
-            // progress through the file until a day  is found. Once found, populate with exercises
-            File fhandle = new File(getContext().getExternalFilesDir(Variables.WORKOUT_DIRECTORY), selectedWorkout+Variables.WORKOUT_EXT);
-            FileReader fileR= new FileReader(fhandle);
-            reader = new BufferedReader(fileR);
-            String line;
-            while((line=reader.readLine())!=null){
-                boolean day = isDay(line); // possible day, if it is null then it is not at the current day specified in file
-                if(day){
-                    hashIndex++;
-                    exercises.put(hashIndex, new ArrayList<String>());
-                    totalDayTitles.put(hashIndex, line.split(Variables.SPLIT_DELIM)[Variables.TIME_TITLE_INDEX]); // add day
-                }
-                else{
-                    exercises.get(hashIndex).add(line.split(Variables.SPLIT_DELIM)[Variables.WORKOUT_NAME_INDEX]);
-                }
-            }
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to read "+selectedWorkout+" file!\n"+e);
-        }
-        maxDayIndex = hashIndex;
-    }
-    public boolean isDay(String data){
-        /*
-            Checks if passed in string from file denotes a day or an exercise
-         */
-        if(data==null){
-            return false;
-        }
-        String[] strings = data.split(Variables.SPLIT_DELIM);
-        String delim = strings[Variables.TIME_INDEX];
-        return delim.equalsIgnoreCase(Variables.DAY_DELIM); // return true if this indeed is a day
-    }
 }
