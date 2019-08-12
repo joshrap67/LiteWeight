@@ -62,6 +62,8 @@ public class CurrentWorkoutFragment extends Fragment {
         exerciseModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
         // attempt to fetch the current workout from database
         GetCurrentWorkoutTask task = new GetCurrentWorkoutTask();
+        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
+        // TODO do some scalability testing with like 100000 records
         task.execute();
         return view;
     }

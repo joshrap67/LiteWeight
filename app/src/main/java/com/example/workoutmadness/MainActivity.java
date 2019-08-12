@@ -26,31 +26,23 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.workoutmadness.Database.Entities.ExerciseEntity;
+import com.example.workoutmadness.Database.Entities.*;
 import com.example.workoutmadness.Fragments.*;
 import com.example.workoutmadness.Database.ViewModels.*;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private WorkoutViewModel workoutViewModel;
-    private MetaViewModel logViewModel;
     private ExerciseViewModel exerciseViewModel;
-    private HashMap<String, String> defaultExerciseVideos = new HashMap<>();
     private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
-
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,52 +55,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
-        workoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class); // get model that will interact with repo
-        logViewModel = ViewModelProviders.of(this).get(MetaViewModel.class); // get model that will interact with repo
-        exerciseViewModel = ViewModelProviders.of(this).get(ExerciseViewModel.class); // get model that will interact with repo
         progressBar = findViewById(R.id.progress_bar);
-        setProgressBar(false);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         state = savedInstanceState;
-        GetExercisesTask task = new GetExercisesTask();
-        task.execute();
-    }
-
-    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
-        @Override
-        protected void onPreExecute(){
-            setProgressBar(true);
-        }
-
-        @Override
-        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
-            // get the exercises from the database
-            return exerciseViewModel.getAllExercises();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
+        // get the view models
+        exerciseViewModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
+        editor = pref.edit();
+        if(pref.getBoolean(Variables.DB_KEY,true)){
+            Log.d("TAG","Exercise table empty!");
             setProgressBar(false);
-            if(result.isEmpty()){
-                // first time user has started the app, so populate exercise table using default exercise file
-                Log.d("TAG","Begin reading default exercise file...");
-                updateExercisesTable();
-            }
-            else{
-                initViews();
-                Log.d("TAG","Exercise table has already been set up");
-            }
+            UpdateExercisesAsync task = new UpdateExercisesAsync();
+            task.execute();
         }
-    }
-    public void updateExercisesTable(){
-        UpdateExercisesAsync task = new UpdateExercisesAsync();
-        task.execute();
+        else{
+            Log.d("TAG","Exercise table not empty!");
+            initViews();
+        }
     }
 
     private class UpdateExercisesAsync extends AsyncTask<Void, Void, Void> {
+        /*
+            Called when the exercise table is empty (such as when app first launches)
+         */
         @Override
         protected void onPreExecute(){
             setProgressBar(true);
@@ -138,28 +110,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected void onPostExecute(Void result) {
+            editor.putBoolean(Variables.DB_KEY, false);
+            editor.apply();
             setProgressBar(false);
             initViews();
         }
     }
 
     public void initViews(){
+        /*
+            Called when the exercise table in the database is not empty. Sets up the navigation pane.
+         */
         nav.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
-        // check if directories are there
-        boolean workoutsExist = checkIfDirectoryExists(Variables.WORKOUT_DIRECTORY);
-        if(!workoutsExist){
-            createWorkoutDirectory();
-        }
-        boolean settingsExist = checkIfDirectoryExists(Variables.USER_SETTINGS_DIRECTORY_NAME);
-        if(!settingsExist){
-            createUserSettingsDirectory();
-        }
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
-        SharedPreferences.Editor editor = pref.edit();
-        // TODO handle screen orientation changes!
+        // TODO handle configuration changes!
         toggle.syncState();
         if (state == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -169,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setProgressBar(boolean status){
+        /*
+            Used in tandem with async tasks. When in the background, will set the progress bar to true to show user loading
+            animation.
+         */
         if(status){
             progressBar.setVisibility(View.VISIBLE);
         }
@@ -178,7 +148,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        //TODO ask if wanting to save progress instead of just losing it all?
+        /*
+            Called whenever an element in the nav menu is selected
+         */
         Fragment currentFrag = getVisibleFragment();
         boolean modified = fragModified(currentFrag);
         switch (menuItem.getItemId()) {
@@ -191,38 +163,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         goToCurrentWorkout();
                     }
                 }
-                else if(currentFrag instanceof UserSettingsFragment){
-                    // check if they are modifiing the custom exercises or videos
-                    if(modified){
-                        // todo popup
-                    }
-                    else{
-                        goToCurrentWorkout();
-                    }
-                }
                 else if(!(currentFrag instanceof CurrentWorkoutFragment)){
+                    // prevent from selecting currently selected fragment
                     goToCurrentWorkout();
                 }
                 break;
 
             case R.id.nav_my_workouts:
-                if(currentFrag instanceof CurrentWorkoutFragment){
-                    if(modified){
-//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
-                    }
-                    goToMyWorkouts();
-                }
-                else if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
-                        showPopup("my_workouts");
-                    }
-                    else{
-                        goToMyWorkouts();
-                    }
-                }
-                else if(currentFrag instanceof UserSettingsFragment){
-                    // check if they are modifying the custom exercises or videos
+                if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
                         showPopup("my_workouts");
                     }
@@ -231,45 +179,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
                 else if(!(currentFrag instanceof MyWorkoutFragment)){
+                    // prevent from selecting currently selected fragment
                     goToMyWorkouts();
                 }
                 break;
 
             case R.id.nav_new_workout:
-                if(currentFrag instanceof CurrentWorkoutFragment){
-                    if(modified){
-//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
-                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-                    }
-
-                    goToNewWorkout();
-                }
-                else if(currentFrag instanceof UserSettingsFragment){
-                    // check if they are modifying the custom exercises or videos
-                    if(modified){
-                        showPopup("new_workout");
-                    }
-                    else{
-                        goToNewWorkout();
-                    }
-                }
-                else if(!(currentFrag instanceof NewWorkoutFragment)) {
+                if(!(currentFrag instanceof NewWorkoutFragment)) {
+                    // prevent from selecting currently selected fragment
                     goToNewWorkout();
                 }
                 break;
 
             case R.id.nav_user_settings:
-                if(currentFrag instanceof CurrentWorkoutFragment){
-                    if(modified){
-//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
-                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-
-                    }
-                    goToUserSettings();
-                }
-                else if(currentFrag instanceof NewWorkoutFragment){
+                if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
                         showPopup("user_settings");
                     }
@@ -278,29 +201,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
                 else if(!(currentFrag instanceof UserSettingsFragment)) {
+                    // prevent from selecting currently selected fragment
                     goToUserSettings();
                 }
                 break;
 
             case R.id.nav_about:
-                if(currentFrag instanceof CurrentWorkoutFragment){
-                    if(modified){
-//                        ((CurrentWorkoutFragment) currentFrag).recordToCurrentWorkoutLog();
-//                        ((CurrentWorkoutFragment) currentFrag).recordToWorkoutFile();
-                        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-                    }
-                    goToAbout();
-                }
-                else if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
-                        showPopup("about");
-                    }
-                    else{
-                        goToAbout();
-                    }
-                }
-                else if(currentFrag instanceof UserSettingsFragment){
-                    // check if they are modifying the custom exercises or videos
+                if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
                         showPopup("about");
                     }
@@ -309,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
                 else if(!(currentFrag instanceof AboutFragment)){
+                    // prevent from selecting currently selected fragment
                     goToAbout();
                 }
                 break;
@@ -319,51 +227,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onPause(){
-        Fragment visibleFragment = getVisibleFragment();
-        boolean modified=fragModified(visibleFragment);
-        if(visibleFragment instanceof CurrentWorkoutFragment){
-            if(modified){
-//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
-//                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
-                // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-            }
-        }
-        else if(visibleFragment instanceof NewWorkoutFragment){
-            if(modified){
-                // TODO idk
-            }
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy(){
-        Fragment visibleFragment = getVisibleFragment();
-        boolean modified=fragModified(visibleFragment);
-        if(visibleFragment instanceof CurrentWorkoutFragment){
-            if(modified){
-//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
-//                ((CurrentWorkoutFragment) visibleFragment).recordToWorkoutFile();
-                // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-            }
-        }
-        else if(visibleFragment instanceof NewWorkoutFragment){
-            if(modified){
-                // TODO idk
-            }
-        }
-        super.onDestroy();
-    }
-
-    @Override
     public void onResume(){
+        /*
+            Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
+            of logical errors. So just deleteWorkoutEntity old fragment and launch new
+        */
         Fragment visibleFragment = getVisibleFragment();
         if(visibleFragment instanceof CurrentWorkoutFragment){
-            /*
-                Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
-                of logical errors. So just deleteWorkoutEntity old fragment and launch new
-            */
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();
         }
@@ -384,26 +254,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
             quit = false;
         }
-        else if(visibleFragment instanceof CurrentWorkoutFragment){
-            if(modified){
-//                ((CurrentWorkoutFragment) visibleFragment).recordToCurrentWorkoutLog();
-            }
-        }
         else if(visibleFragment instanceof NewWorkoutFragment){
             if(modified){
+                // workout is being made, so give user option to prevent app from closing from back press
                 quit = false;
             }
         }
-
         if(quit){
             super.onBackPressed();
+        }
+        else{
+            showPopup("quit");
         }
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         /*
-            Found on SO
+            Found on Stack Overflow. Used to hide the keyboard.
          */
         View v = getCurrentFocus();
 
@@ -424,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static void hideKeyboard(Activity activity) {
         /*
-            Found on SO
+            Found on Stack Overflow. Hides keyboard when clicking outside focus
          */
         if (activity != null && activity.getWindow() != null && activity.getWindow().getDecorView() != null) {
             InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -432,67 +300,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public boolean checkIfDirectoryExists(String directoryName){
-        File directoryHandle = getExternalFilesDir(directoryName);
-        File[] contents = directoryHandle.listFiles();
-        if(contents.length>0){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
-    public void createWorkoutDirectory(){
-        File directoryHandle = getExternalFilesDir(Variables.WORKOUT_DIRECTORY);
-        directoryHandle.mkdirs();
-        File logFile = new File(getExternalFilesDir(Variables.WORKOUT_DIRECTORY), Variables.CURRENT_WORKOUT_LOG);
-        try {
-            logFile.createNewFile();
-        }
-        catch (Exception e) {
-            Log.d("Creating file", "Error when trying to create the "+Variables.CURRENT_WORKOUT_LOG+" file!");
-        }
-        copyFile("Josh's Workout.txt"); // TODO remove
-    }
-
-    public void createUserSettingsDirectory(){
-        File directoryHandle = getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME);
-        directoryHandle.mkdirs();
-        File settingsFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.USER_SETTINGS_FILE);
-        File customExercisesFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.CUSTOM_EXERCISES);
-        File exerciseVideosFile = new File(getExternalFilesDir(Variables.USER_SETTINGS_DIRECTORY_NAME), Variables.EXERCISE_VIDEOS);
-        try {
-            settingsFile.createNewFile();
-            customExercisesFile.createNewFile();
-            exerciseVideosFile.createNewFile();
-        }
-        catch (Exception e) {
-            Log.d("Creating file", "Error when trying to create the user settings directory!");
-        }
-    }
-
-    public void copyFile(String fileName){
+    public void showPopup(final String layout_name){
         /*
-            Would be called first time app is installed. Copies file from asset folder to internal directory of app
+            Is called whenever the user has unfinished work in the create workout fragment.
          */
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        try{
-            File fhandle = new File(getExternalFilesDir(Variables.WORKOUT_DIRECTORY), fileName);
-            writer = new BufferedWriter(new FileWriter(fhandle,false));
-            reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName)));
-            String line;
-            while((line=reader.readLine())!=null){
-                writer.write(line+"\n");
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
+        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (layout_name){
+                    case "current_workout":
+                        goToCurrentWorkout();
+                        break;
+                    case "my_workouts":
+                        goToMyWorkouts();
+                        break;
+                    case "user_settings":
+                        goToUserSettings();
+                        break;
+                    case "about":
+                        goToAbout();
+                        break;
+                    case "quit":
+                        MainActivity.super.onBackPressed();
+                        break;
+                }
+                alertDialog.dismiss();
             }
-            writer.close();
-            reader.close();
-        }
-        catch (Exception e){
-            Log.d("ERROR","Error when trying to copy "+fileName+"\n"+e);
-        }
+        });
+        Button quitButton = popupView.findViewById(R.id.popupNo);
 
+        quitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nav.setCheckedItem(R.id.nav_new_workout); // since fragment didn't change, currently selected item is still new workout
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 
     public void updateToolbarTitle(String aTitle) {
@@ -520,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Fragment getVisibleFragment() {
         /*
-            Found on SO
+            Returns the current fragment in focus
          */
         FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
         List<Fragment> fragments = fragmentManager.getFragments();
@@ -554,48 +404,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void goToAbout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), "ABOUT").commit();
-    }
-
-
-    public void showPopup(final String layout_name){
-        /*
-            Is called whenever the user has unfinished work in the create workout fragment.
-         */
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        final AlertDialog alertDialog = alertDialogBuilder.create();
-        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
-        Button confirmButton = popupView.findViewById(R.id.popupYes);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (layout_name){
-                    case "current_workout":
-                        goToCurrentWorkout();
-                        break;
-                    case "my_workouts":
-                        goToMyWorkouts();
-                        break;
-                    case "user_settings":
-                        goToUserSettings();
-                        break;
-                    case "about":
-                        goToAbout();
-                        break;
-                }
-                alertDialog.dismiss();
-            }
-        });
-        Button quitButton = popupView.findViewById(R.id.popupNo);
-
-        quitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                nav.setCheckedItem(R.id.nav_new_workout); // since fragment didn't change, currently selected item is still new workout
-                alertDialog.dismiss();
-            }
-        });
-        alertDialog.setView(popupView);
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
     }
 }

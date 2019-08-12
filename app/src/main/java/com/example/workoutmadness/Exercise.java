@@ -126,6 +126,10 @@ public class Exercise{
         if(exerciseEntity==null){
             // means that the user deleted this custom exercise, so stop here to avoid null pointer exceptions
             weightButton.setText("Deleted");
+            if(!videos){
+                ImageButton videoButton = row.findViewById(R.id.launch_video);
+                videoButton.setVisibility(View.GONE);
+            }
             return row;
 
         }
