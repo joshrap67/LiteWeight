@@ -49,6 +49,10 @@ public class ExerciseEntity {
         return url;
     }
 
+    public void setUrl(String url){
+        this.url = url;
+    }
+
     public boolean isDefaultExercise() {
         return defaultExercise;
     }

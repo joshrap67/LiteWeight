@@ -38,15 +38,16 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class UserSettingsFragment extends Fragment {
-    private View view;
-    private boolean modifed, filterCustom;
+    private View view, popupView;
+    private boolean modifed, filterCustom, metricUnits;
     private SwitchCompat videoSwitch, timerSwitch, filterSwitch;
     private Button importBtn, exportBtn;
     private ViewGroup fragmentContainer;
-    private AlertDialog alertDialog;
+    private AlertDialog alertDialog, rootDialog;
     private ArrayList<String> focusList = new ArrayList<>();
     private HashMap<String,ArrayList<String>> defaultExercises = new HashMap<>();
     private HashMap<String,ArrayList<String>> customExercises = new HashMap<>();
+    private HashMap<String, ExerciseEntity> exerciseNameToEntity = new HashMap<>();
     private ArrayList<ExerciseEntity> exerciseEntities = new ArrayList<>();
     private SharedPreferences.Editor editor;
     private ExerciseViewModel exerciseViewModel;
@@ -83,6 +84,7 @@ public class UserSettingsFragment extends Fragment {
         unitSwitch.setChecked(pref.getBoolean(Variables.UNIT_KEY,false));
         unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                metricUnits = isChecked;
                 editor.putBoolean(Variables.UNIT_KEY,isChecked);
                 editor.apply();
             }
@@ -124,6 +126,7 @@ public class UserSettingsFragment extends Fragment {
                             customExercises.get(focus).add(entity.getExerciseName());
                         }
                     }
+                    exerciseNameToEntity.put(entity.getExerciseName(),entity);
                     exerciseEntities.add(entity);
                 }
                 initViews();
@@ -189,48 +192,228 @@ public class UserSettingsFragment extends Fragment {
             exercisesTotal.add(exercise);
         }
         Collections.sort(exercisesTotal);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, exercisesTotal);
+        ArrayAdapter arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, exercisesTotal);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editExercisePopup(listView.getItemAtPosition(position).toString(),focus);
+                String name = listView.getItemAtPosition(position).toString();
+                if(defaultExercises.get(focus).contains(name)){
+                    editDefaultExercisePopup(name);
+                }
+                else{
+                    editCustomExercisePopup(name);
+                }
             }
         });
     }
     // region
     // Popup methods
-    public void editExercisePopup(String name, String focus){
-        boolean defaultExercise = false;
-        if(defaultExercises.get(focus).contains(name)){
-            defaultExercise = true;
-        }
+    public void editURL(final String name){
+        final ExerciseEntity entity = exerciseNameToEntity.get(name);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
-        View popupView = getLayoutInflater().inflate(R.layout.popup_edit_custom_exercise, null);
+        popupView = getLayoutInflater().inflate(R.layout.popup_edit_url, null);
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
-        Button renameBtn = popupView.findViewById(R.id.rename_btn);
-        Button deleteBtn = popupView.findViewById(R.id.delete_btn);
-        if(!defaultExercise){
-            renameBtn.setVisibility(View.INVISIBLE);
-            deleteBtn.setVisibility(View.INVISIBLE);
-        }
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
         exerciseName.setText(name);
-        EditText userInput = popupView.findViewById(R.id.edit_name_txt);
-        renameBtn.setOnClickListener(new View.OnClickListener() {
+        String oldUrl = entity.getUrl();
+        TextView oldUrlTV = popupView.findViewById(R.id.old_url);
+        oldUrlTV.setText(oldUrl);
+        final EditText urlInput = popupView.findViewById(R.id.edit_url_txt);
+        Button backButton = popupView.findViewById(R.id.back_btn);
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
             }
         });
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
+        Button doneButton = popupView.findViewById(R.id.done_btn);
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String potentialURL = urlInput.getText().toString().trim();
+                String errorMsg = Validator.checkValidURL(potentialURL);
+                if(errorMsg==null){
+                    entity.setUrl(potentialURL);
+                    exerciseViewModel.update(entity);
+                    alertDialog.dismiss();
+                }
+                else{
+                    urlInput.setError(errorMsg);
+                }
+            }
+        });
+
+    }
+
+    public void editWeight(final String name){
+        /*
+            Used to edit either default or custom exercise current weights
+         */
+        final ExerciseEntity entity = exerciseNameToEntity.get(name);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialog = alertDialogBuilder.create();
+        popupView = getLayoutInflater().inflate(R.layout.popup_edit_weight, null);
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        final EditText weightInput = popupView.findViewById(R.id.weight_input);
+        Button doneButton = popupView.findViewById(R.id.done_btn);
+        Button backButton = popupView.findViewById(R.id.back_btn);
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
+            }
+        });
+        final Switch ignoreWeightSwitch = popupView.findViewById(R.id.ignore_weight_switch);
+        ignoreWeightSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    weightInput.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    weightInput.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        exerciseName.setText(name);
+        double weight;
+        if(metricUnits){
+            // value in DB is always in murican units
+            weight = entity.getCurrentWeight()*Variables.KG;
+        }
+        else{
+            weight = entity.getCurrentWeight();
+        }
+        String formattedWeight = Validator.getFormattedWeight(weight);
+        if(weight >= 0){
+            weightInput.setHint(formattedWeight+(metricUnits?" kg":" lb"));
+        }
+        else{
+            weightInput.setHint("N/A");
+        }
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ignoreWeightSwitch.isChecked()){
+                    // means that we're ignoring weight
+                    entity.setCurrentWeight(Variables.IGNORE_WEIGHT_VALUE);
+                    exerciseViewModel.update(entity);
+                    alertDialog.dismiss();
+                }
+                else if(!weightInput.getText().toString().equals("")){
+                    double aWeight = Double.parseDouble(weightInput.getText().toString());
+                    if(metricUnits){
+                        // convert if in metric
+                        aWeight /= Variables.KG;
+                    }
+                    if(aWeight > entity.getMaxWeight()){
+                        entity.setMaxWeight(aWeight);
+                    }
+                    else if(aWeight < entity.getMinWeight()){
+                        entity.setMinWeight(aWeight);
+                    }
+                    entity.setCurrentWeight(aWeight);
+                    exerciseViewModel.update(entity);
+                    alertDialog.dismiss();
+                }
+                else{
+                    Toast.makeText(getActivity(),"Enter a valid weight!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
+    public void editDefaultExercisePopup(final String name){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        rootDialog = alertDialogBuilder.create();
+        popupView = getLayoutInflater().inflate(R.layout.popup_edit_default_exercise, null);
+        rootDialog.setView(popupView);
+        rootDialog.setCanceledOnTouchOutside(true);
+        rootDialog.show();
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        exerciseName.setText(name);
+        Button editURLBtn = popupView.findViewById(R.id.edit_url_btn);
+        editURLBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editURL(name);
+            }
+        });
+        Button editWeightBtn = popupView.findViewById(R.id.edit_weight_btn);
+        editWeightBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editWeight(name);
+            }
+        });
+        Button closePopup = popupView.findViewById(R.id.back_btn);
+        closePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rootDialog.dismiss();
+            }
+        });
+    }
+
+    public void renameExercisePopup(String name){
+
+    }
+
+    public void deleteExercisePopup(String name){
+        final ExerciseEntity entity = exerciseNameToEntity.get(name);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialog = alertDialogBuilder.create();
+        popupView = getLayoutInflater().inflate(R.layout.popup_delete_custom_exercise, null);
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        exerciseName.setText("Delete "+name);
+    }
+
+    public void editCustomExercisePopup(final String name){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        rootDialog = alertDialogBuilder.create();
+        View popupView = getLayoutInflater().inflate(R.layout.popup_edit_custom_exercise, null);
+        rootDialog.setView(popupView);
+        rootDialog.setCanceledOnTouchOutside(true);
+        rootDialog.show();
+        TextView exerciseName = popupView.findViewById(R.id.exercise_name);
+        exerciseName.setText(name);
+        Button editURLBtn = popupView.findViewById(R.id.edit_url_btn);
+        editURLBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editURL(name);
+            }
+        });
+        Button renameBtn = popupView.findViewById(R.id.rename_btn);
+        renameBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                renameExercisePopup(name);
+            }
+        });
+        Button editWeightBtn = popupView.findViewById(R.id.edit_weight_btn);
+        editWeightBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editWeight(name);
+            }
+        });
+        Button backButton = popupView.findViewById(R.id.back_btn);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rootDialog.dismiss();
             }
         });
     }
@@ -248,30 +431,24 @@ public class UserSettingsFragment extends Fragment {
             public void onClick(View v) {
                 String exerciseName = exerciseNameInput.getText().toString();
                 String url = editURL.getText().toString();
-                if(validateNewExercise(exerciseNameInput, editURL)){
-                    // TODO add the exercise to file
+                if(selectedFocuses.size()==0){
+                    Toast.makeText(getContext(),"Select at least one focus!",Toast.LENGTH_SHORT).show();
+                }
+                else if(!url.isEmpty() && Validator.checkValidURL(url)!=null){
+                    editURL.setError(Validator.checkValidURL(editURL.getText().toString()));
+                }
+                else if(validateNewExerciseName(exerciseNameInput)){
                     StringBuilder sb = new StringBuilder();
-
                     for(int i=0;i<selectedFocuses.size();i++){
                         customExercises.get(selectedFocuses.get(i)).add(exerciseNameInput.getText().toString());
                         sb.append(selectedFocuses.get(i)+((i==selectedFocuses.size()-1)?"":","));
                     }
                     String focusEntry=sb.toString();
-                    Log.d("focus entry",focusEntry);
                     ExerciseEntity newEntity = new ExerciseEntity(exerciseName,focusEntry,url,false,0,
                             0,0,0);
                     exerciseViewModel.insert(newEntity);
-//                    for(String focus : selectedFocuses){
-//                        customExercises.get(focus).add(exerciseNameInput.getText().toString());
-//                        populateFocusList();
-//                    }
-
-                    // TODO add the exercise to file
                     Toast.makeText(getContext(),"Exercise successfully created!",Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
-                }
-                else{
-                    Toast.makeText(getContext(),"Exercise already exists",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -304,17 +481,18 @@ public class UserSettingsFragment extends Fragment {
         alertDialog.show();
     }
 
-    public boolean validateNewExercise(TextView nameInput, TextView urlInput){
+    private boolean validateNewExerciseName(TextView nameInput){
         // TODO do any validation on number of total defaultExercises here? Absolute worst case scenario stuff but still
         String potentialName = nameInput.getText().toString();
         if(potentialName.isEmpty()){
+            nameInput.setError("Exercise must have a name!");
             return false;
         }
-        String potentialURL = nameInput.getText().toString();
         // loop over default to see if this exercise already exists in some focus
         for(String focus : defaultExercises.keySet()){
             for(String exercise : defaultExercises.get(focus)){
                 if(exercise.equalsIgnoreCase(potentialName)){
+                    nameInput.setError("Exercise already exists!");
                     return false;
                 }
             }
@@ -322,6 +500,7 @@ public class UserSettingsFragment extends Fragment {
         for(String focus : customExercises.keySet()){
             for(String exercise : customExercises.get(focus)){
                 if(exercise.equalsIgnoreCase(potentialName)){
+                    nameInput.setError("Exercise already exists!");
                     return false;
                 }
             }

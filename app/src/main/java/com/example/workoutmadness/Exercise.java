@@ -160,7 +160,7 @@ public class Exercise{
         else{
             weight = exerciseEntity.getCurrentWeight();
         }
-        formattedWeight = formatWeight(weight);
+        formattedWeight = Validator.getFormattedWeight(weight);
         if(weight >= 0){
             weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
         }
@@ -206,6 +206,8 @@ public class Exercise{
                     }
                 });
                 Button doneButton = popupView.findViewById(R.id.done_btn);
+                Button backButton = popupView.findViewById(R.id.back_btn);
+                backButton.setVisibility(View.GONE); // this button isn't needed for this part of the app
                 doneButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -218,7 +220,7 @@ public class Exercise{
                         }
                         else if(!weightInput.getText().toString().equals("")){
                             weight = Double.parseDouble(weightInput.getText().toString());
-                            formattedWeight = formatWeight(weight);
+                            formattedWeight = Validator.getFormattedWeight(weight);
                             weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
                             if(metricUnits){
                                 // convert if in metric
@@ -269,20 +271,5 @@ public class Exercise{
             videoButton.setVisibility(View.GONE);
         }
         return row;
-    }
-
-    private String formatWeight(double aWeight){
-        /*
-            Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
-         */
-        String retVal;
-        if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
-            // integer type
-            retVal = String.format("%.0f", aWeight);
-        }
-        else{
-            retVal = String.format("%.2f", aWeight);
-        }
-        return retVal;
     }
 }

@@ -20,14 +20,24 @@
     will be lost! Are you sure you wish to quit?</string>
     <string name="confirm">Yes</string>
     <string name="denial">No</string>
+    <string name="save">Save</string>
     <string name="edit">Edit</string>
+    <string name="url_title">Video URL</string>
+    <string name="select_focus_title">Select Focus(s)</string>
+    <string name="new_exercise_title">New Exercise</string>
+    <string name="url_hint">Video URL (Leave empty for none)</string>
+    <string name="name_hint">Exercise Name</string>
     <string name="delete">Delete</string>
+    <string name="weight">Weight</string>
     <string name="done">Done</string>
     <string name="import_btn">Import</string>
     <string name="export_btn">Export</string>
     <string name="video_switch">Videos</string>
     <string name="timer_switch">Timer</string>
     <string name="focus_label">Focus</string>
+    <string name="edit_url">Edit URL</string>
+    <string name="edit_weight">Edit weight</string>
+    <string name="back">Back</string>
     <string name="filter_custom">Filter Custom</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
@@ -48,6 +58,10 @@
     <string name="reset_msg">Do you wish to reset this workout? If so, you will be taken back
     to the first day of the workout with all exercises reset.</string>
     <string name="delete_msg">Are you sure you wish to delete this workout? If so, all statistics for it will also be deleted.</string>
+    <string name="delete_custom_exercise_msg">
+        Are you sure you wish to delete this exercise? All data regarding this exercise will be deleted.
+        Note that deleting it won\'t remove it from already made workouts.
+    </string>
     <string name="exercise_title">Add exercises</string>
     <string-array name="exercise_focuses">
         <item>Arms</item>

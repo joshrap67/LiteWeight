@@ -60,7 +60,6 @@ public class NewWorkoutFragment extends Fragment {
     private HashMap<String,ArrayList<String>> exercises = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
-    private Validator validator;
 
     @Nullable
     @Override
@@ -69,7 +68,6 @@ public class NewWorkoutFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_new, container, false);
         ((MainActivity) getActivity()).updateToolbarTitle("Workout Creator");
         currentDayIndex = 0;
-        validator= new Validator(getActivity());
         /*
             Setup view models
          */
@@ -155,7 +153,7 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = validator.checkValidName(workoutNameInput.getText().toString(),workoutNames);
+                    String errorMsg = Validator.checkValidName(workoutNameInput.getText().toString(),workoutNames);
                     if (errorMsg==null) {
                         modified = true;
                         return true;
@@ -171,7 +169,7 @@ public class NewWorkoutFragment extends Fragment {
         numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = validator.checkValidWeek(numWeeksInput.getText().toString());
+                    String errorMsg = Validator.checkValidWeek(numWeeksInput.getText().toString());
                     if (errorMsg==null) {
                         modified=true;
                         return true;
@@ -186,7 +184,7 @@ public class NewWorkoutFragment extends Fragment {
         numDaysInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = validator.checkValidDay(numDaysInput.getText().toString());
+                    String errorMsg = Validator.checkValidDay(numDaysInput.getText().toString());
                     if (errorMsg==null) {
                         modified = true;
                         return true;
@@ -205,9 +203,9 @@ public class NewWorkoutFragment extends Fragment {
                 String currentName = workoutNameInput.getText().toString();
                 String currentWeeks = numWeeksInput.getText().toString();
                 String currentDays = numDaysInput.getText().toString();
-                String nameError = validator.checkValidName(currentName,workoutNames);
-                String weekError = validator.checkValidWeek(currentWeeks);
-                String dayError = validator.checkValidDay(currentDays);
+                String nameError = Validator.checkValidName(currentName,workoutNames);
+                String weekError = Validator.checkValidWeek(currentWeeks);
+                String dayError = Validator.checkValidDay(currentDays);
 
                 if(nameError==null && weekError==null && dayError==null){
                     finalName = currentName.trim();

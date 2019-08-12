@@ -1,19 +1,47 @@
 package com.example.workoutmadness;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Validator {
     // TODO will use this class for any and all user input validation
-    private Activity activity;
-
-    public Validator(Activity anActivity){
-        activity=anActivity;
+    public static String getFormattedWeight(double aWeight){
+         /*
+            Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
+         */
+        String retVal;
+        if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
+            // integer type
+            retVal = String.format("%.0f", aWeight);
+        }
+        else{
+            retVal = String.format("%.2f", aWeight);
+        }
+        return retVal;
     }
-
-    public String checkValidName(String aName, ArrayList<String> workoutNames){
+    public static String checkValidURL(String potentialURL){
+        try {
+            new URL(potentialURL).toURI();
+            return null;
+        }
+        catch (Exception e) {
+            Log.d("TAG","Exception "+e);
+            return "Not a valid URL! Make sure to include protocol (i.e. https)";
+        }
+    }
+    public static String checkValidName(String aName, ArrayList<String> workoutNames){
         aName = aName.trim();
         if((aName.length() > 0) && (aName.length() < 500)){
             String[] letters = aName.split("");
@@ -33,7 +61,7 @@ public class Validator {
         return "Workout name has too few or too many characters!";
     }
 
-    public String checkValidWeek(String aWeek) {
+    public static String checkValidWeek(String aWeek) {
         if(aWeek.length() == 0){
             return "Enter value between 1-8!";
         }
@@ -44,7 +72,7 @@ public class Validator {
         return "Enter value between 1-8!";
     }
 
-    public String checkValidDay(String aDay) {
+    public static String checkValidDay(String aDay) {
         if(aDay.length() == 0){
             return "Enter value between 1-7!";
         }
