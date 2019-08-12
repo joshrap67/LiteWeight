@@ -206,8 +206,7 @@ public class CurrentWorkoutFragment extends Fragment {
         for(WorkoutEntity entity : rawData){
             String exerciseName = entity.getExercise();
             Exercise exercise = new Exercise(entity,exerciseToExerciseEntity.get(exerciseName),getContext(),
-                    getActivity(),this,videosEnabled,metricUnits,
-                    exerciseToExerciseEntity.get(exerciseName).getCurrentWeight(), workoutModel,exerciseModel);
+                    getActivity(),this,videosEnabled,metricUnits, workoutModel,exerciseModel);
             totalExercises.get(entity.getDay()).add(exercise);
         }
         populateTable();

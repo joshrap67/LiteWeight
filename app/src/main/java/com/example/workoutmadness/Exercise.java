@@ -61,7 +61,7 @@ public class Exercise{
         videoURL = URL;
     }
     public Exercise(final WorkoutEntity workoutEntity, ExerciseEntity exerciseEntity, Context context, Activity activity,
-                    Fragment fragment, boolean videos, boolean metricUnits, double weight, WorkoutViewModel workoutViewModel,
+                    Fragment fragment, boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
                     ExerciseViewModel exerciseViewModel){
         /*
             Constructor utilized for database stuff
@@ -75,7 +75,6 @@ public class Exercise{
         this.metricUnits = metricUnits;
         this.workoutViewModel = workoutViewModel;
         this.exerciseViewModel = exerciseViewModel;
-        this.weight = weight;
         if(workoutEntity.getStatus()){
             if(fragment instanceof CurrentWorkoutFragment){
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
@@ -86,13 +85,17 @@ public class Exercise{
             this.status = false;
         }
         this.name = workoutEntity.getExercise();
-        if(exerciseEntity.getUrl()!=null){
-            // TODO also do error checking here to see if it's a valid url
-            this.videoURL = exerciseEntity.getUrl();
+        if(exerciseEntity!=null){
+            // if the entity is deleted, we won't worry about the weight oe URL
+            if(exerciseEntity.getUrl()!=null){
+                // TODO also do error checking here to see if it's a valid url
+                this.videoURL = exerciseEntity.getUrl();
+            }
+            else{
+                this.videoURL = "NONE";
+            }
         }
-        else{
-            this.videoURL = "NONE";
-        }
+
     }
 
     public Exercise(String exerciseName){
@@ -152,6 +155,12 @@ public class Exercise{
                 }
             }
         });
+        if(exerciseEntity==null){
+            weightButton.setText("N/A");
+            // TODO let user know they deleted it?
+            return row;
+
+        }
         // set up weight button
         if(metricUnits){
             // value in DB is always in murican units

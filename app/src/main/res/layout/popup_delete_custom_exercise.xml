@@ -43,7 +43,7 @@
         app:layout_constraintVertical_bias="0.100000024" />
 
     <Button
-        android:id="@+id/popupYes"
+        android:id="@+id/delete_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -55,12 +55,12 @@
         android:text="@string/confirm"
         app:backgroundTint="@android:color/holo_green_light"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/popupNo"
+        app:layout_constraintEnd_toStartOf="@+id/delete_denial"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
 
     <Button
-        android:id="@+id/popupNo"
+        android:id="@+id/delete_denial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -73,6 +73,6 @@
         app:backgroundTint="@android:color/holo_red_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/popupYes"
+        app:layout_constraintStart_toEndOf="@+id/delete_confirm"
         app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
 </android.support.constraint.ConstraintLayout>
