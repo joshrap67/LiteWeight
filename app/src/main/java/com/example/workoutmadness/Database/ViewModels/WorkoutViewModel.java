@@ -42,6 +42,10 @@ public class WorkoutViewModel extends AndroidViewModel {
         repository.deleteEntireWorkout(workoutName);
     }
 
+    public void updateExerciseName(String oldName, String newName){
+        repository.updateExerciseName(oldName,newName);
+    }
+
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
         return allWorkouts;
     }

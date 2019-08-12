@@ -39,27 +39,6 @@ public class Exercise{
     private double weight;
     private String formattedWeight;
 
-    public Exercise(final String[] rawText, Context aContext, Activity anActivity, Fragment aFragment, boolean videosEnabled, String URL){
-        /*
-            Constructor utilized by the current workout fragment
-         */
-        context = aContext;
-        activity = anActivity;
-        fragment = aFragment;
-        videos = videosEnabled;
-        if(rawText[Variables.STATUS_INDEX].equals(Variables.EXERCISE_COMPLETE)){
-            // means that the exercise has already been done, so make sure to set status as so
-            if(fragment instanceof CurrentWorkoutFragment){
-                ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
-            }
-            status=true;
-        }
-        else{
-            status=false;
-        }
-        name = rawText[Variables.NAME_INDEX];
-        videoURL = URL;
-    }
     public Exercise(final WorkoutEntity workoutEntity, ExerciseEntity exerciseEntity, Context context, Activity activity,
                     Fragment fragment, boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
                     ExerciseViewModel exerciseViewModel){
@@ -85,17 +64,6 @@ public class Exercise{
             this.status = false;
         }
         this.name = workoutEntity.getExercise();
-        if(exerciseEntity!=null){
-            // if the entity is deleted, we won't worry about the weight oe URL
-            if(exerciseEntity.getUrl()!=null){
-                // TODO also do error checking here to see if it's a valid url
-                this.videoURL = exerciseEntity.getUrl();
-            }
-            else{
-                this.videoURL = "NONE";
-            }
-        }
-
     }
 
     public Exercise(String exerciseName){
@@ -156,8 +124,8 @@ public class Exercise{
             }
         });
         if(exerciseEntity==null){
-            weightButton.setText("N/A");
-            // TODO let user know they deleted it?
+            // means that the user deleted this custom exercise, so stop here to avoid null pointer exceptions
+            weightButton.setText("Deleted");
             return row;
 
         }
@@ -188,14 +156,13 @@ public class Exercise{
 
                 TextView exerciseName = popupView.findViewById(R.id.exercise_name);
                 exerciseName.setText(name);
-                final EditText weightInput = popupView.findViewById(R.id.weight_input);
+                final EditText weightInput = popupView.findViewById(R.id.name_input);
                 weightInput.setHint(formattedWeight);
                 final Switch ignoreWeightSwitch = popupView.findViewById(R.id.ignore_weight_switch);
                 if(weight < 0){
-                    Log.d("TAG","Weight: "+weight);
                     ignoreWeightSwitch.setChecked(true);
                     ignoreWeight = true;
-                    weightInput.setVisibility(View.INVISIBLE);
+                    weightInput.setVisibility(View.GONE);
                 }
                 else{
                     ignoreWeight = false;
@@ -204,9 +171,8 @@ public class Exercise{
                 ignoreWeightSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ignoreWeight = isChecked;
-                        Log.d("TAG","Ignoreweight: "+ignoreWeight);
                         if(ignoreWeight){
-                            weightInput.setVisibility(View.INVISIBLE);
+                            weightInput.setVisibility(View.GONE);
                         }
                         else{
                             weightInput.setHint(Integer.toString(0)); // to get rid of sentinel value from Database
@@ -258,8 +224,10 @@ public class Exercise{
             videoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!videoURL.equalsIgnoreCase("none")){
+                    String errorMsg = Validator.checkValidURL(exerciseEntity.getUrl());
+                    if(errorMsg==null){
                         // found on SO
+                        videoURL = exerciseEntity.getUrl();
                         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
                         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
                         try{
@@ -270,7 +238,8 @@ public class Exercise{
                         }
                     }
                     else{
-                        Toast.makeText(activity, "No video found", Toast.LENGTH_LONG).show();
+                        Log.d("TAG","Error with URL:\n"+errorMsg);
+                        Toast.makeText(activity, "No URL found!", Toast.LENGTH_LONG).show();
                     }
                 }
             });

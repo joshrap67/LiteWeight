@@ -515,9 +515,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if(aFragment instanceof NewWorkoutFragment){
             return ((NewWorkoutFragment) aFragment).isModified();
         }
-        else if(aFragment instanceof UserSettingsFragment){
-            return ((UserSettingsFragment) aFragment).isModified();
-        }
         return false;
     }
 

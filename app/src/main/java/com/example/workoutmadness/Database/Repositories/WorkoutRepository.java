@@ -39,6 +39,9 @@ public class WorkoutRepository {
     public void deleteWorkoutEntity(WorkoutEntity workout){
         new DeleteWorkoutAsyncTask(workoutDao).execute(workout);
     }
+    public void updateExerciseName(String oldName, String newName){
+        new UpdateExerciseNameAsyncTask(workoutDao,oldName,newName).execute();
+    }
     public void deleteEntireWorkout(String workoutName){
         workoutDao.deleteEntireWorkout(workoutName);
     }
@@ -48,9 +51,6 @@ public class WorkoutRepository {
 
     public List<WorkoutEntity> getExercises(String workout){
         return workoutDao.getExercises(workout);
-//        GetExercisesAsyncTask task = new GetExercisesAsyncTask(workoutDao, workout);
-//        task.delegate = this;
-//        task.execute();
     }
 
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
@@ -157,6 +157,22 @@ public class WorkoutRepository {
         @Override
         protected Void doInBackground(Void... voids) {
             workoutDao.deleteAllWorkouts();
+            return null;
+        }
+    }
+
+    private static class UpdateExerciseNameAsyncTask extends AsyncTask<Void, Void, Void>{
+        private WorkoutDao workoutDao;
+        private String oldName;
+        private String newName;
+        private UpdateExerciseNameAsyncTask(WorkoutDao workoutDao, String oldName, String newName){
+            this.workoutDao = workoutDao;
+            this.oldName = oldName;
+            this.newName = newName;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            workoutDao.updateExerciseName(oldName,newName);
             return null;
         }
     }

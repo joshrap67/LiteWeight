@@ -26,4 +26,6 @@ public interface WorkoutDao {
     LiveData<List<WorkoutEntity>> getAllWorkouts();
     @Query("SELECT * FROM workout_table WHERE workout=:workoutName")
     List<WorkoutEntity> getExercises(String workoutName);
+    @Query("UPDATE workout_table SET exercise=:newName WHERE exercise=:oldName")
+    void updateExerciseName(String oldName, String newName);
 }
