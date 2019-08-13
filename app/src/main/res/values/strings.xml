@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WorkoutMadness</string>
+    <string name="app_name">LiteWeight</string>
     <string name="no_workouts_found">
         No workouts found! Please navigate to the "Create Workout" tab in the navigation pane to get started!
     </string>
