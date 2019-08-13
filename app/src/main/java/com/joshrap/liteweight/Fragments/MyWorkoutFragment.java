@@ -16,11 +16,20 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.joshrap.liteweight.*;
+import com.joshrap.liteweight.Database.Entities.ExerciseEntity;
 import com.joshrap.liteweight.Database.Entities.MetaEntity;
+import com.joshrap.liteweight.Database.Entities.WorkoutEntity;
+import com.joshrap.liteweight.Database.ViewModels.ExerciseViewModel;
 import com.joshrap.liteweight.Database.ViewModels.MetaViewModel;
 import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 
@@ -38,9 +47,23 @@ public class MyWorkoutFragment extends Fragment {
     private HashMap<String, MetaEntity> workoutNameToEntity = new HashMap<>();
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
+    private ExerciseViewModel exerciseViewModel;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
+    private ArrayList<String> focusList = new ArrayList<>();
+    private ArrayList<String> checkedExercises = new ArrayList<>();
+    private HashMap<Integer, ArrayList<WorkoutEntity>> totalWorkoutEntities = new HashMap<>();
+    private HashMap<Integer, ArrayList<String>> pendingWorkout = new HashMap<>();
+    private HashMap<String, ArrayList<String>> exercises = new HashMap<>();
+    private HashMap<String, ExerciseEntity> exerciseNameToEntity = new HashMap<>();
+    private HashMap<Integer, ArrayList<String>> originalWorkout = new HashMap<>();
+    private HashMap<Integer, ArrayList<String>> deletedExercises = new HashMap<>();
+    private HashMap<Integer, ArrayList<String>> newExercises = new HashMap<>();
     private ViewGroup fragmentContainer;
+    private boolean firstDay, lastDay, editing;
+    private int maxDayIndex, currentDayIndex, finalDayNum;
+    private TableLayout displayedExercisesTable, pickExerciseTable;
+    private AlertDialog alertDialog;
 
     @Nullable
     @Override
@@ -52,13 +75,14 @@ public class MyWorkoutFragment extends Fragment {
         ((MainActivity)getActivity()).updateToolbarTitle("My Workouts");
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
-        GetAllWorkoutsTask task = new GetAllWorkoutsTask();
+        exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
+        GetAllMetaTask task = new GetAllMetaTask();
         task.execute();
         // TODO add sorting for listview?
         return view;
     }
 
-    private class GetAllWorkoutsTask extends AsyncTask<Void, Void, ArrayList<MetaEntity>> {
+    private class GetAllMetaTask extends AsyncTask<Void, Void, ArrayList<MetaEntity>> {
 
         @Override
         protected ArrayList<MetaEntity> doInBackground(Void... voids) {
@@ -89,7 +113,6 @@ public class MyWorkoutFragment extends Fragment {
         listView = view.findViewById(R.id.workout_list);
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_text_view);
         statisticsTV = view.findViewById(R.id.stat_text_view);
-        deleteBtn = view.findViewById(R.id.delete_button);
         for(MetaEntity entity : metaEntities){
             Log.d("TAG","Meta entity: "+entity.toString());
             if(entity.getCurrentWorkout()){
@@ -102,12 +125,20 @@ public class MyWorkoutFragment extends Fragment {
             }
             workoutNameToEntity.put(entity.getWorkoutName(),entity);
         }
+        deleteBtn = view.findViewById(R.id.delete_button);
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!metaEntities.isEmpty()){
                     promptDelete();
                 }
+            }
+        });
+        editBtn = view.findViewById(R.id.edit_button);
+        editBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getExercises();
             }
         });
         // TODO sort by date
@@ -149,14 +180,16 @@ public class MyWorkoutFragment extends Fragment {
         updateStatistics();
     }
     public void updateStatistics(){
-        // dummy stuff for now
+        /*
+            Displays statistics for the currently selected workout
+         */
         int timesCompleted = selectedWorkout.getTimesCompleted();
         double percentage = selectedWorkout.getPercentageExercisesCompleted();
         int days = selectedWorkout.getTotalDays()+1;
         String msg = "Times Completed: "+timesCompleted+"\n" +
                 "Average Percentage of Exercises Completed: "+percentage+"%\n" +
                 "Number of Days in Workout: "+days+"\n"+
-                "Most worked focus: Arms";
+                "Most worked focus: "+selectedWorkout.getMostFrequentFocus();
         statisticsTV.setText(msg);
     }
 
@@ -224,14 +257,328 @@ public class MyWorkoutFragment extends Fragment {
             }
         }
     }
-    /*
-        **************************
-        Edit Workout Methods
-        **************************
-     */
-    public void editWorkout(){
-        // TODO change layout
-        // TODO init the buttons
-        // TODO updateWorkoutEntity list view
+
+    //region
+    // Edit workout methods
+
+    public void getExercises(){
+        GetAllExercisesTask task = new GetAllExercisesTask();
+        task.execute();
     }
+
+    private class GetAllExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
+
+        @Override
+        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
+            // get the current workout from the database
+            return exerciseViewModel.getAllExercises();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
+            if(!result.isEmpty()) {
+                for(ExerciseEntity entity : result){
+                    String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
+                    for(String focus : focuses){
+                        if(!focusList.contains(focus)){
+                            focusList.add(focus);
+                            exercises.put(focus,new ArrayList<String>());
+                        }
+                        exercises.get(focus).add(entity.getExerciseName());
+                    }
+                    exerciseNameToEntity.put(entity.getExerciseName(),entity);
+                }
+                getWorkouts();
+            }
+            else{
+                // no workouts found
+                Log.d("TAG","Get all exercises result was empty!");
+            }
+        }
+    }
+
+    public void getWorkouts(){
+        GetAllWorkoutsTask task = new GetAllWorkoutsTask();
+        task.execute();
+    }
+
+    private class GetAllWorkoutsTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>> {
+
+        @Override
+        protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
+            // get the current workout from the database
+            return workoutModel.getExercises(selectedWorkout.getWorkoutName());
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<WorkoutEntity> result) {
+            if(!result.isEmpty()) {
+                initEdit(result);
+            }
+            else{
+                Log.d("TAG","Selected workout was not found!");
+            }
+        }
+    }
+
+    public void initEdit(ArrayList<WorkoutEntity> rawData){
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View editWorkoutView = inflater.inflate(R.layout.edit_workout, fragmentContainer,false);
+        ViewGroup rootView = (ViewGroup) getView();
+        rootView.removeAllViews();
+        rootView.addView(editWorkoutView);
+        displayedExercisesTable = editWorkoutView.findViewById(R.id.main_table);
+        currentDayIndex = 0;
+        maxDayIndex = selectedWorkout.getTotalDays();
+        for(int i =0;i<=maxDayIndex;i++){
+            // init the hash tables
+            pendingWorkout.put(i,new ArrayList<String>());
+            deletedExercises.put(i, new ArrayList<String>());
+            newExercises.put(i, new ArrayList<String>());
+            originalWorkout.put(i, new ArrayList<String>());
+
+        }
+        for(WorkoutEntity entity : rawData){
+            pendingWorkout.get(entity.getDay()).add(entity.getExercise());
+            originalWorkout.get(entity.getDay()).add(entity.getExercise());
+        }
+        addExercisesToTable(); // load first day into the displayed table
+        setButtons(editWorkoutView);
+
+    }
+
+    public void setButtons(View view){
+        /*
+            Setup buttons to allow for cycling through all the days of the workout. Logic is included to ensure that the user
+            does not go beyond the bounds of the days specified by their input. Also ensure that each day has at
+            least one exercise before allowing output to a file.
+         */
+        firstDay = true;
+        final Button addExercises = view.findViewById(R.id.add_exercises);
+        addExercises.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupExercises();
+            }
+        });
+        final Button backBtn = view.findViewById(R.id.back_button);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO show popup?
+                // TODO check if modified, then go reload the fragment
+            }
+        });
+        final Button previousDayBtn = view.findViewById(R.id.previousDayButton);
+        final Button nextDayBtn = view.findViewById(R.id.nextDayButton);
+        final TextView dayTitle = view.findViewById(R.id.dayTextView);
+        previousDayBtn.setVisibility(View.INVISIBLE);
+        if(maxDayIndex == 0){
+            // in case some jabroni only wants to workout one day total
+            nextDayBtn.setVisibility(View.INVISIBLE);
+        }
+        previousDayBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(currentDayIndex > 0){
+                    displayedExercisesTable.removeAllViews();
+                    currentDayIndex--;
+                }
+                if(lastDay){
+                    lastDay = false;
+                    nextDayBtn.setText("Next");
+                    nextDayBtn.setVisibility(View.VISIBLE);
+                }
+
+                if(currentDayIndex == 0){
+                    previousDayBtn.setVisibility(View.INVISIBLE);
+                    firstDay = true;
+                }
+                addExercisesToTable();
+                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+            }
+        });
+        nextDayBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(currentDayIndex < maxDayIndex) {
+                    displayedExercisesTable.removeAllViews();
+                    currentDayIndex++;
+                    if(firstDay){
+                        firstDay = false;
+                        previousDayBtn.setVisibility(View.VISIBLE);
+                    }
+                    if(currentDayIndex == maxDayIndex){
+                        lastDay = true;
+                        nextDayBtn.setVisibility(View.INVISIBLE);
+                    }
+                    addExercisesToTable();
+                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+                }
+            }
+        });
+        final Button doneEditingBtn = view.findViewById(R.id.done_editing);
+        doneEditingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean ready = true;
+                for(int i = 0; i< pendingWorkout.size(); i++){
+                    if(pendingWorkout.get(i) == null){
+                        ready = false;
+                    }
+                    else if(pendingWorkout.get(i).isEmpty()){
+                        ready = false;
+                    }
+                }
+                if(ready){
+                    writeToDatabase();
+                    // restart this fragment
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+                }
+                else{
+                    Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void writeToDatabase(){
+        for(int i=0;i<=maxDayIndex;i++){
+            for(String exercise : deletedExercises.get(i)){
+                workoutModel.deleteSpecificExerciseFromWorkout(selectedWorkout.getWorkoutName(),exercise,i);
+            }
+        }
+
+        for(int i=0;i<=maxDayIndex;i++){
+            for(String exercise : newExercises.get(i)){
+                if(!originalWorkout.get(i).contains(exercise)){
+                    // don't if for some reason they removed it and added it back, want to keep the original status
+                    WorkoutEntity newEntity = new WorkoutEntity(exercise,selectedWorkout.getWorkoutName(),i,false);
+                    workoutModel.insert(newEntity);
+                }
+            }
+        }
+        String mostCommonFocus = Validator.mostFrequentFocus(pendingWorkout,exerciseNameToEntity,focusList);
+        selectedWorkout.setMostFrequentFocus(mostCommonFocus);
+        metaModel.update(selectedWorkout);
+
+    }
+
+    public void popupExercises(){
+        /*
+            User has indicated they wish to add selectedExercises to this specific day. Show a popup that provides a spinner
+            that is programmed to list all exercises for a given exercise focus.
+         */
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialog = alertDialogBuilder.create();
+        View popupView = getLayoutInflater().inflate(R.layout.exercise_popup, null);
+        pickExerciseTable = popupView.findViewById(R.id.main_table);
+        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
+        Collections.sort(focusList);
+        ArrayAdapter<String> focusAdapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
+        focusSpinner.setAdapter(focusAdapter);
+        focusSpinner.setOnItemSelectedListener(new SpinnerListener());
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
+        ImageView done = popupView.findViewById(R.id.imageView);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // done adding
+                if(checkedExercises.isEmpty()){
+                    alertDialog.dismiss();
+                    return;
+                }
+                editing = true;
+                for(String exercise : checkedExercises){
+                    pendingWorkout.get(currentDayIndex).add(exercise);
+                    newExercises.get(currentDayIndex).add(exercise);
+                    deletedExercises.get(currentDayIndex).remove(exercise);
+                }
+                checkedExercises.clear();
+                displayedExercisesTable.removeAllViews();
+                addExercisesToTable();
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    public void addExercisesToTable(){
+        /*
+            Adds an exercise of the workout to the main displayed table and allows for specific exercises to be deleted
+         */
+        Collections.sort(pendingWorkout.get(currentDayIndex));
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        int count = 0;
+        for(final String exercise : pendingWorkout.get(currentDayIndex)){
+            final View row = inflater.inflate(R.layout.list_row,null);
+            TextView exerciseName = row.findViewById(R.id.exercise_name);
+            exerciseName.setText(exercise);
+            ImageButton deleteIcon = row.findViewById(R.id.delete_exercise);
+            deleteIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editing = true;
+                    displayedExercisesTable.removeView(row);
+                    pendingWorkout.get(currentDayIndex).remove(exercise);
+                    newExercises.get(currentDayIndex).remove(exercise);
+                    deletedExercises.get(currentDayIndex).add(exercise);
+                }
+            });
+            displayedExercisesTable.addView(row,count);
+            count++;
+        }
+    }
+
+    public void updateExerciseChoices(String exerciseFocus){
+        /*
+            Given a value from the exercise focus spinner, list all the exercises associated with it.
+         */
+        ArrayList<String> sortedExercises = new ArrayList<>();
+        for(String exercise : exercises.get(exerciseFocus)){
+            sortedExercises.add(exercise);
+        }
+        Collections.sort(sortedExercises);
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        for(int i=0;i<sortedExercises.size();i++){
+            final View row = inflater.inflate(R.layout.row_add_exercise,null);
+            final CheckBox exercise = row.findViewById(R.id.exercise_checkbox);
+            String exerciseName = sortedExercises.get(i);
+            exercise.setText(exerciseName);
+            if(checkedExercises.contains(exerciseName) || pendingWorkout.get(currentDayIndex).contains(exerciseName)){
+                exercise.setChecked(true);
+            }
+            exercise.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!checkedExercises.contains(exercise.getText().toString()) &&
+                            !pendingWorkout.get(currentDayIndex).contains(exercise.getText().toString())){
+                        // prevents exercise from being added twice
+                        checkedExercises.add(exercise.getText().toString());
+                    }
+                    else{
+                        checkedExercises.remove(exercise.getText().toString());
+                    }
+
+                }
+            });
+            pickExerciseTable.addView(row,i);
+        }
+    }
+
+    private class SpinnerListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            String selectedExerciseFocus = parent.getItemAtPosition(pos).toString();
+            pickExerciseTable.removeAllViews();
+            updateExerciseChoices(selectedExerciseFocus);
+        }
+
+        public void onNothingSelected(AdapterView parent) {
+        }
+    }
+    //endregion
 }

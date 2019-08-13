@@ -16,9 +16,10 @@ public class MetaEntity {
     private int timesCompleted;
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
+    private String mostFrequentFocus;
 
     public MetaEntity(String workoutName, int currentDay, int totalDays, String dateLast, String dateCreated, int timesCompleted,
-                      double percentageExercisesCompleted, boolean currentWorkout) {
+                      double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
@@ -27,6 +28,7 @@ public class MetaEntity {
         this.percentageExercisesCompleted = percentageExercisesCompleted;
         this.currentWorkout = currentWorkout;
         this.totalDays = totalDays;
+        this.mostFrequentFocus = mostFrequentFocus;
     }
 
     public void setId(int id) {
@@ -53,6 +55,10 @@ public class MetaEntity {
         return timesCompleted;
     }
 
+    public String getMostFrequentFocus() {
+        return mostFrequentFocus;
+    }
+
     public double getPercentageExercisesCompleted() {
         return percentageExercisesCompleted;
     }
@@ -75,6 +81,10 @@ public class MetaEntity {
 
     public int getTotalDays() {
         return totalDays;
+    }
+
+    public void setMostFrequentFocus(String mostFrequentFocus) {
+        this.mostFrequentFocus = mostFrequentFocus;
     }
 
     @Override

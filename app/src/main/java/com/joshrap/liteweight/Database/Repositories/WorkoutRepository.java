@@ -45,6 +45,10 @@ public class WorkoutRepository {
     public void deleteEntireWorkout(String workoutName){
         workoutDao.deleteEntireWorkout(workoutName);
     }
+
+    public void deleteSpecificExerciseFromWorkout(String workoutName, String exerciseName, int day){
+        new DeleteSpecificExerciseFromWorkoutAsyncTask(workoutDao,workoutName,exerciseName,day).execute();
+    }
     public void deleteAllWorkouts(){
         new DeleteAllWorkoutAsyncTask(workoutDao).execute();
     }
@@ -131,6 +135,25 @@ public class WorkoutRepository {
         @Override
         protected Void doInBackground(WorkoutEntity... workoutEntities) {
             workoutDao.update(workoutEntities[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteSpecificExerciseFromWorkoutAsyncTask extends AsyncTask<Void, Void, Void>{
+        private WorkoutDao workoutDao;
+        private String workoutName;
+        private String exerciseName;
+        private int day;
+
+        private DeleteSpecificExerciseFromWorkoutAsyncTask(WorkoutDao workoutDao, String workoutName, String exerciseName, int day){
+            this.workoutDao = workoutDao;
+            this.workoutName = workoutName;
+            this.exerciseName = exerciseName;
+            this.day = day;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            workoutDao.deleteSpecificExerciseFromWorkout(workoutName,exerciseName,day);
             return null;
         }
     }

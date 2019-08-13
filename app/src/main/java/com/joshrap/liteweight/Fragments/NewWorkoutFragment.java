@@ -54,6 +54,7 @@ public class NewWorkoutFragment extends Fragment {
     private HashMap<Integer, ArrayList<String>> selectedExercises = new HashMap<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
     private HashMap<String, ArrayList<String>> exercises = new HashMap<>();
+    private HashMap<String, ExerciseEntity> exerciseNameToEntity = new HashMap<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
 
@@ -124,6 +125,7 @@ public class NewWorkoutFragment extends Fragment {
                             exercises.put(focus,new ArrayList<String>());
                         }
                         exercises.get(focus).add(entity.getExerciseName());
+                        exerciseNameToEntity.put(entity.getExerciseName(),entity);
                     }
                 }
             }
@@ -318,16 +320,13 @@ public class NewWorkoutFragment extends Fragment {
                         }
                     }
                     if(ready){
+
                         writeToDatabase(); // TODO make async?
                         modified = false;
                         Toast.makeText(getContext(), "Workout successfully created!",Toast.LENGTH_SHORT).show();
                         // restart this fragment
-                        Fragment frag;
-                        frag = getFragmentManager().findFragmentByTag("NEW_WORKOUT");
-                        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.detach(frag);
-                        ft.attach(frag);
-                        ft.commit();
+                         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                                new NewWorkoutFragment(), "NEW_WORKOUT").commit();
                     }
                     else{
                         Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
@@ -341,8 +340,10 @@ public class NewWorkoutFragment extends Fragment {
         // write the metadata to the meta table
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         Date date = new Date();
+        String mostFrequentFocus = Validator.mostFrequentFocus(selectedExercises,exerciseNameToEntity,focusList);
+        Log.d("TAG","Most common: "+mostFrequentFocus);
         MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,formatter.format(date),formatter.format(date),
-                0,0,firstWorkout);
+                0,0,firstWorkout, mostFrequentFocus);
         metaViewModel.insert(log);
         // write to the workout table
         for(int i=0;i<=maxDayIndex;i++){
@@ -416,8 +417,6 @@ public class NewWorkoutFragment extends Fragment {
             }
         });
     }
-
-
 
     public void updateExerciseChoices(String exerciseFocus){
         /*

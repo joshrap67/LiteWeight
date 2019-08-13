@@ -8,7 +8,7 @@ import android.content.Context;
 import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Database.Daos.*;
 
-@Database(entities = {WorkoutEntity.class, MetaEntity.class, ExerciseEntity.class},version = 4,exportSchema = false)
+@Database(entities = {WorkoutEntity.class, MetaEntity.class, ExerciseEntity.class},version = 5,exportSchema = false)
 public abstract class WorkoutDatabase extends RoomDatabase {
     private static WorkoutDatabase instance;
 

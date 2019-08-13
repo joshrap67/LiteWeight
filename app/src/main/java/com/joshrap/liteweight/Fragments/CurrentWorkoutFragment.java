@@ -198,7 +198,6 @@ public class CurrentWorkoutFragment extends Fragment {
 
         Log.d("TAG","Rawdata size: "+rawData.size());
         ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
-        // TODO handle case where custom exercise is deleted but it still is in a workout
         // TODO handle concurrency problems? since will be trying to pull video from the exercise table
         // init the hash table
         for(int i = 0;i<=maxDayIndex;i++){
@@ -221,6 +220,8 @@ public class CurrentWorkoutFragment extends Fragment {
         table.removeAllViews();
         dayTV.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
         int count = 0;
+        // TODO allow for none to be added?
+        // TODO sort
         for(Exercise exercise : totalExercises.get(currentDayIndex)){
             View row = exercise.getDisplayedRow();
             table.addView(row,count);
