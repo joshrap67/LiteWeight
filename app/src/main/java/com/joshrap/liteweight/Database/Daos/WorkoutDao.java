@@ -24,6 +24,8 @@ public interface WorkoutDao {
     void deleteAllWorkouts();
     @Query("DELETE FROM workout_table WHERE exercise=:exerciseName AND workout=:workoutName AND day=:day")
     void deleteSpecificExerciseFromWorkout(String workoutName, String exerciseName, int day);
+    @Query("DELETE FROM workout_table WHERE exercise=:exerciseName")
+    void deleteExerciseFromWorkouts(String exerciseName);
     @Query("SELECT * FROM workout_table")
     LiveData<List<WorkoutEntity>> getAllWorkouts();
     @Query("SELECT * FROM workout_table WHERE workout=:workoutName")

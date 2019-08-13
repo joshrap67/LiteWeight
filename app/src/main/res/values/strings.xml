@@ -60,7 +60,7 @@
     <string name="delete_msg">Are you sure you wish to delete this workout? If so, all statistics for it will also be deleted.</string>
     <string name="delete_custom_exercise_msg">
         Are you sure you wish to delete this exercise? All data regarding this exercise will be deleted.
-        Note that deleting it won\'t remove it from already made workouts.
+        Note that deleting it will remove it from already made workouts.
     </string>
     <string name="exercise_title">Add exercises</string>
     <string-array name="exercise_focuses">

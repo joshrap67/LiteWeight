@@ -400,6 +400,7 @@ public class UserSettingsFragment extends Fragment {
                     customExercises.get(focus).remove(name);
                 }
                 exerciseViewModel.delete(entity);
+                workoutViewModel.deleteExerciseFromWorkouts(name);
                 alertDialog.dismiss();
                 rootDialog.dismiss();
                 populateExercises();

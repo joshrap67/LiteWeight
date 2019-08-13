@@ -321,12 +321,7 @@ public class MyWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
-            if(!result.isEmpty()) {
-                initEdit(result);
-            }
-            else{
-                Log.d("TAG","Selected workout was not found!");
-            }
+            initEdit(result);
         }
     }
 
@@ -444,6 +439,7 @@ public class MyWorkoutFragment extends Fragment {
                     // restart this fragment
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                             new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+                    Toast.makeText(getContext(),"Successfully edited!",Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();

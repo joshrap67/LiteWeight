@@ -37,6 +37,10 @@ public class WorkoutViewModel extends AndroidViewModel {
         repository.deleteSpecificExerciseFromWorkout(workoutName, exerciseName, day);
     }
 
+    public void deleteExerciseFromWorkouts(String exerciseName){
+        repository.deleteExerciseFromWorkouts(exerciseName);
+    }
+
     public void deleteAllWorkouts() {
         repository.deleteAllWorkouts();
     }
