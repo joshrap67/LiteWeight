@@ -98,4 +98,25 @@
     <string name="reset_timer">Reset</string>
     <string name="show_timer">Timer</string>
     <string name="add_exercises">Add Exercises</string>
+    <!--about resources-->
+    <string name="about_overview_title">App Overview</string>
+    <string name="about_overview">
+        LiteWeight is a lightweight workout manager that allows for multiple workouts to be created and managed.\n\nDefault exercises are provided by
+        the developer, and if desired you can add your own custom exercises to be used in any workout!
+        All exercises can have a URL associated with it should you wish to be able to view a video on how to perform it while working out.
+        You can also specify the most recent amount of weight for each exercise.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
+    </string>
+    <string name="about_nav_overview_title">Navigation Overview</string>
+    <string name="about_nav_overview">
+        Current Workout: Your currently selected workout. Here you can mark an exercise as done, update the weight of an exercise, or watch the video associated with it if you have that option enabled.\n\nMy Workouts:
+        All of your workouts that you have made are located here. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
+        You can also reset any statistics associated with the current workout.\n\nCreate Workout:
+        Here you can create a workout with a unique name and a set length.\n\nSettings:
+        This section allows for any user settings to be enabled or disabled, such as a timer that can be enabled in the Current Workout section. You can also create custom exercises in this section or edit existing exercises.
+    </string>
+    <string name="about_contact_title">Contact Info</string>
+    <string name="about_contact">
+        This application is open source and is non-profit. All code can be found on github: https://github.com/joshrap67/LiteWeight.\n\n Feel free
+        to submit any pull requests for changes that you would like to see or if you find any bugs please don’t hesitate to submit an issue notice.
+    </string>
 </resources>
