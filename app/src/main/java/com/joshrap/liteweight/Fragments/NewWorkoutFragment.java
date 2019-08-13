@@ -133,6 +133,7 @@ public class NewWorkoutFragment extends Fragment {
                 // no workouts found
                 Log.d("TAG","Get all selectedExercises result was empty!");
             }
+            ((MainActivity)getActivity()).setProgressBar(false);
             initViews();
         }
     }
@@ -341,7 +342,7 @@ public class NewWorkoutFragment extends Fragment {
         SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
         Date date = new Date();
         String mostFrequentFocus = Validator.mostFrequentFocus(selectedExercises,exerciseNameToEntity,focusList);
-        Log.d("TAG","Most common: "+mostFrequentFocus);
+        Log.d("TAG","Most frequent focus: "+mostFrequentFocus);
         MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,formatter.format(date),formatter.format(date),
                 0,0,firstWorkout, mostFrequentFocus);
         metaViewModel.insert(log);
@@ -398,15 +399,11 @@ public class NewWorkoutFragment extends Fragment {
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
-        ImageView done = popupView.findViewById(R.id.imageView);
-        done.setOnClickListener(new View.OnClickListener() {
+        Button doneBtn = popupView.findViewById(R.id.done_btn);
+        doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // done adding
-                if(checkedExercises.isEmpty()){
-                    alertDialog.dismiss();
-                    return;
-                }
                 for(String exercise : checkedExercises){
                     selectedExercises.get(currentDayIndex).add(exercise);
                 }
@@ -439,12 +436,11 @@ public class NewWorkoutFragment extends Fragment {
             exercise.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!checkedExercises.contains(exercise.getText().toString()) &&
-                    !selectedExercises.get(currentDayIndex).contains(exercise.getText().toString())){
-                        // prevents exercise from being added twice
+                    if(exercise.isChecked()){
                         checkedExercises.add(exercise.getText().toString());
                     }
                     else{
+                        selectedExercises.get(currentDayIndex).remove(exercise.getText().toString());
                         checkedExercises.remove(exercise.getText().toString());
                     }
 

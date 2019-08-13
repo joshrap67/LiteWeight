@@ -18,6 +18,9 @@
     <string name="popup_title">Unsaved Workout!</string>
     <string name="popup_message">You have a workout currently being created. If you quit now, all progress
     will be lost! Are you sure you wish to quit?</string>
+    <string name="popup_message_edit_workout">You have a workout currently being edited. If you quit now, all progress
+    will be lost! Are you sure you wish to quit?</string>
+
     <string name="confirm">Yes</string>
     <string name="denial">No</string>
     <string name="save">Save</string>

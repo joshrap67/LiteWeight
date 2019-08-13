@@ -54,7 +54,6 @@ public class MyWorkoutFragment extends Fragment {
     private ArrayList<String> workoutNames = new ArrayList<>();
     private ArrayList<String> focusList = new ArrayList<>();
     private ArrayList<String> checkedExercises = new ArrayList<>();
-    private HashMap<Integer, ArrayList<WorkoutEntity>> totalWorkoutEntities = new HashMap<>();
     private HashMap<Integer, ArrayList<String>> pendingWorkout = new HashMap<>();
     private HashMap<String, ArrayList<String>> exercises = new HashMap<>();
     private HashMap<String, ExerciseEntity> exerciseNameToEntity = new HashMap<>();
@@ -63,7 +62,7 @@ public class MyWorkoutFragment extends Fragment {
     private HashMap<Integer, ArrayList<String>> newExercises = new HashMap<>();
     private ViewGroup fragmentContainer;
     private boolean firstDay, lastDay, editing;
-    private int maxDayIndex, currentDayIndex, finalDayNum;
+    private int maxDayIndex, currentDayIndex;
     private TableLayout displayedExercisesTable, pickExerciseTable;
     private AlertDialog alertDialog;
     private SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
@@ -98,6 +97,7 @@ public class MyWorkoutFragment extends Fragment {
             if(!result.isEmpty()) {
                 Log.d("TAG","Result size: "+result.size());
                 metaEntities = result;
+                ((MainActivity)getActivity()).setProgressBar(false);
                 initViews();
             }
             else{
@@ -250,7 +250,8 @@ public class MyWorkoutFragment extends Fragment {
                 selectedWorkout = workoutNameToEntity.get(workoutNames.get(0)); // get the top of the list
                 workoutNames.remove(selectedWorkout.getWorkoutName());
                 selectedWorkout.setCurrentWorkout(true);
-                // TODO update the date last of this workout
+                Date date = new Date();
+                selectedWorkout.setDateLast(formatter.format(date));
                 metaModel.update(selectedWorkout);
 
                 selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
@@ -369,13 +370,42 @@ public class MyWorkoutFragment extends Fragment {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO show popup?
-                // TODO check if modified, then go reload the fragment
+                if(editing){
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                    final AlertDialog alertDialog = alertDialogBuilder.create();
+                    final View popupView = getLayoutInflater().inflate(R.layout.popup_edit_workout_in_progress, null);
+                    Button confirmButton = popupView.findViewById(R.id.popupYes);
+                    confirmButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                                    new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+                            alertDialog.dismiss();
+                        }
+                    });
+                    Button quitButton = popupView.findViewById(R.id.popupNo);
+
+                    quitButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alertDialog.dismiss();
+                        }
+                    });
+                    alertDialog.setView(popupView);
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    alertDialog.show();
+                }
+                else{
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+                }
+
             }
         });
         final Button previousDayBtn = view.findViewById(R.id.previousDayButton);
         final Button nextDayBtn = view.findViewById(R.id.nextDayButton);
         final TextView dayTitle = view.findViewById(R.id.dayTextView);
+        dayTitle.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
         previousDayBtn.setVisibility(View.INVISIBLE);
         if(maxDayIndex == 0){
             // in case some jabroni only wants to workout one day total
@@ -399,7 +429,7 @@ public class MyWorkoutFragment extends Fragment {
                     firstDay = true;
                 }
                 addExercisesToTable();
-                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,maxDayIndex));
             }
         });
         nextDayBtn.setOnClickListener(new View.OnClickListener() {
@@ -417,7 +447,7 @@ public class MyWorkoutFragment extends Fragment {
                         nextDayBtn.setVisibility(View.INVISIBLE);
                     }
                     addExercisesToTable();
-                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,maxDayIndex));
                 }
             }
         });
@@ -488,15 +518,11 @@ public class MyWorkoutFragment extends Fragment {
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
-        ImageView done = popupView.findViewById(R.id.imageView);
-        done.setOnClickListener(new View.OnClickListener() {
+        Button doneBtn = popupView.findViewById(R.id.done_btn);
+        doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // done adding
-                if(checkedExercises.isEmpty()){
-                    alertDialog.dismiss();
-                    return;
-                }
                 editing = true;
                 for(String exercise : checkedExercises){
                     pendingWorkout.get(currentDayIndex).add(exercise);
@@ -559,15 +585,14 @@ public class MyWorkoutFragment extends Fragment {
             exercise.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!checkedExercises.contains(exercise.getText().toString()) &&
-                            !pendingWorkout.get(currentDayIndex).contains(exercise.getText().toString())){
-                        // prevents exercise from being added twice
+                    if(exercise.isChecked()){
                         checkedExercises.add(exercise.getText().toString());
                     }
                     else{
+                        pendingWorkout.get(currentDayIndex).remove(exercise.getText().toString());
+                        deletedExercises.get(currentDayIndex).add(exercise.getText().toString());
                         checkedExercises.remove(exercise.getText().toString());
                     }
-
                 }
             });
             pickExerciseTable.addView(row,i);

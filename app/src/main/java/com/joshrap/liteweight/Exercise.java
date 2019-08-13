@@ -123,16 +123,6 @@ public class Exercise implements Comparable<Exercise>{
                 }
             }
         });
-        if(exerciseEntity==null){
-            // means that the user deleted this custom exercise, so stop here to avoid null pointer exceptions
-            weightButton.setText("Deleted");
-            if(!videos){
-                ImageButton videoButton = row.findViewById(R.id.launch_video);
-                videoButton.setVisibility(View.GONE);
-            }
-            return row;
-
-        }
         // set up weight button
         if(metricUnits){
             // value in DB is always in murican units

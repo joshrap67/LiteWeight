@@ -133,6 +133,7 @@ public class UserSettingsFragment extends Fragment {
                     exerciseNameToEntity.put(entity.getExerciseName(),entity);
                     exerciseEntities.add(entity);
                 }
+                ((MainActivity)getActivity()).setProgressBar(false);
                 initViews();
             }
             else{
