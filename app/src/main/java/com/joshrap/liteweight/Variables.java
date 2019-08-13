@@ -18,7 +18,8 @@ public class Variables {
             VIDEO_KEY = "Videos",
             TIMER_KEY = "Timer",
             DB_KEY = "DB_EMPTY",
-            UNIT_KEY = "METRIC";
+            UNIT_KEY = "METRIC",
+            DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
     public static String generateDayTitle(int num, int maxDayIndex){
         int weekNum = (num / (maxDayIndex+1))+1;
         int dayNum = (num % (maxDayIndex+1))+1;

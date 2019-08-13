@@ -3,9 +3,14 @@ package com.joshrap.liteweight.Database.Entities;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import com.joshrap.liteweight.Variables;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 
 @Entity(tableName = "meta_table")
-public class MetaEntity {
+public class MetaEntity implements Comparable<MetaEntity> {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String workoutName;
@@ -87,11 +92,28 @@ public class MetaEntity {
         this.mostFrequentFocus = mostFrequentFocus;
     }
 
+    public void setDateLast(String dateLast) {
+        this.dateLast = dateLast;
+    }
+
+    public void setTimesCompleted(int timesCompleted) {
+        this.timesCompleted = timesCompleted;
+    }
+
     @Override
     public String toString(){
         return "Id:"+getId()+" Workout: "+workoutName+" CurrentDay: "+currentDay+" TotalDays: "+totalDays+" DateLast: "+dateLast+
-                " DateCreated: "+dateCreated+ " TimesCompleted: "+timesCompleted+ "Percentage "+
+                " DateCreated: "+dateCreated+ " TimesCompleted: "+timesCompleted+ " Percentage "+
                 percentageExercisesCompleted+" CurrentWorkout: "+currentWorkout;
     }
 
+    @Override
+    public int compareTo(MetaEntity o) {
+        DateFormat df = new SimpleDateFormat(Variables.DATE_PATTERN);
+        try {
+            return df.parse(dateLast).compareTo(df.parse(o.getDateLast()));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

@@ -33,8 +33,10 @@ import com.joshrap.liteweight.Database.ViewModels.ExerciseViewModel;
 import com.joshrap.liteweight.Database.ViewModels.MetaViewModel;
 import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 
 public class MyWorkoutFragment extends Fragment {
@@ -64,6 +66,7 @@ public class MyWorkoutFragment extends Fragment {
     private int maxDayIndex, currentDayIndex, finalDayNum;
     private TableLayout displayedExercisesTable, pickExerciseTable;
     private AlertDialog alertDialog;
+    private SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
 
     @Nullable
     @Override
@@ -125,6 +128,7 @@ public class MyWorkoutFragment extends Fragment {
             }
             workoutNameToEntity.put(entity.getWorkoutName(),entity);
         }
+        sortWorkouts();
         deleteBtn = view.findViewById(R.id.delete_button);
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,8 +145,6 @@ public class MyWorkoutFragment extends Fragment {
                 getExercises();
             }
         });
-        // TODO sort by date
-        sortWorkouts();
         arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, workoutNames);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -155,27 +157,34 @@ public class MyWorkoutFragment extends Fragment {
     }
 
     public void sortWorkouts(){
-        Collections.sort(workoutNames);
-//        Collections.addAll(sortedWorkoutNames,workoutNames)
-//        sortedWorkoutNames.push(selectedWorkout.getWorkoutName());
-        // TODO sort by date and possible give other options?
+        /*
+            Currently sorts by date last accessed
+         */
+        workoutNames.clear();
+        Collections.sort(metaEntities, Collections.reverseOrder());
+        for(MetaEntity entity : metaEntities){
+            if(!entity.getWorkoutName().equals(selectedWorkout.getWorkoutName())){
+                workoutNames.add(entity.getWorkoutName());
+            }
+        }
     }
 
     public void selectWorkout(String workoutName){
-        // TODO update the entity with new date
-        workoutNames.remove(workoutName);
-        // would do this part differently if different sorting method
-        workoutNames.add(0,selectedWorkout.getWorkoutName());
+        // handle the currently selected workout
         selectedWorkout.setCurrentWorkout(false);
+        Date date = new Date();
+        selectedWorkout.setDateLast(formatter.format(date));
         metaModel.update(selectedWorkout);
+        // handle the newly selected workout
         selectedWorkout = workoutNameToEntity.get(workoutName);
-        selectedWorkout.setCurrentWorkout(true);
-        metaModel.update(selectedWorkout);
         if(selectedWorkout==null){
-            // uh oh
+            // TODO show error screen
             Log.d("TAG","Selected workout was somehow null");
         }
+        selectedWorkout.setCurrentWorkout(true);
+        metaModel.update(selectedWorkout);
         selectedWorkoutTV.setText(workoutName);
+        sortWorkouts();
         arrayAdapter.notifyDataSetChanged();
         updateStatistics();
     }

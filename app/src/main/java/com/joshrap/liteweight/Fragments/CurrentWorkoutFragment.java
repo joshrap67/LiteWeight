@@ -28,6 +28,7 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.Variables;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class CurrentWorkoutFragment extends Fragment {
@@ -210,6 +211,10 @@ public class CurrentWorkoutFragment extends Fragment {
                     getActivity(),this,videosEnabled,metricUnits, workoutModel,exerciseModel);
             totalExercises.get(entity.getDay()).add(exercise);
         }
+        // sort all the days
+        for(int i =0;i<=maxDayIndex;i++){
+            Collections.sort(totalExercises.get(i));
+        }
         populateTable();
     }
 
@@ -221,7 +226,6 @@ public class CurrentWorkoutFragment extends Fragment {
         dayTV.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
         int count = 0;
         // TODO allow for none to be added?
-        // TODO sort
         for(Exercise exercise : totalExercises.get(currentDayIndex)){
             View row = exercise.getDisplayedRow();
             table.addView(row,count);
@@ -299,6 +303,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         currentDayIndex = 0;
         currentWorkoutEntity.setCurrentDay(currentDayIndex);
+        currentWorkoutEntity.setTimesCompleted(currentWorkoutEntity.getTimesCompleted()+1);
         metaModel.update(currentWorkoutEntity);
         modified = true;
         exerciseModified = false;

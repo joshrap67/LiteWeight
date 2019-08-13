@@ -26,7 +26,7 @@ import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 import com.joshrap.liteweight.Fragments.*;
 import android.widget.Toast;
 
-public class Exercise{
+public class Exercise implements Comparable<Exercise>{
     private Context context;
     private Activity activity;
     private String name, videoURL;
@@ -253,5 +253,11 @@ public class Exercise{
             videoButton.setVisibility(View.GONE);
         }
         return row;
+    }
+
+    @Override
+    public int compareTo(Exercise o) {
+        // used for sorting purposes
+        return this.name.compareTo(o.name);
     }
 }

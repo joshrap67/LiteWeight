@@ -14,9 +14,9 @@ public class WorkoutEntity {
 
     public WorkoutEntity(String exercise, String workout, int day, boolean status) {
         this.exercise = exercise;
-        this.workout=workout;
+        this.workout = workout;
         this.day = day;
-        this.status=status;
+        this.status = status;
     }
 
     public void setId(int id) {

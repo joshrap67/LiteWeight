@@ -338,7 +338,7 @@ public class NewWorkoutFragment extends Fragment {
 
     public void writeToDatabase(){
         // write the metadata to the meta table
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
         Date date = new Date();
         String mostFrequentFocus = Validator.mostFrequentFocus(selectedExercises,exerciseNameToEntity,focusList);
         Log.d("TAG","Most common: "+mostFrequentFocus);
