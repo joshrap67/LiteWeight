@@ -24,19 +24,10 @@ import com.example.workoutmadness.Database.Entities.MetaEntity;
 import com.example.workoutmadness.Database.ViewModels.MetaViewModel;
 import com.example.workoutmadness.Database.ViewModels.WorkoutViewModel;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Stack;
 
 public class MyWorkoutFragment extends Fragment {
     private View view;
@@ -45,10 +36,7 @@ public class MyWorkoutFragment extends Fragment {
     private ArrayAdapter<String> arrayAdapter;
     private MetaEntity selectedWorkout;
     private Button resetStatisticsBtn, editBtn, deleteBtn;
-    private HashMap<Integer, ArrayList<String>> exercises = new HashMap<>();
-    private HashMap<Integer, String> totalDayTitles = new HashMap<>();
     private HashMap<String, MetaEntity> workoutNameToEntity = new HashMap<>();
-    private int maxDayIndex;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
@@ -103,7 +91,6 @@ public class MyWorkoutFragment extends Fragment {
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_text_view);
         statisticsTV = view.findViewById(R.id.stat_text_view);
         deleteBtn = view.findViewById(R.id.delete_button);
-
         for(MetaEntity entity : metaEntities){
             Log.d("TAG","Meta entity: "+entity.toString());
             if(entity.getCurrentWorkout()){
@@ -147,7 +134,7 @@ public class MyWorkoutFragment extends Fragment {
     public void selectWorkout(String workoutName){
         // TODO update the entity with new date
         workoutNames.remove(workoutName);
-        // TODO would do this part differently if different sorting method
+        // would do this part differently if different sorting method
         workoutNames.add(0,selectedWorkout.getWorkoutName());
         selectedWorkout.setCurrentWorkout(false);
         metaModel.update(selectedWorkout);
@@ -164,10 +151,13 @@ public class MyWorkoutFragment extends Fragment {
     }
     public void updateStatistics(){
         // dummy stuff for now
-        String msg = "Times Completed: 420\n" +
-                "Average Percentage of Exercises Completed: 69%\n" +
-                "Most Frequent Exercise: Dabbing\n" +
-                "Least Frequent Exercise: Yeeting";
+        int timesCompleted = selectedWorkout.getTimesCompleted();
+        double percentage = selectedWorkout.getPercentageExercisesCompleted();
+        int days = selectedWorkout.getTotalDays()+1;
+        String msg = "Times Completed: "+timesCompleted+"\n" +
+                "Average Percentage of Exercises Completed: "+percentage+"%\n" +
+                "Number of Days in Workout: "+days+"\n"+
+                "Most worked focus: Arms";
         statisticsTV.setText(msg);
     }
 
@@ -226,12 +216,12 @@ public class MyWorkoutFragment extends Fragment {
                 arrayAdapter.notifyDataSetChanged();
             }
             else{
+                // signal to go make a new workout, all workouts have been deleted
                 LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.default_layout, fragmentContainer,false);
                 ViewGroup rootView = (ViewGroup) getView();
                 rootView.removeAllViews();
                 rootView.addView(view);
-                // signal to go make a new workout
             }
         }
     }
