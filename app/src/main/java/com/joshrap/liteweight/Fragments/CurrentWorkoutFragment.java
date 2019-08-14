@@ -57,7 +57,7 @@ public class CurrentWorkoutFragment extends Fragment {
         defaultTV = view.findViewById(R.id.default_tv);
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
+        ((MainActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
         // Set up the view models
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
