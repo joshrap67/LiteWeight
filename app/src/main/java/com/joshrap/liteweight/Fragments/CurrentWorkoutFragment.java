@@ -35,36 +35,35 @@ public class CurrentWorkoutFragment extends Fragment {
     private TextView dayTV, defaultTV;
     private TableLayout table;
     private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
+    private View view;
+    private ViewGroup fragmentContainer;
+    private Chronometer timer;
     private int currentDayIndex, maxDayIndex;
     private String currentWorkout;
-    private MetaEntity currentWorkoutEntity;
-    private boolean modified = false, exerciseModified = false, timerRunning = false;
-    private Chronometer timer;
+    private boolean workoutModified = false, timerRunning = false, accessingDB = false;
     private long lastTime;
+    private MetaEntity currentWorkoutEntity;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseModel;
-    private HashMap<Integer, ArrayList<Exercise>> totalExercises = new HashMap<>();
+    private HashMap<Integer, ArrayList<Exercise>> workout = new HashMap<>();
     private HashMap<String, ExerciseEntity> exerciseToExerciseEntity = new HashMap<>();
-    private View view;
-    private ViewGroup fragmentContainer;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.default_layout,container,false);
+        view = inflater.inflate(R.layout.default_layout, container, false);
         defaultTV = view.findViewById(R.id.default_tv);
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
-        ((MainActivity)getActivity()).updateToolbarTitle("");
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
         // Set up the view models
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         exerciseModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
         // attempt to fetch the current workout from database
         GetCurrentWorkoutTask task = new GetCurrentWorkoutTask();
-        // TODO utilize a mutex lock? Preventing changing until it's done writing to DB
-        // TODO do some scalability testing with like 100000 records
         task.execute();
         return view;
     }
@@ -78,87 +77,88 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected MetaEntity doInBackground(Void... voids) {
             // get the current workout from the database
+            accessingDB = true;
             return metaModel.getCurrentWorkoutMeta();
         }
 
         @Override
         protected void onPostExecute(MetaEntity result) {
+            accessingDB = false;
             ((MainActivity)getActivity()).setProgressBar(false);
-            if(result!=null) {
+            if(result != null) {
                 // database found a workout, so assign it then move to the next stop in the chain
                 currentWorkoutEntity = result;
                 currentWorkout = currentWorkoutEntity.getWorkoutName();
                 currentDayIndex = currentWorkoutEntity.getCurrentDay();
                 maxDayIndex = currentWorkoutEntity.getTotalDays();
-                Log.d("TAG","CurrentWorkout: "+currentWorkoutEntity.toString());
-                getVideos();
+                Log.d("TAG", "CurrentWorkout: " + currentWorkoutEntity.toString());
+                GetExercisesTask task = new GetExercisesTask();
+                task.execute();
             }
             else{
-                // no workout found,error
+                // no workout found, error
                 defaultTV.setVisibility(View.VISIBLE);
-                ((MainActivity)getActivity()).updateToolbarTitle("Current Workout");
-                Log.d("TAG","Get current workout result was null!");
+                ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
+                Log.d("TAG", "Get current workout result was null!");
             }
         }
     }
-    public void getVideos(){
-        GetVideosTask task = new GetVideosTask();
-        task.execute();
-    }
 
-    private class GetVideosTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>>{
+    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>>{
         @Override
-        protected void onPreExecute(){
-            ((MainActivity)getActivity()).setProgressBar(true);
+        protected void onPreExecute() {
+            ((MainActivity) getActivity()).setProgressBar(true);
         }
 
         @Override
         protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
             // get the exercises from the database
+            accessingDB = true;
             return exerciseModel.getAllExercises();
         }
 
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            ((MainActivity)getActivity()).setProgressBar(false);
-            if(!result.isEmpty()){
-                for(ExerciseEntity entity : result){
-                    exerciseToExerciseEntity.put(entity.getExerciseName(),entity);
+            accessingDB = false;
+            ((MainActivity) getActivity()).setProgressBar(false);
+            if(!result.isEmpty()) {
+                for (ExerciseEntity entity : result) {
+                    exerciseToExerciseEntity.put(entity.getExerciseName(), entity);
                 }
-                getExercises();
+                GetWorkoutTask task = new GetWorkoutTask();
+                task.execute();
             }
-            else{
-                Log.d("TAG","Get exercises result was null!");
+            else {
+                defaultTV.setVisibility(View.VISIBLE);
+                ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
+                Log.d("TAG", "Get exercises result was empty!");
             }
         }
     }
 
-    public void getExercises(){
-        GetExercisesTask task = new GetExercisesTask();
-        task.execute();
-    }
-
-    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>>{
+    private class GetWorkoutTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>> {
         @Override
-        protected void onPreExecute(){
-            ((MainActivity)getActivity()).setProgressBar(true);
+        protected void onPreExecute() {
+            ((MainActivity) getActivity()).setProgressBar(true);
         }
 
         @Override
         protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
             // get the exercises from the database
+            accessingDB = true;
             return workoutModel.getExercises(currentWorkout);
         }
 
         @Override
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
-            ((MainActivity)getActivity()).setProgressBar(false);
-            if(result != null){
+            accessingDB = false;
+            ((MainActivity) getActivity()).setProgressBar(false);
+            if(result != null) {
                 // query produced a valid list, so populate it in local memory
                 populateExercises(result);
             }
-            else{
-                Log.d("TAG","Get exercises result was null!");
+            else {
+                Log.d("TAG", "Get exercises result was null!");
             }
         }
     }
@@ -168,7 +168,7 @@ public class CurrentWorkoutFragment extends Fragment {
             Database queries complete, so switch layouts and init all the widgets
          */
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = inflater.inflate(R.layout.fragment_workout, fragmentContainer,false);
+        view = inflater.inflate(R.layout.fragment_workout, fragmentContainer, false);
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(view);
@@ -188,32 +188,29 @@ public class CurrentWorkoutFragment extends Fragment {
             Get shared preferences data
          */
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
-        boolean videosEnabled = pref.getBoolean(Variables.VIDEO_KEY,true);
-        boolean metricUnits = pref.getBoolean(Variables.UNIT_KEY,false);
-        if(pref.getBoolean(Variables.TIMER_KEY,true)){
+        boolean videosEnabled = pref.getBoolean(Variables.VIDEO_KEY, true);
+        boolean metricUnits = pref.getBoolean(Variables.UNIT_KEY, false);
+        if (pref.getBoolean(Variables.TIMER_KEY, true)) {
             initTimer();
         }
-        else{
+        else {
             timerContainer.setVisibility(View.GONE);
         }
-
-        Log.d("TAG","Rawdata size: "+rawData.size());
         ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
-        // TODO handle concurrency problems? since will be trying to pull video from the exercise table
-        // init the hash table
-        for(int i = 0;i<=maxDayIndex;i++){
-            totalExercises.put(i, new ArrayList<Exercise>());
+        // init the hash table that the entire workout will be in
+        for (int i=0;i<=maxDayIndex;i++) {
+            workout.put(i, new ArrayList<Exercise>());
         }
         // fill the hash table with exercises
-        for(WorkoutEntity entity : rawData){
+        for (WorkoutEntity entity : rawData) {
             String exerciseName = entity.getExercise();
-            Exercise exercise = new Exercise(entity,exerciseToExerciseEntity.get(exerciseName),getContext(),
-                    getActivity(),this,videosEnabled,metricUnits, workoutModel,exerciseModel);
-            totalExercises.get(entity.getDay()).add(exercise);
+            Exercise exercise = new Exercise(entity, exerciseToExerciseEntity.get(exerciseName), getContext(),
+                    getActivity(), this, videosEnabled, metricUnits, workoutModel, exerciseModel);
+            workout.get(entity.getDay()).add(exercise);
         }
-        // sort all the days
+        // sort all the days in the workout alphabetically
         for(int i =0;i<=maxDayIndex;i++){
-            Collections.sort(totalExercises.get(i));
+            Collections.sort(workout.get(i));
         }
         populateTable();
     }
@@ -225,10 +222,9 @@ public class CurrentWorkoutFragment extends Fragment {
         table.removeAllViews();
         dayTV.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
         int count = 0;
-        // TODO allow for none to be added?
-        for(Exercise exercise : totalExercises.get(currentDayIndex)){
+        for(Exercise exercise : workout.get(currentDayIndex)) {
             View row = exercise.getDisplayedRow();
-            table.addView(row,count);
+            table.addView(row, count);
             count++;
         }
         setupButtons();
@@ -238,7 +234,7 @@ public class CurrentWorkoutFragment extends Fragment {
         /*
             Setup back and forward buttons.
          */
-        if(currentDayIndex==0){
+        if (currentDayIndex == 0) {
             // means it's the first day, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
         }
@@ -250,38 +246,35 @@ public class CurrentWorkoutFragment extends Fragment {
                     currentDayIndex--;
                     currentWorkoutEntity.setCurrentDay(currentDayIndex);
                     metaModel.update(currentWorkoutEntity);
-                    modified=true; // modified since changed day
                     populateTable();
                 }
             });
         }
         // set up the forward button, make it so user can always reset if holding down button
-        if(currentDayIndex==maxDayIndex){
-            forwardButton.setText("Reset");
+        if(currentDayIndex == maxDayIndex) {
+            forwardButton.setText(getActivity().getResources().getString(R.string.reset));
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     resetPopup();
                 }
             });
-
         }
         else{
-            forwardButton.setText("Next");
+            forwardButton.setText(getActivity().getResources().getString(R.string.button_continue));
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     currentDayIndex++;
                     currentWorkoutEntity.setCurrentDay(currentDayIndex);
                     metaModel.update(currentWorkoutEntity);
-                    modified=true;
                     populateTable();
                 }
             });
             forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(exerciseModified){
+                    if(workoutModified) {
                         resetPopup();
                     }
                     return true;
@@ -292,21 +285,33 @@ public class CurrentWorkoutFragment extends Fragment {
 
     public void resetWorkout(){
         /*
-            Reset all of the exercises to being incomplete and then write to the workout file with these changes.
+            Reset all of the exercises to being incomplete and then write to the database with these changes.
          */
+        int exercisesCompleted = 0;
+        int totalExercises = 0;
         for(int i=0;i<=maxDayIndex;i++){
-            for(Exercise exercise : totalExercises.get(i)){
+            for(Exercise exercise : workout.get(i)) {
+                totalExercises++;
+                if(exercise.getStatus()){
+                    exercisesCompleted++;
+                }
                 exercise.setStatus(false);
                 workoutModel.update(exercise.getWorkoutEntity());
-                // TODO would do any statistics stuff here
             }
         }
+        // calculate average percentage of exercises completed over all times the workout has been completed
+        int totalCompleted = currentWorkoutEntity.getCompletedSum() + exercisesCompleted;
+        int totalSum = currentWorkoutEntity.getTotalSum() + totalExercises;
+        double percentage = ((double) totalCompleted / (double) totalSum) * 100;
+
         currentDayIndex = 0;
         currentWorkoutEntity.setCurrentDay(currentDayIndex);
-        currentWorkoutEntity.setTimesCompleted(currentWorkoutEntity.getTimesCompleted()+1);
+        currentWorkoutEntity.setTimesCompleted(currentWorkoutEntity.getTimesCompleted() + 1);
+        currentWorkoutEntity.setTotalSum(totalSum);
+        currentWorkoutEntity.setCompletedSum(totalCompleted);
+        currentWorkoutEntity.setPercentageExercisesCompleted(percentage);
         metaModel.update(currentWorkoutEntity);
-        modified = true;
-        exerciseModified = false;
+        workoutModified = false;
         populateTable();
     }
 
@@ -314,7 +319,7 @@ public class CurrentWorkoutFragment extends Fragment {
         /*
             Prompt the user if they wish to reset the current workout. Only can be called if the workout has been modified.
          */
-        if(!exerciseModified && !modified){
+        if(!workoutModified){
             return;
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -343,19 +348,8 @@ public class CurrentWorkoutFragment extends Fragment {
         alertDialog.show();
     }
 
-    public boolean isModified(){
-        /*
-            TODO remove from this database version
-         */
-        return modified;
-    }
-
-    public void setModified(boolean status){
-        modified = status;
-    }
-
     public void setPreviouslyModified(boolean status){
-        exerciseModified = status;
+        workoutModified = status;
     }
     // region
     // Timer methods
@@ -393,29 +387,29 @@ public class CurrentWorkoutFragment extends Fragment {
 
 
     }
-    public void startTimer(){
-        if(!timerRunning){
-            // TODO timer is reset when app goes into onpause
-            timer.setBase(SystemClock.elapsedRealtime()-lastTime);
+
+    public void startTimer() {
+        if(!timerRunning) {
+            timer.setBase(SystemClock.elapsedRealtime() - lastTime);
             timer.start();
-            timerRunning=true;
+            timerRunning = true;
         }
     }
 
-    public void stopTimer(){
-        if(timerRunning){
+    public void stopTimer() {
+        if(timerRunning) {
             timer.stop();
-            lastTime=SystemClock.elapsedRealtime()-timer.getBase();
-            timerRunning=false;
+            lastTime = SystemClock.elapsedRealtime() - timer.getBase();
+            timerRunning = false;
         }
     }
 
-    public void resetTimer(){
+    public void resetTimer() {
         timer.setBase(SystemClock.elapsedRealtime());
-        lastTime=0;
+        lastTime = 0;
     }
 
-    public void hideTimer(){
+    public void hideTimer() {
         startTimer.setVisibility(View.INVISIBLE);
         stopTimer.setVisibility(View.INVISIBLE);
         resetTimer.setVisibility(View.INVISIBLE);
@@ -426,7 +420,7 @@ public class CurrentWorkoutFragment extends Fragment {
         showTimer.setVisibility(View.VISIBLE);
     }
 
-    public void showTimer(){
+    public void showTimer() {
         startTimer.setVisibility(View.VISIBLE);
         stopTimer.setVisibility(View.VISIBLE);
         resetTimer.setVisibility(View.VISIBLE);

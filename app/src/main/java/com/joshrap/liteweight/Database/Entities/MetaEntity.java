@@ -19,12 +19,15 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private String dateLast;
     private String dateCreated;
     private int timesCompleted;
+    private int completedSum;
+    private int totalSum;
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
     private String mostFrequentFocus;
 
     public MetaEntity(String workoutName, int currentDay, int totalDays, String dateLast, String dateCreated, int timesCompleted,
-                      double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus) {
+                      double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus, int completedSum,
+                      int totalSum) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
@@ -34,10 +37,8 @@ public class MetaEntity implements Comparable<MetaEntity> {
         this.currentWorkout = currentWorkout;
         this.totalDays = totalDays;
         this.mostFrequentFocus = mostFrequentFocus;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.completedSum = completedSum;
+        this.totalSum = totalSum;
     }
 
     public int getId() {
@@ -72,20 +73,32 @@ public class MetaEntity implements Comparable<MetaEntity> {
         return currentWorkout;
     }
 
-    public void setCurrentWorkout(boolean status){
-        this.currentWorkout=status;
+    public int getTotalDays() {
+        return totalDays;
+    }
+
+    public int getCompletedSum() {
+        return completedSum;
+    }
+
+    public int getTotalSum() {
+        return totalSum;
+    }
+
+    public void setCurrentWorkout(boolean status) {
+        this.currentWorkout = status;
     }
 
     public int getCurrentDay() {
         return currentDay;
     }
 
-    public void setCurrentDay(int currentDay) {
-        this.currentDay = currentDay;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getTotalDays() {
-        return totalDays;
+    public void setCurrentDay(int currentDay) {
+        this.currentDay = currentDay;
     }
 
     public void setMostFrequentFocus(String mostFrequentFocus) {
@@ -100,11 +113,23 @@ public class MetaEntity implements Comparable<MetaEntity> {
         this.timesCompleted = timesCompleted;
     }
 
+    public void setCompletedSum(int completedSum) {
+        this.completedSum = completedSum;
+    }
+
+    public void setTotalSum(int totalSum) {
+        this.totalSum = totalSum;
+    }
+
+    public void setPercentageExercisesCompleted(double percentageExercisesCompleted) {
+        this.percentageExercisesCompleted = percentageExercisesCompleted;
+    }
+
     @Override
-    public String toString(){
-        return "Id:"+getId()+" Workout: "+workoutName+" CurrentDay: "+currentDay+" TotalDays: "+totalDays+" DateLast: "+dateLast+
-                " DateCreated: "+dateCreated+ " TimesCompleted: "+timesCompleted+ " Percentage "+
-                percentageExercisesCompleted+" CurrentWorkout: "+currentWorkout;
+    public String toString() {
+        return "Id:" + getId() + " Workout: " + workoutName + " CurrentDay: " + currentDay + " TotalDays: " + totalDays + " DateLast: " + dateLast +
+                " DateCreated: " + dateCreated + " TimesCompleted: " + timesCompleted + " Percentage " +
+                percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout;
     }
 
     @Override
@@ -112,7 +137,8 @@ public class MetaEntity implements Comparable<MetaEntity> {
         DateFormat df = new SimpleDateFormat(Variables.DATE_PATTERN);
         try {
             return df.parse(dateLast).compareTo(df.parse(o.getDateLast()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -8,12 +8,9 @@ import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Database.Repositories.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ExerciseViewModel extends AndroidViewModel {
     private WorkoutRepository repository;
-    private List<ExerciseEntity> allExercises;
-    private String currentWorkout;
 
     public ExerciseViewModel(@NonNull Application application) {
         super(application);
@@ -36,7 +33,7 @@ public class ExerciseViewModel extends AndroidViewModel {
         repository.deleteAllExerciseEntities();
     }
 
-    public ArrayList<ExerciseEntity> getAllExercises(){
+    public ArrayList<ExerciseEntity> getAllExercises() {
         return new ArrayList<>(repository.getAllExercises());
     }
 }

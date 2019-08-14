@@ -37,7 +37,7 @@ public class MetaViewModel extends AndroidViewModel {
         return new ArrayList<>(repository.getAllMetadata());
     }
 
-    public MetaEntity getCurrentWorkoutMeta(){
+    public MetaEntity getCurrentWorkoutMeta() {
         return repository.getCurrentWorkoutMeta();
     }
 }

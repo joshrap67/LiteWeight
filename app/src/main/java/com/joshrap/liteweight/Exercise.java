@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -29,15 +28,14 @@ import android.widget.Toast;
 public class Exercise implements Comparable<Exercise>{
     private Context context;
     private Activity activity;
-    private String name, videoURL;
-    private boolean status, videos, ignoreWeight, metricUnits;
     private Fragment fragment;
-    private WorkoutViewModel workoutViewModel;
-    private ExerciseViewModel exerciseViewModel;
+    private String name, videoURL, formattedWeight;
+    private boolean status, videos, ignoreWeight, metricUnits;
+    private double weight;
+    private WorkoutViewModel workoutModel;
+    private ExerciseViewModel exerciseModel;
     private WorkoutEntity workoutEntity;
     private ExerciseEntity exerciseEntity;
-    private double weight;
-    private String formattedWeight;
 
     public Exercise(final WorkoutEntity workoutEntity, ExerciseEntity exerciseEntity, Context context, Activity activity,
                     Fragment fragment, boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
@@ -52,8 +50,8 @@ public class Exercise implements Comparable<Exercise>{
         this.fragment = fragment;
         this.videos = videos;
         this.metricUnits = metricUnits;
-        this.workoutViewModel = workoutViewModel;
-        this.exerciseViewModel = exerciseViewModel;
+        this.workoutModel = workoutViewModel;
+        this.exerciseModel = exerciseViewModel;
         if(workoutEntity.getStatus()){
             if(fragment instanceof CurrentWorkoutFragment){
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
@@ -66,18 +64,10 @@ public class Exercise implements Comparable<Exercise>{
         this.name = workoutEntity.getExercise();
     }
 
-    public Exercise(String exerciseName){
-        /*
-            Constructor utilized by the new workout fragment when writing to a file
-         */
-        name = exerciseName;
-        status = false;
-    }
-
     public void setStatus(boolean aStatus){
-            /*
-                Sets the status of the exercise as either being complete or incomplete.
-             */
+        /*
+            Sets the status of the exercise as either being complete or incomplete.
+         */
         status = aStatus;
         workoutEntity.setStatus(aStatus);
     }
@@ -93,7 +83,7 @@ public class Exercise implements Comparable<Exercise>{
     public View getDisplayedRow(){
             /*
                 Takes all of the information from the instance variables of this exercise and puts it into a row to be displayed
-                by the main table.
+                by the main table in the CurrentWorkout fragment.
              */
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View row = inflater.inflate(R.layout.exercise_row,null);
@@ -109,16 +99,15 @@ public class Exercise implements Comparable<Exercise>{
             public void onClick(View v) {
                 if(status){
                     workoutEntity.setStatus(false);
-                    workoutViewModel.update(workoutEntity);
+                    workoutModel.update(workoutEntity);
                     status = false;
                 }
                 else{
                     workoutEntity.setStatus(true);
-                    workoutViewModel.update(workoutEntity);
+                    workoutModel.update(workoutEntity);
                     status = true;
                 }
                 if(fragment instanceof CurrentWorkoutFragment){
-                    ((CurrentWorkoutFragment) fragment).setModified(true);
                     ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
                 }
             }
@@ -184,7 +173,7 @@ public class Exercise implements Comparable<Exercise>{
                             weight = Variables.IGNORE_WEIGHT_VALUE;
                             exerciseEntity.setCurrentWeight(weight);
                             weightButton.setText("N/A");
-                            exerciseViewModel.update(exerciseEntity);
+                            exerciseModel.update(exerciseEntity);
                             alertDialog.dismiss();
                         }
                         else if(!weightInput.getText().toString().equals("")){
@@ -202,7 +191,7 @@ public class Exercise implements Comparable<Exercise>{
                                 exerciseEntity.setMinWeight(weight);
                             }
                             exerciseEntity.setCurrentWeight(weight);
-                            exerciseViewModel.update(exerciseEntity);
+                            exerciseModel.update(exerciseEntity);
                             alertDialog.dismiss();
                         }
                         else{
@@ -220,7 +209,6 @@ public class Exercise implements Comparable<Exercise>{
                 public void onClick(View v) {
                     String errorMsg = Validator.checkValidURL(exerciseEntity.getUrl());
                     if(errorMsg==null){
-                        // found on SO
                         videoURL = exerciseEntity.getUrl();
                         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
                         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
@@ -232,7 +220,6 @@ public class Exercise implements Comparable<Exercise>{
                         }
                     }
                     else{
-                        Log.d("TAG","Error with URL:\n"+errorMsg);
                         Toast.makeText(activity, "No URL found!", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -243,6 +230,10 @@ public class Exercise implements Comparable<Exercise>{
             videoButton.setVisibility(View.GONE);
         }
         return row;
+    }
+
+    public boolean getStatus(){
+        return this.status;
     }
 
     @Override

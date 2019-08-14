@@ -11,17 +11,13 @@ import com.joshrap.liteweight.*;
 
 public class AboutFragment extends Fragment {
     private View view;
-    private boolean modifed;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_about,container,false);
-        ((MainActivity)getActivity()).updateToolbarTitle("About");
+        view = inflater.inflate(R.layout.fragment_about, container, false);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         return view;
     }
 
-    public boolean isModified(){
-        return modifed;
-    }
 }

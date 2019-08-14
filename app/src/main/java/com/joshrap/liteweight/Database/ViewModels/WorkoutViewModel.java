@@ -33,11 +33,11 @@ public class WorkoutViewModel extends AndroidViewModel {
         repository.deleteWorkoutEntity(entity);
     }
 
-    public void deleteSpecificExerciseFromWorkout(String workoutName, String exerciseName, int day){
+    public void deleteSpecificExerciseFromWorkout(String workoutName, String exerciseName, int day) {
         repository.deleteSpecificExerciseFromWorkout(workoutName, exerciseName, day);
     }
 
-    public void deleteExerciseFromWorkouts(String exerciseName){
+    public void deleteExerciseFromWorkouts(String exerciseName) {
         repository.deleteExerciseFromWorkouts(exerciseName);
     }
 
@@ -45,21 +45,19 @@ public class WorkoutViewModel extends AndroidViewModel {
         repository.deleteAllWorkouts();
     }
 
-    public void deleteEntireWorkout(String workoutName){
+    public void deleteEntireWorkout(String workoutName) {
         repository.deleteEntireWorkout(workoutName);
     }
 
-    public void updateExerciseName(String oldName, String newName){
-        repository.updateExerciseName(oldName,newName);
+    public void updateExerciseName(String oldName, String newName) {
+        repository.updateExerciseName(oldName, newName);
     }
 
     public LiveData<List<WorkoutEntity>> getAllWorkouts() {
         return allWorkouts;
     }
 
-    public ArrayList<WorkoutEntity> getExercises(String workout){
-        ArrayList<WorkoutEntity> retList = new ArrayList<>();
-        retList.addAll(repository.getExercises(workout));
-        return retList;
+    public ArrayList<WorkoutEntity> getExercises(String workout) {
+        return new ArrayList<>(repository.getExercises(workout));
     }
 }

@@ -29,10 +29,6 @@ public class ExerciseEntity {
         this.timesCompleted = timesCompleted;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getId() {
         return id;
     }
@@ -49,16 +45,28 @@ public class ExerciseEntity {
         return url;
     }
 
-    public void setUrl(String url){
-        this.url = url;
-    }
-
     public boolean isDefaultExercise() {
         return defaultExercise;
     }
 
     public double getCurrentWeight() {
         return currentWeight;
+    }
+
+    public double getMinWeight() {
+        return minWeight;
+    }
+
+    public double getMaxWeight() {
+        return maxWeight;
+    }
+
+    public int getTimesCompleted() {
+        return timesCompleted;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setExerciseName(String exerciseName) {
@@ -77,16 +85,8 @@ public class ExerciseEntity {
         this.maxWeight = maxWeight;
     }
 
-    public double getMinWeight() {
-        return minWeight;
-    }
-
-    public double getMaxWeight() {
-        return maxWeight;
-    }
-
-    public int getTimesCompleted() {
-        return timesCompleted;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override

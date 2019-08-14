@@ -1,7 +1,5 @@
 package com.joshrap.liteweight;
 
-import android.util.Log;
-
 import com.joshrap.liteweight.Database.Entities.ExerciseEntity;
 
 import java.net.URL;
@@ -10,14 +8,14 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class Validator {
-    // TODO will use this class for any and all user input validation
+
     public static String getFormattedWeight(double aWeight){
          /*
             Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
          */
         String retVal;
         if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
-            // integer type
+            // Weight is a whole number. don't want to show any decimals
             retVal = String.format("%.0f", aWeight);
         }
         else{
@@ -25,17 +23,24 @@ public class Validator {
         }
         return retVal;
     }
+
     public static String checkValidURL(String potentialURL){
+        /*
+            Ensures that a URL has the correct format
+         */
         try {
             new URL(potentialURL).toURI();
             return null;
         }
         catch (Exception e) {
-            Log.d("TAG","Exception "+e);
             return "Not a valid URL! Make sure to include protocol (i.e. https)";
         }
     }
-    public static String checkValidName(String aName, ArrayList<String> workoutNames){
+
+    public static String checkValidName(String aName, ArrayList<String> nameList){
+        /*
+            Ensures that the name is valid and doesn't already exist in a given list
+         */
         aName = aName.trim();
         if((aName.length() > 0) && (aName.length() < 500)){
             String[] letters = aName.split("");
@@ -45,7 +50,7 @@ public class Validator {
                 }
             }
             // check if workout name has already been used before
-            for(String workout : workoutNames){
+            for(String workout : nameList){
                 if(workout.equals(aName)){
                     return "Workout name already exists!";
                 }
@@ -56,17 +61,23 @@ public class Validator {
     }
 
     public static String checkValidWeek(String aWeek) {
+        /*
+            Ensures that an inputted week is valid
+         */
         if(aWeek.length() == 0){
             return "Enter value between 1-8!";
         }
         int week = Integer.parseInt(aWeek);
-        if (week > 0 && week < 9) {
+        if (week > 0 && week < 11) {
             return null;
         }
-        return "Enter value between 1-8!";
+        return "Enter value between 1-10!";
     }
 
     public static String checkValidDay(String aDay) {
+        /*
+            Ensures that an inputted day is valid
+         */
         if(aDay.length() == 0){
             return "Enter value between 1-7!";
         }
@@ -114,8 +125,7 @@ public class Validator {
         Collections.sort(maxFocuses);
         StringBuilder sb = new StringBuilder();
         for(int i=0;i<maxFocuses.size();i++){
-            Log.d("TAG","Focus is: "+maxFocuses.get(i));
-            sb.append(maxFocuses.get(i)+((i==maxFocuses.size()-1)?"":","));
+            sb.append(maxFocuses.get(i) + ((i == maxFocuses.size() - 1) ? "" : ","));
         }
         return sb.toString();
     }

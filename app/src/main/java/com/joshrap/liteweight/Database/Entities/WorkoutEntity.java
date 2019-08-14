@@ -19,9 +19,6 @@ public class WorkoutEntity {
         this.status = status;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getId() {
         return id;
@@ -35,10 +32,6 @@ public class WorkoutEntity {
         return status;
     }
 
-    public void setStatus(boolean status){
-        this.status = status;
-    }
-
     public String getExercise() {
         return exercise;
     }
@@ -47,11 +40,18 @@ public class WorkoutEntity {
         return day;
     }
 
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
     @Override
-    public String toString(){
-        /*
-            Great for debugging
-         */
-        return "Id: "+this.getId()+" Workout: "+this.workout+" Exercise: "+this.exercise+" Day: "+this.day+" Status: "+this.status;
+    public String toString() {
+        return "Id: " + this.getId() + " Workout: " + this.workout + " Exercise: " + this.exercise +
+                " Day: " + this.day + " Status: " + this.status;
     }
 }

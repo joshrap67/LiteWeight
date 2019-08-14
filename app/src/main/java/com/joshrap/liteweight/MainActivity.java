@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private ExerciseViewModel exerciseViewModel;
+    private ExerciseViewModel exerciseModel;
     private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
@@ -62,10 +62,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         // get the view models
-        exerciseViewModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
+        exerciseModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         editor = pref.edit();
-        if(pref.getBoolean(Variables.DB_KEY,true)){
+        if(pref.getBoolean(Variables.DB_EMPTY_KEY,true)){
             Log.d("TAG","Exercise table empty!");
             setProgressBar(false);
             UpdateExercisesAsync task = new UpdateExercisesAsync();
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     String video = line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX];
                     String focuses = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX_FILE];
                     ExerciseEntity entity = new ExerciseEntity(name,focuses,video,true,0,0,0,0);
-                    exerciseViewModel.insert(entity);
+                    exerciseModel.insert(entity);
                 }
                 reader.close();
             }
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected void onPostExecute(Void result) {
-            editor.putBoolean(Variables.DB_KEY, false);
+            editor.putBoolean(Variables.DB_EMPTY_KEY, false);
             editor.apply();
             setProgressBar(false);
             initViews();
@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO handle configuration changes!
         toggle.syncState();
         if (state == null) {
+            // default landing fragment is current workout one
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment()).commit();
             nav.setCheckedItem(R.id.nav_current_workout);
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment visibleFragment = getVisibleFragment();
         if(visibleFragment instanceof CurrentWorkoutFragment){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();
+                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
             ((NewWorkoutFragment) visibleFragment).setModified(false);
@@ -248,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment visibleFragment = getVisibleFragment();
         boolean modified=fragModified(visibleFragment);
         boolean quit = true;
-        // TODO check if new workout is being created, if so ask if user is sure they want to quit
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             // if the user clicked the navigation panel, allow back press to close it.
             drawer.closeDrawer(GravityCompat.START);
@@ -273,18 +273,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         /*
             Found on Stack Overflow. Used to hide the keyboard.
          */
-        View v = getCurrentFocus();
-
-        if (v != null &&
+        View view = getCurrentFocus();
+        if(view != null &&
                 (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_MOVE) &&
-                v instanceof EditText &&
-                !v.getClass().getName().startsWith("android.webkit.")) {
+                view instanceof EditText &&
+                !view.getClass().getName().startsWith("android.webkit.")) {
             int scrcoords[] = new int[2];
-            v.getLocationOnScreen(scrcoords);
-            float x = ev.getRawX() + v.getLeft() - scrcoords[0];
-            float y = ev.getRawY() + v.getTop() - scrcoords[1];
+            view.getLocationOnScreen(scrcoords);
+            float x = ev.getRawX() + view.getLeft() - scrcoords[0];
+            float y = ev.getRawY() + view.getTop() - scrcoords[1];
 
-            if (x < v.getLeft() || x > v.getRight() || y < v.getTop() || y > v.getBottom())
+            if(x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
                 hideKeyboard(this);
         }
         return super.dispatchTouchEvent(ev);
@@ -356,11 +355,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         /*
             Checks if passed in fragment has been modified
          */
-        if(aFragment==null){
+        if(aFragment == null){
             return false;
-        }
-        else if(aFragment instanceof CurrentWorkoutFragment){
-            return ((CurrentWorkoutFragment) aFragment).isModified();
         }
         else if(aFragment instanceof NewWorkoutFragment){
             return ((NewWorkoutFragment) aFragment).isModified();
@@ -383,26 +379,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void goToCurrentWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new CurrentWorkoutFragment(), "CURRENT_WORKOUT").commit();
+                new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
     }
 
     public void goToNewWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new NewWorkoutFragment(), "NEW_WORKOUT").commit();
+                new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE).commit();
     }
 
     public void goToMyWorkouts(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutFragment(), "MY_WORKOUTS").commit();
+                new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }
 
     public void goToUserSettings(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new UserSettingsFragment(), "USER_SETTINGS").commit();
+                new UserSettingsFragment(), Variables.SETTINGS_TITLE).commit();
     }
 
     public void goToAbout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new AboutFragment(), "ABOUT").commit();
+                new AboutFragment(), Variables.ABOUT_TITLE).commit();
     }
 }
