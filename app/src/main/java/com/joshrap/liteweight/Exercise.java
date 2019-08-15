@@ -86,7 +86,7 @@ public class Exercise implements Comparable<Exercise>{
                 by the main table in the CurrentWorkout fragment.
              */
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View row = inflater.inflate(R.layout.exercise_row,null);
+        final View row = inflater.inflate(R.layout.row_exercise,null);
         final CheckBox exerciseName = row.findViewById(R.id.exercise_name);
         final Button weightButton = row.findViewById(R.id.weight_button);
         // setup checkbox

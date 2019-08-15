@@ -25,7 +25,7 @@
         app:layout_constraintVertical_bias="0.07999998" />
 
     <TextView
-        android:id="@+id/popupMessage"
+        android:id="@+id/popup_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -57,7 +57,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/delete_denial"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_message" />
 
     <Button
         android:id="@+id/delete_denial"
@@ -74,5 +74,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/delete_confirm"
-        app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_message" />
 </android.support.constraint.ConstraintLayout>

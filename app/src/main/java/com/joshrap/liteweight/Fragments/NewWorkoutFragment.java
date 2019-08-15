@@ -60,7 +60,7 @@ public class NewWorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentContainer = container;
-        view = inflater.inflate(R.layout.fragment_new, container, false);
+        view = inflater.inflate(R.layout.fragment_new_workout, container, false);
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
         currentDayIndex = 0;
         /*
@@ -132,10 +132,10 @@ public class NewWorkoutFragment extends Fragment {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
-        workoutNameInput = view.findViewById(R.id.workoutNameInput);
-        numWeeksInput = view.findViewById(R.id.weekInput);
-        numDaysInput = view.findViewById(R.id.dayInput);
-        Button nextButton = view.findViewById(R.id.nextButton);
+        workoutNameInput = view.findViewById(R.id.workout_name_input);
+        numWeeksInput = view.findViewById(R.id.week_input);
+        numDaysInput = view.findViewById(R.id.day_input);
+        Button nextButton = view.findViewById(R.id.next_button);
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -236,7 +236,7 @@ public class NewWorkoutFragment extends Fragment {
         rootView.removeAllViews();
         rootView.addView(createWorkoutView);
         displayedExercisesTable = createWorkoutView.findViewById(R.id.main_table);
-        dayTitle = createWorkoutView.findViewById(R.id.dayTextView);
+        dayTitle = createWorkoutView.findViewById(R.id.day_text_view);
         dayTitle.setText(Variables.generateDayTitle(currentDayIndex, finalDayNum));
         for(int i=0;i<= maxDayIndex;i++){
             // create the hash map that maps day numbers to lists of exercises
@@ -259,8 +259,8 @@ public class NewWorkoutFragment extends Fragment {
             }
         });
         firstDay = true;
-        previousDayButton = createWorkoutView.findViewById(R.id.previousDayButton);
-        nextDayButton = createWorkoutView.findViewById(R.id.nextDayButton);
+        previousDayButton = createWorkoutView.findViewById(R.id.previous_day_button);
+        nextDayButton = createWorkoutView.findViewById(R.id.next_day_button);
         previousDayButton.setVisibility(View.INVISIBLE);
         if(maxDayIndex == 0){
             // in case some jabroni only wants to workout one day total
@@ -359,7 +359,7 @@ public class NewWorkoutFragment extends Fragment {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         int count = 0;
         for(final String exercise : pendingWorkout.get(currentDayIndex)){
-            final View row = inflater.inflate(R.layout.list_row,null);
+            final View row = inflater.inflate(R.layout.row_list_view_element,null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
             ImageButton deleteIcon = row.findViewById(R.id.delete_exercise);
@@ -382,9 +382,9 @@ public class NewWorkoutFragment extends Fragment {
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
-        View popupView = getLayoutInflater().inflate(R.layout.exercise_popup, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_add_exercise, null);
         pickExerciseTable = popupView.findViewById(R.id.main_table);
-        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
+        Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
         Collections.sort(focusList);
         ArrayAdapter<String> focusAdapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);

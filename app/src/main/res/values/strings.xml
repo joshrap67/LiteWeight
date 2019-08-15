@@ -10,11 +10,14 @@
     <string name="number_of_weeks">Number of Weeks?</string>
     <string name="number_of_days">Number of Days?</string>
     <string name="workout_name">Workout Name?</string>
+    <string name="workout_name_title">Workout Name</string>
+    <string name="video_url_hint">Video URL</string>
     <string name="workout_name_hint">Keep it family friendly</string>
     <string name="button_continue">Next</string>
     <string name="previous_day_button">Back</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="default_workout_name">Workout Madness</string>
+    <string name="ignore_weight">Ignore Weight</string>
     <string name="popup_title">Unsaved Workout!</string>
     <string name="popup_message">You have a workout currently being created. If you quit now, all progress
     will be lost! Are you sure you wish to quit?</string>
@@ -52,6 +55,8 @@
     <string name="edit_videos">Edit Exercise Videos</string>
     <string name="new_exercise">Create New</string>
     <string name="custom_exercises">Edit Custom Exercises</string>
+    <string name="nav_divider_title">Locker Room</string>
+    <string name="workout_list_title">Workout List</string>
     <!--layout for yada-->
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_create_icon_title">Create Workout</string>
@@ -79,25 +84,6 @@
         <item>Cardio</item>
         <item>Chest</item>
         <item>Legs</item>
-    </string-array>
-    <string-array name="leg_day">
-        <item>Squat</item>
-        <item>Hack Squat</item>
-        <item>Lunges</item>
-        <item>Leg Press</item>
-        <item>Leg Curls</item>
-        <item>Leg Extensions</item>
-        <item>Front Squats</item>
-        <item>Calve Raises</item>
-    </string-array>
-    <string-array name="chest_day">
-        <item>Bench Press</item>
-        <item>Incline Bench Press</item>
-        <item>Decline Bench Press</item>
-        <item>Dumbbell Flys</item>
-        <item>Incline Dumbbell Flys</item>
-        <item>Push Ups</item>
-        <item>Cable Flys</item>
     </string-array>
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>

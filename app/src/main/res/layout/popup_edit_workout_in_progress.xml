@@ -25,7 +25,7 @@
         app:layout_constraintVertical_bias="0.07999998" />
 
     <TextView
-        android:id="@+id/popupMessage"
+        android:id="@+id/popup_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -43,7 +43,7 @@
         app:layout_constraintVertical_bias="0.100000024" />
 
     <Button
-        android:id="@+id/popupYes"
+        android:id="@+id/popup_yes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -55,12 +55,12 @@
         android:text="@string/confirm"
         app:backgroundTint="@android:color/holo_green_light"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/popupNo"
+        app:layout_constraintEnd_toStartOf="@+id/popup_no"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_message" />
 
     <Button
-        android:id="@+id/popupNo"
+        android:id="@+id/popup_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -73,6 +73,6 @@
         app:backgroundTint="@android:color/holo_red_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/popupYes"
-        app:layout_constraintTop_toBottomOf="@+id/popupMessage" />
+        app:layout_constraintStart_toEndOf="@+id/popup_yes"
+        app:layout_constraintTop_toBottomOf="@+id/popup_message" />
 </android.support.constraint.ConstraintLayout>

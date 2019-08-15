@@ -54,7 +54,7 @@ public class CurrentWorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.default_layout, container, false);
-        defaultTV = view.findViewById(R.id.default_tv);
+        defaultTV = view.findViewById(R.id.default_text_view);
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
         ((MainActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
@@ -168,12 +168,12 @@ public class CurrentWorkoutFragment extends Fragment {
             Database queries complete, so switch layouts and init all the widgets
          */
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = inflater.inflate(R.layout.fragment_workout, fragmentContainer, false);
+        view = inflater.inflate(R.layout.fragment_current_workout, fragmentContainer, false);
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(view);
-        forwardButton = view.findViewById(R.id.forwardButton);
-        backButton = view.findViewById(R.id.previousDayButton);
+        forwardButton = view.findViewById(R.id.next_day_button);
+        backButton = view.findViewById(R.id.previous_day_button);
         startTimer = view.findViewById(R.id.start_timer);
         stopTimer = view.findViewById(R.id.stop_timer);
         resetTimer = view.findViewById(R.id.reset_timer);
@@ -182,7 +182,7 @@ public class CurrentWorkoutFragment extends Fragment {
         showTimer.setVisibility(View.INVISIBLE);
         table = view.findViewById(R.id.main_table);
         timer = view.findViewById(R.id.timer);
-        dayTV = view.findViewById(R.id.dayTextView);
+        dayTV = view.findViewById(R.id.day_text_view);
         ConstraintLayout timerContainer = view.findViewById(R.id.constraint_layout);
         /*
             Get shared preferences data
@@ -325,7 +325,7 @@ public class CurrentWorkoutFragment extends Fragment {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         final AlertDialog alertDialog = alertDialogBuilder.create();
         final View popupView = getLayoutInflater().inflate(R.layout.reset_popup, null);
-        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        Button confirmButton = popupView.findViewById(R.id.popup_yes);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -335,7 +335,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 alertDialog.dismiss();
             }
         });
-        Button quitButton = popupView.findViewById(R.id.popupNo);
+        Button quitButton = popupView.findViewById(R.id.popup_no);
 
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override

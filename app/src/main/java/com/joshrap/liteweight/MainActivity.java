@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final AlertDialog alertDialog = alertDialogBuilder.create();
         final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
-        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        Button confirmButton = popupView.findViewById(R.id.popup_yes);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -330,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 alertDialog.dismiss();
             }
         });
-        Button quitButton = popupView.findViewById(R.id.popupNo);
+        Button quitButton = popupView.findViewById(R.id.popup_no);
 
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override

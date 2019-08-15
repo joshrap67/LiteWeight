@@ -69,7 +69,7 @@ public class MyWorkoutFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.default_layout, container, false);
         fragmentContainer = container;
-        defaultTV = view.findViewById(R.id.default_tv);
+        defaultTV = view.findViewById(R.id.default_text_view);
         defaultTV.setVisibility(View.GONE);
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
@@ -215,7 +215,7 @@ public class MyWorkoutFragment extends Fragment {
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
                 "Number of Days in Workout: " + days + "\n" +
-                "Most worked focus: " + selectedWorkout.getMostFrequentFocus();
+                "Most Worked Focus: " + selectedWorkout.getMostFrequentFocus();
         statisticsTV.setText(msg);
     }
     public void promptReset(){
@@ -263,8 +263,8 @@ public class MyWorkoutFragment extends Fragment {
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        final View popupView = getLayoutInflater().inflate(R.layout.delete_popup, null);
-        Button confirmButton = popupView.findViewById(R.id.popupYes);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_delete_workout, null);
+        Button confirmButton = popupView.findViewById(R.id.popup_yes);
         TextView workoutName = popupView.findViewById(R.id.workout_name);
         workoutName.setText(selectedWorkout.getWorkoutName());
         confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -274,7 +274,7 @@ public class MyWorkoutFragment extends Fragment {
                 alertDialog.dismiss();
             }
         });
-        Button quitButton = popupView.findViewById(R.id.popupNo);
+        Button quitButton = popupView.findViewById(R.id.popup_no);
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -432,7 +432,7 @@ public class MyWorkoutFragment extends Fragment {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                     final AlertDialog alertDialog = alertDialogBuilder.create();
                     final View popupView = getLayoutInflater().inflate(R.layout.popup_edit_workout_in_progress, null);
-                    Button confirmButton = popupView.findViewById(R.id.popupYes);
+                    Button confirmButton = popupView.findViewById(R.id.popup_yes);
                     confirmButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -440,7 +440,7 @@ public class MyWorkoutFragment extends Fragment {
                             alertDialog.dismiss();
                         }
                     });
-                    Button quitButton = popupView.findViewById(R.id.popupNo);
+                    Button quitButton = popupView.findViewById(R.id.popup_no);
 
                     quitButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -458,9 +458,9 @@ public class MyWorkoutFragment extends Fragment {
 
             }
         });
-        final Button previousDayBtn = view.findViewById(R.id.previousDayButton);
-        final Button nextDayBtn = view.findViewById(R.id.nextDayButton);
-        final TextView dayTitle = view.findViewById(R.id.dayTextView);
+        final Button previousDayBtn = view.findViewById(R.id.previous_day_button);
+        final Button nextDayBtn = view.findViewById(R.id.next_day_button);
+        final TextView dayTitle = view.findViewById(R.id.day_text_view);
         dayTitle.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
         previousDayBtn.setVisibility(View.INVISIBLE);
         if(maxDayIndex == 0){
@@ -564,9 +564,9 @@ public class MyWorkoutFragment extends Fragment {
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialog = alertDialogBuilder.create();
-        View popupView = getLayoutInflater().inflate(R.layout.exercise_popup, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_add_exercise, null);
         pickExerciseTable = popupView.findViewById(R.id.main_table);
-        Spinner focusSpinner = popupView.findViewById(R.id.focusSpinner);
+        Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
         Collections.sort(focusList);
         ArrayAdapter<String> focusAdapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
@@ -602,7 +602,7 @@ public class MyWorkoutFragment extends Fragment {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         int count = 0;
         for(final String exercise : pendingWorkout.get(currentDayIndex)){
-            final View row = inflater.inflate(R.layout.list_row, null);
+            final View row = inflater.inflate(R.layout.row_list_view_element, null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
             ImageButton deleteIcon = row.findViewById(R.id.delete_exercise);

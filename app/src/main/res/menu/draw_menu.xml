@@ -14,7 +14,7 @@
             android:icon="@drawable/create_icon"
             android:title="@string/nav_create_icon_title" />
     </group>
-    <item android:title="Locker Room">
+    <item android:title="@string/nav_divider_title">
         <menu>
             <group android:checkableBehavior="single">
                 <item
