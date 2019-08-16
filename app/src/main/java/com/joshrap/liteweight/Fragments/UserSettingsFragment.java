@@ -524,7 +524,6 @@ public class UserSettingsFragment extends Fragment {
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
         exerciseName.setText(name);
         final EditText nameInput = popupView.findViewById(R.id.name_input);
-        // TODO put max limit here and not in XML
         Button doneBtn = popupView.findViewById(R.id.done_btn);
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -540,7 +539,15 @@ public class UserSettingsFragment extends Fragment {
                     exercisesForSelectedFocus.add(newName);
                     Collections.sort(exercisesForSelectedFocus);
                     exerciseAdapter.notifyDataSetChanged();
+                    for(String focus : customExercises.keySet()){
+                        if(customExercises.get(focus).contains(name)){
+                            customExercises.get(focus).remove(name);
+                            customExercises.get(focus).add(newName);
+                        }
+                    }
                     alertDialog.dismiss();
+                    rootDialog.dismiss();
+                    editCustomExercisePopup(newName); // lil hacky, but otherwise old name will persist when the rename popup clsoes
                 }
             }
         });

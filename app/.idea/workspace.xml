@@ -12,45 +12,7 @@
   <component name="ChangeListManager">
     <list default="true" id="25b95d70-539a-471a-8526-38a924eec042" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/assets/Josh's Workout.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Exercise.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/CurrentWorkoutFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/CurrentWorkoutFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/NewWorkoutFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/NewWorkoutFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/ic_launcher_foreground.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/add_icon.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/delete_icon.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_menu_black_24dp.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/create_workout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/create_workout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/default_layout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/default_layout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/delete_popup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_delete_workout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/edit_workout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/edit_workout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/exercise_popup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_add_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/exercise_row.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/row_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/fragment_about.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_about.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/fragment_my_workouts.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_my_workouts.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/fragment_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_new_workout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/fragment_workout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_current_workout.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/list_row.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/row_list_view_element.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/nav_header.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/nav_header.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_delete_custom_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_delete_custom_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_edit_custom_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_edit_custom_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_edit_default_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_edit_default_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_edit_url.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_edit_url.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_edit_weight.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_edit_weight.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_edit_workout_in_progress.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_edit_workout_in_progress.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_new_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_new_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_rename_custom_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_rename_custom_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/popup_reset_statistics.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/popup_reset_statistics.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/quit_popup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/quit_popup.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/reset_popup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/reset_popup.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/row_add_exercise.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/row_add_exercise.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/menu/draw_menu.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/menu/draw_menu.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/values/ic_launcher_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -67,11 +29,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/res/values/strings.xml">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" column="54" lean-forward="true" selection-start-line="11" selection-start-column="54" selection-end-line="11" selection-end-column="54" />
+            <state relative-caret-position="17">
+              <caret line="36" column="13" selection-start-line="36" selection-start-column="13" selection-end-line="36" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="245">
+              <caret line="544" column="68" selection-start-line="544" selection-start-column="68" selection-end-line="544" selection-end-column="68" />
             </state>
           </provider>
         </entry>
@@ -135,7 +106,6 @@
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Database/Repositories/WorkoutRepository.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Validator.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/NewWorkoutFragment.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Variables.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/CurrentWorkoutFragment.java" />
@@ -163,6 +133,7 @@
         <option value="$PROJECT_DIR$/src/main/res/layout/popup_new_exercise.xml" />
         <option value="$PROJECT_DIR$/src/main/res/layout/popup_rename_custom_exercise.xml" />
         <option value="$PROJECT_DIR$/src/main/res/layout/row_add_exercise.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java" />
       </list>
     </option>
   </component>
@@ -177,6 +148,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="ProjectPane" />
       <pane id="AndroidView">
         <subPane>
           <expand>
@@ -202,30 +176,10 @@
               <item name="liteweight" type="cbb59c9e:AndroidPsiDirectoryNode" />
               <item name="Fragments" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="LiteWeight" type="1abcf292:AndroidViewProjectNode" />
-              <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
-            </path>
-            <path>
-              <item name="LiteWeight" type="1abcf292:AndroidViewProjectNode" />
-              <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
-              <item name="layout" type="ddeffd01:AndroidResFolderTypeNode" />
-            </path>
-            <path>
-              <item name="LiteWeight" type="1abcf292:AndroidViewProjectNode" />
-              <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
-              <item name="values" type="ddeffd01:AndroidResFolderTypeNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="ProjectPane" />
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -326,7 +280,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.1902834" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.1902834" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -336,7 +290,7 @@
       <window_info id="Capture Tool" order="8" />
       <window_info id="Favorites" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="0" />
-      <window_info anchor="bottom" id="Logcat" order="1" weight="0.3285968" />
+      <window_info active="true" anchor="bottom" id="Logcat" order="1" visible="true" weight="0.3285968" />
       <window_info anchor="bottom" id="DB Execution Console" order="2" />
       <window_info anchor="bottom" id="TODO" order="3" />
       <window_info anchor="bottom" id="Android Profiler" order="4" />
@@ -386,12 +340,6 @@
     </layout-to-restore>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/res/drawable/ic_menu_black_24dp.xml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/res/drawable/stock_photo.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/res/drawable-v24/gradient.xml">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -682,8 +630,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/res/values/strings.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="54" lean-forward="true" selection-start-line="11" selection-start-column="54" selection-end-line="11" selection-end-column="54" />
+        <state relative-caret-position="136">
+          <caret line="8" column="55" selection-start-line="8" selection-start-column="55" selection-end-line="8" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="36" column="13" selection-start-line="36" selection-start-column="13" selection-end-line="36" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="544" column="68" selection-start-line="544" selection-start-column="68" selection-end-line="544" selection-end-column="68" />
         </state>
       </provider>
     </entry>
