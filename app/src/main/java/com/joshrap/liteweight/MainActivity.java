@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        final View popupView = getLayoutInflater().inflate(R.layout.quit_popup, null);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_quit, null);
         Button confirmButton = popupView.findViewById(R.id.popup_yes);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override

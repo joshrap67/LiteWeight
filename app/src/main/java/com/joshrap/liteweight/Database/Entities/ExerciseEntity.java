@@ -8,6 +8,7 @@ import android.arch.persistence.room.PrimaryKey;
 public class ExerciseEntity {
     @PrimaryKey(autoGenerate = true)
     private int id;
+    private int timesCompleted;
     private String exerciseName;
     private String focus;
     private String url;
@@ -15,7 +16,6 @@ public class ExerciseEntity {
     private double currentWeight;
     private double minWeight;
     private double maxWeight;
-    private int timesCompleted;
 
     public ExerciseEntity(String exerciseName, String focus, String url, boolean defaultExercise, double currentWeight, double minWeight,
                           double maxWeight, int timesCompleted) {

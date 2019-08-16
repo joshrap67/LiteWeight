@@ -324,7 +324,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        final View popupView = getLayoutInflater().inflate(R.layout.reset_popup, null);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_reset_workout, null);
         Button confirmButton = popupView.findViewById(R.id.popup_yes);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override

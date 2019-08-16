@@ -7,9 +7,9 @@ import android.arch.persistence.room.PrimaryKey;
 public class WorkoutEntity {
     @PrimaryKey(autoGenerate = true)
     private int id;
+    private int day;
     private String exercise;
     private String workout;
-    private int day;
     private boolean status;
 
     public WorkoutEntity(String exercise, String workout, int day, boolean status) {

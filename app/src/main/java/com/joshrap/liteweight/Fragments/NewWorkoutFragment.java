@@ -139,7 +139,7 @@ public class NewWorkoutFragment extends Fragment {
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = Validator.checkValidName(workoutNameInput.getText().toString(),workoutNames);
+                    String errorMsg = Validator.checkValidName(workoutNameInput.getText().toString().trim(),workoutNames);
                     if(errorMsg == null) {
                         modified = true;
                         return true;
@@ -186,7 +186,7 @@ public class NewWorkoutFragment extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String currentName = workoutNameInput.getText().toString();
+                String currentName = workoutNameInput.getText().toString().trim();
                 String currentWeeks = numWeeksInput.getText().toString();
                 String currentDays = numDaysInput.getText().toString();
                 String nameError = Validator.checkValidName(currentName, workoutNames);

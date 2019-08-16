@@ -28,6 +28,7 @@ public class Validator {
         /*
             Ensures that a URL has the correct format
          */
+        potentialURL = potentialURL.trim();
         try {
             new URL(potentialURL).toURI();
             return null;

@@ -13,17 +13,17 @@ import java.text.SimpleDateFormat;
 public class MetaEntity implements Comparable<MetaEntity> {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String workoutName;
-    private int currentDay;
-    private int totalDays;
-    private String dateLast;
-    private String dateCreated;
     private int timesCompleted;
     private int completedSum;
     private int totalSum;
+    private int currentDay;
+    private int totalDays;
+    private String workoutName;
+    private String dateLast;
+    private String dateCreated;
+    private String mostFrequentFocus;
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
-    private String mostFrequentFocus;
 
     public MetaEntity(String workoutName, int currentDay, int totalDays, String dateLast, String dateCreated, int timesCompleted,
                       double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus, int completedSum,

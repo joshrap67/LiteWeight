@@ -246,7 +246,7 @@ public class UserSettingsFragment extends Fragment {
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String exerciseName = exerciseNameInput.getText().toString();
+                String exerciseName = exerciseNameInput.getText().toString().trim();
                 String url = editURL.getText().toString();
                 if(selectedFocuses.size()==0){
                     Toast.makeText(getContext(),"Select at least one focus!",Toast.LENGTH_SHORT).show();
@@ -258,7 +258,7 @@ public class UserSettingsFragment extends Fragment {
                 else if(validateNewExerciseName(exerciseNameInput)){
                     StringBuilder sb = new StringBuilder();
                     for(int i=0;i<selectedFocuses.size();i++){
-                        customExercises.get(selectedFocuses.get(i)).add(exerciseNameInput.getText().toString());
+                        customExercises.get(selectedFocuses.get(i)).add(exerciseName);
                         sb.append(selectedFocuses.get(i) + ((i == selectedFocuses.size() - 1) ? "" : ","));
                     }
                     String focusEntry=sb.toString();
@@ -572,7 +572,7 @@ public class UserSettingsFragment extends Fragment {
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
-        String msg = getActivity().getResources().getString(R.string.delete) + name;
+        String msg = getActivity().getResources().getString(R.string.delete) +" "+ name;
         exerciseName.setText(msg);
         Button deleteConfirm = popupView.findViewById(R.id.delete_confirm);
         deleteConfirm.setOnClickListener(new View.OnClickListener() {
