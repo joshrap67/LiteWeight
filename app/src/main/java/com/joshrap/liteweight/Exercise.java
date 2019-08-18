@@ -184,10 +184,10 @@ public class Exercise implements Comparable<Exercise>{
                                 // convert if in metric
                                 weight /= Variables.KG;
                             }
-                            if(weight > exerciseEntity.getMaxWeight()){
+                            if(weight > exerciseEntity.getMaxWeight() ){
                                 exerciseEntity.setMaxWeight(weight);
                             }
-                            else if(weight < exerciseEntity.getMinWeight()){
+                            else if(weight < exerciseEntity.getMinWeight() || exerciseEntity.getMinWeight() == 0){
                                 exerciseEntity.setMinWeight(weight);
                             }
                             exerciseEntity.setCurrentWeight(weight);

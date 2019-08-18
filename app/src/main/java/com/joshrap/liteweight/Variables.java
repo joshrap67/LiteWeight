@@ -9,7 +9,7 @@ public class Variables {
             VIDEO_INDEX = 1,
             FOCUS_INDEX_FILE = 2,
             IGNORE_WEIGHT_VALUE = -1,
-            MAX_NUMBER_OF_WORKOUTS = 75,
+            MAX_NUMBER_OF_WORKOUTS = 50,
             MAX_NUMBER_OF_CUSTOM_EXERCISES = 200;
 
     public static final double KG = 0.45359237;
@@ -21,6 +21,7 @@ public class Variables {
             SHARED_PREF_NAME = "userSettings",
             VIDEO_KEY = "Videos",
             TIMER_KEY = "Timer",
+            DATABASE_NAME = "workout_db",
             DB_EMPTY_KEY = "DB_EMPTY",
             UNIT_KEY = "METRIC",
             DATE_PATTERN = "MM/dd/yyyy HH:mm:ss",

@@ -291,11 +291,14 @@ public class CurrentWorkoutFragment extends Fragment {
         int totalExercises = 0;
         for(int i=0;i<=maxDayIndex;i++){
             for(Exercise exercise : workout.get(i)) {
+                ExerciseEntity exerciseEntity = exerciseToExerciseEntity.get(exercise.getName());
                 totalExercises++;
                 if(exercise.getStatus()){
+                    exerciseEntity.setTimesCompleted(exerciseEntity.getTimesCompleted()+1);
                     exercisesCompleted++;
                 }
                 exercise.setStatus(false);
+                exerciseModel.update(exerciseEntity);
                 workoutModel.update(exercise.getWorkoutEntity());
             }
         }

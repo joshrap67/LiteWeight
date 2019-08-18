@@ -496,7 +496,7 @@ public class UserSettingsFragment extends Fragment {
                     if(aWeight > entity.getMaxWeight()){
                         entity.setMaxWeight(aWeight);
                     }
-                    else if(aWeight < entity.getMinWeight()){
+                    else if(aWeight < entity.getMinWeight() || entity.getMinWeight() == 0){
                         entity.setMinWeight(aWeight);
                     }
                     entity.setCurrentWeight(aWeight);

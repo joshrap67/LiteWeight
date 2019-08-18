@@ -81,6 +81,10 @@ public class ExerciseEntity {
         this.minWeight = minWeight;
     }
 
+    public void setTimesCompleted(int timesCompleted) {
+        this.timesCompleted = timesCompleted;
+    }
+
     public void setMaxWeight(double maxWeight) {
         this.maxWeight = maxWeight;
     }
