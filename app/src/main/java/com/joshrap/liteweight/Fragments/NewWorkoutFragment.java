@@ -193,9 +193,18 @@ public class NewWorkoutFragment extends Fragment {
                 String weekError = Validator.checkValidWeek(currentWeeks);
                 String dayError = Validator.checkValidDay(currentDays);
                 if(workoutNames.size() > Variables.MAX_NUMBER_OF_WORKOUTS){
-                    Toast.makeText(getContext(),"Whoa there! You have too many workouts!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),"Whoa there! You have too many workouts! Go delete some.",Toast.LENGTH_SHORT).show();
                 }
-                else if(nameError == null && weekError == null && dayError == null){
+                else if(nameError != null){
+                    displayErrorMessage("Name", nameError);
+                }
+                else if(weekError != null){
+                    displayErrorMessage("Weeks", weekError);
+                }
+                else if(dayError != null){
+                    displayErrorMessage("Days", dayError);
+                }
+                else{
                     finalName = currentName.trim();
                     finalWeekNum = Integer.parseInt(currentWeeks);
                     finalDayNum = Integer.parseInt(currentDays);
@@ -306,7 +315,7 @@ public class NewWorkoutFragment extends Fragment {
                 else{
                     // on the last day so check if every day has at least one exercise in it before writing to file
                     boolean ready = true;
-                    for(int i = 0; i< pendingWorkout.size(); i++){
+                    for(int i =0;i<pendingWorkout.size();i++){
                         if(pendingWorkout.get(i) == null){
                             ready = false;
                         }

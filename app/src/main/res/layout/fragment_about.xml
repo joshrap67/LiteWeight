@@ -125,7 +125,8 @@
             android:id="@+id/contact_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/about_contact" />
+            android:text="@string/about_contact"
+            android:textIsSelectable="true" />
     </ScrollView>
 
 </android.support.constraint.ConstraintLayout>

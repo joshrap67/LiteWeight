@@ -37,8 +37,8 @@ public abstract class WorkoutDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             // example of how to do this if necessary
-            database.execSQL("ALTER TABLE workout_table "
-                    + " ADD COLUMN reps INT NOT NULL DEFAULT(0)");
+//            database.execSQL("ALTER TABLE workout_table "
+//                    + " ADD COLUMN reps INT NOT NULL DEFAULT(0)");
         }
     };
     //endregion

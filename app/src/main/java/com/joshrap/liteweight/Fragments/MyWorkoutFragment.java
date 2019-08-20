@@ -205,11 +205,14 @@ public class MyWorkoutFragment extends Fragment {
         int timesCompleted = selectedWorkout.getTimesCompleted();
         double percentage = selectedWorkout.getPercentageExercisesCompleted();
         String formattedPercentage;
-        if(percentage > 0.0) {
+        if(percentage > 0.0 && percentage < 100.0) {
             formattedPercentage = String.format("%.3f", percentage) + "%";
         }
-        else{
+        else if(percentage == 0.0){
             formattedPercentage = "0%";
+        }
+        else{
+            formattedPercentage = "100%";
         }
         int days = selectedWorkout.getTotalDays()+1;
         String msg = "Times Completed: " + timesCompleted + "\n" +
@@ -218,6 +221,7 @@ public class MyWorkoutFragment extends Fragment {
                 "Most Worked Focus: " + selectedWorkout.getMostFrequentFocus();
         statisticsTV.setText(msg);
     }
+
     public void promptReset(){
         /*
             Prompt the user if they actually want to reset the selected workout
