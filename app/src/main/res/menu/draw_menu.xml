@@ -23,7 +23,7 @@
                     android:title="@string/nav_user_settings" />
                 <item
                     android:id="@+id/nav_about"
-                    android:icon="@drawable/help_icon"
+                    android:icon="@drawable/about_icon"
                     android:title="@string/nav_about" />
             </group>
 

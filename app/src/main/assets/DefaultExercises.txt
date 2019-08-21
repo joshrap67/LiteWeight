@@ -53,7 +53,7 @@ Side Deltoid Raise*NONE*Shoulders
 Sit-Up*NONE*Core
 Sitting Cable Row*NONE*Back,Shoulders
 Skullcrusher*NONE*Triceps
-Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*Core,Strength Training
+Squat*https://www.youtube.com/watch?v=MVMNk0HiTMg*Legs,Strength Training
 Stairs*NONE*Cardio,Legs
 Swimming*NONE*Cardio,Core
 Tricep Dip*https://youtu.be/0326dy_-CzM?t=10*Chest,Triceps
