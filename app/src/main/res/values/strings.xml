@@ -109,7 +109,7 @@
     </string>
     <string name="about_contact_title">Contact Info</string>
     <string name="about_contact">
-        This application is open source and is non-profit. All code can be found on github: https://github.com/joshrap67/LiteWeight.\n\n Feel free
+        This application is open source and is non-profit. All code can be found on github: https://github.com/joshrap67/LiteWeight.\n\nFeel free
         to submit any pull requests for changes that you would like to see or if you find any bugs please don’t hesitate to submit an issue notice.
     </string>
 </resources>
