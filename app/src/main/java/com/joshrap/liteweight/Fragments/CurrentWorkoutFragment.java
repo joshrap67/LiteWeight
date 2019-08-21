@@ -38,7 +38,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private View view;
     private ViewGroup fragmentContainer;
     private Chronometer timer;
-    private int currentDayIndex, maxDayIndex;
+    private int currentDayIndex, maxDayIndex, numDays;
     private String currentWorkout;
     private boolean workoutModified = false, timerRunning = false, accessingDB = false;
     private long lastTime;
@@ -90,7 +90,8 @@ public class CurrentWorkoutFragment extends Fragment {
                 currentWorkoutEntity = result;
                 currentWorkout = currentWorkoutEntity.getWorkoutName();
                 currentDayIndex = currentWorkoutEntity.getCurrentDay();
-                maxDayIndex = currentWorkoutEntity.getTotalDays();
+                maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
+                numDays = currentWorkoutEntity.getNumDays();
                 Log.d("TAG", "CurrentWorkout: " + currentWorkoutEntity.toString());
                 GetExercisesTask task = new GetExercisesTask();
                 task.execute();
@@ -220,7 +221,7 @@ public class CurrentWorkoutFragment extends Fragment {
             Populates exercises based on the current day.
          */
         table.removeAllViews();
-        dayTV.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
+        dayTV.setText(Variables.generateDayTitle(currentDayIndex, numDays));
         int count = 0;
         for(Exercise exercise : workout.get(currentDayIndex)) {
             View row = exercise.getDisplayedRow();

@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,7 +51,7 @@ public class MyWorkoutFragment extends Fragment {
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseViewModel;
     private boolean firstDay, lastDay, editing;
-    private int maxDayIndex, currentDayIndex;
+    private int maxDayIndex, currentDayIndex, numDays;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
     private ArrayList<String> focusList = new ArrayList<>();
@@ -219,7 +217,7 @@ public class MyWorkoutFragment extends Fragment {
         else{
             formattedPercentage = "100%";
         }
-        int days = selectedWorkout.getTotalDays()+1;
+        int days = selectedWorkout.getMaxDayIndex()+1;
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
                 "Number of Days in Workout: " + days + "\n" +
@@ -400,7 +398,8 @@ public class MyWorkoutFragment extends Fragment {
         rootView.addView(editWorkoutView);
         displayedExercisesTable = editWorkoutView.findViewById(R.id.main_table);
         currentDayIndex = 0;
-        maxDayIndex = selectedWorkout.getTotalDays();
+        maxDayIndex = selectedWorkout.getMaxDayIndex();
+        numDays = selectedWorkout.getNumDays();
         for(int i =0;i<=maxDayIndex;i++){
             // init the hash tables
             pendingWorkout.put(i,new ArrayList<String>());
@@ -469,7 +468,7 @@ public class MyWorkoutFragment extends Fragment {
         final Button previousDayBtn = view.findViewById(R.id.previous_day_button);
         final Button nextDayBtn = view.findViewById(R.id.next_day_button);
         final TextView dayTitle = view.findViewById(R.id.day_text_view);
-        dayTitle.setText(Variables.generateDayTitle(currentDayIndex, maxDayIndex));
+        dayTitle.setText(Variables.generateDayTitle(currentDayIndex, numDays));
         previousDayBtn.setVisibility(View.INVISIBLE);
         if(maxDayIndex == 0){
             // in case some jabroni only wants to workout one day total
@@ -493,7 +492,7 @@ public class MyWorkoutFragment extends Fragment {
                     firstDay = true;
                 }
                 addExercisesToMainTable();
-                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,maxDayIndex));
+                dayTitle.setText(Variables.generateDayTitle(currentDayIndex, numDays));
             }
         });
         nextDayBtn.setOnClickListener(new View.OnClickListener() {
@@ -511,7 +510,7 @@ public class MyWorkoutFragment extends Fragment {
                         nextDayBtn.setVisibility(View.INVISIBLE);
                     }
                     addExercisesToMainTable();
-                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,maxDayIndex));
+                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex, numDays));
                 }
             }
         });

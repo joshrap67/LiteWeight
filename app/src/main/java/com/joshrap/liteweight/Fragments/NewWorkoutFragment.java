@@ -310,7 +310,7 @@ public class NewWorkoutFragment extends Fragment {
                         nextDayButton.setText(getActivity().getResources().getString(R.string.finish_button));
                     }
                     addExercisesToMainTable();
-                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex, finalDayNum));
                 }
                 else{
                     // on the last day so check if every day has at least one exercise in it before writing to file
@@ -346,7 +346,7 @@ public class NewWorkoutFragment extends Fragment {
         SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
         Date date = new Date();
         String mostFrequentFocus = Validator.mostFrequentFocus(pendingWorkout,exerciseNameToEntity,focusList);
-        MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,formatter.format(date),formatter.format(date),
+        MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,finalDayNum,formatter.format(date),formatter.format(date),
                 0,0,firstWorkout, mostFrequentFocus,0,0);
         metaModel.insert(log);
         // write to the workout table

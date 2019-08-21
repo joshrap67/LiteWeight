@@ -17,7 +17,8 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private int completedSum;
     private int totalSum;
     private int currentDay;
-    private int totalDays;
+    private int maxDayIndex;
+    private int numDays;
     private String workoutName;
     private String dateLast;
     private String dateCreated;
@@ -25,17 +26,18 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
 
-    public MetaEntity(String workoutName, int currentDay, int totalDays, String dateLast, String dateCreated, int timesCompleted,
+    public MetaEntity(String workoutName, int currentDay, int maxDayIndex, int numDays, String dateLast, String dateCreated, int timesCompleted,
                       double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus, int completedSum,
                       int totalSum) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
         this.dateCreated = dateCreated;
+        this.numDays = numDays;
         this.timesCompleted = timesCompleted;
         this.percentageExercisesCompleted = percentageExercisesCompleted;
         this.currentWorkout = currentWorkout;
-        this.totalDays = totalDays;
+        this.maxDayIndex = maxDayIndex;
         this.mostFrequentFocus = mostFrequentFocus;
         this.completedSum = completedSum;
         this.totalSum = totalSum;
@@ -57,6 +59,10 @@ public class MetaEntity implements Comparable<MetaEntity> {
         return dateCreated;
     }
 
+    public int getNumDays() {
+        return numDays;
+    }
+
     public int getTimesCompleted() {
         return timesCompleted;
     }
@@ -73,8 +79,8 @@ public class MetaEntity implements Comparable<MetaEntity> {
         return currentWorkout;
     }
 
-    public int getTotalDays() {
-        return totalDays;
+    public int getMaxDayIndex() {
+        return maxDayIndex;
     }
 
     public int getCompletedSum() {
@@ -127,7 +133,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
 
     @Override
     public String toString() {
-        return "Id:" + getId() + " Workout: " + workoutName + " CurrentDay: " + currentDay + " TotalDays: " + totalDays + " DateLast: " + dateLast +
+        return "Id:" + getId() + " Workout: " + workoutName + " CurrentDay: " + currentDay + " TotalDays: " + maxDayIndex + " DateLast: " + dateLast +
                 " DateCreated: " + dateCreated + " TimesCompleted: " + timesCompleted + " Percentage " +
                 percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout;
     }

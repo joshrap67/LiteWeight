@@ -31,9 +31,9 @@ public class Variables {
             NEW_WORKOUT_TITLE = "Workout Creator",
             SETTINGS_TITLE = "Settings";
 
-    public static String generateDayTitle(int num, int maxDayIndex) {
-        int weekNum = (num / (maxDayIndex + 1)) + 1;
-        int dayNum = (num % (maxDayIndex + 1)) + 1;
+    public static String generateDayTitle(int num, int numDays) {
+        int weekNum = (num / numDays) + 1;
+        int dayNum = (num % numDays) + 1;
         return "W" + weekNum + ":D" + dayNum;
     }
 }
