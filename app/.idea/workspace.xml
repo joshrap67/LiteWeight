@@ -12,8 +12,7 @@
   <component name="ChangeListManager">
     <list default="true" id="25b95d70-539a-471a-8526-38a924eec042" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/fragment_about.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_about.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,62 +42,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/assets/DefaultExercises.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="317">
               <caret line="55" column="60" selection-start-line="55" selection-start-column="60" selection-end-line="55" selection-end-column="60" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/res/layout/fragment_about.xml">
-          <provider editor-type-id="android-designer2" />
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+            <state relative-caret-position="212">
+              <caret line="322" column="50" selection-start-line="322" selection-start-column="50" selection-end-line="322" selection-end-column="50" />
               <folding>
-                <element signature="e#1530#1560#0" expanded="true" />
-                <element signature="e#1906#1930#0" expanded="true" />
-                <element signature="e#2148#2182#0" expanded="true" />
-                <element signature="e#2380#2408#0" expanded="true" />
-                <element signature="e#2617#2646#0" expanded="true" />
-                <element signature="e#2992#3015#0" expanded="true" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/AboutFragment.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Variables.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="17" column="60" lean-forward="true" selection-start-line="17" selection-start-column="60" selection-end-line="17" selection-end-column="60" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="102" column="24" selection-start-line="86" selection-start-column="12" selection-end-line="102" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/res/values/strings.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="113" column="13" lean-forward="true" selection-start-line="113" selection-start-column="13" selection-end-line="113" selection-end-column="13" />
+            <state relative-caret-position="314">
+              <caret line="193" column="8" selection-start-line="193" selection-start-column="8" selection-end-line="195" selection-end-column="64" />
             </state>
           </provider>
         </entry>
@@ -183,7 +149,6 @@
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Database/Entities/WorkoutEntity.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Database/WorkoutDatabase.java" />
         <option value="$PROJECT_DIR$/src/main/res/layout/fragment_user_settings.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/NewWorkoutFragment.java" />
         <option value="$PROJECT_DIR$/src/main/res/layout/popup_edit_url.xml" />
         <option value="$PROJECT_DIR$/src/main/assets/DefaultExercises.txt" />
@@ -196,6 +161,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Variables.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/AboutFragment.java" />
         <option value="$PROJECT_DIR$/src/main/res/values/strings.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java" />
       </list>
     </option>
   </component>
@@ -373,7 +339,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.1902834" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.1902834" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -383,11 +349,11 @@
       <window_info id="Capture Tool" order="8" />
       <window_info id="Favorites" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="0" />
-      <window_info anchor="bottom" id="Logcat" order="1" weight="0.3285968" />
+      <window_info active="true" anchor="bottom" id="Logcat" order="1" sideWeight="0.49959514" visible="true" weight="0.3285968" />
       <window_info anchor="bottom" id="DB Execution Console" order="2" />
       <window_info anchor="bottom" id="TODO" order="3" weight="0.3285968" />
       <window_info anchor="bottom" id="Android Profiler" order="4" />
-      <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" weight="0.3285968" />
+      <window_info anchor="bottom" id="Event Log" order="5" sideWeight="0.50040483" side_tool="true" weight="0.3285968" />
       <window_info anchor="bottom" id="Build" order="6" weight="0.3285968" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Run" order="8" weight="0.3285968" />
@@ -656,16 +622,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="64" column="70" selection-start-line="64" selection-start-column="70" selection-end-line="64" selection-end-column="70" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/res/layout/fragment_user_settings.xml">
       <provider selected="true" editor-type-id="android-designer2" />
       <provider editor-type-id="text-editor">
@@ -679,13 +635,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="36" column="39" selection-start-line="36" selection-start-column="39" selection-end-line="36" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1351">
-          <caret line="512" column="26" lean-forward="true" selection-start-line="512" selection-start-column="26" selection-end-line="512" selection-end-column="26" />
         </state>
       </provider>
     </entry>
@@ -745,13 +694,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/assets/DefaultExercises.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="55" column="60" selection-start-line="55" selection-start-column="60" selection-end-line="55" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
@@ -763,22 +705,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
           <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/res/layout/fragment_about.xml">
-      <provider editor-type-id="android-designer2" />
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
-          <folding>
-            <element signature="e#1530#1560#0" expanded="true" />
-            <element signature="e#1906#1930#0" expanded="true" />
-            <element signature="e#2148#2182#0" expanded="true" />
-            <element signature="e#2380#2408#0" expanded="true" />
-            <element signature="e#2617#2646#0" expanded="true" />
-            <element signature="e#2992#3015#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -800,6 +726,46 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="426">
           <caret line="113" column="13" lean-forward="true" selection-start-line="113" selection-start-column="13" selection-end-line="113" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/res/layout/fragment_about.xml">
+      <provider selected="true" editor-type-id="android-designer2" />
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+          <folding>
+            <element signature="e#1530#1560#0" expanded="true" />
+            <element signature="e#1906#1930#0" expanded="true" />
+            <element signature="e#2148#2182#0" expanded="true" />
+            <element signature="e#2380#2408#0" expanded="true" />
+            <element signature="e#2617#2646#0" expanded="true" />
+            <element signature="e#2992#3015#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/assets/DefaultExercises.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="55" column="60" selection-start-line="55" selection-start-column="60" selection-end-line="55" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/UserSettingsFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="193" column="8" selection-start-line="193" selection-start-column="8" selection-end-line="195" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/joshrap/liteweight/Fragments/MyWorkoutFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="322" column="50" selection-start-line="322" selection-start-column="50" selection-end-line="322" selection-end-column="50" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

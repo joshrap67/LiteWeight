@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -151,7 +153,7 @@ public class MyWorkoutFragment extends Fragment {
             }
         });
         // set up the list view
-        arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, workoutNames);
+        arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, workoutNames);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -160,6 +162,7 @@ public class MyWorkoutFragment extends Fragment {
                 selectWorkout(listView.getItemAtPosition(position).toString());
             }
         });
+        listView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
     public void sortWorkouts(){
@@ -173,6 +176,7 @@ public class MyWorkoutFragment extends Fragment {
                 workoutNames.add(entity.getWorkoutName());
             }
         }
+        workoutNames.add(0,selectedWorkout.getWorkoutName()); // selected always on top
     }
 
     public void selectWorkout(String workoutName){
@@ -196,6 +200,7 @@ public class MyWorkoutFragment extends Fragment {
         sortWorkouts();
         arrayAdapter.notifyDataSetChanged();
         updateStatistics();
+        listView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
     public void updateStatistics(){
@@ -309,14 +314,13 @@ public class MyWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void result) {
+            workoutNames.remove(0); // remove the old selected workout
             if(!workoutNames.isEmpty()){
                 selectedWorkout = workoutNameToEntity.get(workoutNames.get(0)); // get the top of the list
-                workoutNames.remove(selectedWorkout.getWorkoutName());
                 selectedWorkout.setCurrentWorkout(true);
                 Date date = new Date();
                 selectedWorkout.setDateLast(formatter.format(date));
                 metaModel.update(selectedWorkout);
-
                 selectedWorkoutTV.setText(selectedWorkout.getWorkoutName());
                 arrayAdapter.notifyDataSetChanged();
             }
