@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
@@ -374,26 +375,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void goToCurrentWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
+                new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
+                .commit();
     }
 
     public void goToNewWorkout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE).commit();
+                new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
+                .commit();
     }
 
     public void goToMyWorkouts(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE).commit();
+                new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
+                .commit();
     }
 
     public void goToUserSettings(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new UserSettingsFragment(), Variables.SETTINGS_TITLE).commit();
+                new UserSettingsFragment(), Variables.SETTINGS_TITLE)
+                .commit();
     }
 
     public void goToAbout(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new AboutFragment(), Variables.ABOUT_TITLE).commit();
+                new AboutFragment(), Variables.ABOUT_TITLE)
+                .commit();
     }
 }

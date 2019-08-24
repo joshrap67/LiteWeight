@@ -64,6 +64,7 @@ public class MyWorkoutFragment extends Fragment {
     private HashMap<Integer, ArrayList<String>> newExercises = new HashMap<>();
     private SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -190,7 +191,7 @@ public class MyWorkoutFragment extends Fragment {
         selectedWorkout = workoutNameToEntity.get(workoutName);
         if(selectedWorkout == null) {
             // This should never happen, but if so just reset the fragment
-            resetFragment();
+            restartFragment();
         }
         selectedWorkout.setCurrentWorkout(true);
         metaModel.update(selectedWorkout);
@@ -368,7 +369,7 @@ public class MyWorkoutFragment extends Fragment {
             }
             else{
                 // this shouldn't happen, but if so just reset fragment
-                resetFragment();
+                restartFragment();
             }
         }
     }
@@ -443,7 +444,7 @@ public class MyWorkoutFragment extends Fragment {
                     confirmButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            resetFragment();
+                            restartFragment();
                             alertDialog.dismiss();
                         }
                     });
@@ -460,7 +461,7 @@ public class MyWorkoutFragment extends Fragment {
                     alertDialog.show();
                 }
                 else{
-                    resetFragment();
+                    restartFragment();
                 }
 
             }
@@ -531,7 +532,7 @@ public class MyWorkoutFragment extends Fragment {
                     writeToDatabase();
                     Toast.makeText(getContext(),"Successfully edited!",Toast.LENGTH_SHORT).show();
                     // restart this fragment
-                    resetFragment();
+                    restartFragment();
                 }
                 else{
                     Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
@@ -662,9 +663,9 @@ public class MyWorkoutFragment extends Fragment {
         }
     }
 
-    public void resetFragment(){
+    public void restartFragment(){
         /*
-            Resets the current fragment entirely.
+            Restarts the current fragment entirely.
          */
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE).commit();

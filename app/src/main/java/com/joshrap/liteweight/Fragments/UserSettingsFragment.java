@@ -397,7 +397,7 @@ public class UserSettingsFragment extends Fragment {
         TextView exerciseName = popupView.findViewById(R.id.exercise_name);
         exerciseName.setText(name);
         String oldUrl = entity.getUrl();
-        if(oldUrl.isEmpty()){
+        if(oldUrl.isEmpty() || oldUrl.equalsIgnoreCase("None")){
             oldUrl = "No URL found";
         }
         TextView oldUrlTV = popupView.findViewById(R.id.old_url);
