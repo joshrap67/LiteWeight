@@ -14,7 +14,7 @@
     <string name="video_url_hint">Video URL</string>
     <string name="workout_name_hint">Keep it family friendly</string>
     <string name="button_continue">Next</string>
-    <string name="previous_day_button">Previous</string>
+    <string name="previous_day_button">Back</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="default_workout_name">Workout Madness</string>
     <string name="ignore_weight">Ignore Weight</string>
@@ -48,7 +48,7 @@
     <string name="focus_label">Focus</string>
     <string name="edit_url">Edit URL</string>
     <string name="edit_weight">Edit weight</string>
-    <string name="back">Back</string>
+    <string name="back">Return</string>
     <string name="filter_custom">Filter Custom</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>

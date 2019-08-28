@@ -10,13 +10,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
@@ -43,18 +43,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
+    private FragmentManager fragmentManager;
     private SharedPreferences.Editor editor;
+    private boolean showPopupFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        showPopupFlag = true;
         toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         progressBar = findViewById(R.id.progress_bar);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         state = savedInstanceState;
+        fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         // get the view models
@@ -125,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         if (state == null) {
             // default landing fragment is current workout one
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+            fragmentManager.beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment()).commit();
             nav.setCheckedItem(R.id.nav_current_workout);
         }
@@ -154,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_current_workout:
                 if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
-                        showPopup("current_workout");
+                        showPopupForCreateWorkout(Variables.CURRENT_WORKOUT_TITLE);
                     }
                     else{
                         goToCurrentWorkout();
@@ -169,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_my_workouts:
                 if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
-                        showPopup("my_workouts");
+                        showPopupForCreateWorkout(Variables.MY_WORKOUT_TITLE);
                     }
                     else{
                         goToMyWorkouts();
@@ -191,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_user_settings:
                 if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
-                        showPopup("user_settings");
+                        showPopupForCreateWorkout(Variables.SETTINGS_TITLE);
                     }
                     else{
                         goToUserSettings();
@@ -206,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_about:
                 if(currentFrag instanceof NewWorkoutFragment){
                     if(modified){
-                        showPopup("about");
+                        showPopupForCreateWorkout(Variables.ABOUT_TITLE);
                     }
                     else{
                         goToAbout();
@@ -243,25 +247,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         Fragment visibleFragment = getVisibleFragment();
-        boolean modified=fragModified(visibleFragment);
-        boolean quit = true;
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        boolean modified = fragModified(visibleFragment);
+        if(drawer.isDrawerOpen(GravityCompat.START)) {
             // if the user clicked the navigation panel, allow back press to close it.
             drawer.closeDrawer(GravityCompat.START);
-            quit = false;
+            return;
         }
         else if(visibleFragment instanceof NewWorkoutFragment){
-            if(modified){
+            if(modified && showPopupFlag){
                 // workout is being made, so give user option to prevent app from closing from back press
-                quit = false;
+                showPopupForCreateWorkout(Variables.QUIT_TITLE);
+                return;
             }
         }
-        if(quit){
-            super.onBackPressed();
-        }
-        else{
-            showPopup("quit");
-        }
+        super.onBackPressed();
     }
 
     @Override
@@ -295,32 +294,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void showPopup(final String layout_name){
+    public void showPopupForCreateWorkout(final String layout_name){
         /*
             Is called whenever the user has unfinished work in the create workout fragment.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final AlertDialog alertDialog = alertDialogBuilder.create();
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_quit, null);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_quit_new_workout, null);
         Button confirmButton = popupView.findViewById(R.id.popup_yes);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (layout_name){
-                    case "current_workout":
+                switch(layout_name){
+                    case Variables.CURRENT_WORKOUT_TITLE:
                         goToCurrentWorkout();
                         break;
-                    case "my_workouts":
+                    case Variables.MY_WORKOUT_TITLE:
                         goToMyWorkouts();
                         break;
-                    case "user_settings":
+                    case Variables.SETTINGS_TITLE:
                         goToUserSettings();
                         break;
-                    case "about":
+                    case Variables.ABOUT_TITLE:
                         goToAbout();
                         break;
-                    case "quit":
+                    case Variables.QUIT_TITLE:
+                        showPopupFlag = true;
                         MainActivity.super.onBackPressed();
+                        showPopupFlag = false;
                         break;
                 }
                 alertDialog.dismiss();
@@ -364,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         /*
             Returns the current fragment in focus
          */
-        FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
         List<Fragment> fragments = fragmentManager.getFragments();
         for (Fragment fragment : fragments) {
             if (fragment != null && fragment.isVisible())
@@ -374,31 +374,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void goToCurrentWorkout(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToNewWorkout(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToMyWorkouts(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToUserSettings(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new UserSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
     }
 
     public void goToAbout(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), Variables.ABOUT_TITLE)
                 .commit();
     }

@@ -29,7 +29,8 @@ public class Variables {
             CURRENT_WORKOUT_TITLE = "Current Workout",
             MY_WORKOUT_TITLE = "My Workouts",
             NEW_WORKOUT_TITLE = "Workout Creator",
-            SETTINGS_TITLE = "Settings";
+            SETTINGS_TITLE = "Settings",
+            QUIT_TITLE = "Quit";
 
     public static String generateDayTitle(int num, int numDays) {
         int weekNum = (num / numDays) + 1;
