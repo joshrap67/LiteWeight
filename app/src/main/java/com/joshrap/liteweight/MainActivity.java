@@ -10,13 +10,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
@@ -33,6 +31,7 @@ import com.joshrap.liteweight.Database.ViewModels.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
     private SharedPreferences.Editor editor;
     private boolean showPopupFlag;
+    private ArrayList<String> fragmentStack = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +66,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         editor = pref.edit();
         if(pref.getBoolean(Variables.DB_EMPTY_KEY,true)){
-            Log.d("TAG","Exercise table empty!");
             setProgressBar(false);
             UpdateExercisesAsync task = new UpdateExercisesAsync();
             task.execute();
         }
         else{
-            Log.d("TAG","Exercise table not empty!");
             initViews();
         }
     }
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 reader.close();
             }
             catch (Exception e){
-                Log.d("ERROR","Error when trying to read default exercise file!\n"+e);
             }
             return null;
         }
@@ -130,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (state == null) {
             // default landing fragment is current workout one
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    new CurrentWorkoutFragment()).commit();
+                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
+            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
@@ -260,7 +258,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
         }
-        super.onBackPressed();
+        else if(visibleFragment instanceof MyWorkoutFragment && ((MyWorkoutFragment) visibleFragment).isEditMode()){
+            fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                    new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
+                    .commit();
+            return;
+        }
+        fragmentStack.remove(0);
+        if(fragmentStack.size() > 0){
+            String frag = fragmentStack.get(0);
+            switch(frag){
+                case Variables.CURRENT_WORKOUT_TITLE:
+                    goToCurrentWorkout();
+                    nav.setCheckedItem(R.id.nav_current_workout);
+                    break;
+                case Variables.MY_WORKOUT_TITLE:
+                    goToMyWorkouts();
+                    nav.setCheckedItem(R.id.nav_my_workouts);
+                    break;
+                case Variables.NEW_WORKOUT_TITLE:
+                    goToNewWorkout();
+                    nav.setCheckedItem(R.id.nav_new_workout);
+                    break;
+                case Variables.SETTINGS_TITLE:
+                    goToUserSettings();
+                    nav.setCheckedItem(R.id.nav_user_settings);
+                    break;
+                case Variables.ABOUT_TITLE:
+                    goToAbout();
+                    nav.setCheckedItem(R.id.nav_about);
+                    break;
+            }
+        }
+        else{
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -374,30 +406,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void goToCurrentWorkout(){
+        if(fragmentStack.contains(Variables.CURRENT_WORKOUT_TITLE)){
+            fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
+            fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
+        }
+        else{
+            fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
+        }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToNewWorkout(){
+        if(fragmentStack.contains(Variables.NEW_WORKOUT_TITLE)){
+            fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+            fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+        }
+        else{
+            fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+        }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToMyWorkouts(){
+        if(fragmentStack.contains(Variables.MY_WORKOUT_TITLE)){
+            fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
+            fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
+        }
+        else{
+            fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
+        }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToUserSettings(){
+        if(fragmentStack.contains(Variables.SETTINGS_TITLE)){
+            fragmentStack.remove(Variables.SETTINGS_TITLE);
+            fragmentStack.add(0,Variables.SETTINGS_TITLE);
+        }
+        else{
+            fragmentStack.add(0, Variables.SETTINGS_TITLE);
+        }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new UserSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
     }
 
     public void goToAbout(){
+        if(fragmentStack.contains(Variables.ABOUT_TITLE)){
+            fragmentStack.remove(Variables.ABOUT_TITLE);
+            fragmentStack.add(0,Variables.ABOUT_TITLE);
+        }
+        else{
+            fragmentStack.add(0, Variables.ABOUT_TITLE);
+        }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), Variables.ABOUT_TITLE)
                 .commit();

@@ -50,7 +50,7 @@ public class MyWorkoutFragment extends Fragment {
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseViewModel;
-    private boolean firstDay, lastDay, editing;
+    private boolean firstDay, lastDay, editing, editMode;
     private int maxDayIndex, currentDayIndex, numDays;
     private ArrayList<MetaEntity> metaEntities = new ArrayList<>();
     private ArrayList<String> workoutNames = new ArrayList<>();
@@ -397,6 +397,7 @@ public class MyWorkoutFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) getView();
         rootView.removeAllViews();
         rootView.addView(editWorkoutView);
+        editMode = true;
         displayedExercisesTable = editWorkoutView.findViewById(R.id.main_table);
         currentDayIndex = 0;
         maxDayIndex = selectedWorkout.getMaxDayIndex();
@@ -462,6 +463,7 @@ public class MyWorkoutFragment extends Fragment {
                 }
                 else{
                     restartFragment();
+                    editMode = false;
                 }
 
             }
@@ -484,7 +486,7 @@ public class MyWorkoutFragment extends Fragment {
                 }
                 if(lastDay){
                     lastDay = false;
-                    nextDayBtn.setText("Next");
+                    nextDayBtn.setText(getActivity().getResources().getString(R.string.button_continue));
                     nextDayBtn.setVisibility(View.VISIBLE);
                 }
 
@@ -530,6 +532,7 @@ public class MyWorkoutFragment extends Fragment {
                 }
                 if(ready){
                     writeToDatabase();
+                    editMode = false;
                     Toast.makeText(getContext(),"Successfully edited!",Toast.LENGTH_SHORT).show();
                     // restart this fragment
                     restartFragment();
@@ -669,6 +672,13 @@ public class MyWorkoutFragment extends Fragment {
          */
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE).commit();
+    }
+
+    public boolean isEditMode(){
+        /*
+            Used in MainActivity to determine if user is editing, if so restart the fragment when back button is pressed
+         */
+        return editMode;
     }
 
     private class SpinnerListener implements AdapterView.OnItemSelectedListener {
