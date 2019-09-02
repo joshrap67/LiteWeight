@@ -48,7 +48,8 @@
     <string name="focus_label">Focus</string>
     <string name="edit_url">Edit URL</string>
     <string name="edit_weight">Edit weight</string>
-    <string name="back">Return</string>
+    <string name="back">Back</string>
+    <string name="return_btn">Return</string>
     <string name="filter_custom">Filter Custom</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
