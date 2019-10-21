@@ -266,6 +266,7 @@ public class UserSettingsFragment extends Fragment {
                             0,0,0);
                     exerciseViewModel.insert(newEntity);
                     exerciseNameToEntity.put(exerciseName,newEntity);
+                    populateExercisesListView();
                     Toast.makeText(getContext(),"Exercise successfully created!",Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
                 }
