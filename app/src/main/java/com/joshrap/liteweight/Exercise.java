@@ -23,13 +23,15 @@ import com.joshrap.liteweight.Database.Entities.WorkoutEntity;
 import com.joshrap.liteweight.Database.ViewModels.ExerciseViewModel;
 import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 import com.joshrap.liteweight.Fragments.*;
+import com.joshrap.liteweight.Helpers.ExerciseHelper;
+
 import android.widget.Toast;
 
-public class Exercise implements Comparable<Exercise>{
+public class Exercise implements Comparable<Exercise> {
     private Context context;
     private Activity activity;
     private Fragment fragment;
-    private String name, videoURL, formattedWeight;
+    private String name, formattedWeight;
     private boolean status, videos, ignoreWeight, metricUnits;
     private double weight;
     private WorkoutViewModel workoutModel;
@@ -39,7 +41,7 @@ public class Exercise implements Comparable<Exercise>{
 
     public Exercise(final WorkoutEntity workoutEntity, ExerciseEntity exerciseEntity, Context context, Activity activity,
                     Fragment fragment, boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
-                    ExerciseViewModel exerciseViewModel){
+                    ExerciseViewModel exerciseViewModel) {
         /*
             Constructor utilized for database stuff
          */
@@ -52,19 +54,18 @@ public class Exercise implements Comparable<Exercise>{
         this.metricUnits = metricUnits;
         this.workoutModel = workoutViewModel;
         this.exerciseModel = exerciseViewModel;
-        if(workoutEntity.getStatus()){
-            if(fragment instanceof CurrentWorkoutFragment){
+        if (workoutEntity.getStatus()) {
+            if (fragment instanceof CurrentWorkoutFragment) {
                 ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
             }
             this.status = true;
-        }
-        else{
+        } else {
             this.status = false;
         }
         this.name = workoutEntity.getExercise();
     }
 
-    public void setStatus(boolean aStatus){
+    public void setStatus(boolean aStatus) {
         /*
             Sets the status of the exercise as either being complete or incomplete.
          */
@@ -72,59 +73,56 @@ public class Exercise implements Comparable<Exercise>{
         workoutEntity.setStatus(aStatus);
     }
 
-    public WorkoutEntity getWorkoutEntity(){
+    public WorkoutEntity getWorkoutEntity() {
         return this.workoutEntity;
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
-    public View getDisplayedRow(){
+    public View getDisplayedRow() {
             /*
                 Takes all of the information from the instance variables of this exercise and puts it into a row to be displayed
                 by the main table in the CurrentWorkout fragment.
              */
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View row = inflater.inflate(R.layout.row_exercise,null);
+        final View row = inflater.inflate(R.layout.row_exercise, null);
         final CheckBox exerciseName = row.findViewById(R.id.exercise_name);
         final Button weightButton = row.findViewById(R.id.weight_button);
         // setup checkbox
         exerciseName.setText(name);
-        if(status){
+        if (status) {
             exerciseName.setChecked(true);
         }
         exerciseName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(status){
+                if (status) {
                     workoutEntity.setStatus(false);
                     workoutModel.update(workoutEntity);
                     status = false;
-                }
-                else{
+                } else {
                     workoutEntity.setStatus(true);
                     workoutModel.update(workoutEntity);
                     status = true;
                 }
-                if(fragment instanceof CurrentWorkoutFragment){
+                if (fragment instanceof CurrentWorkoutFragment) {
                     ((CurrentWorkoutFragment) fragment).setPreviouslyModified(true);
                 }
             }
         });
         // set up weight button
-        if(metricUnits){
+        if (metricUnits) {
             // value in DB is always in murican units
-            weight = exerciseEntity.getCurrentWeight()*Variables.KG;
-        }
-        else{
+            weight = exerciseEntity.getCurrentWeight() * Variables.KG;
+        } else {
             weight = exerciseEntity.getCurrentWeight();
         }
         formattedWeight = Validator.getFormattedWeight(weight);
-        if(weight >= 0){
-            weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
-        }
-        else{
+        if (weight >= 0) {
+            weightButton.setText(formattedWeight + (metricUnits ? " kg" : " lb"));
+        } else {
             weightButton.setText("N/A");
         }
         weightButton.setOnClickListener(new View.OnClickListener() {
@@ -142,97 +140,75 @@ public class Exercise implements Comparable<Exercise>{
                 final EditText weightInput = popupView.findViewById(R.id.name_input);
                 weightInput.setHint(formattedWeight);
                 final Switch ignoreWeightSwitch = popupView.findViewById(R.id.ignore_weight_switch);
-                if(weight < 0){
+                if (weight < 0) {
                     ignoreWeightSwitch.setChecked(true);
                     ignoreWeight = true;
                     weightInput.setVisibility(View.GONE);
-                }
-                else{
+                } else {
                     ignoreWeight = false;
                     ignoreWeightSwitch.setChecked(false);
                 }
                 ignoreWeightSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ignoreWeight = isChecked;
-                        if(ignoreWeight){
+                        if (ignoreWeight) {
                             weightInput.setVisibility(View.GONE);
-                        }
-                        else{
+                        } else {
                             weightInput.setHint(Integer.toString(0)); // to get rid of sentinel value from Database
                             weightInput.setVisibility(View.VISIBLE);
                         }
                     }
                 });
                 Button doneButton = popupView.findViewById(R.id.done_btn);
-                Button backButton = popupView.findViewById(R.id.back_btn);
-                backButton.setVisibility(View.GONE); // this button isn't needed for this part of the app
                 doneButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(ignoreWeight){
+                        if (ignoreWeight) {
                             weight = Variables.IGNORE_WEIGHT_VALUE;
                             exerciseEntity.setCurrentWeight(weight);
                             weightButton.setText("N/A");
                             exerciseModel.update(exerciseEntity);
                             alertDialog.dismiss();
-                        }
-                        else if(!weightInput.getText().toString().equals("")){
+                        } else if (!weightInput.getText().toString().equals("")) {
                             weight = Double.parseDouble(weightInput.getText().toString());
                             formattedWeight = Validator.getFormattedWeight(weight);
-                            weightButton.setText(formattedWeight+(metricUnits?" kg":" lb"));
-                            if(metricUnits){
+                            weightButton.setText(formattedWeight + (metricUnits ? " kg" : " lb"));
+                            if (metricUnits) {
                                 // convert if in metric
                                 weight /= Variables.KG;
                             }
-                            if(weight > exerciseEntity.getMaxWeight() ){
+                            if (weight > exerciseEntity.getMaxWeight()) {
                                 exerciseEntity.setMaxWeight(weight);
-                            }
-                            else if(weight < exerciseEntity.getMinWeight() || exerciseEntity.getMinWeight() == 0){
+                            } else if (weight < exerciseEntity.getMinWeight() || exerciseEntity.getMinWeight() == 0) {
                                 exerciseEntity.setMinWeight(weight);
                             }
                             exerciseEntity.setCurrentWeight(weight);
                             exerciseModel.update(exerciseEntity);
                             alertDialog.dismiss();
-                        }
-                        else{
-                            Toast.makeText(activity,"Enter a valid weight!",Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(activity, "Enter a valid weight!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
         });
         // setup video button
-        if(videos){
+        if (videos) {
             ImageButton videoButton = row.findViewById(R.id.launch_video);
             videoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String errorMsg = Validator.checkValidURL(exerciseEntity.getUrl());
-                    if(errorMsg==null){
-                        videoURL = exerciseEntity.getUrl();
-                        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-                        try{
-                            context.startActivity(appIntent);
-                        }
-                        catch(ActivityNotFoundException ex) {
-                            context.startActivity(webIntent);
-                        }
-                    }
-                    else{
-                        Toast.makeText(activity, "No URL found!", Toast.LENGTH_LONG).show();
-                    }
+                    ExerciseHelper.launchVideo(exerciseEntity, context, activity);
                 }
             });
-        }
-        else{
+        } else {
             ImageView videoButton = row.findViewById(R.id.launch_video);
             videoButton.setVisibility(View.GONE);
         }
         return row;
     }
 
-    public boolean getStatus(){
+    public boolean getStatus() {
         return this.status;
     }
 

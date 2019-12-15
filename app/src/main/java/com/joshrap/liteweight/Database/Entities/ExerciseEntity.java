@@ -5,7 +5,7 @@ import android.arch.persistence.room.PrimaryKey;
 
 
 @Entity(tableName = "exercise_table")
-public class ExerciseEntity {
+public class ExerciseEntity implements Comparable<ExerciseEntity> {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private int timesCompleted;
@@ -98,6 +98,11 @@ public class ExerciseEntity {
         return "Id:" + getId() + " Exercise: " + exerciseName + " URL: " + url + " defaultExercise: " + defaultExercise +
                 " currentWeight: " + currentWeight + " minWeight: " + minWeight + " maxWeight: " + maxWeight + "timesCompleted " +
                 timesCompleted;
+    }
+
+    @Override
+    public int compareTo(ExerciseEntity o) {
+        return this.getExerciseName().compareTo(o.getExerciseName());
     }
 
 }
