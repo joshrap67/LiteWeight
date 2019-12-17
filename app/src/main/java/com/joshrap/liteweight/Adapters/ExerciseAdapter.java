@@ -1,4 +1,4 @@
-package com.joshrap.liteweight;
+package com.joshrap.liteweight.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -15,13 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseAdapter extends ArrayAdapter<ExerciseEntity> {
-    private Context mContext;
+    private Context context;
     private List<ExerciseEntity> exerciseList;
 
     public ExerciseAdapter(@NonNull Context context, ArrayList<ExerciseEntity> list) {
         super(context, 0, list);
-        mContext = context;
-        exerciseList = list;
+        this.context = context;
+        this.exerciseList = list;
     }
 
     @NonNull
@@ -29,7 +29,7 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseEntity> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if (listItem == null) {
-            listItem = LayoutInflater.from(mContext).inflate(android.R.layout.simple_list_item_1, parent, false);
+            listItem = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
         }
         ExerciseEntity currentExercise = exerciseList.get(position);
 

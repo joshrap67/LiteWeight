@@ -1,8 +1,8 @@
-package com.joshrap.liteweight;
+package com.joshrap.liteweight.Globals;
 
 public class Variables {
     /*
-        Contains static variables and helper methods
+        Contains static variables
      */
     public static final int
             NAME_INDEX = 0,
@@ -27,14 +27,9 @@ public class Variables {
             DATE_PATTERN = "MM/dd/yyyy HH:mm:ss",
             ABOUT_TITLE = "About",
             CURRENT_WORKOUT_TITLE = "Current Workout",
+            MY_EXERCISES_TITLE = "My Exercises",
             MY_WORKOUT_TITLE = "My Workouts",
             NEW_WORKOUT_TITLE = "Workout Creator",
             SETTINGS_TITLE = "Settings",
             QUIT_TITLE = "Quit";
-
-    public static String generateDayTitle(int num, int numDays) {
-        int weekNum = (num / numDays) + 1;
-        int dayNum = (num % numDays) + 1;
-        return "W" + weekNum + ":D" + dayNum;
-    }
 }

@@ -6,6 +6,7 @@
     <string name="nav_draw_open">Open Nav</string>
     <string name="nav_draw_close">Close Nav</string>
     <string name="nav_title">Weigh Your Options</string>
+    <string name="nav_my_exercises">My Exercises</string>
     <string name="new_workout_title">Create Workout</string>
     <string name="number_of_weeks">Number of Weeks?</string>
     <string name="number_of_days">Number of Days?</string>
@@ -28,7 +29,10 @@
         percentage of exercises completed.
     </string>
     <string name="reset_statistics_title">Reset Statistics</string>
-
+    <string name="video_switch_description">Provides a button next to each exercise in the current workout that when
+    clicked launches a video using the provided URL for the specific exercise.</string>
+    <string name="metric_switch_description">Converts all units in the app from imperial units (lbs) to metric units (kg).</string>
+    <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout tab.</string>
     <string name="confirm">Yes</string>
     <string name="denial">No</string>
     <string name="save">Save</string>
@@ -60,7 +64,7 @@
     <string name="workout_list_title">Workout List</string>
     <!--layout for yada-->
     <string name="nav_workout_icon_title">Current Workout</string>
-    <string name="nav_create_icon_title">Create Workout</string>
+    <string name="nav_create_icon_title">Workout Creator</string>
     <string name="nav_list_icon_title">My Workouts</string>
     <string name="rename_exercise">Rename</string>
     <string name="nav_user_settings">Settings</string>
@@ -79,21 +83,14 @@
         Note that deleting it will remove it from already made workouts.
     </string>
     <string name="exercise_title">Add exercises</string>
-    <string-array name="exercise_focuses">
-        <item>Arms</item>
-        <item>Back</item>
-        <item>Cardio</item>
-        <item>Chest</item>
-        <item>Legs</item>
-    </string-array>
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>
     <string name="hide_timer">Hide</string>
     <string name="reset">Reset</string>
     <string name="show_timer">Timer</string>
     <string name="add_exercises">Add Exercises</string>
-    <!--about resources-->
     <string name="about_overview_title">App Overview</string>
+    <!--about resources-->
     <string name="about_overview">
         LiteWeight is a lightweight workout manager that allows for multiple workouts to be created and managed.\n\nDefault exercises are provided by
         the developer, and if desired you can add your own custom exercises to be used in any workout!

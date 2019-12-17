@@ -1,11 +1,8 @@
-package com.joshrap.liteweight;
+package com.joshrap.liteweight.Classes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +21,10 @@ import com.joshrap.liteweight.Database.ViewModels.ExerciseViewModel;
 import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 import com.joshrap.liteweight.Fragments.*;
 import com.joshrap.liteweight.Helpers.ExerciseHelper;
+import com.joshrap.liteweight.Helpers.WeightHelper;
+import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.Helpers.InputHelper;
+import com.joshrap.liteweight.Globals.Variables;
 
 import android.widget.Toast;
 
@@ -119,7 +120,7 @@ public class Exercise implements Comparable<Exercise> {
         } else {
             weight = exerciseEntity.getCurrentWeight();
         }
-        formattedWeight = Validator.getFormattedWeight(weight);
+        formattedWeight = WeightHelper.getFormattedWeight(weight);
         if (weight >= 0) {
             weightButton.setText(formattedWeight + (metricUnits ? " kg" : " lb"));
         } else {
@@ -171,7 +172,7 @@ public class Exercise implements Comparable<Exercise> {
                             alertDialog.dismiss();
                         } else if (!weightInput.getText().toString().equals("")) {
                             weight = Double.parseDouble(weightInput.getText().toString());
-                            formattedWeight = Validator.getFormattedWeight(weight);
+                            formattedWeight = WeightHelper.getFormattedWeight(weight);
                             weightButton.setText(formattedWeight + (metricUnits ? " kg" : " lb"));
                             if (metricUnits) {
                                 // convert if in metric

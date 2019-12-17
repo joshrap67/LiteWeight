@@ -9,7 +9,7 @@ import android.content.Context;
 
 import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Database.Daos.*;
-import com.joshrap.liteweight.Variables;
+import com.joshrap.liteweight.Globals.Variables;
 
 @Database(entities = {WorkoutEntity.class, MetaEntity.class, ExerciseEntity.class}, version = 1, exportSchema = false)
 public abstract class WorkoutDatabase extends RoomDatabase {
@@ -22,7 +22,7 @@ public abstract class WorkoutDatabase extends RoomDatabase {
     public abstract ExerciseDao exerciseDao();
 
     public static synchronized WorkoutDatabase getInstance(Context context) {
-        if(instance == null) {
+        if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     WorkoutDatabase.class, Variables.DATABASE_NAME)
                     .addMigrations(MIGRATION_1_2)

@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.Helpers;
 
 import com.joshrap.liteweight.Database.Entities.ExerciseEntity;
-import com.joshrap.liteweight.Variables;
+import com.joshrap.liteweight.Globals.Variables;
 
 public class WeightHelper {
     public static double convertWeight(boolean metricUnits, ExerciseEntity exercise) {

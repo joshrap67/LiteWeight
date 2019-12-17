@@ -22,10 +22,11 @@ import android.widget.TextView;
 
 import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Database.ViewModels.*;
-import com.joshrap.liteweight.Exercise;
+import com.joshrap.liteweight.Classes.Exercise;
+import com.joshrap.liteweight.Helpers.WorkoutHelper;
 import com.joshrap.liteweight.MainActivity;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.Variables;
+import com.joshrap.liteweight.Globals.Variables;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,10 +69,10 @@ public class CurrentWorkoutFragment extends Fragment {
         return view;
     }
 
-    private class GetCurrentWorkoutTask extends AsyncTask<Void, Void, MetaEntity>{
+    private class GetCurrentWorkoutTask extends AsyncTask<Void, Void, MetaEntity> {
         @Override
-        protected void onPreExecute(){
-            ((MainActivity)getActivity()).setProgressBar(true);
+        protected void onPreExecute() {
+            ((MainActivity) getActivity()).setProgressBar(true);
         }
 
         @Override
@@ -84,8 +85,8 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected void onPostExecute(MetaEntity result) {
             accessingDB = false;
-            ((MainActivity)getActivity()).setProgressBar(false);
-            if(result != null) {
+            ((MainActivity) getActivity()).setProgressBar(false);
+            if (result != null) {
                 // database found a workout, so assign it then move to the next stop in the chain
                 currentWorkoutEntity = result;
                 currentWorkout = currentWorkoutEntity.getWorkoutName();
@@ -95,8 +96,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 Log.d("TAG", "CurrentWorkout: " + currentWorkoutEntity.toString());
                 GetExercisesTask task = new GetExercisesTask();
                 task.execute();
-            }
-            else{
+            } else {
                 // no workout found, error
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
@@ -105,7 +105,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>>{
+    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
         @Override
         protected void onPreExecute() {
             ((MainActivity) getActivity()).setProgressBar(true);
@@ -122,14 +122,13 @@ public class CurrentWorkoutFragment extends Fragment {
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
             accessingDB = false;
             ((MainActivity) getActivity()).setProgressBar(false);
-            if(!result.isEmpty()) {
+            if (!result.isEmpty()) {
                 for (ExerciseEntity entity : result) {
                     exerciseToExerciseEntity.put(entity.getExerciseName(), entity);
                 }
                 GetWorkoutTask task = new GetWorkoutTask();
                 task.execute();
-            }
-            else {
+            } else {
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
                 Log.d("TAG", "Get exercises result was empty!");
@@ -154,17 +153,16 @@ public class CurrentWorkoutFragment extends Fragment {
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
             accessingDB = false;
             ((MainActivity) getActivity()).setProgressBar(false);
-            if(result != null) {
+            if (result != null) {
                 // query produced a valid list, so populate it in local memory
                 populateExercises(result);
-            }
-            else {
+            } else {
                 Log.d("TAG", "Get exercises result was null!");
             }
         }
     }
 
-    public void populateExercises(ArrayList<WorkoutEntity> rawData){
+    public void populateExercises(ArrayList<WorkoutEntity> rawData) {
         /*
             Database queries complete, so switch layouts and init all the widgets
          */
@@ -193,13 +191,12 @@ public class CurrentWorkoutFragment extends Fragment {
         boolean metricUnits = pref.getBoolean(Variables.UNIT_KEY, false);
         if (pref.getBoolean(Variables.TIMER_KEY, true)) {
             initTimer();
-        }
-        else {
+        } else {
             timerContainer.setVisibility(View.GONE);
         }
-        ((MainActivity)getActivity()).updateToolbarTitle(currentWorkout);
+        ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout);
         // init the hash table that the entire workout will be in
-        for (int i=0;i<=maxDayIndex;i++) {
+        for (int i = 0; i <= maxDayIndex; i++) {
             workout.put(i, new ArrayList<Exercise>());
         }
         // fill the hash table with exercises
@@ -210,20 +207,20 @@ public class CurrentWorkoutFragment extends Fragment {
             workout.get(entity.getDay()).add(exercise);
         }
         // sort all the days in the workout alphabetically
-        for(int i =0;i<=maxDayIndex;i++){
+        for (int i = 0; i <= maxDayIndex; i++) {
             Collections.sort(workout.get(i));
         }
         populateTable();
     }
 
-    public void populateTable(){
+    public void populateTable() {
         /*
             Populates exercises based on the current day.
          */
         table.removeAllViews();
-        dayTV.setText(Variables.generateDayTitle(currentDayIndex, numDays));
+        dayTV.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
         int count = 0;
-        for(Exercise exercise : workout.get(currentDayIndex)) {
+        for (Exercise exercise : workout.get(currentDayIndex)) {
             View row = exercise.getDisplayedRow();
             table.addView(row, count);
             count++;
@@ -231,15 +228,14 @@ public class CurrentWorkoutFragment extends Fragment {
         setupButtons();
     }
 
-    private void setupButtons(){
+    private void setupButtons() {
         /*
             Setup back and forward buttons.
          */
         if (currentDayIndex == 0) {
             // means it's the first day, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
-        }
-        else{
+        } else {
             backButton.setVisibility(View.VISIBLE);
             backButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -252,7 +248,7 @@ public class CurrentWorkoutFragment extends Fragment {
             });
         }
         // set up the forward button, make it so user can always reset if holding down button
-        if(currentDayIndex == maxDayIndex) {
+        if (currentDayIndex == maxDayIndex) {
             forwardButton.setText(getActivity().getResources().getString(R.string.reset));
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -260,8 +256,7 @@ public class CurrentWorkoutFragment extends Fragment {
                     resetPopup();
                 }
             });
-        }
-        else{
+        } else {
             forwardButton.setText(getActivity().getResources().getString(R.string.button_continue));
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -275,7 +270,7 @@ public class CurrentWorkoutFragment extends Fragment {
             forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(workoutModified) {
+                    if (workoutModified) {
                         resetPopup();
                     }
                     return true;
@@ -284,18 +279,18 @@ public class CurrentWorkoutFragment extends Fragment {
         }
     }
 
-    public void resetWorkout(){
+    public void resetWorkout() {
         /*
             Reset all of the exercises to being incomplete and then write to the database with these changes.
          */
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for(int i=0;i<=maxDayIndex;i++){
-            for(Exercise exercise : workout.get(i)) {
+        for (int i = 0; i <= maxDayIndex; i++) {
+            for (Exercise exercise : workout.get(i)) {
                 ExerciseEntity exerciseEntity = exerciseToExerciseEntity.get(exercise.getName());
                 totalExercises++;
-                if(exercise.getStatus()){
-                    exerciseEntity.setTimesCompleted(exerciseEntity.getTimesCompleted()+1);
+                if (exercise.getStatus()) {
+                    exerciseEntity.setTimesCompleted(exerciseEntity.getTimesCompleted() + 1);
                     exercisesCompleted++;
                 }
                 exercise.setStatus(false);
@@ -319,11 +314,11 @@ public class CurrentWorkoutFragment extends Fragment {
         populateTable();
     }
 
-    public void resetPopup(){
+    public void resetPopup() {
         /*
             Prompt the user if they wish to reset the current workout. Only can be called if the workout has been modified.
          */
-        if(!workoutModified){
+        if (!workoutModified) {
             return;
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -352,12 +347,13 @@ public class CurrentWorkoutFragment extends Fragment {
         alertDialog.show();
     }
 
-    public void setPreviouslyModified(boolean status){
+    public void setPreviouslyModified(boolean status) {
         workoutModified = status;
     }
+
     // region
     // Timer methods
-    public void initTimer(){
+    public void initTimer() {
         startTimer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -393,7 +389,7 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public void startTimer() {
-        if(!timerRunning) {
+        if (!timerRunning) {
             timer.setBase(SystemClock.elapsedRealtime() - lastTime);
             timer.start();
             timerRunning = true;
@@ -401,7 +397,7 @@ public class CurrentWorkoutFragment extends Fragment {
     }
 
     public void stopTimer() {
-        if(timerRunning) {
+        if (timerRunning) {
             timer.stop();
             lastTime = SystemClock.elapsedRealtime() - timer.getBase();
             timerRunning = false;

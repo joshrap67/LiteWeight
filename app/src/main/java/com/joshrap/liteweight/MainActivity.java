@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Fragments.*;
 import com.joshrap.liteweight.Database.ViewModels.*;
+import com.joshrap.liteweight.Globals.Variables;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -65,12 +66,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         exerciseModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         editor = pref.edit();
-        if(pref.getBoolean(Variables.DB_EMPTY_KEY,true)){
+        if (pref.getBoolean(Variables.DB_EMPTY_KEY, true)) {
             setProgressBar(false);
             UpdateExercisesAsync task = new UpdateExercisesAsync();
             task.execute();
-        }
-        else{
+        } else {
             initViews();
         }
     }
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Called when the exercise table is empty (such as when app first launches)
          */
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             setProgressBar(true);
         }
 
@@ -88,19 +88,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected Void doInBackground(Void... voids) {
             // update the exercises in the database using the default exercise file in the app's asset folder
             BufferedReader reader;
-            try{
+            try {
                 reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
                 String line;
-                while((line=reader.readLine())!=null){
+                while ((line = reader.readLine()) != null) {
                     String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
                     String video = line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX];
                     String focuses = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX_FILE];
-                    ExerciseEntity entity = new ExerciseEntity(name,focuses,video,true,0,0,0,0);
+                    ExerciseEntity entity = new ExerciseEntity(name, focuses, video, true, 0, 0, 0, 0);
                     exerciseModel.insert(entity);
                 }
                 reader.close();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
             }
             return null;
         }
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void initViews(){
+    public void initViews() {
         /*
             Called when the exercise table in the database is not empty. Sets up the navigation pane.
          */
@@ -133,18 +132,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void setProgressBar(boolean status){
+    public void setProgressBar(boolean status) {
         /*
             Used in tandem with async tasks. When in the background, will set the progress bar to true to show user loading
             animation.
          */
-        if(status){
+        if (status) {
             progressBar.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             progressBar.setVisibility(View.GONE);
         }
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         /*
@@ -154,67 +153,70 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean modified = fragModified(currentFrag);
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
-                if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
                         showPopupForCreateWorkout(Variables.CURRENT_WORKOUT_TITLE);
-                    }
-                    else{
+                    } else {
                         goToCurrentWorkout();
                     }
-                }
-                else if(!(currentFrag instanceof CurrentWorkoutFragment)){
+                } else if (!(currentFrag instanceof CurrentWorkoutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToCurrentWorkout();
                 }
                 break;
 
             case R.id.nav_my_workouts:
-                if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
                         showPopupForCreateWorkout(Variables.MY_WORKOUT_TITLE);
-                    }
-                    else{
+                    } else {
                         goToMyWorkouts();
                     }
-                }
-                else if(!(currentFrag instanceof MyWorkoutFragment)){
+                } else if (!(currentFrag instanceof MyWorkoutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToMyWorkouts();
                 }
                 break;
-
+            case R.id.nav_my_exercises:
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
+                        showPopupForCreateWorkout(Variables.MY_EXERCISES_TITLE);
+                    } else {
+                        goToMyExercises();
+                    }
+                } else if (!(currentFrag instanceof MyExercisesFragment)) {
+                    // prevent from selecting currently selected fragment
+                    goToMyExercises();
+                }
+                break;
             case R.id.nav_new_workout:
-                if(!(currentFrag instanceof NewWorkoutFragment)) {
+                if (!(currentFrag instanceof NewWorkoutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToNewWorkout();
                 }
                 break;
 
             case R.id.nav_user_settings:
-                if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
                         showPopupForCreateWorkout(Variables.SETTINGS_TITLE);
-                    }
-                    else{
+                    } else {
                         goToUserSettings();
                     }
-                }
-                else if(!(currentFrag instanceof UserSettingsFragment)) {
+                } else if (!(currentFrag instanceof UserSettingsFragment)) {
                     // prevent from selecting currently selected fragment
                     goToUserSettings();
                 }
                 break;
 
             case R.id.nav_about:
-                if(currentFrag instanceof NewWorkoutFragment){
-                    if(modified){
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
                         showPopupForCreateWorkout(Variables.ABOUT_TITLE);
-                    }
-                    else{
+                    } else {
                         goToAbout();
                     }
-                }
-                else if(!(currentFrag instanceof AboutFragment)){
+                } else if (!(currentFrag instanceof AboutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToAbout();
                 }
@@ -226,17 +228,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         /*
             Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
             of logical errors. So just deleteWorkoutEntity old fragment and launch new
         */
         Fragment visibleFragment = getVisibleFragment();
-        if(visibleFragment instanceof CurrentWorkoutFragment){
+        if (visibleFragment instanceof CurrentWorkoutFragment) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
-        }
-        else if(visibleFragment instanceof NewWorkoutFragment){
+        } else if (visibleFragment instanceof NewWorkoutFragment) {
             ((NewWorkoutFragment) visibleFragment).setModified(false);
         }
         super.onResume();
@@ -246,28 +247,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         Fragment visibleFragment = getVisibleFragment();
         boolean modified = fragModified(visibleFragment);
-        if(drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             // if the user clicked the navigation panel, allow back press to close it.
             drawer.closeDrawer(GravityCompat.START);
             return;
-        }
-        else if(visibleFragment instanceof NewWorkoutFragment){
-            if(modified && showPopupFlag){
+        } else if (visibleFragment instanceof NewWorkoutFragment) {
+            if (modified && showPopupFlag) {
                 // workout is being made, so give user option to prevent app from closing from back press
                 showPopupForCreateWorkout(Variables.QUIT_TITLE);
                 return;
             }
-        }
-        else if(visibleFragment instanceof MyWorkoutFragment && ((MyWorkoutFragment) visibleFragment).isEditMode()){
+        } else if (visibleFragment instanceof MyWorkoutFragment && ((MyWorkoutFragment) visibleFragment).isEditMode()) {
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
                     new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
                     .commit();
             return;
         }
         fragmentStack.remove(0);
-        if(fragmentStack.size() > 0){
+        if (fragmentStack.size() > 0) {
             String frag = fragmentStack.get(0);
-            switch(frag){
+            switch (frag) {
                 case Variables.CURRENT_WORKOUT_TITLE:
                     goToCurrentWorkout();
                     nav.setCheckedItem(R.id.nav_current_workout);
@@ -284,13 +283,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     goToUserSettings();
                     nav.setCheckedItem(R.id.nav_user_settings);
                     break;
+                case Variables.MY_EXERCISES_TITLE:
+                    goToMyExercises();
+                    nav.setCheckedItem(R.id.nav_my_exercises);
+                    break;
                 case Variables.ABOUT_TITLE:
                     goToAbout();
                     nav.setCheckedItem(R.id.nav_about);
                     break;
             }
-        }
-        else{
+        } else {
             super.onBackPressed();
         }
     }
@@ -301,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Found on Stack Overflow. Used to hide the keyboard.
          */
         View view = getCurrentFocus();
-        if(view != null &&
+        if (view != null &&
                 (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_MOVE) &&
                 view instanceof EditText &&
                 !view.getClass().getName().startsWith("android.webkit.")) {
@@ -310,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             float x = ev.getRawX() + view.getLeft() - scrcoords[0];
             float y = ev.getRawY() + view.getTop() - scrcoords[1];
 
-            if(x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
+            if (x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
                 hideKeyboard(this);
         }
         return super.dispatchTouchEvent(ev);
@@ -321,12 +323,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Found on Stack Overflow. Hides keyboard when clicking outside focus
          */
         if (activity != null && activity.getWindow() != null && activity.getWindow().getDecorView() != null) {
-            InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
         }
     }
 
-    public void showPopupForCreateWorkout(final String layout_name){
+    public void showPopupForCreateWorkout(final String layout_name) {
         /*
             Is called whenever the user has unfinished work in the create workout fragment.
          */
@@ -337,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(layout_name){
+                switch (layout_name) {
                     case Variables.CURRENT_WORKOUT_TITLE:
                         goToCurrentWorkout();
                         break;
@@ -349,6 +351,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     case Variables.ABOUT_TITLE:
                         goToAbout();
+                        break;
+                    case Variables.MY_EXERCISES_TITLE:
+                        goToMyExercises();
                         break;
                     case Variables.QUIT_TITLE:
                         showPopupFlag = true;
@@ -380,14 +385,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbarTitleTV.setText(aTitle);
 
     }
-    public boolean fragModified(Fragment aFragment){
+
+    public boolean fragModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified
          */
-        if(aFragment == null){
+        if (aFragment == null) {
             return false;
-        }
-        else if(aFragment instanceof NewWorkoutFragment){
+        } else if (aFragment instanceof NewWorkoutFragment) {
             return ((NewWorkoutFragment) aFragment).isModified();
         }
         return false;
@@ -405,12 +410,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return null;
     }
 
-    public void goToCurrentWorkout(){
-        if(fragmentStack.contains(Variables.CURRENT_WORKOUT_TITLE)){
+    public void goToCurrentWorkout() {
+        if (fragmentStack.contains(Variables.CURRENT_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
-        }
-        else{
+        } else {
             fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -418,12 +422,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToNewWorkout(){
-        if(fragmentStack.contains(Variables.NEW_WORKOUT_TITLE)){
+    public void goToMyExercises() {
+        if (fragmentStack.contains(Variables.MY_EXERCISES_TITLE)) {
+            fragmentStack.remove(Variables.MY_EXERCISES_TITLE);
+            fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
+        } else {
+            fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
+        }
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                new MyExercisesFragment(), Variables.MY_EXERCISES_TITLE)
+                .commit();
+    }
+
+    public void goToNewWorkout() {
+        if (fragmentStack.contains(Variables.NEW_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
-        }
-        else{
+        } else {
             fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -431,12 +446,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToMyWorkouts(){
-        if(fragmentStack.contains(Variables.MY_WORKOUT_TITLE)){
+    public void goToMyWorkouts() {
+        if (fragmentStack.contains(Variables.MY_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
-        }
-        else{
+        } else {
             fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -444,12 +458,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToUserSettings(){
-        if(fragmentStack.contains(Variables.SETTINGS_TITLE)){
+    public void goToUserSettings() {
+        if (fragmentStack.contains(Variables.SETTINGS_TITLE)) {
             fragmentStack.remove(Variables.SETTINGS_TITLE);
-            fragmentStack.add(0,Variables.SETTINGS_TITLE);
-        }
-        else{
+            fragmentStack.add(0, Variables.SETTINGS_TITLE);
+        } else {
             fragmentStack.add(0, Variables.SETTINGS_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -457,12 +470,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToAbout(){
-        if(fragmentStack.contains(Variables.ABOUT_TITLE)){
+    public void goToAbout() {
+        if (fragmentStack.contains(Variables.ABOUT_TITLE)) {
             fragmentStack.remove(Variables.ABOUT_TITLE);
-            fragmentStack.add(0,Variables.ABOUT_TITLE);
-        }
-        else{
+            fragmentStack.add(0, Variables.ABOUT_TITLE);
+        } else {
             fragmentStack.add(0, Variables.ABOUT_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,

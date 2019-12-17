@@ -6,8 +6,12 @@
             android:icon="@drawable/weight_icon"
             android:title="@string/nav_workout_icon_title" />
         <item
+            android:id="@+id/nav_my_exercises"
+            android:icon="@drawable/my_exercises_icon"
+            android:title="@string/nav_my_exercises" />
+        <item
             android:id="@+id/nav_my_workouts"
-            android:icon="@drawable/list_icon"
+            android:icon="@drawable/my_workouts_icon"
             android:title="@string/nav_list_icon_title" />
         <item
             android:id="@+id/nav_new_workout"
