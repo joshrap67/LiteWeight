@@ -257,7 +257,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 }
             });
         } else {
-            forwardButton.setText(getActivity().getResources().getString(R.string.button_continue));
+            forwardButton.setText(getActivity().getResources().getString(R.string.forward_button));
             forwardButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

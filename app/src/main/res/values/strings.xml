@@ -6,7 +6,6 @@
     <string name="nav_draw_open">Open Nav</string>
     <string name="nav_draw_close">Close Nav</string>
     <string name="nav_title">Weigh Your Options</string>
-    <string name="nav_my_exercises">My Exercises</string>
     <string name="new_workout_title">Create Workout</string>
     <string name="number_of_weeks">Number of Weeks?</string>
     <string name="number_of_days">Number of Days?</string>
@@ -14,10 +13,7 @@
     <string name="workout_name_title">Workout Name</string>
     <string name="video_url_hint">Video URL</string>
     <string name="workout_name_hint">Keep it family friendly</string>
-    <string name="button_continue">Next</string>
-    <string name="previous_day_button">Back</string>
     <string name="default_workout_marker">Week/Day</string>
-    <string name="default_workout_name">Workout Madness</string>
     <string name="ignore_weight">Ignore Weight</string>
     <string name="popup_title">Unsaved Workout!</string>
     <string name="popup_message">You have a workout currently being created. If you quit now, all progress
@@ -37,7 +33,6 @@
     <string name="denial">No</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
-    <string name="url_title">Video URL</string>
     <string name="select_focus_title">Select Focus(s)</string>
     <string name="new_exercise_title">New Exercise</string>
     <string name="url_hint">Video URL (Leave empty for none)</string>
@@ -50,9 +45,14 @@
     <string name="video_switch">Videos</string>
     <string name="timer_switch">Timer</string>
     <string name="focus_label">Focus</string>
-    <string name="edit_url">Edit URL</string>
+    <string name="save_url">Save URL</string>
+    <string name="new_url">Enter new URL</string>
+    <string name="preview_url">Preview</string>
+    <string name="copy_url">Copy</string>
     <string name="edit_weight">Edit weight</string>
+    <string name="save_weight">Save weight</string>
     <string name="back">Back</string>
+    <string name="version_number">Version </string>
     <string name="return_btn">Return</string>
     <string name="filter_custom">Filter Custom</string>
     <string name="my_exercises">My Exercises</string>
@@ -62,7 +62,6 @@
     <string name="custom_exercises">Edit Custom Exercises</string>
     <string name="nav_divider_title">Locker Room</string>
     <string name="workout_list_title">Workout List</string>
-    <!--layout for yada-->
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_create_icon_title">Workout Creator</string>
     <string name="nav_list_icon_title">My Workouts</string>
@@ -90,24 +89,23 @@
     <string name="show_timer">Timer</string>
     <string name="add_exercises">Add Exercises</string>
     <string name="about_overview_title">App Overview</string>
-    <!--about resources-->
     <string name="about_overview">
-        LiteWeight is a lightweight workout manager that allows for multiple workouts to be created and managed.\n\nDefault exercises are provided by
+        LiteWeight is an open source lightweight workout manager that allows for multiple workouts to be created and managed.\n\nDefault exercises are provided by
         the developer, and if desired you can add your own custom exercises to be used in any workout!
         All exercises can have a URL associated with it should you wish to be able to view a video on how to perform it while working out.
-        You can also specify the most recent amount of weight for each exercise.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
+        You can also specify the most recent amount of weight for specific exercises and this weight will carry over all your workouts.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
     </string>
     <string name="about_nav_overview_title">Navigation Overview</string>
     <string name="about_nav_overview">
-        Current Workout: Your currently selected workout. Here you can mark an exercise as done, update the weight of an exercise, or watch the video associated with it if you have that option enabled.\n\nMy Workouts:
-        All of your workouts that you have made are located here. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
-        You can also reset any statistics associated with the current workout.\n\nCreate Workout:
+        Current Workout: Your currently selected workout. You can mark an exercise as done, update the weight of an exercise, or watch the video associated with it if you have that option enabled.
+        \n\nMy Exercises: Exercises, both custom and default, are listed in this section, and the weights and URL associated with the exercises can be modified.
+        \n\nMy Workouts: Where all of your created workouts are located. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
+        (Note you cannot add or remove entire days from a workout). You can also reset any statistics associated with the current workout.\n\nCreate Workout:
         Here you can create a workout with a unique name and a set length.\n\nSettings:
-        This section allows for any user settings to be enabled or disabled, such as a timer that can be enabled in the Current Workout section. You can also create custom exercises in this section or edit existing exercises.
+        This section allows for any user settings to be enabled or disabled. These changes will persist upon the closing of the app.
     </string>
-    <string name="about_contact_title">Contact Info</string>
-    <string name="about_contact">
-        This application is open source and is non-profit. All code can be found on github: https://github.com/joshrap67/LiteWeight.\n\nFeel free
-        to submit any pull requests for changes that you would like to see or if you find any bugs please don’t hesitate to submit an issue notice.
+    <string name="acknowledgements_title">Acknowledgements</string>
+    <string name="acknowledgements">App Logo was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
+        \n\nMy Exercise Icon was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Demograph</a>.
     </string>
 </resources>

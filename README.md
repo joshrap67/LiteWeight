@@ -135,6 +135,8 @@ This fragment at this time has no actual functionality, it just gives the user i
 
 [Coding in flow](https://codinginflow.com/tutorials/android)
 
-App launch Icons made by https://www.flaticon.com/authors/monkik
+App Logo made by [Monkik](https://www.flaticon.com/authors/monkik)
+
+Exercise Nav Icon made by [Demograph](https://thenounproject.com/demograph/uploads/?i=149086)
 
 Numerous YouTube videos are used for the exercise videos in this non-profit application. I do not own any of these videos and take no responsibility for any actions of the owners.

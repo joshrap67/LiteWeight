@@ -50,7 +50,6 @@ import java.util.HashMap;
 import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class MyExercisesFragment extends Fragment {
-    private AlertDialog alertDialog, rootDialog;
     private ArrayAdapter exerciseAdapter;
     private View view;
     private ExerciseViewModel exerciseViewModel;
@@ -72,9 +71,10 @@ public class MyExercisesFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_my_exercises, container, false);
         exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
         workoutViewModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
+        // determine if metric units are enabled or not
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         metricUnits = pref.getBoolean(Variables.UNIT_KEY, false);
-        // have the switches setup here because otherwise there's a little bit of a delay due to the async task and it looks ugly
+
         GetExercisesTask task = new GetExercisesTask();
         task.execute();
         return view;
@@ -205,15 +205,14 @@ public class MyExercisesFragment extends Fragment {
         });
     }
 
-    // region
-    // Popup methods
+    // region Popup methods
     public void newExercisePopup() {
         /*
             Popup for creating a new exercise
          */
         final ArrayList<String> selectedFocuses = new ArrayList<>();
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialog = alertDialogBuilder.create();
+        final AlertDialog alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
         Button doneBtn = popupView.findViewById(R.id.done_btn);
         final EditText exerciseNameInput = popupView.findViewById(R.id.edit_name_txt);
@@ -275,31 +274,40 @@ public class MyExercisesFragment extends Fragment {
 
     public void editExercise(final ExerciseEntity exercise) {
         /*
-            Show the popup for editing an exercise. If it is a default one, hide the ability to rename/delete
+            Show the popup for editing an exercise. If it is a default one, hide the ability to rename/delete.
+            Save buttons only appear when the user input is not empty and different than the value in the DB.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        rootDialog = alertDialogBuilder.create();
+        final AlertDialog alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_edit_exercise, null);
-        rootDialog.setView(popupView);
-        rootDialog.setCanceledOnTouchOutside(true);
-        rootDialog.show();
+        alertDialog.setView(popupView);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.show();
         if (exercise.isDefaultExercise()) {
             popupView.findViewById(R.id.rename_layout).setVisibility(View.GONE);
             popupView.findViewById(R.id.delete_btn).setVisibility(View.GONE);
         }
-        ImageButton backButton = popupView.findViewById(R.id.back_btn);
+        // init the back button, delete button, and exercise title
+        final ImageButton backButton = popupView.findViewById(R.id.back_btn);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rootDialog.dismiss();
+                alertDialog.dismiss();
             }
         });
-
         final TextView exerciseNameTV = popupView.findViewById(R.id.exercise_name);
         exerciseNameTV.setText(exercise.getExerciseName());
-
+        final Button deleteBtn = popupView.findViewById(R.id.delete_btn);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteExercisePopup(exercise, alertDialog);
+            }
+        });
+        // region Rename widgets
         final Button renameBtn = popupView.findViewById(R.id.rename_btn);
         final EditText renameInput = popupView.findViewById(R.id.rename_input);
+        renameBtn.setVisibility(View.GONE); // always initially set to invisible since input starts out empty
         renameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -308,7 +316,7 @@ public class MyExercisesFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals(exercise.getExerciseName()) || s.toString().isEmpty()) {
+                if (s.toString().trim().equals(exercise.getExerciseName()) || s.toString().isEmpty()) {
                     renameBtn.setVisibility(View.GONE);
                 } else {
                     renameBtn.setVisibility(View.VISIBLE);
@@ -326,13 +334,12 @@ public class MyExercisesFragment extends Fragment {
                 renameExercise(exercise, renameInput, exerciseNameTV, renameBtn);
             }
         });
-        renameBtn.setVisibility(View.GONE);
-
+        //endregion
+        //region Edit weight widgets
         final Button weightBtn = popupView.findViewById(R.id.save_weight_btn);
         final EditText weightInput = popupView.findViewById(R.id.weight_input);
         double weight = WeightHelper.convertWeight(metricUnits, exercise);
         setWeightHint(weightInput, weight);
-
         weightInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -383,12 +390,11 @@ public class MyExercisesFragment extends Fragment {
                 saveWeight(exercise, weightInput, ignoreWeightSwitch.isChecked(), weightBtn);
             }
         });
-        // set up url widgets
-
+        //endregion
+        //region Edit Url widgets
         final Button clipboardBtn = popupView.findViewById(R.id.clipboard_btn);
         final Button saveUrlBtn = popupView.findViewById(R.id.save_url_btn);
         saveUrlBtn.setVisibility(View.GONE); // initially hide it because no input is given
-
         final Button previewBtn = popupView.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -418,9 +424,11 @@ public class MyExercisesFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.toString().isEmpty()) {
                     saveUrlBtn.setVisibility(View.GONE);
-                    clipboardBtn.setVisibility(View.VISIBLE);
-                    previewBtn.setVisibility(View.VISIBLE);
-                } else if (s.toString().equals(exercise.getUrl())) {
+                    if (!exercise.getUrl().isEmpty()) {
+                        clipboardBtn.setVisibility(View.VISIBLE);
+                        previewBtn.setVisibility(View.VISIBLE);
+                    }
+                } else if (s.toString().trim().equals(exercise.getUrl())) {
                     clipboardBtn.setVisibility(View.GONE);
                     previewBtn.setVisibility(View.GONE);
                     saveUrlBtn.setVisibility(View.GONE);
@@ -442,17 +450,13 @@ public class MyExercisesFragment extends Fragment {
                 saveUrl(exercise, urlInput);
             }
         });
-        Button deleteBtn = popupView.findViewById(R.id.delete_btn);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteExercisePopup(exercise);
-            }
-        });
-
+        //endregion
     }
 
     public void renameExercise(ExerciseEntity exercise, EditText nameInput, TextView exerciseNameTV, Button renameBtn) {
+        /*
+            Rename a given exercise and update the entity in the DB.
+         */
         if (validateNewExerciseName(nameInput)) {
             String newName = nameInput.getText().toString().trim();
             workoutViewModel.updateExerciseName(exercise.getExerciseName(), newName); // replace all occurrences of this exercise in any workouts in DB
@@ -467,6 +471,9 @@ public class MyExercisesFragment extends Fragment {
     }
 
     public void saveWeight(ExerciseEntity exercise, final EditText weightInput, boolean ignoreWeight, final Button weightBtn) {
+        /*
+            Updates the weight of a given exercise and updates the entity in the DB.
+         */
         if (ignoreWeight) {
             exercise.setCurrentWeight(Variables.IGNORE_WEIGHT_VALUE);
             exerciseViewModel.update(exercise);
@@ -495,6 +502,9 @@ public class MyExercisesFragment extends Fragment {
     }
 
     public void setWeightHint(EditText weightInput, double weight) {
+        /*
+            Sets the hint of the weight input field using appropriate units and rounding.
+         */
         String formattedWeight = WeightHelper.getFormattedWeight(weight);
         if (weight >= 0) {
             weightInput.setHint(formattedWeight + (metricUnits ? " kg" : " lb"));
@@ -504,6 +514,9 @@ public class MyExercisesFragment extends Fragment {
     }
 
     public void saveUrl(ExerciseEntity exercise, EditText urlInput) {
+        /*
+            Updates the url of a given exercise and updates the entity in the DB.
+         */
         String potentialURL = urlInput.getText().toString().trim();
         String errorMsg = InputHelper.checkValidURL(potentialURL);
         if (errorMsg == null) {
@@ -514,12 +527,12 @@ public class MyExercisesFragment extends Fragment {
         }
     }
 
-    public void deleteExercisePopup(final ExerciseEntity exercise) {
+    public void deleteExercisePopup(final ExerciseEntity exercise, final AlertDialog rootDialog) {
         /*
-            Used to delete a custom exercise. Removes it from the DB and also from the listview in this fragment
+            Used to delete a custom exercise. Removes it from the DB and also from the listview in this fragment.
          */
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialog = alertDialogBuilder.create();
+        final AlertDialog alertDialog = alertDialogBuilder.create();
         View popupView = getLayoutInflater().inflate(R.layout.popup_delete_custom_exercise, null);
         alertDialog.setView(popupView);
         alertDialog.setCanceledOnTouchOutside(true);
@@ -553,7 +566,7 @@ public class MyExercisesFragment extends Fragment {
     private boolean validateNewExerciseName(TextView nameInput) {
         /*
             Validates the input for a new exercise and if an error is found, an appropriate message is displayed
-            on the EditText
+            on the EditText.
          */
         String potentialName = nameInput.getText().toString().trim();
         if (potentialName.isEmpty()) {
@@ -563,7 +576,7 @@ public class MyExercisesFragment extends Fragment {
         // loop over default to see if this exercise already exists in some focus
         for (String focus : totalExercises.keySet()) {
             for (ExerciseEntity exercise : totalExercises.get(focus)) {
-                if (exercise.getExerciseName().equalsIgnoreCase(potentialName)) {
+                if (exercise.getExerciseName().equals(potentialName)) {
                     nameInput.setError("Exercise already exists!");
                     return false;
                 }

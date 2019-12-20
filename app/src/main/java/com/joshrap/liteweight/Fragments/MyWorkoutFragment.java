@@ -486,7 +486,7 @@ public class MyWorkoutFragment extends Fragment {
                 }
                 if (lastDay) {
                     lastDay = false;
-                    nextDayBtn.setText(getActivity().getResources().getString(R.string.button_continue));
+                    nextDayBtn.setText(getActivity().getResources().getString(R.string.forward_button));
                     nextDayBtn.setVisibility(View.VISIBLE);
                 }
 
