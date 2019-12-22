@@ -386,6 +386,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void createWorkout() {
+        /*
+            Used when the user has no workouts, a button appears in the fragment that automatically takes them to the
+            workout creator
+         */
+        nav.setCheckedItem(R.id.nav_new_workout);
+        goToNewWorkout();
+    }
+
     public boolean fragModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified

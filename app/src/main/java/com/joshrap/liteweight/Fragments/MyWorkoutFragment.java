@@ -73,6 +73,13 @@ public class MyWorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.default_layout, container, false);
+        Button createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+        createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) getActivity()).createWorkout();
+            }
+        });
         fragmentContainer = container;
         defaultTV = view.findViewById(R.id.default_text_view);
         defaultTV.setVisibility(View.GONE);
@@ -329,6 +336,13 @@ public class MyWorkoutFragment extends Fragment {
                 // signal to go make a new workout, all workouts have been deleted
                 LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.default_layout, fragmentContainer, false);
+                Button createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+                createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((MainActivity) getActivity()).createWorkout();
+                    }
+                });
                 ViewGroup rootView = (ViewGroup) getView();
                 rootView.removeAllViews();
                 rootView.addView(view);

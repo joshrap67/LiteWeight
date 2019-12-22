@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">LiteWeight</string>
     <string name="no_workouts_found">
-        No workouts found! Please navigate to the "Create Workout" tab in the navigation pane to get started!
+        No workouts found! Create one to get lifting!
     </string>
     <string name="nav_draw_open">Open Nav</string>
     <string name="nav_draw_close">Close Nav</string>

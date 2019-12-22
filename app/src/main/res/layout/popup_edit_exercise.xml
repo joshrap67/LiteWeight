@@ -268,7 +268,6 @@
                     android:lines="1"
                     android:maxLines="1"
                     android:singleLine="true"
-                    app:backgroundTint="@android:color/holo_blue_bright"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/rename_btn"
                     app:layout_constraintStart_toStartOf="parent"

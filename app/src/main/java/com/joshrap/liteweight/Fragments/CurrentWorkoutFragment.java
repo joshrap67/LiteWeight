@@ -55,6 +55,13 @@ public class CurrentWorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.default_layout, container, false);
+        Button createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+        createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) getActivity()).createWorkout();
+            }
+        });
         defaultTV = view.findViewById(R.id.default_text_view);
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
