@@ -27,7 +27,7 @@
     <string name="reset_statistics_title">Reset Statistics</string>
     <string name="video_switch_description">Provides a button next to each exercise in the current workout that when
     clicked launches a video using the provided URL for the specific exercise.</string>
-    <string name="metric_switch_description">Converts all units in the app from imperial units (lbs) to metric units (kg).</string>
+    <string name="metric_switch_description">Converts all units in the app from imperial units (lb) to metric units (kg).</string>
     <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout tab.</string>
     <string name="confirm">Yes</string>
     <string name="denial">No</string>
@@ -46,9 +46,9 @@
     <string name="timer_switch">Timer</string>
     <string name="focus_label">Focus</string>
     <string name="save_url">Save URL</string>
-    <string name="new_url">Enter new URL</string>
-    <string name="preview_url">Preview</string>
-    <string name="copy_url">Copy</string>
+    <string name="new_url">New URL</string>
+    <string name="preview_url">View (Old)</string>
+    <string name="copy_url">Copy (Old)</string>
     <string name="edit_weight">Edit weight</string>
     <string name="save_weight">Save weight</string>
     <string name="back">Back</string>

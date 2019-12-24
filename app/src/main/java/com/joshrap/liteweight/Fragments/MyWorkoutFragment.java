@@ -350,9 +350,7 @@ public class MyWorkoutFragment extends Fragment {
         }
     }
 
-    //region
-    // Edit workout methods
-
+    //region Edit workout methods
     public void getExercises() {
         GetAllExercisesTask task = new GetAllExercisesTask();
         task.execute();

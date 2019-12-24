@@ -44,7 +44,7 @@ public class Exercise implements Comparable<Exercise> {
                     Fragment fragment, boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
                     ExerciseViewModel exerciseViewModel) {
         /*
-            Constructor utilized for database stuff
+            Constructor utilized by CurrentWorkoutFragment
          */
         this.workoutEntity = workoutEntity;
         this.exerciseEntity = exerciseEntity;

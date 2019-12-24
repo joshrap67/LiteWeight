@@ -41,7 +41,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private Chronometer timer;
     private int currentDayIndex, maxDayIndex, numDays;
     private String currentWorkout;
-    private boolean workoutModified = false, timerRunning = false, accessingDB = false;
+    private boolean workoutModified = false, timerRunning = false;
     private long lastTime;
     private MetaEntity currentWorkoutEntity;
     private WorkoutViewModel workoutModel;
@@ -85,13 +85,11 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected MetaEntity doInBackground(Void... voids) {
             // get the current workout from the database
-            accessingDB = true;
             return metaModel.getCurrentWorkoutMeta();
         }
 
         @Override
         protected void onPostExecute(MetaEntity result) {
-            accessingDB = false;
             ((MainActivity) getActivity()).setProgressBar(false);
             if (result != null) {
                 // database found a workout, so assign it then move to the next stop in the chain
@@ -100,14 +98,12 @@ public class CurrentWorkoutFragment extends Fragment {
                 currentDayIndex = currentWorkoutEntity.getCurrentDay();
                 maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
                 numDays = currentWorkoutEntity.getNumDays();
-                Log.d("TAG", "CurrentWorkout: " + currentWorkoutEntity.toString());
                 GetExercisesTask task = new GetExercisesTask();
                 task.execute();
             } else {
                 // no workout found, error
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
-                Log.d("TAG", "Get current workout result was null!");
             }
         }
     }
@@ -121,13 +117,11 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
             // get the exercises from the database
-            accessingDB = true;
             return exerciseModel.getAllExercises();
         }
 
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            accessingDB = false;
             ((MainActivity) getActivity()).setProgressBar(false);
             if (!result.isEmpty()) {
                 for (ExerciseEntity entity : result) {
@@ -138,7 +132,6 @@ public class CurrentWorkoutFragment extends Fragment {
             } else {
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
-                Log.d("TAG", "Get exercises result was empty!");
             }
         }
     }
@@ -152,19 +145,15 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
             // get the exercises from the database
-            accessingDB = true;
             return workoutModel.getExercises(currentWorkout);
         }
 
         @Override
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
-            accessingDB = false;
             ((MainActivity) getActivity()).setProgressBar(false);
             if (result != null) {
                 // query produced a valid list, so populate it in local memory
                 populateExercises(result);
-            } else {
-                Log.d("TAG", "Get exercises result was null!");
             }
         }
     }
@@ -358,8 +347,7 @@ public class CurrentWorkoutFragment extends Fragment {
         workoutModified = status;
     }
 
-    // region
-    // Timer methods
+    // region Timer methods
     public void initTimer() {
         startTimer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -391,8 +379,6 @@ public class CurrentWorkoutFragment extends Fragment {
                 showTimer();
             }
         });
-
-
     }
 
     public void startTimer() {

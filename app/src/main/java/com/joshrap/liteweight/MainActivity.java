@@ -61,7 +61,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         state = savedInstanceState;
         fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
+
+        }
         // get the view models
         exerciseModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
@@ -121,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
-        // TODO handle configuration changes!
         toggle.syncState();
         if (state == null) {
             // default landing fragment is current workout one
@@ -134,8 +136,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setProgressBar(boolean status) {
         /*
-            Used in tandem with async tasks. When in the background, will set the progress bar to true to show user loading
-            animation.
+            Used in tandem with async tasks. When background work is being done
+            the progress bar is set to true to show user a loading animation.
          */
         if (status) {
             progressBar.setVisibility(View.VISIBLE);
@@ -231,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onResume() {
         /*
             Kind of hacky, but otherwise fragment will resume where it left off and introduce lots
-            of logical errors. So just deleteWorkoutEntity old fragment and launch new
+            of logical errors. So just delete old fragment and launch new
         */
         Fragment visibleFragment = getVisibleFragment();
         if (visibleFragment instanceof CurrentWorkoutFragment) {

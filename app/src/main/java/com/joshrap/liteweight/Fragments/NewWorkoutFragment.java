@@ -393,7 +393,6 @@ public class NewWorkoutFragment extends Fragment {
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new SpinnerListener());
         alertDialog.setView(popupView);
-        alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
         Button doneBtn = popupView.findViewById(R.id.done_btn);
         doneBtn.setOnClickListener(new View.OnClickListener() {
