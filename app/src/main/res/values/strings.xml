@@ -101,7 +101,7 @@
         \n\nMy Exercises: Exercises, both custom and default, are listed in this section, and the weights and URL associated with the exercises can be modified.
         \n\nMy Workouts: Where all of your created workouts are located. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
         (Note you cannot add or remove entire days from a workout). You can also reset any statistics associated with the current workout.\n\nCreate Workout:
-        Here you can create a workout with a unique name and a set length.\n\nSettings:
+        Here you can create a workout with a unique name and a number of days/weeks.\n\nSettings:
         This section allows for any user settings to be enabled or disabled. These changes will persist upon the closing of the app.
     </string>
     <string name="acknowledgements_title">Acknowledgements</string>

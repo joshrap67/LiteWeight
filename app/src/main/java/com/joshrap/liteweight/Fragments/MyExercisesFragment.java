@@ -522,6 +522,7 @@ public class MyExercisesFragment extends Fragment {
         if (errorMsg == null) {
             exercise.setUrl(potentialURL);
             exerciseViewModel.update(exercise);
+            urlInput.setText("");
         } else {
             urlInput.setError(errorMsg);
         }
