@@ -91,21 +91,22 @@
     <string name="about_overview_title">App Overview</string>
     <string name="about_overview">
         LiteWeight is an open source lightweight workout manager that allows for multiple workouts to be created and managed.\n\nDefault exercises are provided by
-        the developer, and if desired you can add your own custom exercises to be used in any workout!
-        All exercises can have a URL associated with it should you wish to be able to view a video on how to perform it while working out.
-        You can also specify the most recent amount of weight for specific exercises and this weight will carry over all your workouts.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
+        the developer, and, if desired, you can add your own custom exercises to be used in any workout!
+        All exercises can have a URL associated with them should you wish to be able to view a video on how to perform one while working out.
+        You can also set the most recent amount of weight for specific exercises and this weight will carry over all your workouts.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
     </string>
     <string name="about_nav_overview_title">Navigation Overview</string>
     <string name="about_nav_overview">
         Current Workout: Your currently selected workout. You can mark an exercise as done, update the weight of an exercise, or watch the video associated with it if you have that option enabled.
+        When done you can reset the workout and all exercises will be unchecked and you will be brought back to the beginning of the workout. Alternatively, hold down the \"Next\" button to activate a shortcut to reset the workout from any day.
         \n\nMy Exercises: Exercises, both custom and default, are listed in this section, and the weights and URL associated with the exercises can be modified.
         \n\nMy Workouts: Where all of your created workouts are located. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
         (Note you cannot add or remove entire days from a workout). You can also reset any statistics associated with the current workout.\n\nCreate Workout:
-        Here you can create a workout with a unique name and a number of days/weeks.\n\nSettings:
+        Create a workout with a unique name and a number of days/weeks.\n\nSettings:
         This section allows for any user settings to be enabled or disabled. These changes will persist upon the closing of the app.
     </string>
     <string name="acknowledgements_title">Acknowledgements</string>
-    <string name="acknowledgements">App Logo was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
-        \n\nMy Exercise Icon was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Demograph</a>.
+    <string name="acknowledgements">App graphic was created using a vector made by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
+        \n\nMy Exercises Icon was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Demograph</a>.
     </string>
 </resources>
