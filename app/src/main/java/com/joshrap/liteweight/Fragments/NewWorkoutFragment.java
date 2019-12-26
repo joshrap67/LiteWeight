@@ -26,6 +26,10 @@ import android.widget.Toast;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.Database.Entities.*;
 import com.joshrap.liteweight.Database.ViewModels.*;
+import com.joshrap.liteweight.Globals.Variables;
+import com.joshrap.liteweight.Helpers.ExerciseHelper;
+import com.joshrap.liteweight.Helpers.InputHelper;
+import com.joshrap.liteweight.Helpers.WorkoutHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,12 +89,11 @@ public class NewWorkoutFragment extends Fragment {
         @Override
         protected void onPostExecute(List<MetaEntity> result) {
             ((MainActivity) getActivity()).setProgressBar(false);
-            if(!result.isEmpty()) {
-                for(MetaEntity entity : result){
+            if (!result.isEmpty()) {
+                for (MetaEntity entity : result) {
                     workoutNames.add(entity.getWorkoutName());
                 }
-            }
-            else{
+            } else {
                 // no workouts found
                 firstWorkout = true;
             }
@@ -109,21 +112,21 @@ public class NewWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            if(!result.isEmpty()) {
-                for(ExerciseEntity entity : result){
+            if (!result.isEmpty()) {
+                for (ExerciseEntity entity : result) {
                     String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
-                    for(String focus : focuses){
+                    for (String focus : focuses) {
                         // get all focuses from the DB and put it in a list
-                        if(!focusList.contains(focus)){
+                        if (!focusList.contains(focus)) {
                             focusList.add(focus);
                             allExercises.put(focus, new ArrayList<String>()); // init new focus index with list
                         }
                         allExercises.get(focus).add(entity.getExerciseName());
                     }
-                    exerciseNameToEntity.put(entity.getExerciseName(),entity);
+                    exerciseNameToEntity.put(entity.getExerciseName(), entity);
                 }
             }
-            ((MainActivity)getActivity()).setProgressBar(false);
+            ((MainActivity) getActivity()).setProgressBar(false);
             initViews();
         }
     }
@@ -138,14 +141,13 @@ public class NewWorkoutFragment extends Fragment {
         Button nextButton = view.findViewById(R.id.next_button);
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                if((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = Validator.checkValidName(workoutNameInput.getText().toString().trim(),workoutNames);
-                    if(errorMsg == null) {
+                if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    String errorMsg = InputHelper.checkValidName(workoutNameInput.getText().toString().trim(), workoutNames);
+                    if (errorMsg == null) {
                         modified = true;
                         return true;
-                    }
-                    else{
-                        displayErrorMessage("Name",errorMsg);
+                    } else {
+                        displayErrorMessage("Name", errorMsg);
                     }
                 }
                 return false;
@@ -154,14 +156,13 @@ public class NewWorkoutFragment extends Fragment {
 
         numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                if((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = Validator.checkValidWeek(numWeeksInput.getText().toString());
-                    if(errorMsg == null) {
+                if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    String errorMsg = InputHelper.checkValidWeek(numWeeksInput.getText().toString());
+                    if (errorMsg == null) {
                         modified = true;
                         return true;
-                    }
-                    else{
-                        displayErrorMessage("Weeks",errorMsg);
+                    } else {
+                        displayErrorMessage("Weeks", errorMsg);
                     }
                 }
                 return false;
@@ -170,13 +171,12 @@ public class NewWorkoutFragment extends Fragment {
         numDaysInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = Validator.checkValidDay(numDaysInput.getText().toString());
-                    if (errorMsg==null) {
+                    String errorMsg = InputHelper.checkValidDay(numDaysInput.getText().toString());
+                    if (errorMsg == null) {
                         modified = true;
                         return true;
-                    }
-                    else{
-                        displayErrorMessage("Days",errorMsg);
+                    } else {
+                        displayErrorMessage("Days", errorMsg);
                     }
                 }
                 return false;
@@ -189,37 +189,33 @@ public class NewWorkoutFragment extends Fragment {
                 String currentName = workoutNameInput.getText().toString().trim();
                 String currentWeeks = numWeeksInput.getText().toString();
                 String currentDays = numDaysInput.getText().toString();
-                String nameError = Validator.checkValidName(currentName, workoutNames);
-                String weekError = Validator.checkValidWeek(currentWeeks);
-                String dayError = Validator.checkValidDay(currentDays);
-                if(workoutNames.size() > Variables.MAX_NUMBER_OF_WORKOUTS){
-                    Toast.makeText(getContext(),"Whoa there! You have too many workouts! Go delete some.",Toast.LENGTH_SHORT).show();
-                }
-                else if(nameError != null){
+                String nameError = InputHelper.checkValidName(currentName, workoutNames);
+                String weekError = InputHelper.checkValidWeek(currentWeeks);
+                String dayError = InputHelper.checkValidDay(currentDays);
+                if (workoutNames.size() > Variables.MAX_NUMBER_OF_WORKOUTS) {
+                    Toast.makeText(getContext(), "Whoa there! You have too many workouts! Go delete some.", Toast.LENGTH_SHORT).show();
+                } else if (nameError != null) {
                     displayErrorMessage("Name", nameError);
-                }
-                else if(weekError != null){
+                } else if (weekError != null) {
                     displayErrorMessage("Weeks", weekError);
-                }
-                else if(dayError != null){
+                } else if (dayError != null) {
                     displayErrorMessage("Days", dayError);
-                }
-                else{
+                } else {
                     finalName = currentName.trim();
                     finalWeekNum = Integer.parseInt(currentWeeks);
                     finalDayNum = Integer.parseInt(currentDays);
-                    maxDayIndex = (finalWeekNum*finalDayNum)-1;
+                    maxDayIndex = (finalWeekNum * finalDayNum) - 1;
                     createWorkout();
                 }
             }
         });
     }
 
-    public void displayErrorMessage(String editText, String msg){
+    public void displayErrorMessage(String editText, String msg) {
         /*
             Displays an error message to the appropriate EditText
          */
-        switch (editText){
+        switch (editText) {
             case "Name":
                 workoutNameInput.setError(msg);
                 workoutNameInput.setText("");
@@ -246,15 +242,15 @@ public class NewWorkoutFragment extends Fragment {
         rootView.addView(createWorkoutView);
         displayedExercisesTable = createWorkoutView.findViewById(R.id.main_table);
         dayTitle = createWorkoutView.findViewById(R.id.day_text_view);
-        dayTitle.setText(Variables.generateDayTitle(currentDayIndex, finalDayNum));
-        for(int i=0;i<= maxDayIndex;i++){
+        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
+        for (int i = 0; i <= maxDayIndex; i++) {
             // create the hash map that maps day numbers to lists of exercises
             pendingWorkout.put(i, new ArrayList<String>());
         }
         setButtons(createWorkoutView);
     }
 
-    public void setButtons(View createWorkoutView){
+    public void setButtons(View createWorkoutView) {
         /*
             Setup buttons to allow for cycling through all the days of the workout. Logic is included to ensure that the user
             does not go beyond the bounds of the days specified by their input. Also ensure that each day has at
@@ -271,88 +267,85 @@ public class NewWorkoutFragment extends Fragment {
         previousDayButton = createWorkoutView.findViewById(R.id.previous_day_button);
         nextDayButton = createWorkoutView.findViewById(R.id.next_day_button);
         previousDayButton.setVisibility(View.INVISIBLE);
-        if(maxDayIndex == 0){
+        if (maxDayIndex == 0) {
             // in case some jabroni only wants to workout one day total
             nextDayButton.setText(getActivity().getResources().getString(R.string.finish_button));
         }
         previousDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(currentDayIndex > 0){
+                if (currentDayIndex > 0) {
                     displayedExercisesTable.removeAllViews();
                     currentDayIndex--;
                 }
-                if(lastDay){
+                if (lastDay) {
                     lastDay = false;
                     nextDayButton.setText(getActivity().getResources().getString(R.string.forward_button));
                 }
 
-                if(currentDayIndex == 0){
+                if (currentDayIndex == 0) {
                     previousDayButton.setVisibility(View.INVISIBLE);
                     firstDay = true;
                 }
                 addExercisesToMainTable();
-                dayTitle.setText(Variables.generateDayTitle(currentDayIndex,finalDayNum));
+                dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
             }
         });
         nextDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(currentDayIndex < maxDayIndex) {
+                if (currentDayIndex < maxDayIndex) {
                     displayedExercisesTable.removeAllViews();
                     currentDayIndex++;
-                    if(firstDay){
+                    if (firstDay) {
                         firstDay = false;
                         previousDayButton.setVisibility(View.VISIBLE);
                     }
-                    if(currentDayIndex == maxDayIndex){
+                    if (currentDayIndex == maxDayIndex) {
                         lastDay = true;
                         nextDayButton.setText(getActivity().getResources().getString(R.string.finish_button));
                     }
                     addExercisesToMainTable();
-                    dayTitle.setText(Variables.generateDayTitle(currentDayIndex, finalDayNum));
-                }
-                else{
+                    dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
+                } else {
                     // on the last day so check if every day has at least one exercise in it before writing to file
                     boolean ready = true;
-                    for(int i =0;i<pendingWorkout.size();i++){
-                        if(pendingWorkout.get(i) == null){
+                    for (int i = 0; i < pendingWorkout.size(); i++) {
+                        if (pendingWorkout.get(i) == null) {
                             ready = false;
-                        }
-                        else if(pendingWorkout.get(i).isEmpty()){
+                        } else if (pendingWorkout.get(i).isEmpty()) {
                             ready = false;
                         }
                     }
-                    if(ready){
+                    if (ready) {
                         writeToDatabase();
                         modified = false;
-                        Toast.makeText(getContext(), "Workout successfully created!",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Workout successfully created!", Toast.LENGTH_SHORT).show();
                         // restart this fragment
                         resetFragment();
-                    }
-                    else{
-                        Toast.makeText(getContext(),"Ensure each day has at least one exercise!",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Ensure each day has at least one exercise!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
     }
 
-    public void writeToDatabase(){
+    public void writeToDatabase() {
         /*
             Writes the new workout to both the meta table and workout table
          */
         // write the metadata to the meta table
         SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
         Date date = new Date();
-        String mostFrequentFocus = Validator.mostFrequentFocus(pendingWorkout,exerciseNameToEntity,focusList);
-        MetaEntity log = new MetaEntity(finalName,0,maxDayIndex,finalDayNum,formatter.format(date),formatter.format(date),
-                0,0,firstWorkout, mostFrequentFocus,0,0);
+        String mostFrequentFocus = ExerciseHelper.mostFrequentFocus(pendingWorkout, exerciseNameToEntity, focusList);
+        MetaEntity log = new MetaEntity(finalName, 0, maxDayIndex, finalDayNum, formatter.format(date), formatter.format(date),
+                0, 0, firstWorkout, mostFrequentFocus, 0, 0);
         metaModel.insert(log);
         // write to the workout table
-        for(int i=0;i<=maxDayIndex;i++){
+        for (int i = 0; i <= maxDayIndex; i++) {
             // loop through all the days of the workouts
-            for(String exercise : pendingWorkout.get(i)){
+            for (String exercise : pendingWorkout.get(i)) {
                 // loop through selectedExercises of a specific day
                 WorkoutEntity workoutEntity = new WorkoutEntity(exercise, finalName, i, false);
                 workoutModel.insert(workoutEntity);
@@ -360,15 +353,15 @@ public class NewWorkoutFragment extends Fragment {
         }
     }
 
-    public void addExercisesToMainTable(){
+    public void addExercisesToMainTable() {
         /*
             After user has selected exercises from the popup, add them to the table view and allow for them to be deleted.
          */
         Collections.sort(pendingWorkout.get(currentDayIndex));
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         int count = 0;
-        for(final String exercise : pendingWorkout.get(currentDayIndex)){
-            final View row = inflater.inflate(R.layout.row_list_view_element,null);
+        for (final String exercise : pendingWorkout.get(currentDayIndex)) {
+            final View row = inflater.inflate(R.layout.row_list_view_element, null);
             TextView exerciseName = row.findViewById(R.id.exercise_name);
             exerciseName.setText(exercise);
             ImageButton deleteIcon = row.findViewById(R.id.delete_exercise);
@@ -379,12 +372,12 @@ public class NewWorkoutFragment extends Fragment {
                     pendingWorkout.get(currentDayIndex).remove(exercise);
                 }
             });
-            displayedExercisesTable.addView(row,count);
+            displayedExercisesTable.addView(row, count);
             count++;
         }
     }
 
-    public void popupAddExercises(){
+    public void popupAddExercises() {
         /*
             User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
             that is programmed to list all exercises for a given exercise focus.
@@ -400,14 +393,13 @@ public class NewWorkoutFragment extends Fragment {
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new SpinnerListener());
         alertDialog.setView(popupView);
-        alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.show();
         Button doneBtn = popupView.findViewById(R.id.done_btn);
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // done adding
-                for(String exercise : checkedExercises){
+                for (String exercise : checkedExercises) {
                     pendingWorkout.get(currentDayIndex).add(exercise);
                 }
                 checkedExercises.clear();
@@ -418,17 +410,17 @@ public class NewWorkoutFragment extends Fragment {
         });
     }
 
-    public void updateExerciseChoices(String exerciseFocus){
+    public void updateExerciseChoices(String exerciseFocus) {
         /*
             Given a value from the exercise focus spinner, list all the selectedExercises associate with it.
          */
         ArrayList<String> sortedExercises = new ArrayList<>();
-        for(String exercise : allExercises.get(exerciseFocus)){
+        for (String exercise : allExercises.get(exerciseFocus)) {
             sortedExercises.add(exercise);
         }
         Collections.sort(sortedExercises);
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        for(int i=0;i<sortedExercises.size();i++){
+        for (int i = 0; i < sortedExercises.size(); i++) {
             final View row = inflater.inflate(R.layout.row_add_exercise, null);
             final CheckBox exercise = row.findViewById(R.id.exercise_checkbox);
             String exerciseName = sortedExercises.get(i);
@@ -439,17 +431,16 @@ public class NewWorkoutFragment extends Fragment {
             exercise.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(exercise.isChecked()){
+                    if (exercise.isChecked()) {
                         checkedExercises.add(exercise.getText().toString());
-                    }
-                    else{
+                    } else {
                         pendingWorkout.get(currentDayIndex).remove(exercise.getText().toString());
                         checkedExercises.remove(exercise.getText().toString());
                     }
 
                 }
             });
-            pickExerciseTable.addView(row,i);
+            pickExerciseTable.addView(row, i);
         }
     }
 
@@ -461,7 +452,7 @@ public class NewWorkoutFragment extends Fragment {
         return modified;
     }
 
-    public void resetFragment(){
+    public void resetFragment() {
         /*
             Resets the current fragment
 
@@ -470,8 +461,8 @@ public class NewWorkoutFragment extends Fragment {
                 new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE).commit();
     }
 
-    public void setModified(boolean status){
-        modified=status;
+    public void setModified(boolean status) {
+        modified = status;
     }
 
     private class SpinnerListener implements AdapterView.OnItemSelectedListener {

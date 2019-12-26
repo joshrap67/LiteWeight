@@ -3,7 +3,7 @@ package com.joshrap.liteweight.Database.Entities;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.joshrap.liteweight.Variables;
+import com.joshrap.liteweight.Globals.Variables;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -143,8 +143,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
         DateFormat df = new SimpleDateFormat(Variables.DATE_PATTERN);
         try {
             return df.parse(dateLast).compareTo(df.parse(o.getDateLast()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
