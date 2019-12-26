@@ -139,7 +139,7 @@ public class Exercise implements Comparable<Exercise> {
                 TextView exerciseName = popupView.findViewById(R.id.exercise_name);
                 exerciseName.setText(name);
                 final EditText weightInput = popupView.findViewById(R.id.name_input);
-                weightInput.setHint(formattedWeight);
+                weightInput.setHint(formattedWeight + (metricUnits ? " kg" : " lb"));
                 final Switch ignoreWeightSwitch = popupView.findViewById(R.id.ignore_weight_switch);
                 if (weight < 0) {
                     ignoreWeightSwitch.setChecked(true);
