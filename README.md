@@ -24,8 +24,8 @@ If pulling from this repository, open the project in Android Studio and run it. 
 
 - [Android](https://www.android.com/) - Framework that this app was built with
 - [Java](https://docs.oracle.com/en/java/) - Used for the backend of the application
-- [Android Room Persistence Library](https://developer.android.com/topic/libraries/architecture/room) - Library used to store data locally on the Android device in a SQLite database.
-- [Android Studio](https://developer.android.com/studio) - IDE that was used to build this application. All frontend development was done in Android Studio.
+- [Android Room Persistence Library](https://developer.android.com/topic/libraries/architecture/room) - Library used to store data locally on the Android device in a SQLite database
+- [Android Studio](https://developer.android.com/studio) - IDE that was used to build this application. All frontend development was done in Android Studio
 
 ## Authors
 
@@ -39,4 +39,6 @@ App Logo crated using asset made by [Monkik](https://www.flaticon.com/authors/mo
 
 MyExericses Nav Icon made by [Demograph](https://thenounproject.com/demograph/uploads/?i=149086)
 
-Numerous YouTube videos are used for the exercise videos in this non-profit application. I do not own any of these videos and take no responsibility for any actions of the owners.
+Numerous YouTube videos are used for the exercise videos in this non-profit application. I do not own any of these videos and take no responsibility for any actions of the owners
+
+My friend John Cooley for helping me with the app name
