@@ -32,7 +32,6 @@ import com.joshrap.liteweight.Database.ViewModels.MetaViewModel;
 import com.joshrap.liteweight.Database.ViewModels.WorkoutViewModel;
 import com.joshrap.liteweight.Globals.Variables;
 import com.joshrap.liteweight.Helpers.ExerciseHelper;
-import com.joshrap.liteweight.Helpers.InputHelper;
 import com.joshrap.liteweight.Helpers.WorkoutHelper;
 
 import java.text.SimpleDateFormat;

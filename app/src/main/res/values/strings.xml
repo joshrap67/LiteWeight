@@ -25,8 +25,8 @@
         percentage of exercises completed.
     </string>
     <string name="reset_statistics_title">Reset Statistics</string>
-    <string name="video_switch_description">Provides a button next to each exercise in the current workout that when
-    clicked launches a video using the provided URL for the specific exercise.</string>
+    <string name="video_switch_description">Provides a button next to each exercise in the current workout that, when
+    clicked, launches a video using the provided URL for the specific exercise.</string>
     <string name="metric_switch_description">Converts all units in the app from imperial units (lb) to metric units (kg).</string>
     <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout tab.</string>
     <string name="confirm">Yes</string>
@@ -100,13 +100,13 @@
         Current Workout: Your currently selected workout. You can mark an exercise as done, update the weight of an exercise, or watch the video associated with it if you have that option enabled.
         When done you can reset the workout and all exercises will be unchecked and you will be brought back to the beginning of the workout. Alternatively, hold down the \"Next\" button to activate a shortcut to reset the workout from any day.
         \n\nMy Exercises: Exercises, both custom and default, are listed in this section, and the weights and URL associated with the exercises can be modified.
-        \n\nMy Workouts: Where all of your created workouts are located. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific workouts.
+        \n\nMy Workouts: Where all of your created workouts are located. The workout at the top is the currently selected one. To switch the current workout, you can select any of your workouts that appear in the list. You can delete the current workout or edit it to add or remove specific exercises.
         (Note you cannot add or remove entire days from a workout). You can also reset any statistics associated with the current workout.\n\nCreate Workout:
         Create a workout with a unique name and a number of days/weeks.\n\nSettings:
         This section allows for any user settings to be enabled or disabled. These changes will persist upon the closing of the app.
     </string>
     <string name="acknowledgements_title">Acknowledgements</string>
     <string name="acknowledgements">App graphic was created using a vector made by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
-        \n\nMy Exercises Icon was created by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Demograph</a>.
+        \n\nMy Exercises Icon was created by <a href="https://thenounproject.com/demograph/uploads/?i=149086">Demograph</a>.
     </string>
 </resources>
