@@ -34,13 +34,14 @@ import java.util.HashMap;
 public class CurrentWorkoutFragment extends Fragment {
     private TextView dayTV, defaultTV;
     private TableLayout table;
-    private Button forwardButton, backButton, startTimer, stopTimer, resetTimer, hideTimer, showTimer;
+    private Button forwardButton, backButton, startStopwatch, stopStopwatch,
+            resetStopwatch, hideStopwatch, showStopwatch, createWorkoutBtn;
     private View view;
     private ViewGroup fragmentContainer;
-    private Chronometer timer;
+    private Chronometer stopwatch;
     private int currentDayIndex, maxDayIndex, numDays;
     private String currentWorkout;
-    private boolean workoutModified = false, timerRunning = false;
+    private boolean workoutModified = false, stopwatchRunning = false;
     private long lastTime;
     private MetaEntity currentWorkoutEntity;
     private WorkoutViewModel workoutModel;
@@ -54,7 +55,7 @@ public class CurrentWorkoutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.default_layout, container, false);
-        Button createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+        createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
         createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,6 +63,7 @@ public class CurrentWorkoutFragment extends Fragment {
             }
         });
         defaultTV = view.findViewById(R.id.default_text_view);
+        createWorkoutBtn.setVisibility(View.INVISIBLE); // only show this button later if no workouts are found
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
         ((MainActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
@@ -101,6 +103,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 task.execute();
             } else {
                 // no workout found, error
+                createWorkoutBtn.setVisibility(View.VISIBLE);
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
             }
@@ -129,6 +132,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 GetWorkoutTask task = new GetWorkoutTask();
                 task.execute();
             } else {
+                createWorkoutBtn.setVisibility(View.VISIBLE);
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
             }
@@ -168,26 +172,26 @@ public class CurrentWorkoutFragment extends Fragment {
         rootView.addView(view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
-        startTimer = view.findViewById(R.id.start_timer);
-        stopTimer = view.findViewById(R.id.stop_timer);
-        resetTimer = view.findViewById(R.id.reset_timer);
-        hideTimer = view.findViewById(R.id.hide_timer);
-        showTimer = view.findViewById(R.id.show_timer);
-        showTimer.setVisibility(View.INVISIBLE);
+        startStopwatch = view.findViewById(R.id.start_stopwatch);
+        stopStopwatch = view.findViewById(R.id.stop_stopwatch);
+        resetStopwatch = view.findViewById(R.id.reset_stopwatch);
+        hideStopwatch = view.findViewById(R.id.hide_stopwatch);
+        showStopwatch = view.findViewById(R.id.show_stopwatch);
+        showStopwatch.setVisibility(View.INVISIBLE);
         table = view.findViewById(R.id.main_table);
-        timer = view.findViewById(R.id.timer);
+        stopwatch = view.findViewById(R.id.stopwatch);
         dayTV = view.findViewById(R.id.day_text_view);
-        ConstraintLayout timerContainer = view.findViewById(R.id.constraint_layout);
+        ConstraintLayout stopwatchContainer = view.findViewById(R.id.constraint_layout);
         /*
             Get shared preferences data
          */
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         boolean videosEnabled = pref.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = pref.getBoolean(Variables.UNIT_KEY, false);
-        if (pref.getBoolean(Variables.TIMER_KEY, true)) {
-            initTimer();
+        if (pref.getBoolean(Variables.STOPWATCH_KEY, true)) {
+            initStopwatch();
         } else {
-            timerContainer.setVisibility(View.GONE);
+            stopwatchContainer.setVisibility(View.GONE);
         }
         ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout);
         // init the hash table that the entire workout will be in
@@ -346,79 +350,79 @@ public class CurrentWorkoutFragment extends Fragment {
         workoutModified = status;
     }
 
-    // region Timer methods
-    public void initTimer() {
-        startTimer.setOnClickListener(new View.OnClickListener() {
+    // region Stopwatch methods
+    public void initStopwatch() {
+        startStopwatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startTimer();
+                startStopwatch();
             }
         });
-        stopTimer.setOnClickListener(new View.OnClickListener() {
+        stopStopwatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopTimer();
+                stopStopwatch();
             }
         });
-        resetTimer.setOnClickListener(new View.OnClickListener() {
+        resetStopwatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetTimer();
+                resetStopwatch();
             }
         });
-        hideTimer.setOnClickListener(new View.OnClickListener() {
+        hideStopwatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideTimer();
+                hideStopwatch();
             }
         });
-        showTimer.setOnClickListener(new View.OnClickListener() {
+        showStopwatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showTimer();
+                showStopwatch();
             }
         });
     }
 
-    public void startTimer() {
-        if (!timerRunning) {
-            timer.setBase(SystemClock.elapsedRealtime() - lastTime);
-            timer.start();
-            timerRunning = true;
+    public void startStopwatch() {
+        if (!stopwatchRunning) {
+            stopwatch.setBase(SystemClock.elapsedRealtime() - lastTime);
+            stopwatch.start();
+            stopwatchRunning = true;
         }
     }
 
-    public void stopTimer() {
-        if (timerRunning) {
-            timer.stop();
-            lastTime = SystemClock.elapsedRealtime() - timer.getBase();
-            timerRunning = false;
+    public void stopStopwatch() {
+        if (stopwatchRunning) {
+            stopwatch.stop();
+            lastTime = SystemClock.elapsedRealtime() - stopwatch.getBase();
+            stopwatchRunning = false;
         }
     }
 
-    public void resetTimer() {
-        timer.setBase(SystemClock.elapsedRealtime());
+    public void resetStopwatch() {
+        stopwatch.setBase(SystemClock.elapsedRealtime());
         lastTime = 0;
     }
 
-    public void hideTimer() {
-        startTimer.setVisibility(View.INVISIBLE);
-        stopTimer.setVisibility(View.INVISIBLE);
-        resetTimer.setVisibility(View.INVISIBLE);
-        hideTimer.setVisibility(View.INVISIBLE);
-        stopTimer();
-        resetTimer();
-        timer.setVisibility(View.INVISIBLE);
-        showTimer.setVisibility(View.VISIBLE);
+    public void hideStopwatch() {
+        startStopwatch.setVisibility(View.INVISIBLE);
+        stopStopwatch.setVisibility(View.INVISIBLE);
+        resetStopwatch.setVisibility(View.INVISIBLE);
+        hideStopwatch.setVisibility(View.INVISIBLE);
+        stopStopwatch();
+        resetStopwatch();
+        stopwatch.setVisibility(View.INVISIBLE);
+        showStopwatch.setVisibility(View.VISIBLE);
     }
 
-    public void showTimer() {
-        startTimer.setVisibility(View.VISIBLE);
-        stopTimer.setVisibility(View.VISIBLE);
-        resetTimer.setVisibility(View.VISIBLE);
-        hideTimer.setVisibility(View.VISIBLE);
-        timer.setVisibility(View.VISIBLE);
-        showTimer.setVisibility(View.INVISIBLE);
+    public void showStopwatch() {
+        startStopwatch.setVisibility(View.VISIBLE);
+        stopStopwatch.setVisibility(View.VISIBLE);
+        resetStopwatch.setVisibility(View.VISIBLE);
+        hideStopwatch.setVisibility(View.VISIBLE);
+        stopwatch.setVisibility(View.VISIBLE);
+        showStopwatch.setVisibility(View.INVISIBLE);
     }
     //endregion
 }

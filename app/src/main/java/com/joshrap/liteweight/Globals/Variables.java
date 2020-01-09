@@ -20,7 +20,7 @@ public class Variables {
             FOCUS_DELIM_DB = ",",
             SHARED_PREF_NAME = "userSettings",
             VIDEO_KEY = "Videos",
-            TIMER_KEY = "Timer",
+            STOPWATCH_KEY = "Stopwatch",
             DATABASE_NAME = "workout_db",
             DB_EMPTY_KEY = "DB_EMPTY",
             UNIT_KEY = "METRIC",

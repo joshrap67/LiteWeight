@@ -23,14 +23,14 @@ public class UserSettingsFragment extends Fragment {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
         View view = inflater.inflate(R.layout.fragment_user_settings, container, false);
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
-        SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
+        SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat unitSwitch = view.findViewById(R.id.metric_switch);
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_NAME, 0);
         editor = pref.edit();
-        timerSwitch.setChecked(pref.getBoolean(Variables.TIMER_KEY, true));
-        timerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        stopwatchSwitch.setChecked(pref.getBoolean(Variables.STOPWATCH_KEY, true));
+        stopwatchSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                editor.putBoolean(Variables.TIMER_KEY, isChecked);
+                editor.putBoolean(Variables.STOPWATCH_KEY, isChecked);
                 editor.apply();
             }
         });

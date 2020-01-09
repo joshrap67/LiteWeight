@@ -20,9 +20,13 @@ public class WeightHelper {
             Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
          */
         String retVal;
+        String[] decimalPoints = Double.toString(aWeight).split("\\.");
         if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
             // Weight is a whole number. don't want to show any decimals
             retVal = String.format("%.0f", aWeight);
+        } else if (decimalPoints[1].length() == 1) {
+            // lil hacky, but prevents trailing zeros if user only enters one value after decimal point
+            retVal = String.format("%.1f", aWeight);
         } else {
             retVal = String.format("%.2f", aWeight);
         }

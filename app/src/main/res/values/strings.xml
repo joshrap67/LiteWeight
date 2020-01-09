@@ -25,10 +25,10 @@
         percentage of exercises completed.
     </string>
     <string name="reset_statistics_title">Reset Statistics</string>
-    <string name="video_switch_description">Provides a button next to each exercise in the current workout that, when
+    <string name="video_switch_description">Provides a play button next to each exercise in the current workout that, when
     clicked, launches a video using the provided URL for the specific exercise.</string>
     <string name="metric_switch_description">Converts all units in the app from imperial units (lb) to metric units (kg).</string>
-    <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout tab.</string>
+    <string name="stopwatch_switch_description">Provides a simple stopwatch at the bottom of the current workout tab.</string>
     <string name="confirm">Yes</string>
     <string name="denial">No</string>
     <string name="save">Save</string>
@@ -43,7 +43,7 @@
     <string name="import_btn">Import</string>
     <string name="export_btn">Export</string>
     <string name="video_switch">Videos</string>
-    <string name="timer_switch">Timer</string>
+    <string name="stopwatch_switch">Stopwatch</string>
     <string name="focus_label">Focus</string>
     <string name="save_url">Save URL</string>
     <string name="new_url">New URL</string>
@@ -84,9 +84,9 @@
     <string name="exercise_title">Add exercises</string>
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>
-    <string name="hide_timer">Hide</string>
+    <string name="hide_stopwatch">Hide</string>
     <string name="reset">Reset</string>
-    <string name="show_timer">Timer</string>
+    <string name="show_stopwatch">Stopwatch</string>
     <string name="add_exercises">Add Exercises</string>
     <string name="about_overview_title">App Overview</string>
     <string name="about_overview">
