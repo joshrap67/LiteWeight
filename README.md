@@ -16,7 +16,7 @@ If pulling from this repository, Android Studio is required in order to run the 
 
 ## Deployment
 
-If downloading from the Google Play Store, just simply download it and ensure enough space is available on the device.
+If downloading from the [Google Play Store](https://play.google.com/store/apps/details?id=com.joshrap.liteweight&fbclid=IwAR3tvspaMUvVOcPjw1NHzb0wUL9l5aDlZ9ferGfqPbp9ev7__Ob-D6hP5lw), simply download it and ensure enough space is available on the device.
 
 If pulling from this repository, open the project in Android Studio and run it. If doing it this way, you may need to ensure that you have developer options enabled on your device.
 

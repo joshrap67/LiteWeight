@@ -6,4 +6,11 @@
     <color name="popupBackground">#A0A4AA</color>
     <color name="row_activated">#d1cdcd</color>
     <color name="row_pressed">#c4c4c2</color>
+    <color name="notification_color">#ffffff</color>
+
+    <color name="workout_very_low_percentage">#700d02</color>
+    <color name="workout_low_percentage">#e81809</color>
+    <color name="workout_medium_percentage">#e88b09</color>
+    <color name="workout_high_percentage">#51f079</color>
+    <color name="workout_very_high_percentage">#2d8744</color>
 </resources>

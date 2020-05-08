@@ -6,17 +6,13 @@
                 android:icon="@drawable/weight_icon"
                 android:title="@string/nav_workout_icon_title" />
         <item
-                android:id="@+id/nav_my_exercises"
-                android:icon="@drawable/my_exercises_icon"
-                android:title="@string/my_exercises" />
-        <item
                 android:id="@+id/nav_my_workouts"
                 android:icon="@drawable/my_workouts_icon"
                 android:title="@string/nav_list_icon_title" />
         <item
-                android:id="@+id/nav_new_workout"
-                android:icon="@drawable/create_icon"
-                android:title="@string/nav_create_icon_title" />
+                android:id="@+id/nav_my_exercises"
+                android:icon="@drawable/my_exercises_icon"
+                android:title="@string/my_exercises" />
     </group>
     <item android:title="@string/nav_divider_title">
         <menu>
