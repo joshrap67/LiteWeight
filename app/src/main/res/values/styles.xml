@@ -32,4 +32,8 @@
         <item name="android:colorForeground">#42221f1f</item>
     </style>
 
+    <style name="jump_days_item_theme">
+        <item name="android:textSize">25sp</item>
+    </style>
+
 </resources>

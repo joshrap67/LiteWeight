@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
@@ -50,7 +51,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private ListView exerciseListView;
     private PendingExerciseAdapter exerciseAdapter;
     private TableLayout pickExerciseTable;
-    private Button doneEditingBtn;
+    private Button saveBtn;
     private ImageButton previousDayBtn, nextDayBtn;
     private FloatingActionButton addExercisesBtn;
     private TextView dayTitle;
@@ -59,7 +60,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseViewModel;
     private String spinnerFocus;
-    private boolean firstDay, lastDay, editing;
+    private boolean editing;
     private ScrollView addExercisesScrollView;
     private int maxDayIndex, currentDayIndex, numDays, netChange;
     private ArrayList<String> focusList = new ArrayList<>();
@@ -80,7 +81,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         previousDayBtn = view.findViewById(R.id.previous_day_button);
         nextDayBtn = view.findViewById(R.id.next_day_button);
         dayTitle = view.findViewById(R.id.day_text_view);
-        doneEditingBtn = view.findViewById(R.id.done_editing);
+        saveBtn = view.findViewById(R.id.done_editing);
         hideViews();
 
         ((MainActivity) getActivity()).enableBackButton(true);
@@ -97,7 +98,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         previousDayBtn.setVisibility(View.INVISIBLE);
         nextDayBtn.setVisibility(View.INVISIBLE);
         dayTitle.setVisibility(View.INVISIBLE);
-        doneEditingBtn.setVisibility(View.INVISIBLE);
+        saveBtn.setVisibility(View.INVISIBLE);
     }
 
     private void showViews() {
@@ -105,7 +106,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         previousDayBtn.setVisibility(View.VISIBLE);
         nextDayBtn.setVisibility(View.VISIBLE);
         dayTitle.setVisibility(View.VISIBLE);
-        doneEditingBtn.setVisibility(View.INVISIBLE);
+        saveBtn.setVisibility(View.INVISIBLE);
     }
 
     private void getExercises() {
@@ -209,71 +210,50 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         }
         exerciseListView = view.findViewById(R.id.list_view);
         Collections.sort(pendingWorkout.get(currentDayIndex), String.CASE_INSENSITIVE_ORDER);
-        exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-        exerciseListView.setAdapter(exerciseAdapter);
-        setButtons();
+        initButtonListeners();
+        updateWorkoutListUI();
     }
 
-    private void setButtons() {
+    private void initButtonListeners() {
         /*
-            Setup buttons to allow for cycling through all the days of the workout. Logic is included to ensure that the user
-            does not go beyond the bounds of the days specified by their input. Also ensure that each day has at
+            Setup buttons to allow for cycling through all the days of the workout. Ensures that the user
+            does not go beyond the bounds of the days specified by their input. Also ensures that each day has at
             least one exercise before allowing output to DB.
          */
-        firstDay = true;
+        dayTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jumpDaysPopup();
+            }
+        });
         addExercisesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupAddExercises();
             }
         });
-        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
-        previousDayBtn.setVisibility(View.INVISIBLE);
-        if (maxDayIndex == 0) {
-            // in case some jabroni only wants to workout one day total
-            nextDayBtn.setVisibility(View.INVISIBLE);
-        }
+
         previousDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentDayIndex > 0) {
                     currentDayIndex--;
+                    updateWorkoutListUI();
                 }
-                if (lastDay) {
-                    lastDay = false;
-                    nextDayBtn.setImageResource(R.drawable.next_icon);
-                    nextDayBtn.setVisibility(View.VISIBLE);
-                }
-
-                if (currentDayIndex == 0) {
-                    previousDayBtn.setVisibility(View.INVISIBLE);
-                    firstDay = true;
-                }
-                exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-                exerciseListView.setAdapter(exerciseAdapter);
-                dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
             }
         });
+
         nextDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentDayIndex < maxDayIndex) {
                     currentDayIndex++;
-                    if (firstDay) {
-                        firstDay = false;
-                        previousDayBtn.setVisibility(View.VISIBLE);
-                    }
-                    if (currentDayIndex == maxDayIndex) {
-                        lastDay = true;
-                        nextDayBtn.setVisibility(View.INVISIBLE);
-                    }
-                    exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-                    exerciseListView.setAdapter(exerciseAdapter);
-                    dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
+                    updateWorkoutListUI();
                 }
             }
         });
-        doneEditingBtn.setOnClickListener(new View.OnClickListener() {
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean ready = true;
@@ -292,6 +272,37 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 }
             }
         });
+    }
+
+    private void updateWorkoutListUI() {
+        /*
+            Updates the list of displayed exercises in the workout depending on the current day.
+         */
+        exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
+        exerciseListView.setAdapter(exerciseAdapter);
+        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
+        updateButtons();
+    }
+
+    private void updateButtons() {
+        /*
+            Updates the visibility of the navigation buttons depending on the current day.
+         */
+        if (currentDayIndex == 0) {
+            previousDayBtn.setVisibility(View.INVISIBLE);
+            if (maxDayIndex == currentDayIndex) {
+                // in case some jabroni only wants to workout one day total
+                nextDayBtn.setVisibility(View.INVISIBLE);
+            } else {
+                nextDayBtn.setVisibility(View.VISIBLE);
+            }
+        } else if (currentDayIndex != maxDayIndex) {
+            nextDayBtn.setVisibility(View.VISIBLE);
+            previousDayBtn.setVisibility(View.VISIBLE);
+        } else {
+            nextDayBtn.setVisibility(View.INVISIBLE);
+            previousDayBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     private void writeToDatabase() {
@@ -325,7 +336,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         }
         editing = false;
         netChange = 0;
-        doneEditingBtn.setVisibility(View.GONE);
+        saveBtn.setVisibility(View.GONE);
     }
 
     private void checkForChanges() {
@@ -337,7 +348,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
          */
         if (netChange != 0) {
             // always show save button
-            doneEditingBtn.setVisibility(View.VISIBLE);
+            saveBtn.setVisibility(View.VISIBLE);
         } else {
             // potential for there to be change, so check to see if workout is same as original
             boolean changeFound = false;
@@ -349,8 +360,43 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 }
             }
             editing = changeFound;
-            doneEditingBtn.setVisibility((editing) ? View.VISIBLE : View.GONE);
+            saveBtn.setVisibility((editing) ? View.VISIBLE : View.GONE);
         }
+    }
+
+    private void jumpDaysPopup() {
+        /*
+            Allow the user to scroll through the list of days to quickly jump around in workout
+         */
+        String[] days = new String[maxDayIndex + 1];
+        for (int i = 0; i <= maxDayIndex; i++) {
+            days[i] = WorkoutHelper.generateDayTitle(i, numDays);
+        }
+        View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        dayPicker.setMinValue(0);
+        dayPicker.setMaxValue(maxDayIndex);
+        dayPicker.setValue(currentDayIndex);
+        dayPicker.setWrapSelectorWheel(false);
+        dayPicker.setDisplayedValues(days);
+        dayPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                currentDayIndex = newVal;
+            }
+        });
+
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Jump to Day")
+                .setView(popupView)
+                .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        updateWorkoutListUI();
+                    }
+                })
+                .create();
+        alertDialog.show();
     }
 
     private void popupAddExercises() {
@@ -469,10 +515,12 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                         netChange++;
                         pendingWorkout.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
                         newExercises.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
+                        deletedExercises.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
                     } else {
                         netChange--;
                         pendingWorkout.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
                         newExercises.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
+                        deletedExercises.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
                     }
                     Collections.sort(pendingWorkout.get(currentDayIndex), String.CASE_INSENSITIVE_ORDER);
                     checkForChanges();
@@ -511,10 +559,12 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                         netChange++;
                         pendingWorkout.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
                         newExercises.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
+                        deletedExercises.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
                     } else {
                         netChange--;
                         pendingWorkout.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
                         newExercises.get(currentDayIndex).remove(exerciseCheckbox.getText().toString());
+                        deletedExercises.get(currentDayIndex).add(exerciseCheckbox.getText().toString());
                     }
                     Collections.sort(pendingWorkout.get(currentDayIndex), String.CASE_INSENSITIVE_ORDER);
                     checkForChanges();

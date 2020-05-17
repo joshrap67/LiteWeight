@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -229,12 +230,12 @@ public class CurrentWorkoutFragment extends Fragment {
             }
             if (result != null) {
                 // query produced a valid list, so populate it in local memory
-                populateExercises(result);
+                initWorkout(result);
             }
         }
     }
 
-    private void populateExercises(ArrayList<WorkoutEntity> rawData) {
+    private void initWorkout(ArrayList<WorkoutEntity> rawData) {
         /*
             Database queries complete, so switch layouts and init all the widgets
          */
@@ -316,12 +317,56 @@ public class CurrentWorkoutFragment extends Fragment {
         for (int i = 0; i <= maxDayIndex; i++) {
             Collections.sort(workout.get(i));
         }
-        populateExerciseTable();
+        setupButtons();
+        updateWorkoutUI();
     }
 
-    private void populateExerciseTable() {
+    private void setupButtons() {
         /*
-            Populates exercises based on the current day.
+            Setup button listeners.
+         */
+        dayTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jumpDaysPopup();
+            }
+        });
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentDayIndex > 0) {
+                    currentDayIndex--;
+                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
+                    metaModel.update(currentWorkoutEntity);
+                    updateWorkoutUI();
+                }
+            }
+        });
+        forwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentDayIndex < maxDayIndex) {
+                    currentDayIndex++;
+                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
+                    metaModel.update(currentWorkoutEntity);
+                    updateWorkoutUI();
+                } else if (currentDayIndex == maxDayIndex) {
+                    restartPopup();
+                }
+            }
+        });
+        forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                restartPopup();
+                return true;
+            }
+        });
+    }
+
+    private void updateWorkoutUI() {
+        /*
+            Populates the list of exercise rows based on the current day in the workout.
          */
         mainExercisesTable.removeAllViews();
         dayTV.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
@@ -331,59 +376,34 @@ public class CurrentWorkoutFragment extends Fragment {
             mainExercisesTable.addView(row, count);
             count++;
         }
-        setupButtons();
+        updateButtons();
     }
 
-    private void setupButtons() {
+    private void updateButtons() {
         /*
-            Setup back and forward buttons.
+            Updates the visibility and icon of the navigation buttons depending on the current day.
          */
         if (currentDayIndex == 0) {
             // means it's the first day, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
-        } else {
+            forwardButton.setVisibility(View.VISIBLE);
+            forwardButton.setImageResource(R.drawable.next_icon);
+            if (currentDayIndex == maxDayIndex) {
+                // a one day workout
+                forwardButton.setImageResource(R.drawable.restart_icon);
+            }
+        } else if (currentDayIndex != maxDayIndex) {
+            // day in the middle, so just show the normal back and forward buttons
             backButton.setVisibility(View.VISIBLE);
-            backButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    currentDayIndex--;
-                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
-                    metaModel.update(currentWorkoutEntity);
-                    populateExerciseTable();
-                }
-            });
-        }
-        // set up the forward button, make it so user can always restart if holding down button
-        if (currentDayIndex == maxDayIndex) {
+            forwardButton.setVisibility(View.VISIBLE);
+            forwardButton.setImageResource(R.drawable.next_icon);
+        } else {
             // lil hacky, but don't want the ripple showing when the icons switch
             forwardButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-
+            backButton.setVisibility(View.VISIBLE);
+            // last day so set the restart icon instead of next icon
             forwardButton.setImageResource(R.drawable.restart_icon);
-            forwardButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    restartPopup();
-                }
-            });
-        } else {
-            forwardButton.setImageResource(R.drawable.next_icon);
-            forwardButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    currentDayIndex++;
-                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
-                    metaModel.update(currentWorkoutEntity);
-                    populateExerciseTable();
-                }
-            });
-            forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    restartPopup();
-                    return true;
-                }
-            });
         }
     }
 
@@ -409,7 +429,44 @@ public class CurrentWorkoutFragment extends Fragment {
         StatisticsHelper.workoutResetStatistics(currentWorkoutEntity, metaModel, exercisesCompleted, totalExercises);
 
         currentDayIndex = 0;
-        populateExerciseTable();
+        updateWorkoutUI();
+    }
+
+    private void jumpDaysPopup() {
+        /*
+            Allow the user to scroll through the list of days to quickly jump around in workout
+         */
+        String[] days = new String[maxDayIndex + 1];
+        for (int i = 0; i <= maxDayIndex; i++) {
+            days[i] = WorkoutHelper.generateDayTitle(i, numDays);
+        }
+        View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        dayPicker.setMinValue(0);
+        dayPicker.setMaxValue(maxDayIndex);
+        dayPicker.setValue(currentDayIndex);
+        dayPicker.setWrapSelectorWheel(false);
+        dayPicker.setDisplayedValues(days);
+        dayPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                currentDayIndex = newVal;
+            }
+        });
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Jump to Day")
+                .setView(popupView)
+                .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        currentWorkoutEntity.setCurrentDay(currentDayIndex);
+                        metaModel.update(currentWorkoutEntity);
+                        updateWorkoutUI();
+                    }
+                })
+                .create();
+        alertDialog.show();
     }
 
     private void restartPopup() {
@@ -459,7 +516,7 @@ public class CurrentWorkoutFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         mainExercisesTable.removeAllViews();
                         restartWorkout();
-                        populateExerciseTable();
+                        updateWorkoutUI();
                     }
                 })
                 .setNegativeButton("No", null)

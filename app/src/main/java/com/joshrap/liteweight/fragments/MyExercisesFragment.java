@@ -51,7 +51,6 @@ import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.Future;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 

@@ -3,6 +3,7 @@ package com.joshrap.liteweight.fragments;
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
@@ -162,11 +164,11 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 }
             }
             ((MainActivity) getActivity()).setProgressBar(false);
-            initViews();
+            initInputViews();
         }
     }
 
-    private void initViews() {
+    private void initInputViews() {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
@@ -291,21 +293,19 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
         exerciseListView = view.findViewById(R.id.list_view);
         dayTitle = createWorkoutView.findViewById(R.id.day_text_view);
-        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
         for (int i = 0; i <= maxDayIndex; i++) {
             // create the hash map that maps day numbers to lists of exercises
             pendingWorkout.put(i, new ArrayList<String>());
         }
-        exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-        exerciseListView.setAdapter(exerciseAdapter);
-        setButtons(createWorkoutView);
+        initButtonListeners(createWorkoutView);
+        updateWorkoutListUI();
     }
 
-    private void setButtons(View createWorkoutView) {
+    private void initButtonListeners(View createWorkoutView) {
         /*
-            Setup buttons to allow for cycling through all the days of the workout. Logic is included to ensure that the user
-            does not go beyond the bounds of the days specified by their input. Also ensure that each day has at
-            least one exercise before allowing output to the DB.
+            Setup buttons to allow for cycling through all the days of the workout. Ensures that the user
+            does not go beyond the bounds of the days specified by their input. Also ensures that each day has at
+            least one exercise before allowing output to DB.
          */
         final FloatingActionButton addExercises = createWorkoutView.findViewById(R.id.add_exercises);
         addExercises.setOnClickListener(new View.OnClickListener() {
@@ -314,33 +314,23 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 popupAddExercises();
             }
         });
-        firstDay = true;
         previousDayButton = createWorkoutView.findViewById(R.id.previous_day_button);
         nextDayButton = createWorkoutView.findViewById(R.id.next_day_button);
-        previousDayButton.setVisibility(View.INVISIBLE);
-        if (maxDayIndex == 0) {
-            // in case some jabroni only wants to workout one day total
-            nextDayButton.setImageResource(R.drawable.save_icon);
-        }
+
+        dayTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jumpDaysPopup();
+            }
+        });
+
         previousDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentDayIndex > 0) {
                     currentDayIndex--;
+                    updateWorkoutListUI();
                 }
-                if (lastDay) {
-                    lastDay = false;
-                    nextDayButton.setImageResource(R.drawable.next_icon);
-                }
-
-                if (currentDayIndex == 0) {
-                    previousDayButton.setVisibility(View.INVISIBLE);
-                    firstDay = true;
-                }
-
-                exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-                exerciseListView.setAdapter(exerciseAdapter);
-                dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
             }
         });
         nextDayButton.setOnClickListener(new View.OnClickListener() {
@@ -348,22 +338,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             public void onClick(View v) {
                 if (currentDayIndex < maxDayIndex) {
                     currentDayIndex++;
-                    if (firstDay) {
-                        firstDay = false;
-                        previousDayButton.setVisibility(View.VISIBLE);
-                    }
-                    if (currentDayIndex == maxDayIndex) {
-                        lastDay = true;
-                        // lil hacky, but don't want the ripple showing when the icons switch
-                        nextDayButton.setVisibility(View.INVISIBLE);
-                        nextDayButton.setVisibility(View.VISIBLE);
-
-                        nextDayButton.setImageResource(R.drawable.save_icon);
-                    }
-                    exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
-                    exerciseListView.setAdapter(exerciseAdapter);
-                    dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
-                } else {
+                    updateWorkoutListUI();
+                } else if (currentDayIndex == maxDayIndex) {
                     // on the last day so check if every day has at least one exercise in it before writing to file
                     boolean ready = true;
                     for (int i = 0; i < pendingWorkout.size(); i++) {
@@ -387,6 +363,44 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
+    private void updateWorkoutListUI() {
+        /*
+            Updates the list of displayed exercises in the workout depending on the current day.
+         */
+        exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
+        exerciseListView.setAdapter(exerciseAdapter);
+        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
+        updateButtons();
+    }
+
+    private void updateButtons() {
+        /*
+            Updates the visibility and icon of the navigation buttons depending on the current day.
+         */
+        if (currentDayIndex == 0) {
+            // means it's the first day, so hide the back button
+            previousDayButton.setVisibility(View.INVISIBLE);
+            nextDayButton.setVisibility(View.VISIBLE);
+            nextDayButton.setImageResource(R.drawable.next_icon);
+            if (currentDayIndex == maxDayIndex) {
+                // in case some jabroni only wants to workout one day total
+                nextDayButton.setImageResource(R.drawable.save_icon);
+            }
+        } else if (currentDayIndex != maxDayIndex) {
+            // day in the middle, so just show the normal back and forward buttons
+            previousDayButton.setVisibility(View.VISIBLE);
+            nextDayButton.setVisibility(View.VISIBLE);
+            nextDayButton.setImageResource(R.drawable.next_icon);
+        } else {
+            // lil hacky, but don't want the ripple showing when the icons switch
+            nextDayButton.setVisibility(View.INVISIBLE);
+            nextDayButton.setVisibility(View.VISIBLE);
+            previousDayButton.setVisibility(View.VISIBLE);
+            // last day so set the restart icon instead of next icon
+            nextDayButton.setImageResource(R.drawable.save_icon);
+        }
+    }
+
     private void writeToDatabase() {
         /*
             Writes the new workout to both the meta table and workout table
@@ -408,6 +422,41 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 workoutModel.insert(workoutEntity);
             }
         }
+    }
+
+    private void jumpDaysPopup() {
+        /*
+            Allow the user to scroll through the list of days to quickly jump around in workout
+         */
+        String[] days = new String[maxDayIndex + 1];
+        for (int i = 0; i <= maxDayIndex; i++) {
+            days[i] = WorkoutHelper.generateDayTitle(i, finalDayNum);
+        }
+        View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        dayPicker.setMinValue(0);
+        dayPicker.setMaxValue(maxDayIndex);
+        dayPicker.setValue(currentDayIndex);
+        dayPicker.setWrapSelectorWheel(false);
+        dayPicker.setDisplayedValues(days);
+        dayPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                currentDayIndex = newVal;
+            }
+        });
+
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Jump to Day")
+                .setView(popupView)
+                .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        updateWorkoutListUI();
+                    }
+                })
+                .create();
+        alertDialog.show();
     }
 
     private void popupAddExercises() {
@@ -634,5 +683,4 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             return listItem;
         }
     }
-
 }
