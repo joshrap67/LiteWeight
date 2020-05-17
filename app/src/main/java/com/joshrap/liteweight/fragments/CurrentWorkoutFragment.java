@@ -441,18 +441,12 @@ public class CurrentWorkoutFragment extends Fragment {
             days[i] = WorkoutHelper.generateDayTitle(i, numDays);
         }
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
-        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
         dayPicker.setMaxValue(maxDayIndex);
         dayPicker.setValue(currentDayIndex);
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(days);
-        dayPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                currentDayIndex = newVal;
-            }
-        });
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Jump to Day")
@@ -460,6 +454,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 .setPositiveButton("Go", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        currentDayIndex = dayPicker.getValue();
                         currentWorkoutEntity.setCurrentDay(currentDayIndex);
                         metaModel.update(currentWorkoutEntity);
                         updateWorkoutUI();
