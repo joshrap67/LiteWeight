@@ -176,6 +176,10 @@ public class CurrentWorkoutFragment extends Fragment {
                 getExercisesTask.execute();
             } else {
                 // no workout found, error
+                if (getActivity() != null) {
+                    ((MainActivity) getActivity()).setProgressBar(false);
+                }
+                loadingHandler.removeCallbacks(showLoadingIconRunnable);
                 createWorkoutBtn.show();
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
@@ -199,6 +203,10 @@ public class CurrentWorkoutFragment extends Fragment {
                 getWorkoutTask = new GetWorkoutTask();
                 getWorkoutTask.execute();
             } else {
+                if (getActivity() != null) {
+                    ((MainActivity) getActivity()).setProgressBar(false);
+                }
+                loadingHandler.removeCallbacks(showLoadingIconRunnable);
                 createWorkoutBtn.hide();
                 defaultTV.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);

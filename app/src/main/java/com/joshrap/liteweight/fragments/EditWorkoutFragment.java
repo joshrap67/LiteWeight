@@ -171,6 +171,11 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 }
                 getWorkoutTask = new GetWorkoutTask();
                 getWorkoutTask.execute();
+            } else {
+                if (getActivity() != null) {
+                    ((MainActivity) getActivity()).setProgressBar(false);
+                }
+                loadingHandler.removeCallbacks(showLoadingIconRunnable);
             }
         }
     }
