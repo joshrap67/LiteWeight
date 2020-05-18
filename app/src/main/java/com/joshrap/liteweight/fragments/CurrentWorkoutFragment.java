@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -56,8 +57,17 @@ public class CurrentWorkoutFragment extends Fragment {
     private Timer timer;
     private Stopwatch stopwatch;
     private GetExercisesTask getExercisesTask;
-    private GetCurrentWorkoutTask getCurrentWorkoutTask;
+    private GetCurrentWorkoutMetaTask getCurrentWorkoutTask;
     private GetWorkoutTask getWorkoutTask;
+    private Handler loadingHandler;
+    private final Runnable showLoadingIconRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (getActivity() != null) {
+                ((MainActivity) getActivity()).setProgressBar(true);
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -81,9 +91,13 @@ public class CurrentWorkoutFragment extends Fragment {
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         exerciseModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
+
+        // show loading dialog only if workout hasn't loaded in certain amount of time
+        loadingHandler = new Handler();
+        loadingHandler.postDelayed(showLoadingIconRunnable, 2000);
         if (Globals.currentWorkout == null) {
             // attempt to fetch the current workout from database
-            getCurrentWorkoutTask = new GetCurrentWorkoutTask();
+            getCurrentWorkoutTask = new GetCurrentWorkoutMetaTask();
             getCurrentWorkoutTask.execute();
         } else {
             // user has already loaded the current workout so skip that DB call
@@ -136,27 +150,20 @@ public class CurrentWorkoutFragment extends Fragment {
         if (getWorkoutTask != null) {
             getWorkoutTask.cancel(true);
         }
+        if (loadingHandler != null) {
+            loadingHandler.removeCallbacks(showLoadingIconRunnable);
+        }
     }
 
-    private class GetCurrentWorkoutTask extends AsyncTask<Void, Void, MetaEntity> {
-        @Override
-        protected void onPreExecute() {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
-            }
-        }
-
+    private class GetCurrentWorkoutMetaTask extends AsyncTask<Void, Void, MetaEntity> {
         @Override
         protected MetaEntity doInBackground(Void... voids) {
-            // get the current workout from the database
+            // get the current workout meta from the database
             return metaModel.getCurrentWorkoutMeta();
         }
 
         @Override
         protected void onPostExecute(MetaEntity result) {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(false);
-            }
             if (result != null) {
                 // database found a workout, so assign it then move to the next stop in the chain
                 Globals.currentWorkout = result;
@@ -178,13 +185,6 @@ public class CurrentWorkoutFragment extends Fragment {
 
     private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
         @Override
-        protected void onPreExecute() {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
-            }
-        }
-
-        @Override
         protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
             // get the exercises from the database
             return exerciseModel.getAllExercises();
@@ -192,9 +192,6 @@ public class CurrentWorkoutFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(false);
-            }
             if (!result.isEmpty()) {
                 for (ExerciseEntity entity : result) {
                     exerciseToExerciseEntity.put(entity.getExerciseName(), entity);
@@ -211,13 +208,6 @@ public class CurrentWorkoutFragment extends Fragment {
 
     private class GetWorkoutTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>> {
         @Override
-        protected void onPreExecute() {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
-            }
-        }
-
-        @Override
         protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
             // get the exercises from the database
             return workoutModel.getExercises(currentWorkout);
@@ -228,6 +218,7 @@ public class CurrentWorkoutFragment extends Fragment {
             if (getActivity() != null) {
                 ((MainActivity) getActivity()).setProgressBar(false);
             }
+            loadingHandler.removeCallbacks(showLoadingIconRunnable);
             if (result != null) {
                 // query produced a valid list, so populate it in local memory
                 initWorkout(result);

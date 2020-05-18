@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -72,6 +73,15 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private HashMap<Integer, ArrayList<String>> newExercises = new HashMap<>();
     private GetAllExercisesTask getAllExercisesTask;
     private GetWorkoutTask getWorkoutTask;
+    private Handler loadingHandler;
+    private final Runnable showLoadingIconRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (getActivity() != null) {
+                ((MainActivity) getActivity()).setProgressBar(true);
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -84,12 +94,16 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         saveBtn = view.findViewById(R.id.done_editing);
         hideViews();
 
+        // show loading dialog only if workout hasn't loaded in certain amount of time
+        loadingHandler = new Handler();
+        loadingHandler.postDelayed(showLoadingIconRunnable, 2000);
         ((MainActivity) getActivity()).enableBackButton(true);
         ((MainActivity) getActivity()).updateToolbarTitle(Globals.currentWorkout.getWorkoutName());
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
-        getExercises();
+        getAllExercisesTask = new GetAllExercisesTask();
+        getAllExercisesTask.execute();
         return view;
     }
 
@@ -107,11 +121,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         nextDayBtn.setVisibility(View.VISIBLE);
         dayTitle.setVisibility(View.VISIBLE);
         saveBtn.setVisibility(View.INVISIBLE);
-    }
-
-    private void getExercises() {
-        getAllExercisesTask = new GetAllExercisesTask();
-        getAllExercisesTask.execute();
     }
 
     @Override
@@ -132,19 +141,14 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         if (getWorkoutTask != null) {
             getWorkoutTask.cancel(true);
         }
+        if (loadingHandler != null) {
+            loadingHandler.removeCallbacks(showLoadingIconRunnable);
+        }
         super.onStop();
 
     }
 
     private class GetAllExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
-
-        @Override
-        protected void onPreExecute() {
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
-            }
-        }
-
         @Override
         protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
             return exerciseViewModel.getAllExercises();
@@ -172,7 +176,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     }
 
     private class GetWorkoutTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>> {
-
         @Override
         protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
             // get the entirety of the current workout from the database
@@ -184,6 +187,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             if (getActivity() != null) {
                 ((MainActivity) getActivity()).setProgressBar(false);
             }
+            loadingHandler.removeCallbacks(showLoadingIconRunnable);
             initEdit(result);
         }
     }
