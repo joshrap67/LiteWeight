@@ -272,10 +272,17 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
         } else {
             formattedPercentage = "100%";
         }
+        String formattedType = null;
+        if (Globals.currentWorkout.getWorkoutType().equals(Variables.WORKOUT_FIXED)) {
+            formattedType = "Fixed";
+        } else if (Globals.currentWorkout.getWorkoutType().equals(Variables.WORKOUT_FLEXIBLE)) {
+            formattedType = "Flexible";
+        }
         int days = Globals.currentWorkout.getMaxDayIndex() + 1;
-        String msg = "Times Completed: " + timesCompleted + "\n" +
+        String msg = "Workout Type: " + formattedType + "\n" +
+                "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
-                "Number of Days in Workout: " + days + "\n" +
+                "Total Number of Days in Workout: " + days + "\n" +
                 "Most Worked Focus: " + Globals.currentWorkout.getMostFrequentFocus().replaceAll(",", ", ");
         statisticsTV.setText(msg);
     }

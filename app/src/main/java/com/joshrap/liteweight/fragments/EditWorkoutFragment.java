@@ -63,7 +63,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private String spinnerFocus;
     private boolean editing;
     private ScrollView addExercisesScrollView;
-    private int maxDayIndex, currentDayIndex, numDays, netChange;
+    private int maxDayIndex, currentDayIndex, daysPerWeek, netChange;
     private ArrayList<String> focusList = new ArrayList<>();
     private HashMap<Integer, ArrayList<String>> pendingWorkout = new HashMap<>();
     private HashMap<String, ArrayList<String>> allExercises = new HashMap<>();
@@ -204,7 +204,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         showViews();
         currentDayIndex = 0;
         maxDayIndex = Globals.currentWorkout.getMaxDayIndex();
-        numDays = Globals.currentWorkout.getNumDays();
+        daysPerWeek = Globals.currentWorkout.getNumDays();
         for (int i = 0; i <= maxDayIndex; i++) {
             // init the hash tables
             pendingWorkout.put(i, new ArrayList<String>());
@@ -289,7 +289,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
          */
         exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
         exerciseListView.setAdapter(exerciseAdapter);
-        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
+        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, daysPerWeek, Globals.currentWorkout.getWorkoutType()));
         updateButtons();
     }
 
@@ -379,7 +379,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
          */
         String[] days = new String[maxDayIndex + 1];
         for (int i = 0; i <= maxDayIndex; i++) {
-            days[i] = WorkoutHelper.generateDayTitle(i, numDays);
+            days[i] = WorkoutHelper.generateDayTitle(i, daysPerWeek, Globals.currentWorkout.getWorkoutType());
         }
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);

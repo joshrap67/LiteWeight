@@ -18,7 +18,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private int totalSum;
     private int currentDay;
     private int maxDayIndex;
-    private int numDays;
+    private int numDays; // AKA daysPerWeek. Curse my inability to not determine good variable names until months later
     private String workoutName;
     private String dateLast;
     private String dateCreated;
@@ -101,11 +101,11 @@ public class MetaEntity implements Comparable<MetaEntity> {
         return currentDay;
     }
 
-    public String isFixedWorkout() {
+    public String getWorkoutType() {
         return workoutType;
     }
 
-    public void setFixedWorkout(String fixedWorkout) {
+    public void setWorkoutType(String fixedWorkout) {
         this.workoutType = fixedWorkout;
     }
 
@@ -149,7 +149,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
     public String toString() {
         return "Id:" + getId() + " Workout: " + workoutName + " CurrentDay: " + currentDay + " TotalDays: " + maxDayIndex + " DateLast: " + dateLast +
                 " DateCreated: " + dateCreated + " TimesCompleted: " + timesCompleted + " Percentage " +
-                percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout;
+                percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout + " WorkoutType: " + workoutType;
     }
 
     @Override

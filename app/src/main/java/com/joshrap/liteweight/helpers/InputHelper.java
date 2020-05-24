@@ -93,19 +93,42 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validDay(String aDay) {
+    public static String validDayFixedWorkout(String aDay) {
         /*
-            Ensures that an inputted day is valid. If no error, return null
+            Ensures that an inputted day is valid for a fixed workout. If no error, return null
          */
         aDay = aDay.trim();
         String retVal = null;
         if (aDay.isEmpty()) {
-            retVal = String.format("Enter value between 1-%s!", Variables.MAX_NUMBER_OF_DAYS);
+            retVal = String.format("Enter value between 1-%s!", Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS);
         } else {
             try {
                 int day = Integer.parseInt(aDay);
-                if (day <= 0 || day > Variables.MAX_NUMBER_OF_DAYS) {
-                    retVal = String.format("Enter value between 1-%s!", Variables.MAX_NUMBER_OF_DAYS);
+                if (day <= 0 || day > Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS) {
+                    retVal = String.format("Enter value between 1-%s!", Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS);
+                }
+            } catch (Exception e) {
+                retVal = "Enter a valid number.";
+            }
+        }
+        return retVal;
+    }
+
+    public static String validDayFlexible(String aDay) {
+        /*
+            Ensures that an inputted day is valid for a flexible workout. If no error, return null
+         */
+        aDay = aDay.trim();
+        String retVal = null;
+        if (aDay.isEmpty()) {
+            retVal = String.format("Enter value between 1-%s!",
+                    Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS);
+        } else {
+            try {
+                int day = Integer.parseInt(aDay);
+                if (day <= 0 || day > Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS) {
+                    retVal = String.format("Enter value between 1-%s!",
+                            Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";

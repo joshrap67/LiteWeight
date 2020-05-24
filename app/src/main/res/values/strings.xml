@@ -12,13 +12,19 @@
     <string name="workout_name_title">Workout Name</string>
     <string name="video_url_hint">Video URL</string>
     <string name="week_input_hint">Period of workout (1&#8211;10)</string>
-    <string name="day_input_hint">Days in each week (1&#8211;7)</string>
+    <string name="fixed_workout_day_input_hint">Days in each week (1&#8211;7)</string>
+    <string name="flexible_workout_day_input_hint">Total days in workout</string>
+    <string name="help">Help</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="ignore_weight">Ignore Weight</string>
     <string name="unsaved_workout_msg">You have a workout currently being created. If you quit now, all progress
     will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="popup_message_edit_workout">You have a workout currently being edited. If you quit now, all progress
     will be lost!\n\nAre you sure you wish to quit?</string>
+    <string name="popup_message_create_workout_help">There are currently two types of workouts you can create: "fixed" and "flexible".
+        \n\nFixed workouts have a fixed number of weeks and days. So for example if you put 4 for the weeks and 4 for the days, there will be 16 days total.
+        \n\nFlexible workouts allow you to create a workout that only has sequential days. So if you input 20, there will be 20 days with exercises in the workout.
+        \n\nNote that while you can edit the specific exercises and name of a workout after you create it, you cannot alter the number of days in it regardless of the workout type.</string>
     <string name="video_switch_description">Provides a play button next to each exercise in the current workout page that, when
     clicked, launches a video using the provided URL for the specific exercise.</string>
     <string name="metric_switch_description">Converts all units in the app from imperial units (lb) to metric units (kg).</string>
@@ -61,6 +67,7 @@
     <string name="forward_button">Next</string>
     <string name="metric_switch">Metric</string>
     <string name="workout_progress">Workout Progress</string>
+    <string name="workout_type_switch">Fixed Workout</string>
     <string name="delete_workout_title">Delete Workout?</string>
     <string name="reset_statistics">Reset Statistics</string>
     <string name="restart_msg">Do you wish to restart this workout?\n\nIf so, you will be taken back

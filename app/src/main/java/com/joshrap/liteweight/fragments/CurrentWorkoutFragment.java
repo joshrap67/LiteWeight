@@ -46,7 +46,7 @@ public class CurrentWorkoutFragment extends Fragment {
     private FloatingActionButton createWorkoutBtn;
     private View view;
     private ViewGroup fragmentContainer;
-    private int currentDayIndex, maxDayIndex, numDays;
+    private int currentDayIndex, maxDayIndex, daysPerWeek;
     private String currentWorkout;
     private MetaEntity currentWorkoutEntity;
     private WorkoutViewModel workoutModel;
@@ -105,7 +105,7 @@ public class CurrentWorkoutFragment extends Fragment {
             currentWorkout = currentWorkoutEntity.getWorkoutName();
             currentDayIndex = currentWorkoutEntity.getCurrentDay();
             maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
-            numDays = currentWorkoutEntity.getNumDays();
+            daysPerWeek = currentWorkoutEntity.getNumDays();
             getExercisesTask = new GetExercisesTask();
             getExercisesTask.execute();
         }
@@ -171,7 +171,7 @@ public class CurrentWorkoutFragment extends Fragment {
                 currentWorkout = currentWorkoutEntity.getWorkoutName();
                 currentDayIndex = currentWorkoutEntity.getCurrentDay();
                 maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
-                numDays = currentWorkoutEntity.getNumDays();
+                daysPerWeek = currentWorkoutEntity.getNumDays();
                 getExercisesTask = new GetExercisesTask();
                 getExercisesTask.execute();
             } else {
@@ -368,7 +368,7 @@ public class CurrentWorkoutFragment extends Fragment {
             Populates the list of exercise rows based on the current day in the workout.
          */
         mainExercisesTable.removeAllViews();
-        dayTV.setText(WorkoutHelper.generateDayTitle(currentDayIndex, numDays));
+        dayTV.setText(WorkoutHelper.generateDayTitle(currentDayIndex, daysPerWeek, Globals.currentWorkout.getWorkoutType()));
         int count = 0;
         for (ExerciseRow exercise : workout.get(currentDayIndex)) {
             View row = exercise.getDisplayedRow();
@@ -437,7 +437,7 @@ public class CurrentWorkoutFragment extends Fragment {
          */
         String[] days = new String[maxDayIndex + 1];
         for (int i = 0; i <= maxDayIndex; i++) {
-            days[i] = WorkoutHelper.generateDayTitle(i, numDays);
+            days[i] = WorkoutHelper.generateDayTitle(i, daysPerWeek, Globals.currentWorkout.getWorkoutType());
         }
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);

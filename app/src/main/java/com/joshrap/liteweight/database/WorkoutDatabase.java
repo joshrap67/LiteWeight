@@ -36,10 +36,9 @@ public abstract class WorkoutDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            String workoutType = Variables.WORKOUT_FIXED;
             // example of how to do this if necessary
             database.execSQL("ALTER TABLE meta_table "
-                    + " ADD COLUMN fixedWorkout STRING NOT NULL DEFAULT(:workoutType)");
+                    + " ADD COLUMN workoutType TEXT DEFAULT 'FixedWorkout'");
         }
     };
     //endregion
