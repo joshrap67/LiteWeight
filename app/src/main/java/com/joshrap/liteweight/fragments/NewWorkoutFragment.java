@@ -241,7 +241,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     String errorMsg = null;
                     if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
-                        errorMsg = InputHelper.validDayFlexible(numDaysInput.getText().toString());
+                        errorMsg = InputHelper.validDayFlexibleWorkout(numDaysInput.getText().toString());
                     } else if (workoutType.equals(Variables.WORKOUT_FIXED)) {
                         errorMsg = InputHelper.validDayFixedWorkout(numDaysInput.getText().toString());
                     }
@@ -336,6 +336,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void setDaysInputFilter() {
+        /*
+            Limits the number of days max character input based on the current workout type.
+         */
         if (workoutType.equals(Variables.WORKOUT_FIXED)) {
             int maxDaysLength = String.valueOf(Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS).length();
             numDaysInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxDaysLength)});
@@ -385,7 +388,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         boolean retVal = true;
 
         String nameError = InputHelper.validWorkoutName(name, workoutNames);
-        String dayError = InputHelper.validDayFlexible(days);
+        String dayError = InputHelper.validDayFlexibleWorkout(days);
 
         if (workoutNames.size() >= Variables.MAX_NUMBER_OF_WORKOUTS) {
             Toast.makeText(getContext(), "Whoa there! You have too many workouts! Go delete some. " +

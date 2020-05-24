@@ -114,7 +114,7 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validDayFlexible(String aDay) {
+    public static String validDayFlexibleWorkout(String aDay) {
         /*
             Ensures that an inputted day is valid for a flexible workout. If no error, return null
          */

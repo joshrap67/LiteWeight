@@ -36,7 +36,7 @@ public abstract class WorkoutDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            // example of how to do this if necessary
+            // in this version a column specifying the type of workout (flexible or fixed) was added
             database.execSQL("ALTER TABLE meta_table "
                     + " ADD COLUMN workoutType TEXT DEFAULT 'FixedWorkout'");
         }
