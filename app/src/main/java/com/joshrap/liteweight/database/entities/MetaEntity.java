@@ -25,10 +25,11 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private String mostFrequentFocus;
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
+    private String workoutType;
 
     public MetaEntity(String workoutName, int currentDay, int maxDayIndex, int numDays, String dateLast, String dateCreated, int timesCompleted,
                       double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus, int completedSum,
-                      int totalSum) {
+                      int totalSum, String workoutType) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
@@ -41,6 +42,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
         this.mostFrequentFocus = mostFrequentFocus;
         this.completedSum = completedSum;
         this.totalSum = totalSum;
+        this.workoutType = workoutType;
     }
 
     public int getId() {
@@ -97,6 +99,14 @@ public class MetaEntity implements Comparable<MetaEntity> {
 
     public int getCurrentDay() {
         return currentDay;
+    }
+
+    public String isFixedWorkout() {
+        return workoutType;
+    }
+
+    public void setFixedWorkout(String fixedWorkout) {
+        this.workoutType = fixedWorkout;
     }
 
     public void setId(int id) {

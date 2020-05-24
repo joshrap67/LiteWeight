@@ -113,4 +113,16 @@
             app:layout_constraintTop_toBottomOf="@+id/day_input"
             tools:visibility="visible" />
 
+    <Switch
+            android:id="@+id/workout_type_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="Switch"
+            app:layout_constraintBottom_toTopOf="@+id/workout_name_TV"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

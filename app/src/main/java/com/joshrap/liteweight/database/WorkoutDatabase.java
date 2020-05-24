@@ -11,7 +11,7 @@ import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.database.daos.*;
 import com.joshrap.liteweight.imports.Variables;
 
-@Database(entities = {WorkoutEntity.class, MetaEntity.class, ExerciseEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {WorkoutEntity.class, MetaEntity.class, ExerciseEntity.class}, version = 2, exportSchema = false)
 public abstract class WorkoutDatabase extends RoomDatabase {
     private static WorkoutDatabase instance;
 
@@ -36,9 +36,10 @@ public abstract class WorkoutDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
+            String workoutType = Variables.WORKOUT_FIXED;
             // example of how to do this if necessary
-//            database.execSQL("ALTER TABLE workout_table "
-//                    + " ADD COLUMN reps INT NOT NULL DEFAULT(0)");
+            database.execSQL("ALTER TABLE meta_table "
+                    + " ADD COLUMN fixedWorkout STRING NOT NULL DEFAULT(:workoutType)");
         }
     };
     //endregion

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,6 +35,7 @@ import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.database.viewModels.*;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.helpers.ExerciseHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
@@ -59,9 +61,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
     private TableLayout pickExerciseTable;
     private TextView dayTitle;
-    private boolean modified = false, firstDay, lastDay, firstWorkout = false;
+    private boolean modified = false, firstWorkout = false;
     private int finalDayNum, finalWeekNum, currentDayIndex, maxDayIndex;
-    private String finalName, spinnerFocus;
+    private String finalName, spinnerFocus, workoutType;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseModel;
@@ -172,6 +174,10 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         /*
             Initialize the edit texts and ensure that each validates the input correctly.
          */
+        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        workoutType = pref.getString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FLEXIBLE);
+        // TODO show different buttons with fixed vs unfixed workout
+
         workoutNameInput = view.findViewById(R.id.workout_name_input);
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
@@ -410,7 +416,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         Date date = new Date();
         String mostFrequentFocus = ExerciseHelper.mostFrequentFocus(pendingWorkout, exerciseNameToEntity, focusList);
         MetaEntity metaEntity = new MetaEntity(finalName, 0, maxDayIndex, finalDayNum, formatter.format(date), formatter.format(date),
-                0, 0, firstWorkout, mostFrequentFocus, 0, 0);
+                0, 0, firstWorkout, mostFrequentFocus, 0, 0, workoutType);
         // TODO put in async to get id
         metaModel.insert(metaEntity);
         // write to the workout table
