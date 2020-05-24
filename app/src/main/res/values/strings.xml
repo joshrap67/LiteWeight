@@ -17,6 +17,7 @@
     <string name="help">Help</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="ignore_weight">Ignore Weight</string>
+    <string name="empty_workout_day">No exercises for this day. Click the plus button below to add some.</string>
     <string name="unsaved_workout_msg">You have a workout currently being created. If you quit now, all progress
     will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="popup_message_edit_workout">You have a workout currently being edited. If you quit now, all progress

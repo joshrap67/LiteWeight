@@ -420,6 +420,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         rootView.addView(createWorkoutView);
 
         exerciseListView = view.findViewById(R.id.list_view);
+        exerciseListView.setEmptyView(view.findViewById(R.id.empty_workout_list)); // show message if day has no exercises
         dayTitle = createWorkoutView.findViewById(R.id.day_text_view);
         for (int i = 0; i <= maxDayIndex; i++) {
             // create the hash map that maps day numbers to lists of exercises

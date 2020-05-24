@@ -218,6 +218,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             originalWorkout.get(entity.getDay()).add(entity.getExercise());
         }
         exerciseListView = view.findViewById(R.id.list_view);
+        exerciseListView.setEmptyView(view.findViewById(R.id.empty_workout_list)); // show message if day has no exercises
         Collections.sort(pendingWorkout.get(currentDayIndex), String.CASE_INSENSITIVE_ORDER);
         initButtonListeners();
         updateWorkoutListUI();
