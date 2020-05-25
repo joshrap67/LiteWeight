@@ -95,7 +95,7 @@
     <string name="add_exercises">Add Exercises</string>
     <string name="about_overview_title">App Overview</string>
     <string name="about_overview">
-        LiteWeight is an open source lightweight workout manager that allows for multiple workouts to be created and managed. Workouts can be created either using weeks with a specific number of days or with just sequential days. Workouts can be cycled indefinitely with relevant statistics tracked.
+        LiteWeight is an open source lightweight workout manager that allows for multiple workouts to be created and managed. Workouts can be fixed in size either by weeks or sequential days, and can be cycled indefinitely with relevant statistics tracked.
         \n\nDefault exercises are provided by the developer, and, if desired, you can add your own custom exercises to be used in any workout!
         All exercises can have a URL associated with them should you wish to be able to view a video on how to perform one while working out.
         You can also set the most recent amount of weight for specific exercises and this weight will carry over to all your workouts.\n\nAll data is saved locally on your phone in a database, and in the future functionality for cloud storage may become available.
