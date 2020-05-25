@@ -18,17 +18,18 @@ public class MetaEntity implements Comparable<MetaEntity> {
     private int totalSum;
     private int currentDay;
     private int maxDayIndex;
-    private int numDays;
+    private int numDays; // AKA daysPerWeek. Curse my inability to not determine good variable names until months later
     private String workoutName;
     private String dateLast;
     private String dateCreated;
     private String mostFrequentFocus;
     private double percentageExercisesCompleted;
     private boolean currentWorkout;
+    private String workoutType;
 
     public MetaEntity(String workoutName, int currentDay, int maxDayIndex, int numDays, String dateLast, String dateCreated, int timesCompleted,
                       double percentageExercisesCompleted, boolean currentWorkout, String mostFrequentFocus, int completedSum,
-                      int totalSum) {
+                      int totalSum, String workoutType) {
         this.workoutName = workoutName;
         this.currentDay = currentDay;
         this.dateLast = dateLast;
@@ -41,6 +42,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
         this.mostFrequentFocus = mostFrequentFocus;
         this.completedSum = completedSum;
         this.totalSum = totalSum;
+        this.workoutType = workoutType;
     }
 
     public int getId() {
@@ -99,6 +101,14 @@ public class MetaEntity implements Comparable<MetaEntity> {
         return currentDay;
     }
 
+    public String getWorkoutType() {
+        return workoutType;
+    }
+
+    public void setWorkoutType(String fixedWorkout) {
+        this.workoutType = fixedWorkout;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -139,7 +149,7 @@ public class MetaEntity implements Comparable<MetaEntity> {
     public String toString() {
         return "Id:" + getId() + " Workout: " + workoutName + " CurrentDay: " + currentDay + " TotalDays: " + maxDayIndex + " DateLast: " + dateLast +
                 " DateCreated: " + dateCreated + " TimesCompleted: " + timesCompleted + " Percentage " +
-                percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout;
+                percentageExercisesCompleted + " CurrentWorkout: " + currentWorkout + " WorkoutType: " + workoutType;
     }
 
     @Override

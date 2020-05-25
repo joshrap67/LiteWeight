@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -26,6 +28,7 @@ import android.widget.NumberPicker;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,9 +62,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
     private TableLayout pickExerciseTable;
     private TextView dayTitle;
-    private boolean modified = false, firstDay, lastDay, firstWorkout = false;
-    private int finalDayNum, finalWeekNum, currentDayIndex, maxDayIndex;
-    private String finalName, spinnerFocus;
+    private boolean modified = false, firstWorkout = false;
+    private int daysPerWeek, currentDayIndex, maxDayIndex;
+    private String finalName, spinnerFocus, workoutType;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
     private ExerciseViewModel exerciseModel;
@@ -72,6 +75,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private HashMap<String, ExerciseEntity> exerciseNameToEntity = new HashMap<>();
     private GetAllWorkoutsTask getAllWorkoutsTask;
     private GetAllExercisesTask getAllExercisesTask;
+    private Switch workoutTypeSwitch;
+    private SharedPreferences pref;
 
 
     @Nullable
@@ -82,6 +87,26 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).enableBackButton(true);
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
         currentDayIndex = 0;
+
+        pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        workoutType = pref.getString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FLEXIBLE);
+        // Doing this here to avoid flashing of views after going invisible
+        workoutTypeSwitch = view.findViewById(R.id.workout_type_switch);
+        numDaysInput = view.findViewById(R.id.day_input);
+        numWeeksInput = view.findViewById(R.id.week_input);
+        final TextView weekTV = view.findViewById(R.id.week_TV);
+        if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
+            // in a flexible workout, there are no "weeks"
+            numWeeksInput.setVisibility(View.GONE);
+            weekTV.setVisibility(View.GONE);
+            numDaysInput.setHint(R.string.flexible_workout_day_input_hint);
+            workoutTypeSwitch.setChecked(false);
+        } else if (workoutType.equals(Variables.WORKOUT_FIXED)) {
+            numWeeksInput.setVisibility(View.VISIBLE);
+            weekTV.setVisibility(View.VISIBLE);
+            numDaysInput.setHint(R.string.fixed_workout_day_input_hint);
+            workoutTypeSwitch.setChecked(true);
+        }
         /*
             Setup view models
          */
@@ -175,13 +200,10 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         workoutNameInput = view.findViewById(R.id.workout_name_input);
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
-        numWeeksInput = view.findViewById(R.id.week_input);
         int maxWeekLength = String.valueOf(Variables.MAX_NUMBER_OF_WEEKS).length();
         numWeeksInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxWeekLength)});
 
-        numDaysInput = view.findViewById(R.id.day_input);
-        int maxDaysLength = String.valueOf(Variables.MAX_NUMBER_OF_DAYS).length();
-        numDaysInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxDaysLength)});
+        setDaysInputFilter();
 
         Button proceedButton = view.findViewById(R.id.next_button); // takes user to next stage of workout creation
         workoutNameInput.setOnKeyListener(new View.OnKeyListener() {
@@ -199,7 +221,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 return false;
             }
         });
-
         numWeeksInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -218,7 +239,12 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         numDaysInput.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = InputHelper.validDay(numDaysInput.getText().toString());
+                    String errorMsg = null;
+                    if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
+                        errorMsg = InputHelper.validDayFlexibleWorkout(numDaysInput.getText().toString());
+                    } else if (workoutType.equals(Variables.WORKOUT_FIXED)) {
+                        errorMsg = InputHelper.validDayFixedWorkout(numDaysInput.getText().toString());
+                    }
                     if (errorMsg == null) {
                         modified = true;
                         return true;
@@ -231,24 +257,98 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             }
         });
 
+        final SharedPreferences.Editor editor = pref.edit();
+        final TextView weekTV = view.findViewById(R.id.week_TV);
+        workoutTypeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                numDaysInput.setText("");
+                numWeeksInput.setText("");
+                if (isChecked) {
+                    // we are making a fixed workout
+                    workoutType = Variables.WORKOUT_FIXED;
+                    numWeeksInput.setVisibility(View.VISIBLE);
+                    weekTV.setVisibility(View.VISIBLE);
+                    numDaysInput.setHint(R.string.fixed_workout_day_input_hint);
+                    setDaysInputFilter();
+                    editor.putString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FIXED);
+                    editor.apply();
+                } else {
+                    // we are making a flexible workout
+                    workoutType = Variables.WORKOUT_FLEXIBLE;
+                    numWeeksInput.setVisibility(View.GONE);
+                    weekTV.setVisibility(View.GONE);
+                    numDaysInput.setHint(R.string.flexible_workout_day_input_hint);
+                    setDaysInputFilter();
+                    editor.putString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FLEXIBLE);
+                    editor.apply();
+                }
+            }
+        });
+
+        ImageButton helpButton = view.findViewById(R.id.new_workout_help_btn);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupHelp();
+            }
+        });
+
         proceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String currentName = workoutNameInput.getText().toString().trim();
                 String currentWeeks = numWeeksInput.getText().toString().trim();
                 String currentDays = numDaysInput.getText().toString().trim();
-                if (validateInput(currentName, currentWeeks, currentDays)) {
-                    finalName = currentName.trim();
-                    finalWeekNum = Integer.parseInt(currentWeeks.trim());
-                    finalDayNum = Integer.parseInt(currentDays.trim());
-                    maxDayIndex = (finalWeekNum * finalDayNum) - 1;
-                    createWorkout();
+                if (workoutType.equals(Variables.WORKOUT_FIXED)) {
+                    // need to validate weeks and days
+                    if (validateFixedInput(currentName, currentWeeks, currentDays)) {
+                        finalName = currentName.trim();
+                        int finalWeekNum = Integer.parseInt(currentWeeks.trim());
+                        daysPerWeek = Integer.parseInt(currentDays.trim());
+                        maxDayIndex = (finalWeekNum * daysPerWeek) - 1;
+                        createWorkout();
+                    }
+                } else if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
+                    // only need to validate the days
+                    if (validateFlexibleInput(currentName, currentDays)) {
+                        finalName = currentName.trim();
+                        // for flexible workouts we just pretend it is a giant one week workout
+                        daysPerWeek = Integer.parseInt(currentDays.trim());
+                        maxDayIndex = daysPerWeek - 1;
+                        createWorkout();
+                    }
                 }
             }
         });
     }
 
-    private boolean validateInput(String name, String weeks, String days) {
+    private void popupHelp() {
+        /*
+            Shows a popup that displays some helpful information about the different workout types
+         */
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Workout Help")
+                .setMessage(R.string.popup_message_create_workout_help)
+                .setPositiveButton("Done", null)
+                .create();
+        alertDialog.show();
+    }
+
+    private void setDaysInputFilter() {
+        /*
+            Limits the number of days max character input based on the current workout type.
+         */
+        if (workoutType.equals(Variables.WORKOUT_FIXED)) {
+            int maxDaysLength = String.valueOf(Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS).length();
+            numDaysInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxDaysLength)});
+        } else if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
+            int maxDaysLength = String.valueOf(Variables.MAX_NUMBER_OF_WEEKS * Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS).length();
+            numDaysInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxDaysLength)});
+        }
+    }
+
+    private boolean validateFixedInput(String name, String weeks, String days) {
         /*
             Validates input of the editexts and returns false if any of them have invalid input
          */
@@ -256,10 +356,11 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
         String nameError = InputHelper.validWorkoutName(name, workoutNames);
         String weekError = InputHelper.validWeek(weeks);
-        String dayError = InputHelper.validDay(days);
+        String dayError = InputHelper.validDayFixedWorkout(days);
 
-        if (workoutNames.size() > Variables.MAX_NUMBER_OF_WORKOUTS) {
-            Toast.makeText(getContext(), "Whoa there! You have too many workouts! Go delete some.", Toast.LENGTH_SHORT).show();
+        if (workoutNames.size() >= Variables.MAX_NUMBER_OF_WORKOUTS) {
+            Toast.makeText(getContext(), "Whoa there! You have too many workouts! Go delete some. " +
+                    "Max amount is: " + Variables.MAX_NUMBER_OF_WORKOUTS, Toast.LENGTH_LONG).show();
             retVal = false;
         }
         if (nameError != null) {
@@ -270,6 +371,33 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         if (weekError != null) {
             numWeeksInput.setError(weekError);
             numWeeksInput.setText("");
+            retVal = false;
+        }
+        if (dayError != null) {
+            numDaysInput.setError(dayError);
+            numDaysInput.setText("");
+            retVal = false;
+        }
+        return retVal;
+    }
+
+    private boolean validateFlexibleInput(String name, String days) {
+        /*
+            Validates input of the editexts and returns false if any of them have invalid input
+         */
+        boolean retVal = true;
+
+        String nameError = InputHelper.validWorkoutName(name, workoutNames);
+        String dayError = InputHelper.validDayFlexibleWorkout(days);
+
+        if (workoutNames.size() >= Variables.MAX_NUMBER_OF_WORKOUTS) {
+            Toast.makeText(getContext(), "Whoa there! You have too many workouts! Go delete some. " +
+                    "Max amount is: " + Variables.MAX_NUMBER_OF_WORKOUTS, Toast.LENGTH_LONG).show();
+            retVal = false;
+        }
+        if (nameError != null) {
+            workoutNameInput.setError(nameError);
+            workoutNameInput.setText("");
             retVal = false;
         }
         if (dayError != null) {
@@ -292,6 +420,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         rootView.addView(createWorkoutView);
 
         exerciseListView = view.findViewById(R.id.list_view);
+        exerciseListView.setEmptyView(view.findViewById(R.id.empty_workout_list)); // show message if day has no exercises
         dayTitle = createWorkoutView.findViewById(R.id.day_text_view);
         for (int i = 0; i <= maxDayIndex; i++) {
             // create the hash map that maps day numbers to lists of exercises
@@ -369,7 +498,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
          */
         exerciseAdapter = new PendingExerciseAdapter(getContext(), pendingWorkout.get(currentDayIndex));
         exerciseListView.setAdapter(exerciseAdapter);
-        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, finalDayNum));
+        dayTitle.setText(WorkoutHelper.generateDayTitle(currentDayIndex, daysPerWeek, workoutType));
         updateButtons();
     }
 
@@ -409,8 +538,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         SimpleDateFormat formatter = new SimpleDateFormat(Variables.DATE_PATTERN);
         Date date = new Date();
         String mostFrequentFocus = ExerciseHelper.mostFrequentFocus(pendingWorkout, exerciseNameToEntity, focusList);
-        MetaEntity metaEntity = new MetaEntity(finalName, 0, maxDayIndex, finalDayNum, formatter.format(date), formatter.format(date),
-                0, 0, firstWorkout, mostFrequentFocus, 0, 0);
+        MetaEntity metaEntity = new MetaEntity(finalName, 0, maxDayIndex, daysPerWeek, formatter.format(date), formatter.format(date),
+                0, 0, firstWorkout, mostFrequentFocus, 0, 0, workoutType);
         // TODO put in async to get id
         metaModel.insert(metaEntity);
         // write to the workout table
@@ -430,7 +559,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
          */
         String[] days = new String[maxDayIndex + 1];
         for (int i = 0; i <= maxDayIndex; i++) {
-            days[i] = WorkoutHelper.generateDayTitle(i, finalDayNum);
+            days[i] = WorkoutHelper.generateDayTitle(i, daysPerWeek, workoutType);
         }
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);

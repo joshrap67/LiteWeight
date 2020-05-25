@@ -9,9 +9,9 @@ public class Variables {
             VIDEO_INDEX = 1,
             FOCUS_INDEX_FILE = 2,
             IGNORE_WEIGHT_VALUE = -1,
-            MAX_NUMBER_OF_WORKOUTS = 50,
+            MAX_NUMBER_OF_WORKOUTS = 40,
             MAX_NUMBER_OF_CUSTOM_EXERCISES = 200,
-            MAX_NUMBER_OF_DAYS = 7,
+            FIXED_WORKOUT_MAX_NUMBER_OF_DAYS = 7,
             MAX_NUMBER_OF_WEEKS = 10,
             MAX_WORKOUT_NAME = 40,
             MAX_EXERCISE_NAME = 40,
@@ -47,7 +47,10 @@ public class Variables {
             EDIT_WORKOUT_TITLE = "Edit Workout",
             TIMER_RUNNING_CHANNEL = "timer_running_channel",
             TIMER_FINISHED_CHANNEL = "timer_finished_channel",
-            STOPWATCH_RUNNING_CHANNEL = "stopwatch_running";
+            STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
+            WORKOUT_TYPE_PREF_KEY = "WorkoutType",
+            WORKOUT_FIXED = "FixedWorkout",
+            WORKOUT_FLEXIBLE = "FlexibleWorkout";
 
     // intent keys
     public static final String
