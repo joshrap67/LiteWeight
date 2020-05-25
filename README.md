@@ -4,6 +4,8 @@ This app is a lightweight workout manager that allows for workouts to be created
 
 Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out. Additionally, each exercise also tracks the most recent amount of weight that was used.
 
+[Demo of LiteWeight version 1.3.0](https://www.youtube.com/watch?v=Z1b2m5q1u5s)
+
 Refer to the Wiki for details on the application logic.
 
 ## Prerequisites
