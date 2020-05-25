@@ -63,7 +63,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private TableLayout pickExerciseTable;
     private TextView dayTitle;
     private boolean modified = false, firstWorkout = false;
-    private int daysPerWeek, finalWeekNum, currentDayIndex, maxDayIndex;
+    private int daysPerWeek, currentDayIndex, maxDayIndex;
     private String finalName, spinnerFocus, workoutType;
     private WorkoutViewModel workoutModel;
     private MetaViewModel metaModel;
@@ -94,16 +94,16 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         workoutTypeSwitch = view.findViewById(R.id.workout_type_switch);
         numDaysInput = view.findViewById(R.id.day_input);
         numWeeksInput = view.findViewById(R.id.week_input);
-        final TextView weekTv = view.findViewById(R.id.week_TV);
+        final TextView weekTV = view.findViewById(R.id.week_TV);
         if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
             // in a flexible workout, there are no "weeks"
             numWeeksInput.setVisibility(View.GONE);
-            weekTv.setVisibility(View.GONE);
+            weekTV.setVisibility(View.GONE);
             numDaysInput.setHint(R.string.flexible_workout_day_input_hint);
             workoutTypeSwitch.setChecked(false);
         } else if (workoutType.equals(Variables.WORKOUT_FIXED)) {
             numWeeksInput.setVisibility(View.VISIBLE);
-            weekTv.setVisibility(View.VISIBLE);
+            weekTV.setVisibility(View.VISIBLE);
             numDaysInput.setHint(R.string.fixed_workout_day_input_hint);
             workoutTypeSwitch.setChecked(true);
         }
@@ -258,7 +258,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         });
 
         final SharedPreferences.Editor editor = pref.edit();
-        final TextView weekTv = view.findViewById(R.id.week_TV);
+        final TextView weekTV = view.findViewById(R.id.week_TV);
         workoutTypeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -268,7 +268,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     // we are making a fixed workout
                     workoutType = Variables.WORKOUT_FIXED;
                     numWeeksInput.setVisibility(View.VISIBLE);
-                    weekTv.setVisibility(View.VISIBLE);
+                    weekTV.setVisibility(View.VISIBLE);
                     numDaysInput.setHint(R.string.fixed_workout_day_input_hint);
                     setDaysInputFilter();
                     editor.putString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FIXED);
@@ -277,7 +277,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     // we are making a flexible workout
                     workoutType = Variables.WORKOUT_FLEXIBLE;
                     numWeeksInput.setVisibility(View.GONE);
-                    weekTv.setVisibility(View.GONE);
+                    weekTV.setVisibility(View.GONE);
                     numDaysInput.setHint(R.string.flexible_workout_day_input_hint);
                     setDaysInputFilter();
                     editor.putString(Variables.WORKOUT_TYPE_PREF_KEY, Variables.WORKOUT_FLEXIBLE);
@@ -304,7 +304,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     // need to validate weeks and days
                     if (validateFixedInput(currentName, currentWeeks, currentDays)) {
                         finalName = currentName.trim();
-                        finalWeekNum = Integer.parseInt(currentWeeks.trim());
+                        int finalWeekNum = Integer.parseInt(currentWeeks.trim());
                         daysPerWeek = Integer.parseInt(currentDays.trim());
                         maxDayIndex = (finalWeekNum * daysPerWeek) - 1;
                         createWorkout();
