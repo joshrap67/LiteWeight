@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
 
 public class AboutFragment extends Fragment {
@@ -20,7 +20,7 @@ public class AboutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         String version = null;
         try {
             version = getContext().getPackageManager()

@@ -37,7 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.database.entities.ExerciseEntity;
 import com.joshrap.liteweight.database.viewModels.ExerciseViewModel;
@@ -73,7 +73,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
         SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
         metricUnits = pref.getBoolean(Variables.UNIT_KEY, false);
@@ -118,7 +118,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
         @Override
         protected void onPreExecute() {
-            ((MainActivity) getActivity()).setProgressBar(false);
+            ((WorkoutActivity) getActivity()).setProgressBar(false);
         }
 
         @Override
@@ -129,7 +129,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
         @Override
         protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            ((MainActivity) getActivity()).setProgressBar(false);
+            ((WorkoutActivity) getActivity()).setProgressBar(false);
             if (!result.isEmpty()) {
                 for (ExerciseEntity entity : result) {
                     String[] focuses = entity.getFocus().split(Variables.FOCUS_DELIM_DB);
@@ -146,7 +146,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                         totalExercises.get(focus).add(entity);
                     }
                 }
-                ((MainActivity) getActivity()).setProgressBar(false);
+                ((WorkoutActivity) getActivity()).setProgressBar(false);
                 initViews();
             }
         }

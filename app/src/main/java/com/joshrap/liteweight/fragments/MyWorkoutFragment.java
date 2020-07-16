@@ -28,7 +28,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.database.entities.MetaEntity;
 import com.joshrap.liteweight.database.viewModels.MetaViewModel;
 import com.joshrap.liteweight.database.viewModels.WorkoutViewModel;
@@ -68,7 +68,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
         fragmentContainer = container;
         defaultTV = view.findViewById(R.id.default_text_view);
         defaultTV.setVisibility(View.GONE);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         getAllMetaTask = new GetAllMetaTask();
@@ -120,7 +120,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
         protected void onPostExecute(ArrayList<MetaEntity> result) {
             if (!result.isEmpty()) {
                 metaEntities = result;
-                ((MainActivity) getActivity()).setProgressBar(false);
+                ((WorkoutActivity) getActivity()).setProgressBar(false);
                 initViews();
             } else {
                 defaultTV.setVisibility(View.VISIBLE);
@@ -128,7 +128,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
                 createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((MainActivity) getActivity()).goToNewWorkout();
+                        ((WorkoutActivity) getActivity()).goToNewWorkout();
                     }
                 });
             }
@@ -162,7 +162,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case editIndex:
-                        ((MainActivity) getActivity()).goToEditWorkout();
+                        ((WorkoutActivity) getActivity()).goToEditWorkout();
                         return true;
                     case renameIndex:
                         promptRename();
@@ -204,7 +204,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
         createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).goToNewWorkout();
+                ((WorkoutActivity) getActivity()).goToNewWorkout();
             }
         });
 
@@ -421,7 +421,7 @@ public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
                 createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((MainActivity) getActivity()).createWorkout();
+                        ((WorkoutActivity) getActivity()).createWorkout();
                     }
                 });
                 ViewGroup rootView = (ViewGroup) getView();

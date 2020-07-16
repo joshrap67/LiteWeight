@@ -29,7 +29,7 @@ import com.joshrap.liteweight.helpers.StatisticsHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.widgets.ExerciseRow;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.widgets.Stopwatch;
@@ -64,7 +64,7 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         public void run() {
             if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
+                ((WorkoutActivity) getActivity()).setProgressBar(true);
             }
         }
     };
@@ -77,16 +77,16 @@ public class CurrentWorkoutFragment extends Fragment {
         createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).createWorkout();
+                ((WorkoutActivity) getActivity()).createWorkout();
             }
         });
-        timer = ((MainActivity) getActivity()).getTimer();
-        stopwatch = ((MainActivity) getActivity()).getStopwatch();
+        timer = ((WorkoutActivity) getActivity()).getTimer();
+        stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
         defaultTV = view.findViewById(R.id.default_text_view);
         createWorkoutBtn.hide();
         defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
         fragmentContainer = container;
-        ((MainActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
         // Set up the view models
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
@@ -177,12 +177,12 @@ public class CurrentWorkoutFragment extends Fragment {
             } else {
                 // no workout found, error
                 if (getActivity() != null) {
-                    ((MainActivity) getActivity()).setProgressBar(false);
+                    ((WorkoutActivity) getActivity()).setProgressBar(false);
                 }
                 loadingHandler.removeCallbacks(showLoadingIconRunnable);
                 createWorkoutBtn.show();
                 defaultTV.setVisibility(View.VISIBLE);
-                ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
+                ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
             }
         }
     }
@@ -204,12 +204,12 @@ public class CurrentWorkoutFragment extends Fragment {
                 getWorkoutTask.execute();
             } else {
                 if (getActivity() != null) {
-                    ((MainActivity) getActivity()).setProgressBar(false);
+                    ((WorkoutActivity) getActivity()).setProgressBar(false);
                 }
                 loadingHandler.removeCallbacks(showLoadingIconRunnable);
                 createWorkoutBtn.hide();
                 defaultTV.setVisibility(View.VISIBLE);
-                ((MainActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
+                ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
             }
         }
     }
@@ -224,7 +224,7 @@ public class CurrentWorkoutFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
             if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(false);
+                ((WorkoutActivity) getActivity()).setProgressBar(false);
             }
             loadingHandler.removeCallbacks(showLoadingIconRunnable);
             if (result != null) {
@@ -300,7 +300,7 @@ public class CurrentWorkoutFragment extends Fragment {
             timerContainer.setVisibility(View.GONE);
         }
 
-        ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(currentWorkout);
         // init the hash table that the entire workout will be in
         for (int i = 0; i <= maxDayIndex; i++) {
             workout.put(i, new ArrayList<ExerciseRow>());

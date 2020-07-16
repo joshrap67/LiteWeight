@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.R;
 
 import java.util.Locale;
@@ -94,7 +94,7 @@ public class TimerService extends Service {
         /*
             As long as the timer is running in the background, show a notification
          */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -113,7 +113,7 @@ public class TimerService extends Service {
         /*
             Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
          */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this,

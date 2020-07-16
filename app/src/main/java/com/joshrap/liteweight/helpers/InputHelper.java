@@ -6,6 +6,8 @@ import com.joshrap.liteweight.imports.Variables;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InputHelper {
 
@@ -133,6 +135,33 @@ public class InputHelper {
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
             }
+        }
+        return retVal;
+    }
+
+    public static String validUsername(String username) {
+        // TODO don't allow @ symbol
+        username = username.trim();
+        String retVal = null;
+        Pattern validUsername = Pattern.compile("^[A-Z0-9._%+-]{1," + Variables.MAX_USERNAME_LENGTH + "}$", Pattern.CASE_INSENSITIVE);
+        if (!validUsername.matcher(username).find()) {
+            retVal = "Invalid username";
+        }
+        return retVal;
+    }
+
+    public static String validPassword(String password) {
+
+        return "yuh";
+    }
+
+    public static String validEmail(String email) {
+        email = email.trim();
+        // regex found on SO
+        Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+        String retVal = null;
+        if (!validEmail.matcher(email).find()) {
+            retVal = "Invalid email";
         }
         return retVal;
     }

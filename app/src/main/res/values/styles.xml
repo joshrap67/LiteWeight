@@ -9,11 +9,22 @@
         <item name="android:buttonStyle">@style/button_style</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
     </style>
+    <style name="SignInTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:buttonStyle">@style/button_style</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
+    </style>
 
     <style name="toolbar_style" parent="Theme.AppCompat">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
         <item name="actionMenuTextColor">@android:color/white</item>
+    </style>
+
+    <style name= "RobotoTextViewStyle" parent= "android:Widget.TextView" >
+        <item name= "android:fontFamily" > @font/roboto </item>
     </style>
 
     <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
@@ -34,6 +45,18 @@
 
     <style name="jump_days_item_theme">
         <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="LoginHintStyle" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Login.EditText" parent="Theme.AppCompat.Light">
+        <!-- Inactive underline color-->
+        <item name="colorControlNormal">@android:color/white</item>
+
+        <!-- Cursor and Active underline color, uses colorAccent by default if not defined-->
+        <item name="colorControlActivated">@android:color/white</item>
     </style>
 
 </resources>

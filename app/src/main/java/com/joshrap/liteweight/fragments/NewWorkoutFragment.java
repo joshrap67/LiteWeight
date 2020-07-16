@@ -34,7 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.database.viewModels.*;
 import com.joshrap.liteweight.imports.Variables;
@@ -84,8 +84,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentContainer = container;
         view = inflater.inflate(R.layout.fragment_new_workout, container, false);
-        ((MainActivity) getActivity()).enableBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
+        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
         currentDayIndex = 0;
 
         pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
@@ -150,7 +150,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
         @Override
         protected void onPostExecute(List<MetaEntity> result) {
-            ((MainActivity) getActivity()).setProgressBar(false);
+            ((WorkoutActivity) getActivity()).setProgressBar(false);
             if (!result.isEmpty()) {
                 for (MetaEntity entity : result) {
                     workoutNames.add(entity.getWorkoutName());
@@ -188,7 +188,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     exerciseNameToEntity.put(entity.getExerciseName(), entity);
                 }
             }
-            ((MainActivity) getActivity()).setProgressBar(false);
+            ((WorkoutActivity) getActivity()).setProgressBar(false);
             initInputViews();
         }
     }

@@ -38,7 +38,7 @@ import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.R;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         @Override
         public void run() {
             if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(true);
+                ((WorkoutActivity) getActivity()).setProgressBar(true);
             }
         }
     };
@@ -97,8 +97,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         // show loading dialog only if workout hasn't loaded in certain amount of time
         loadingHandler = new Handler();
         loadingHandler.postDelayed(showLoadingIconRunnable, 2000);
-        ((MainActivity) getActivity()).enableBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Globals.currentWorkout.getWorkoutName());
+        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Globals.currentWorkout.getWorkoutName());
         metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
         workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         exerciseViewModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
@@ -173,7 +173,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 getWorkoutTask.execute();
             } else {
                 if (getActivity() != null) {
-                    ((MainActivity) getActivity()).setProgressBar(false);
+                    ((WorkoutActivity) getActivity()).setProgressBar(false);
                 }
                 loadingHandler.removeCallbacks(showLoadingIconRunnable);
             }
@@ -190,7 +190,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         @Override
         protected void onPostExecute(ArrayList<WorkoutEntity> result) {
             if (getActivity() != null) {
-                ((MainActivity) getActivity()).setProgressBar(false);
+                ((WorkoutActivity) getActivity()).setProgressBar(false);
             }
             loadingHandler.removeCallbacks(showLoadingIconRunnable);
             initEdit(result);
