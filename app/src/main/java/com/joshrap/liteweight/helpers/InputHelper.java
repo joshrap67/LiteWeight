@@ -139,23 +139,65 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validUsername(String username) {
+    public static String validNewUsername(String username) {
         // TODO don't allow @ symbol
         username = username.trim();
         String retVal = null;
-        Pattern validUsername = Pattern.compile("^[A-Z0-9._%+-]{1," + Variables.MAX_USERNAME_LENGTH + "}$", Pattern.CASE_INSENSITIVE);
-        if (!validUsername.matcher(username).find()) {
-            retVal = "Invalid username";
+        Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
+
+        if (username.isEmpty()) {
+            retVal = "Username cannot be empty.";
+        } else if (!validUsername.matcher(username).find()) {
+            retVal = "Invalid characters.";
+        }
+        return retVal;
+    }
+
+    public static String validUsername(String username) {
+        username = username.trim();
+        String retVal = null;
+        if (username.isEmpty()) {
+            retVal = "Username cannot be empty.";
+        }
+        return retVal;
+    }
+
+    public static String validNewPassword(String password) {
+        String retVal = null;
+        boolean flag = false;
+        if (password.length() < Variables.MIN_PASSWORD_LENGTH) {
+            flag = true;
+        }
+        if (!Pattern.compile("^.*[a-z].*").matcher(password).find()) {
+            flag = true;
+        }
+        if (!Pattern.compile("^.*[A-Z].*").matcher(password).find()) {
+            flag = true;
+        }
+        if (!Pattern.compile("^.*\\d.*").matcher(password).find()) {
+            flag = true;
+        }
+        // TODO fix this regex to actually include them all
+        // TODO consider invalid chars too
+        if (!Pattern.compile("^.*[!@#$%^&*()_].*").matcher(password).find()) {
+            flag = true;
+        }
+        if (flag) {
+            retVal = "Invalid password.";
         }
         return retVal;
     }
 
     public static String validPassword(String password) {
-
-        return "yuh";
+        password = password.trim();
+        String retVal = null;
+        if (password.isEmpty()) {
+            retVal = "Password cannot be empty.";
+        }
+        return retVal;
     }
 
-    public static String validEmail(String email) {
+    public static String validNewEmail(String email) {
         email = email.trim();
         // regex found on SO
         Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);

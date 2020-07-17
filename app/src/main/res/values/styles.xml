@@ -9,11 +9,13 @@
         <item name="android:buttonStyle">@style/button_style</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
     </style>
+
     <style name="SignInTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:buttonStyle">@style/button_style</item>
+        <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
     </style>
 

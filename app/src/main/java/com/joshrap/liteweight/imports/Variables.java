@@ -18,6 +18,7 @@ public class Variables {
             MAX_WEIGHT_DIGITS = 5,
             MAX_URL_LENGTH = 1000,
             MAX_USERNAME_LENGTH = 40,
+            MIN_PASSWORD_LENGTH = 8,
             MAX_STOPWATCH_TIME = 7200000,
             DEFAULT_TIMER_VALUE = 60000;
 

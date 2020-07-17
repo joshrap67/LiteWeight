@@ -103,6 +103,11 @@
     <string name="sign_in">SIGN IN</string>
     <string name="sign_up">SIGN UP</string>
     <string name="guest_btn">CONTINUE AS GUEST</string>
+    <string name="password_length_msg">Must have at least 8 characters.</string>
+    <string name="password_lowercase_msg">Must contain at least 1 lowercase letter.</string>
+    <string name="password_uppercase_msg">Must contain at least 1 uppercase letter.</string>
+    <string name="password_numbers_msg">Must contain at least 1 number.</string>
+    <string name="password_special_chars_msg">Must contain at least 1 special character</string>
     <string name="about_overview">
         LiteWeight is an open source lightweight workout manager that allows for multiple workouts to be created and managed. Workouts can be fixed in size either by weeks or sequential days, and can be cycled indefinitely with relevant statistics tracked.
         \n\nDefault exercises are provided by the developer, and, if desired, you can add your own custom exercises to be used in any workout!
