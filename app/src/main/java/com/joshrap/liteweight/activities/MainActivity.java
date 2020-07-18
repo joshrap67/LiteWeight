@@ -1,16 +1,30 @@
 package com.joshrap.liteweight.activities;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.amplifyframework.AmplifyException;
+import com.amplifyframework.auth.AuthException;
+import com.amplifyframework.auth.AuthUserAttributeKey;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
+import com.amplifyframework.auth.options.AuthSignUpOptions;
+import com.amplifyframework.auth.result.AuthSignInResult;
+import com.amplifyframework.auth.result.AuthSignUpResult;
+import com.amplifyframework.core.Amplify;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.InputHelper;
@@ -47,11 +62,25 @@ public class MainActivity extends AppCompatActivity {
     private ImageView logo;
     private boolean signInMode;
     private static final String passwordNotMatchingMsg = "Passwords do not match.";
+    private AlertDialog confirmEmailPopup;
+    private ProgressDialog loadingDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loadingDialog = new ProgressDialog(MainActivity.this);
         super.onCreate(savedInstanceState);
+        try {
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+
+            Amplify.configure(getApplicationContext());
+
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
         setContentView(R.layout.sign_in);
+
         this.usernameInput = findViewById(R.id.username_input);
         this.passwordInput = findViewById(R.id.password_input);
         this.passwordConfirmInput = findViewById(R.id.password_input_confirm);
@@ -77,17 +106,14 @@ public class MainActivity extends AppCompatActivity {
         primaryBtn.setOnClickListener((View v) -> {
             if (signInMode) {
                 if (validSignInInput()) {
-                    if (attemptSignIn("fuck", "me")) {
-                        launchWorkoutActivity();
-                    }
+                    attemptSignIn(usernameInput.getText().toString().trim(), passwordInput.getText().toString().trim());
                 }
 
             } else {
                 passwordAttributesLayout.setVisibility(View.GONE);
                 if (validSignUpInput()) {
-                    if (attemptSignUp("y", "y", "y")) {
-                        System.out.println("Valid");
-                    }
+                    attemptSignUp(usernameInput.getText().toString().trim(), passwordInput.getText().toString().trim(),
+                            emailInput.getText().toString().trim());
                 }
             }
         });
@@ -96,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
             updateUI();
         });
         // TODO guest mode
+    }
+
+    private void showLoadingDialog(String message) {
+        loadingDialog.setMessage(message);
+        loadingDialog.show();
     }
 
     private boolean validSignInInput() {
@@ -114,30 +145,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean validSignUpInput() {
-        boolean errorPresent = false;
+        boolean validInput = true;
         String usernameErrorMsg = InputHelper.validNewUsername(usernameInput.getText().toString().trim());
         if (usernameErrorMsg != null) {
             usernameLayout.setError(usernameErrorMsg);
             usernameLayout.startAnimation(shakeError());
-            errorPresent = true;
+            validInput = false;
         }
         String emailErrorMsg = InputHelper.validNewEmail(emailInput.getText().toString().trim());
         if (emailErrorMsg != null) {
             emailLayout.setError(emailErrorMsg);
             emailLayout.startAnimation(shakeError());
-            errorPresent = true;
+            validInput = false;
         }
         String passwordErrorMsg = InputHelper.validNewPassword(passwordInput.getText().toString().trim());
         if (passwordErrorMsg != null) {
             passwordLayout.setError(passwordErrorMsg);
             passwordLayout.startAnimation(shakeError());
-            errorPresent = true;
+            validInput = false;
         }
         String passwordConfirmErrorMsg = InputHelper.validNewPassword(passwordInput.getText().toString().trim());
         if (passwordErrorMsg != null) {
             passwordConfirmLayout.setError(passwordConfirmErrorMsg);
             passwordConfirmLayout.startAnimation(shakeError());
-            errorPresent = true;
+            validInput = false;
         }
         // make sure that the passwords match assuming they are actually valid
         if (passwordErrorMsg == null && passwordConfirmErrorMsg == null &&
@@ -148,17 +179,104 @@ public class MainActivity extends AppCompatActivity {
             passwordConfirmLayout.startAnimation(shakeError());
         }
 
-        return errorPresent;
+        return validInput;
     }
 
-    private boolean attemptSignIn(String username, String password) {
-        // TODO authenticate with cognito and store token
-        return false;
+    private void attemptSignIn(String username, String password) {
+        showLoadingDialog("Signing in...");
+        Amplify.Auth.signIn(
+                username,
+                password,
+                this::onSignInSuccess,
+                this::onSignInError);
     }
 
-    private boolean attemptSignUp(String username, String email, String password) {
+    private void onSignInSuccess(AuthSignInResult result1) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() ->
+                Toast.makeText(getApplicationContext(), result1.toString(), Toast.LENGTH_SHORT).show());
+        System.out.println(Amplify.Auth.getCurrentUser());
+        loadingDialog.dismiss();
 
-        return false;
+//        Amplify.Auth.signOut(
+//                () -> Log.i("AuthQuickstart", "Signed out successfully"),
+//                error -> Log.e("AuthQuickstart", error.toString())
+//        );
+
+        Amplify.Auth.fetchAuthSession(
+                result -> Log.i("AmplifyQuickstart", result.toString()),
+                error -> Log.e("AmplifyQuickstart", error.toString())
+        );
+    }
+
+    private void onSignInError(AuthException error) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() -> {
+            loadingDialog.dismiss();
+            Toast.makeText(getApplicationContext(), error.getCause().toString(), Toast.LENGTH_LONG).show();
+        });
+    }
+
+    private void attemptSignUp(String username, String password, String email) {
+        showLoadingDialog("Signing up...");
+        Amplify.Auth.signUp(
+                username,
+                password,
+                AuthSignUpOptions.builder().userAttribute(AuthUserAttributeKey.email(), email).build(),
+                this::onSignUpSuccess,
+                this::onSignUpError
+        );
+    }
+
+    private void onSignUpSuccess(AuthSignUpResult signUpResult) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() -> {
+            loadingDialog.dismiss();
+            View popupView = getLayoutInflater().inflate(R.layout.popup_confirm_email, null);
+            final EditText codeInput = popupView.findViewById(R.id.code_input);
+            confirmEmailPopup = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                    .setTitle("Confirm Account")
+                    .setView(popupView)
+                    .setPositiveButton("Submit", null)
+                    .create();
+            confirmEmailPopup.setOnShowListener((DialogInterface dialogInterface) -> {
+                Button saveButton = confirmEmailPopup.getButton(AlertDialog.BUTTON_POSITIVE);
+                saveButton.setOnClickListener((View view) -> {
+                    Amplify.Auth.confirmSignUp(
+                            usernameInput.getText().toString().trim(),
+                            codeInput.getText().toString().trim(),
+                            this::onConfirmEmailSuccess,
+                            this::onConfirmEmailError);
+                });
+            });
+            confirmEmailPopup.show();
+        });
+    }
+
+    private void onSignUpError(AuthException error) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() -> {
+            loadingDialog.dismiss();
+            Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+        });
+    }
+
+    private void onConfirmEmailSuccess(AuthSignUpResult authSignUpResult) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() -> {
+            confirmEmailPopup.dismiss();
+            Amplify.Auth.fetchAuthSession(
+                    result -> Log.i("AmplifyQuickstart", result.toString()),
+                    error -> Log.e("AmplifyQuickstart", error.toString())
+            );
+        });
+    }
+
+    private void onConfirmEmailError(AuthException error) {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.post(() -> {
+            Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+        });
     }
 
     private void updateUI() {
