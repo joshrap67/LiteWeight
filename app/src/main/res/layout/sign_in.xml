@@ -35,7 +35,7 @@
             app:srcCompat="@mipmap/ic_launcher_round"
             tools:visibility="visible" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -61,9 +61,9 @@
                 android:textCursorDrawable="@null"
                 android:theme="@style/Login.EditText" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -89,10 +89,10 @@
                 android:textColorHint="@android:color/white"
                 android:textCursorDrawable="@null"
                 android:theme="@style/Login.EditText" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                 android:textColorHint="@android:color/white"
                 android:textCursorDrawable="@null"
                 android:theme="@style/Login.EditText" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
             android:id="@+id/password_attributes_layout"
@@ -175,7 +175,7 @@
                 android:textStyle="bold" />
     </LinearLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_confirm_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -205,7 +205,7 @@
                 android:textCursorDrawable="@null"
                 android:theme="@style/Login.EditText"
                 android:visibility="visible" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
             android:id="@+id/primary_btn"

@@ -3,8 +3,11 @@ package com.joshrap.liteweight.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
+
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -71,32 +74,26 @@ public class MainActivity extends AppCompatActivity {
         initInputs();
 
         // TODO password reset - fuck me
-        primaryBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (signInMode) {
-                    if (validSignInInput()) {
-                        if (attemptSignIn("fuck", "me")) {
-                            launchWorkoutActivity();
-                        }
+        primaryBtn.setOnClickListener((View v) -> {
+            if (signInMode) {
+                if (validSignInInput()) {
+                    if (attemptSignIn("fuck", "me")) {
+                        launchWorkoutActivity();
                     }
+                }
 
-                } else {
-                    passwordAttributesLayout.setVisibility(View.GONE);
-                    if (validSignUpInput()) {
-                        if (attemptSignUp("y", "y", "y")) {
-                            System.out.println("Valid");
-                        }
+            } else {
+                passwordAttributesLayout.setVisibility(View.GONE);
+                if (validSignUpInput()) {
+                    if (attemptSignUp("y", "y", "y")) {
+                        System.out.println("Valid");
                     }
                 }
             }
         });
-        changeModeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signInMode = !signInMode;
-                updateUI();
-            }
+        changeModeBtn.setOnClickListener((View v) -> {
+            signInMode = !signInMode;
+            updateUI();
         });
         // TODO guest mode
     }
@@ -203,19 +200,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initInputs() {
-        emailInput.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String errorMsg = InputHelper.validNewEmail(emailInput.getText().toString().trim());
-                    if (errorMsg == null) {
-                        emailLayout.setError(null);
-                        return true;
-                    } else {
-                        emailLayout.setError(errorMsg);
-                    }
+        emailInput.setOnKeyListener((View v, int keyCode, KeyEvent keyevent) -> {
+            if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                String errorMsg = InputHelper.validNewEmail(emailInput.getText().toString().trim());
+                if (errorMsg == null) {
+                    emailLayout.setError(null);
+                    return true;
+                } else {
+                    emailLayout.setError(errorMsg);
                 }
-                return false;
             }
+            return false;
+
         });
         emailInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -237,20 +233,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        usernameInput.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                if (!signInMode && (keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // only show errors immediately when signing up
-                    String errorMsg = InputHelper.validNewUsername(usernameInput.getText().toString().trim());
-                    if (errorMsg == null) {
-                        usernameLayout.setError(null);
-                        return true;
-                    } else {
-                        usernameLayout.setError(errorMsg);
-                    }
+        usernameInput.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
+            if (!signInMode && (keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                // only show errors immediately when signing up
+                String errorMsg = InputHelper.validNewUsername(usernameInput.getText().toString().trim());
+                if (errorMsg == null) {
+                    usernameLayout.setError(null);
+                    return true;
+                } else {
+                    usernameLayout.setError(errorMsg);
                 }
-                return false;
             }
+            return false;
         });
 
         usernameInput.addTextChangedListener(new TextWatcher() {
@@ -272,15 +266,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        passwordInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (v.hasFocus()) {
-                    if (!signInMode) {
-                        // we only want to check valid new passwords if user is signing up, not signing in
-                        checkPasswordAttributes(passwordInput.getText().toString().trim());
-                        passwordAttributesLayout.setVisibility(View.VISIBLE);
-                    }
+        passwordInput.setOnFocusChangeListener((View v, boolean hasFocus) -> {
+            if (v.hasFocus()) {
+                if (!signInMode) {
+                    // we only want to check valid new passwords if user is signing up, not signing in
+                    checkPasswordAttributes(passwordInput.getText().toString().trim());
+                    passwordAttributesLayout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -318,10 +309,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!signInMode) {
-                    // we only want to check valid new passwords if user is signing up, not signing in
-                    checkPasswordAttributes(s.toString().trim());
-                }
                 if (passwordConfirmLayout.isErrorEnabled()) {
                     // if an error is present, stop showing the error message once the user types (acknowledged it)
                     passwordConfirmLayout.setErrorEnabled(false);
