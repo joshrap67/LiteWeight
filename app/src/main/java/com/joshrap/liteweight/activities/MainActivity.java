@@ -496,7 +496,7 @@ public class MainActivity extends AppCompatActivity {
     public TranslateAnimation shakeError() {
         TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
         shake.setDuration(350);
-        shake.setInterpolator(new CycleInterpolator(7));
+        shake.setInterpolator(new CycleInterpolator(2));
         return shake;
     }
 }

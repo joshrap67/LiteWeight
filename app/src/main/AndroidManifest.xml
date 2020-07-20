@@ -25,6 +25,11 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme">
 
+
+        </activity>
+        <activity
+                android:name=".activities.SplashActivity"
+                android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
