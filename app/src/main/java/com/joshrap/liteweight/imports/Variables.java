@@ -54,6 +54,9 @@ public class Variables {
             WORKOUT_FIXED = "FixedWorkout",
             WORKOUT_FLEXIBLE = "FlexibleWorkout";
 
+    public static final String ID_TOKEN_KEY = "IdToken",
+            REFRESH_TOKEN_KEY = "RefreshToken";
+
     // intent keys
     public static final String
             INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time",

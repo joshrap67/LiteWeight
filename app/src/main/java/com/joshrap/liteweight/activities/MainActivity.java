@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.amplifyframework.AmplifyException;
@@ -41,7 +42,12 @@ import android.widget.Toast;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.CognitoResponse;
+import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.network.CognitoGateway;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
@@ -184,99 +190,117 @@ public class MainActivity extends AppCompatActivity {
 
     private void attemptSignIn(String username, String password) {
         showLoadingDialog("Signing in...");
-        Amplify.Auth.signIn(
-                username,
-                password,
-                this::onSignInSuccess,
-                this::onSignInError);
-    }
-
-    private void onSignInSuccess(AuthSignInResult result1) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() ->
-                Toast.makeText(getApplicationContext(), result1.toString(), Toast.LENGTH_SHORT).show());
-        System.out.println(Amplify.Auth.getCurrentUser());
-        loadingDialog.dismiss();
-
-//        Amplify.Auth.signOut(
-//                () -> Log.i("AuthQuickstart", "Signed out successfully"),
-//                error -> Log.e("AuthQuickstart", error.toString())
-//        );
-
-        Amplify.Auth.fetchAuthSession(
-                result -> Log.i("AmplifyQuickstart", result.toString()),
-                error -> Log.e("AmplifyQuickstart", error.toString())
-        );
-    }
-
-    private void onSignInError(AuthException error) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() -> {
-            loadingDialog.dismiss();
-            Toast.makeText(getApplicationContext(), error.getCause().toString(), Toast.LENGTH_LONG).show();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<CognitoResponse> resultStatus = CognitoGateway.initiateAuth(username, password);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    signInSuccess(resultStatus);
+                } else {
+                    signInFailed(resultStatus);
+                }
+            });
         });
+    }
+
+    private void signInSuccess(ResultStatus<CognitoResponse> resultStatus) {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(Variables.REFRESH_TOKEN_KEY, resultStatus.getData().getRefreshToken());
+        editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
+        editor.apply();
+
+        AlertDialog succ = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Success")
+                .setPositiveButton("Done", null)
+                .create();
+        succ.show();
+    }
+
+    private void signInFailed(ResultStatus<CognitoResponse> resultStatus) {
+        System.out.println(resultStatus.getErrorMessage());
+        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Failed :(")
+                .setMessage(resultStatus.getErrorMessage())
+                .setPositiveButton("Done", null)
+                .create();
+        f.show();
     }
 
     private void attemptSignUp(String username, String password, String email) {
         showLoadingDialog("Signing up...");
-        Amplify.Auth.signUp(
-                username,
-                password,
-                AuthSignUpOptions.builder().userAttribute(AuthUserAttributeKey.email(), email).build(),
-                this::onSignUpSuccess,
-                this::onSignUpError
-        );
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<Boolean> resultStatus = CognitoGateway.signUp(username, password, email);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    signUpSuccess(resultStatus);
+                } else {
+                    signUpFailed(resultStatus);
+                }
+            });
+        });
     }
 
-    private void onSignUpSuccess(AuthSignUpResult signUpResult) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() -> {
-            loadingDialog.dismiss();
-            View popupView = getLayoutInflater().inflate(R.layout.popup_confirm_email, null);
-            final EditText codeInput = popupView.findViewById(R.id.code_input);
-            confirmEmailPopup = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                    .setTitle("Confirm Account")
-                    .setView(popupView)
-                    .setPositiveButton("Submit", null)
-                    .create();
-            confirmEmailPopup.setOnShowListener((DialogInterface dialogInterface) -> {
-                Button saveButton = confirmEmailPopup.getButton(AlertDialog.BUTTON_POSITIVE);
-                saveButton.setOnClickListener((View view) -> {
-                    Amplify.Auth.confirmSignUp(
-                            usernameInput.getText().toString().trim(),
-                            codeInput.getText().toString().trim(),
-                            this::onConfirmEmailSuccess,
-                            this::onConfirmEmailError);
+    private void signUpSuccess(ResultStatus<Boolean> resultStatus) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_confirm_email, null);
+        final EditText codeInput = popupView.findViewById(R.id.code_input);
+        confirmEmailPopup = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Confirm Account")
+                .setView(popupView)
+                .setPositiveButton("Submit", null)
+                .create();
+        confirmEmailPopup.setOnShowListener((DialogInterface dialogInterface) -> {
+            Button saveButton = confirmEmailPopup.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener((View view) -> {
+                // TODO use api to confirm
+                Executor executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    ResultStatus<Boolean> resultStatus1 = CognitoGateway.confirmSignUp(usernameInput.getText().toString(),
+                            codeInput.getText().toString().trim());
+                    Handler handler = new Handler(getMainLooper());
+                    handler.post(() -> {
+                        confirmEmailPopup.dismiss();
+                        if (resultStatus1.isSuccess()) {
+                            confirmSuccess(resultStatus1);
+                        } else {
+                            confirmFailed(resultStatus1);
+                        }
+                    });
                 });
             });
-            confirmEmailPopup.show();
         });
+        confirmEmailPopup.show();
     }
 
-    private void onSignUpError(AuthException error) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() -> {
-            loadingDialog.dismiss();
-            Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-        });
+    private void confirmSuccess(ResultStatus<Boolean> resultStatus) {
+        AlertDialog succ = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Success")
+                .setPositiveButton("Done", null)
+                .create();
+        succ.show();
     }
 
-    private void onConfirmEmailSuccess(AuthSignUpResult authSignUpResult) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() -> {
-            confirmEmailPopup.dismiss();
-            Amplify.Auth.fetchAuthSession(
-                    result -> Log.i("AmplifyQuickstart", result.toString()),
-                    error -> Log.e("AmplifyQuickstart", error.toString())
-            );
-        });
+    private void signUpFailed(ResultStatus<Boolean> resultStatus) {
+        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Failed :(")
+                .setMessage(resultStatus.getErrorMessage())
+                .setPositiveButton("Done", null)
+                .create();
+        f.show();
     }
 
-    private void onConfirmEmailError(AuthException error) {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.post(() -> {
-            Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-        });
+    private void confirmFailed(ResultStatus<Boolean> resultStatus) {
+        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                .setTitle("Failed :(")
+                .setMessage(resultStatus.getErrorMessage())
+                .setPositiveButton("Done", null)
+                .create();
+        f.show();
     }
 
     private void updateUI() {
