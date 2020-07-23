@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+                android:id="@+id/nav_current_workout"
+                android:icon="@drawable/weight_icon"
+                android:title="@string/nav_workout_icon_title" />
+        <item
+                android:id="@+id/nav_my_workouts"
+                android:icon="@drawable/my_workouts_icon"
+                android:title="@string/nav_list_icon_title" />
+        <item
+                android:id="@+id/nav_my_exercises"
+                android:icon="@drawable/my_exercises_icon"
+                android:title="@string/my_exercises" />
+    </group>
+    <item android:title="@string/nav_divider_title">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                        android:id="@+id/nav_user_settings"
+                        android:icon="@drawable/user_settings_icon"
+                        android:title="@string/nav_user_settings" />
+                <item
+                        android:id="@+id/nav_about"
+                        android:icon="@drawable/about_icon"
+                        android:title="@string/nav_about" />
+            </group>
+
+        </menu>
+    </item>
+</menu>

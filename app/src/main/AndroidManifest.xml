@@ -24,8 +24,6 @@
                 android:name=".activities.MainActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme">
-
-
         </activity>
         <activity
                 android:name=".activities.SplashActivity"
