@@ -53,12 +53,13 @@ public class SplashActivity extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
         String refreshToken = pref.getString(Variables.REFRESH_TOKEN_KEY, null);
         String idToken = pref.getString(Variables.ID_TOKEN_KEY, null);
-        refreshTokens(refreshToken);
-        if (refreshToken == null) {
-            launchSignInActivity();
-        } else {
-            refreshTokens(refreshToken);
-        }
+//        refreshTokens(refreshToken);
+//        if (refreshToken == null) {
+//            launchSignInActivity();
+//        } else {
+//            refreshTokens(refreshToken);
+//        }
+        launchSignInActivity();
         // TODO logged in key?
         // TODO try and get the user object if tokens exist. If idToken fails then try to initiate auth again using refresh to get new one
     }
@@ -73,17 +74,15 @@ public class SplashActivity extends AppCompatActivity {
             ResultStatus<CognitoResponse> resultStatus = CognitoGateway.refreshTokens(refreshToken);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-
                 if (resultStatus.isSuccess()) {
-                    System.out.println("****************REFRESH SUCCEEDED *****************");
+                    System.out.println("**************** REFRESH SUCCEEDED *****************");
                     System.out.println(resultStatus.getData());
                     SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
                     editor.apply();
                 } else {
-                    System.out.println("****************REFRESH FAILED *****************");
-
+                    System.out.println("**************** REFRESH FAILED *****************");
                 }
                 launchSignInActivity();
             });
