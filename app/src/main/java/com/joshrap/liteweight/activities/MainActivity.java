@@ -8,11 +8,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.amplifyframework.AmplifyException;
+import com.amplifyframework.auth.AuthException;
+import com.amplifyframework.auth.AuthUserAttributeKey;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
+import com.amplifyframework.auth.options.AuthSignUpOptions;
+import com.amplifyframework.auth.result.AuthSignInResult;
+import com.amplifyframework.auth.result.AuthSignUpResult;
+import com.amplifyframework.core.Amplify;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -28,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.InputHelper;
@@ -66,6 +76,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         loadingDialog = new ProgressDialog(MainActivity.this);
         super.onCreate(savedInstanceState);
+        try {
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+
+            Amplify.configure(getApplicationContext());
+
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
         setContentView(R.layout.sign_in);
 
         this.usernameInput = findViewById(R.id.username_input);
@@ -290,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         this.emailLayout.setVisibility(this.signInMode ? View.GONE : View.VISIBLE);
 
         this.logo.setVisibility(this.signInMode ? View.VISIBLE : View.GONE);
-        this.guestBtn.setVisibility(this.signInMode ? View.VISIBLE : View.GONE);
+        this.guestBtn.setVisibility(this.signInMode ? View.VISIBLE : View.VISIBLE);
 
         this.primaryBtn.setText(this.signInMode ? getString(R.string.sign_in) : getString(R.string.sign_up));
         this.changeModeBtn.setText(this.signInMode ? getString(R.string.sign_up) : "BACK TO " + getString(R.string.sign_in));
