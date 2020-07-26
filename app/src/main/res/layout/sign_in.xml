@@ -47,7 +47,7 @@
             android:textColorHint="@android:color/white"
             app:hintTextAppearance="@style/LoginHintStyle">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
             android:textColorHint="@android:color/white"
             app:hintTextAppearance="@style/LoginHintStyle">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/username_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@android:color/white">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -190,7 +190,7 @@
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@android:color/white">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password_input_confirm"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"

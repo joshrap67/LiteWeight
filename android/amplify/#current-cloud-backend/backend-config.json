@@ -1,0 +1,10 @@
+{
+	"auth": {
+		"liteweighta7f9a421": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false
+		}
+	}
+}
