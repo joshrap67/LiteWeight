@@ -33,7 +33,6 @@ public class CognitoResponse {
         ObjectMapper mapper = new ObjectMapper();
         try {
             Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
-            System.out.println(jsonMap.toString());
             Map<String, Object> authenticationResult = (Map<String, Object>) jsonMap.get("AuthenticationResult");
             retVal = new CognitoResponse(authenticationResult.get("RefreshToken").toString(), authenticationResult.get("IdToken").toString());
 
@@ -82,9 +81,7 @@ public class CognitoResponse {
             Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
             String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
-//            System.out.println(message);
             // TODO only show specific error messages like incorrect username/pass. Otherwise just do generic failed
-//            retVal = new CognitoResponse(message);
 
         } catch (Exception e) {
             // do nothing

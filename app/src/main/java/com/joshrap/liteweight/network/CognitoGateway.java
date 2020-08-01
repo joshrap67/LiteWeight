@@ -14,7 +14,7 @@ public class CognitoGateway {
     private static final String baseURL = "https://cognito-idp.us-east-2.amazonaws.com";
     private static final String contentType = "application/x-amz-json-1.1";
     private static final String baseTarget = "com.amazonaws.cognito.identity.idp.model.AWSCognitoIdentityProviderService.";
-    private static final String clientId = "59rgofah1ijtsqnucugcri2hl2";
+    private static final String clientId = "1evhq8s8u0eoh58dc1cj4ispea";
 
     private static final String signInAction = "InitiateAuth";
     private static final String signUpAction = "SignUp";
@@ -61,16 +61,13 @@ public class CognitoGateway {
                 resultStatus.setSuccess(true);
             }
             httpURLConnection.disconnect();
-            System.out.println(resultStatus);
 
         } catch (IOException io) {
-            System.out.println(io.toString());
             resultStatus.setSuccess(false);
             resultStatus.setNetworkError(true);
             resultStatus.setErrorMessage(io.toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
             resultStatus.setSuccess(false);
             resultStatus.setErrorMessage(e.toString());
         }
@@ -173,16 +170,13 @@ public class CognitoGateway {
                 resultStatus.setSuccess(true);
             }
             httpURLConnection.disconnect();
-            System.out.println(resultStatus);
 
         } catch (IOException io) {
-            System.out.println(io.toString());
             resultStatus.setSuccess(false);
             resultStatus.setNetworkError(true);
             resultStatus.setErrorMessage(io.toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
             resultStatus.setSuccess(false);
             resultStatus.setErrorMessage(e.toString());
         }
@@ -190,7 +184,7 @@ public class CognitoGateway {
         return resultStatus;
     }
 
-    public static ResultStatus<CognitoResponse> refreshTokens(String refreshToken) {
+    public static ResultStatus<CognitoResponse> refreshIdToken(String refreshToken) {
         ResultStatus<CognitoResponse> resultStatus = new ResultStatus<>();
         try {
             URL url = new URL(baseURL);
@@ -227,16 +221,13 @@ public class CognitoGateway {
                 resultStatus.setSuccess(true);
             }
             httpURLConnection.disconnect();
-            System.out.println(resultStatus);
 
         } catch (IOException io) {
-            System.out.println(io.toString());
             resultStatus.setSuccess(false);
             resultStatus.setNetworkError(true);
             resultStatus.setErrorMessage(io.toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
             resultStatus.setSuccess(false);
             resultStatus.setErrorMessage(e.toString());
         }

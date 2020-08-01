@@ -63,7 +63,7 @@
     <string name="nav_list_icon_title">My Workouts</string>
     <string name="rename_title">Rename</string>
     <string name="edit_workout_tooltip">Edit Workout Name</string>
-    <string name="nav_user_settings">Settings</string>
+    <string name="nav_user_settings">App Settings</string>
     <string name="nav_about">About</string>
     <string name="forward_button">Next</string>
     <string name="metric_switch">Metric</string>
@@ -127,4 +127,5 @@
     <string name="acknowledgements">App graphic was created using a vector made by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
         \n\nMy Exercises Icon was created by <a href="https://thenounproject.com/demograph/uploads/?i=149086">Demograph</a>.
     </string>
+    <string name="nav_account_settings">My Account</string>
 </resources>

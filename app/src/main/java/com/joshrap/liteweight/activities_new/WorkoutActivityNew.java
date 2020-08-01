@@ -1,15 +1,12 @@
-package com.joshrap.liteweight.activities;
+package com.joshrap.liteweight.activities_new;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import com.google.android.material.navigation.NavigationView;
@@ -30,9 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.fragments.*;
-import com.joshrap.liteweight.database.viewModels.*;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -40,24 +35,20 @@ import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class WorkoutActivityNew extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered = false;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private ExerciseViewModel exerciseModel;
     private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
-    private SharedPreferences.Editor editor;
     private boolean showPopupFlag;
     private ArrayList<String> fragmentStack = new ArrayList<>();
     private Timer timer;
@@ -65,7 +56,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     // save these as variables since the user can click around and it is ideal to preserve the view that they altered
     private CurrentWorkoutFragment currentWorkoutFragment;
     private MyExercisesFragment myExercisesFragment;
-    private UpdateExercisesAsync getDefaultExercisesTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,24 +77,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
 
         }
-        // get the view models
-        exerciseModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-        editor = pref.edit();
-        if (pref.getBoolean(Variables.DB_EMPTY_KEY, true)) {
-            setProgressBar(false);
-            getDefaultExercisesTask = new UpdateExercisesAsync();
-            getDefaultExercisesTask.execute();
-        } else {
-            initViews();
-        }
+
+        initViews();
     }
 
     @Override
     protected void onDestroy() {
-        if (getDefaultExercisesTask != null) {
-            getDefaultExercisesTask.cancel(true);
-        }
         // stop any services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
@@ -143,44 +121,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    private class UpdateExercisesAsync extends AsyncTask<Void, Void, Void> {
-        /*
-            Called when the exercise table is empty (such as when app first launches)
-         */
-        @Override
-        protected void onPreExecute() {
-            setProgressBar(true);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            // update the exercises in the database using the default exercise file in the app's asset folder
-            BufferedReader reader;
-            try {
-                reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
-                    String video = line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX];
-                    String focuses = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX_FILE];
-                    ExerciseEntity entity = new ExerciseEntity(name, focuses, video, true, 0, 0, 0, 0);
-                    exerciseModel.insert(entity);
-                }
-                reader.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            editor.putBoolean(Variables.DB_EMPTY_KEY, false);
-            editor.apply();
-            setProgressBar(false);
-            initViews();
-        }
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -232,14 +172,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        if (state == null) {
-            // default landing fragment is current workout one
-            currentWorkoutFragment = new CurrentWorkoutFragment();
-            fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
-            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
-            nav.setCheckedItem(R.id.nav_current_workout);
-        }
+//        if (state == null) {
+//            // default landing fragment is current workout one
+//            currentWorkoutFragment = new CurrentWorkoutFragment();
+//            fragmentManager.beginTransaction().replace(R.id.fragment_container,
+//                    currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
+//            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
+//            nav.setCheckedItem(R.id.nav_current_workout);
+//        }
     }
 
     public void setProgressBar(boolean hide) {

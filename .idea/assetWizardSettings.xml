@@ -137,7 +137,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_email_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_person_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -148,7 +148,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="email_icon" />
+                            <entry key="outputName" value="account_settings_icon" />
                             <entry key="sourceFile" value="C:\Users\Josh\Downloads\noun_Shoulder Press_149086.svg" />
                           </map>
                         </option>

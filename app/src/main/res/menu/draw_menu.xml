@@ -18,6 +18,10 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
+                        android:id="@+id/nav_account_settings"
+                        android:icon="@drawable/account_settings_icon"
+                        android:title="@string/nav_account_settings" />
+                <item
                         android:id="@+id/nav_user_settings"
                         android:icon="@drawable/user_settings_icon"
                         android:title="@string/nav_user_settings" />
