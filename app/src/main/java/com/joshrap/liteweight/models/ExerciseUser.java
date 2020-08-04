@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.Setter;
 
 @Data
-public class ExerciseUser implements Model {
+public class ExerciseUser implements Model, Comparable<ExerciseUser> {
 
     public static final String EXERCISE_NAME = "exerciseName";
     public static final String FOCUSES = "focuses";
@@ -26,6 +26,7 @@ public class ExerciseUser implements Model {
     private double defaultWeight; // stored in lbs
     private int defaultSets;
     private int defaultReps;
+    private String exerciseId;
     private String defaultNote;
     private String videoUrl;
     @Setter(AccessLevel.NONE)
@@ -34,11 +35,12 @@ public class ExerciseUser implements Model {
     private Map<String, String> workouts; // id to workout name that this exericse is apart of
 
 
-    public ExerciseUser(Map<String, Object> json) {
+    public ExerciseUser(Map<String, Object> json, String exerciseId) {
         this.exerciseName = (String) json.get(EXERCISE_NAME);
         this.defaultExercise = (boolean) json.get(DEFAULT_EXERCISE);
         this.defaultWeight = (double) json.get(DEFAULT_WEIGHT);
         this.defaultSets = (int) json.get(DEFAULT_SETS);
+        this.exerciseId = exerciseId;
         this.defaultReps = (int) json.get(DEFAULT_REPS);
         this.defaultNote = (String) json.get(DEFAULT_DETAILS);
         this.videoUrl = (String) json.get(VIDEO_URL);
@@ -81,6 +83,11 @@ public class ExerciseUser implements Model {
         retVal.put(FOCUSES, this.focuses);
         retVal.put(User.WORKOUTS, this.workouts);
         return retVal;
+    }
+
+    @Override
+    public int compareTo(ExerciseUser o) {
+        return this.getExerciseName().compareTo(o.getExerciseName());
     }
 }
 

@@ -9,7 +9,6 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.joshrap.liteweight.activities_new.WorkoutActivityNew;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.CognitoResponse;
@@ -48,6 +47,7 @@ public class SplashActivity extends AppCompatActivity {
                 if (resultStatus.isSuccess()) {
                     System.out.println("**************** USER GET SUCCEEDED *****************");
                     System.out.println(resultStatus.getData());
+                    Globals.user = resultStatus.getData();
                     launchWorkoutActivity();
                 } else {
                     System.out.println("**************** USER GET FAILED *****************");
@@ -84,14 +84,14 @@ public class SplashActivity extends AppCompatActivity {
 
     private void launchSignInActivity() {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent, options.toBundle());
         finish();
     }
 
     private void launchWorkoutActivity(){
 //        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
-        Intent intent = new Intent(this, WorkoutActivityNew.class);
+        Intent intent = new Intent(this, WorkoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 //        startActivity(intent, options.toBundle());
         startActivity(intent);

@@ -1,7 +1,9 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
+
 import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -9,11 +11,15 @@ import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +29,13 @@ import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.database.viewModels.*;
 import com.joshrap.liteweight.helpers.StatisticsHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.widgets.ExerciseRow;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
-import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.widgets.Stopwatch;
@@ -39,77 +45,42 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class CurrentWorkoutFragment extends Fragment {
-    private TextView dayTV, defaultTV;
+public class ActiveWorkoutFragment extends Fragment {
+    private TextView dayTV;
     private TableLayout mainExercisesTable;
     private ImageButton forwardButton, backButton;
-    private FloatingActionButton createWorkoutBtn;
     private View view;
     private ViewGroup fragmentContainer;
     private int currentDayIndex, maxDayIndex, daysPerWeek;
     private String currentWorkout;
-    private MetaEntity currentWorkoutEntity;
-    private WorkoutViewModel workoutModel;
-    private MetaViewModel metaModel;
-    private ExerciseViewModel exerciseModel;
+
     private HashMap<Integer, ArrayList<ExerciseRow>> workout = new HashMap<>();
     private HashMap<String, ExerciseEntity> exerciseToExerciseEntity = new HashMap<>();
     private Timer timer;
     private Stopwatch stopwatch;
-    private GetExercisesTask getExercisesTask;
-    private GetCurrentWorkoutMetaTask getCurrentWorkoutTask;
-    private GetWorkoutTask getWorkoutTask;
-    private Handler loadingHandler;
-    private final Runnable showLoadingIconRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (getActivity() != null) {
-                ((WorkoutActivity) getActivity()).setProgressBar(true);
-            }
-        }
-    };
+
+    public ActiveWorkoutFragment() {
+
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // TODO if user object/workout is null then do default layout
         view = inflater.inflate(R.layout.default_layout, container, false);
-        createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
-        createWorkoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((WorkoutActivity) getActivity()).createWorkout();
-            }
-        });
+        fragmentContainer = container;
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+        createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).createWorkout());
         timer = ((WorkoutActivity) getActivity()).getTimer();
         stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
-        defaultTV = view.findViewById(R.id.default_text_view);
-        createWorkoutBtn.hide();
-        defaultTV.setVisibility(View.INVISIBLE); // only show this default message later if no workouts are found
-        fragmentContainer = container;
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(""); // empty so workout name doesn't flash once loaded
+        ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight"); // empty so workout name doesn't flash once loaded
         // Set up the view models
-        metaModel = ViewModelProviders.of(getActivity()).get(MetaViewModel.class);
-        workoutModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
-        exerciseModel = ViewModelProviders.of(getActivity()).get(ExerciseViewModel.class);
-
-        // show loading dialog only if workout hasn't loaded in certain amount of time
-        loadingHandler = new Handler();
-        loadingHandler.postDelayed(showLoadingIconRunnable, 2000);
-        if (Globals.currentWorkout == null) {
-            // attempt to fetch the current workout from database
-            getCurrentWorkoutTask = new GetCurrentWorkoutMetaTask();
-            getCurrentWorkoutTask.execute();
-        } else {
-            // user has already loaded the current workout so skip that DB call
-            currentWorkoutEntity = Globals.currentWorkout;
-            currentWorkout = currentWorkoutEntity.getWorkoutName();
-            currentDayIndex = currentWorkoutEntity.getCurrentDay();
-            maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
-            daysPerWeek = currentWorkoutEntity.getNumDays();
-            getExercisesTask = new GetExercisesTask();
-            getExercisesTask.execute();
-        }
-        return view;
     }
 
     @Override
@@ -141,98 +112,9 @@ public class CurrentWorkoutFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (getCurrentWorkoutTask != null) {
-            getCurrentWorkoutTask.cancel(true);
-        }
-        if (getExercisesTask != null) {
-            getExercisesTask.cancel(true);
-        }
-        if (getWorkoutTask != null) {
-            getWorkoutTask.cancel(true);
-        }
-        if (loadingHandler != null) {
-            loadingHandler.removeCallbacks(showLoadingIconRunnable);
-        }
+        // TODO api call to update
     }
 
-    private class GetCurrentWorkoutMetaTask extends AsyncTask<Void, Void, MetaEntity> {
-        @Override
-        protected MetaEntity doInBackground(Void... voids) {
-            // get the current workout meta from the database
-            return metaModel.getCurrentWorkoutMeta();
-        }
-
-        @Override
-        protected void onPostExecute(MetaEntity result) {
-            if (result != null) {
-                // database found a workout, so assign it then move to the next stop in the chain
-                Globals.currentWorkout = result;
-                currentWorkoutEntity = result;
-                currentWorkout = currentWorkoutEntity.getWorkoutName();
-                currentDayIndex = currentWorkoutEntity.getCurrentDay();
-                maxDayIndex = currentWorkoutEntity.getMaxDayIndex();
-                daysPerWeek = currentWorkoutEntity.getNumDays();
-                getExercisesTask = new GetExercisesTask();
-                getExercisesTask.execute();
-            } else {
-                // no workout found, error
-                if (getActivity() != null) {
-                    ((WorkoutActivity) getActivity()).setProgressBar(false);
-                }
-                loadingHandler.removeCallbacks(showLoadingIconRunnable);
-                createWorkoutBtn.show();
-                defaultTV.setVisibility(View.VISIBLE);
-                ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
-            }
-        }
-    }
-
-    private class GetExercisesTask extends AsyncTask<Void, Void, ArrayList<ExerciseEntity>> {
-        @Override
-        protected ArrayList<ExerciseEntity> doInBackground(Void... voids) {
-            // get the exercises from the database
-            return exerciseModel.getAllExercises();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ExerciseEntity> result) {
-            if (!result.isEmpty()) {
-                for (ExerciseEntity entity : result) {
-                    exerciseToExerciseEntity.put(entity.getExerciseName(), entity);
-                }
-                getWorkoutTask = new GetWorkoutTask();
-                getWorkoutTask.execute();
-            } else {
-                if (getActivity() != null) {
-                    ((WorkoutActivity) getActivity()).setProgressBar(false);
-                }
-                loadingHandler.removeCallbacks(showLoadingIconRunnable);
-                createWorkoutBtn.hide();
-                defaultTV.setVisibility(View.VISIBLE);
-                ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CURRENT_WORKOUT_TITLE);
-            }
-        }
-    }
-
-    private class GetWorkoutTask extends AsyncTask<Void, Void, ArrayList<WorkoutEntity>> {
-        @Override
-        protected ArrayList<WorkoutEntity> doInBackground(Void... voids) {
-            // get the exercises from the database
-            return workoutModel.getExercises(currentWorkout);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<WorkoutEntity> result) {
-            if (getActivity() != null) {
-                ((WorkoutActivity) getActivity()).setProgressBar(false);
-            }
-            loadingHandler.removeCallbacks(showLoadingIconRunnable);
-            if (result != null) {
-                // query produced a valid list, so populate it in local memory
-                initWorkout(result);
-            }
-        }
-    }
 
     private void initWorkout(ArrayList<WorkoutEntity> rawData) {
         /*
@@ -309,7 +191,7 @@ public class CurrentWorkoutFragment extends Fragment {
         for (WorkoutEntity entity : rawData) {
             String exerciseName = entity.getExercise();
             ExerciseRow exercise = new ExerciseRow(entity, exerciseToExerciseEntity.get(exerciseName), getContext(),
-                    getActivity(), videosEnabled, metricUnits, workoutModel, exerciseModel);
+                    getActivity(), videosEnabled, metricUnits, null, null);
             workout.get(entity.getDay()).add(exercise);
         }
         // sort all the workouts in each day alphabetically
@@ -324,42 +206,28 @@ public class CurrentWorkoutFragment extends Fragment {
         /*
             Setup button listeners.
          */
-        dayTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                jumpDaysPopup();
+        dayTV.setOnClickListener(v -> jumpDaysPopup());
+        backButton.setOnClickListener(v -> {
+            if (currentDayIndex > 0) {
+                currentDayIndex--;
+//                currentWorkoutEntity.setCurrentDay(currentDayIndex);
+//                metaModel.update(currentWorkoutEntity);
+                updateWorkoutUI();
             }
         });
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentDayIndex > 0) {
-                    currentDayIndex--;
-                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
-                    metaModel.update(currentWorkoutEntity);
-                    updateWorkoutUI();
-                }
-            }
-        });
-        forwardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentDayIndex < maxDayIndex) {
-                    currentDayIndex++;
-                    currentWorkoutEntity.setCurrentDay(currentDayIndex);
-                    metaModel.update(currentWorkoutEntity);
-                    updateWorkoutUI();
-                } else if (currentDayIndex == maxDayIndex) {
-                    restartPopup();
-                }
-            }
-        });
-        forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        forwardButton.setOnClickListener(v -> {
+            if (currentDayIndex < maxDayIndex) {
+                currentDayIndex++;
+//                currentWorkoutEntity.setCurrentDay(currentDayIndex);
+//                metaModel.update(currentWorkoutEntity);
+                updateWorkoutUI();
+            } else if (currentDayIndex == maxDayIndex) {
                 restartPopup();
-                return true;
             }
+        });
+        forwardButton.setOnLongClickListener(v -> {
+            restartPopup();
+            return true;
         });
     }
 
@@ -421,11 +289,9 @@ public class CurrentWorkoutFragment extends Fragment {
                     exercisesCompleted++;
                 }
                 exercise.setStatus(false);
-                exerciseModel.update(exerciseEntity);
-                workoutModel.update(exercise.getWorkoutEntity());
             }
         }
-        StatisticsHelper.workoutResetStatistics(currentWorkoutEntity, metaModel, exercisesCompleted, totalExercises);
+//        StatisticsHelper.workoutResetStatistics(currentWorkoutEntity, metaModel, exercisesCompleted, totalExercises);
 
         currentDayIndex = 0;
         updateWorkoutUI();
@@ -450,14 +316,11 @@ public class CurrentWorkoutFragment extends Fragment {
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Jump to Day")
                 .setView(popupView)
-                .setPositiveButton("Go", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        currentDayIndex = dayPicker.getValue();
-                        currentWorkoutEntity.setCurrentDay(currentDayIndex);
-                        metaModel.update(currentWorkoutEntity);
-                        updateWorkoutUI();
-                    }
+                .setPositiveButton("Go", (dialog, which) -> {
+                    currentDayIndex = dayPicker.getValue();
+//                        currentWorkoutEntity.setCurrentDay(currentDayIndex);
+//                        metaModel.update(currentWorkoutEntity);
+                    updateWorkoutUI();
                 })
                 .create();
         alertDialog.show();
@@ -479,6 +342,7 @@ public class CurrentWorkoutFragment extends Fragment {
         }
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
 
+        // TODO call it finishing instead of restarting workout?
         View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
         ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
         progressBar.setProgress(percentage);
@@ -505,13 +369,10 @@ public class CurrentWorkoutFragment extends Fragment {
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Restart Workout")
                 .setView(popupView)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mainExercisesTable.removeAllViews();
-                        restartWorkout();
-                        updateWorkoutUI();
-                    }
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    mainExercisesTable.removeAllViews();
+                    restartWorkout();
+                    updateWorkoutUI();
                 })
                 .setNegativeButton("No", null)
                 .create();

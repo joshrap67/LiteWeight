@@ -1,68 +1,57 @@
 package com.joshrap.liteweight.models;
 
-public class ExerciseRoutine {
-    private String exerciseName;
+import com.joshrap.liteweight.interfaces.Model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import lombok.Data;
+
+@Data
+public class ExerciseRoutine implements Model {
+
+    public static final String COMPLETED = "completed";
+    public static final String EXERCISE_ID = "exerciseId";
+    public static final String WEIGHT = "weight";
+    public static final String SETS = "sets";
+    public static final String REPS = "reps";
+    public static final String DETAILS = "details";
+
+    private boolean completed;
+    private String exerciseId;
     private double weight;
-    private boolean extraShown; // used for the list view
-    private int reps;
     private int sets;
-    private String note;
-    // TODO need to handle change in urls lmao
+    private int reps;
+    private String details;
 
-    public ExerciseRoutine(String exerciseName, double weight, boolean extraShown, int reps, int sets, String note) {
-        this.exerciseName = exerciseName;
-        this.weight = weight;
-        this.extraShown = extraShown;
-        this.reps = reps;
-        this.sets = sets;
-        this.note = note;
+    public ExerciseRoutine(Map<String, Object> json) {
+        this.completed = (boolean) json.get(COMPLETED);
+        this.exerciseId = (String) json.get(EXERCISE_ID);
+        this.weight = (double) json.get(WEIGHT);
+        this.sets = (int) json.get(SETS);
+        this.reps = (int) json.get(REPS);
+        this.details = (String) json.get(DETAILS);
     }
 
-    public String getExerciseName() {
-        return exerciseName;
+    public ExerciseRoutine(ExerciseUser exerciseUser, String exerciseId){
+        this.completed = false;
+        this.exerciseId = exerciseId;
+        this.weight = exerciseUser.getDefaultWeight();
+        this.sets = exerciseUser.getDefaultSets();
+        this.reps = exerciseUser.getDefaultReps();
+        this.details = exerciseUser.getDefaultNote();
     }
 
-    public void setExerciseName(String exerciseName) {
-        this.exerciseName = exerciseName;
-    }
 
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public boolean isExtraShown() {
-        return extraShown;
-    }
-
-    public void setExtraShown(boolean extraShown) {
-        this.extraShown = extraShown;
-    }
-
-    public int getReps() {
-        return reps;
-    }
-
-    public void setReps(int reps) {
-        this.reps = reps;
-    }
-
-    public int getSets() {
-        return sets;
-    }
-
-    public void setSets(int sets) {
-        this.sets = sets;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
+    @Override
+    public Map<String, Object> asMap() {
+        HashMap<String, Object> retVal = new HashMap<>();
+        retVal.put(COMPLETED, this.completed);
+        retVal.put(EXERCISE_ID, this.exerciseId);
+        retVal.put(WEIGHT, this.weight);
+        retVal.put(SETS, this.sets);
+        retVal.put(REPS, this.reps);
+        retVal.put(DETAILS, this.details);
+        return retVal;
     }
 }

@@ -6,10 +6,6 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:actionMenuTextColor">@android:color/white</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:listDivider">@color/colorPrimary</item>
         <item name="android:buttonStyle">@style/button_style</item>
@@ -79,4 +75,5 @@
         <item name="colorControlActivated">@android:color/white</item>
     </style>
 
+    <color name="window_background">#fff</color>
 </resources>

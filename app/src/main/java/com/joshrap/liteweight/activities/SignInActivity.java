@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
-public class MainActivity extends AppCompatActivity {
+public class SignInActivity extends AppCompatActivity {
     /*
         1. If a token key value pair exists in shared prefs
             If valid then immediately go to WorkoutActivity
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        loadingDialog = new ProgressDialog(MainActivity.this);
+        loadingDialog = new ProgressDialog(SignInActivity.this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_in);
 
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
         editor.apply();
 
-        AlertDialog succ = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        AlertDialog succ = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Success")
                 .setPositiveButton("Done", null)
                 .create();
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void signInFailed(ResultStatus<CognitoResponse> resultStatus) {
         System.out.println(resultStatus.getErrorMessage());
-        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        AlertDialog f = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Failed :(")
                 .setMessage(resultStatus.getErrorMessage())
                 .setPositiveButton("Done", null)
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
     private void signUpSuccess(ResultStatus<Boolean> resultStatus) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_confirm_email, null);
         final EditText codeInput = popupView.findViewById(R.id.code_input);
-        confirmEmailPopup = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        confirmEmailPopup = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Confirm Account")
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void confirmSuccess(ResultStatus<Boolean> resultStatus) {
-        AlertDialog succ = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        AlertDialog succ = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Success")
                 .setPositiveButton("Done", null)
                 .create();
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signUpFailed(ResultStatus<Boolean> resultStatus) {
-        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        AlertDialog f = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Failed :(")
                 .setMessage(resultStatus.getErrorMessage())
                 .setPositiveButton("Done", null)
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void confirmFailed(ResultStatus<Boolean> resultStatus) {
-        AlertDialog f = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+        AlertDialog f = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Failed :(")
                 .setMessage(resultStatus.getErrorMessage())
                 .setPositiveButton("Done", null)
@@ -491,10 +491,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchWorkoutActivity() {
-        Intent intent = new Intent(MainActivity.this, WorkoutActivity.class);
+        Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         startActivity(intent);
-        MainActivity.this.finish();
+        SignInActivity.this.finish();
     }
 
     public TranslateAnimation shakeError() {

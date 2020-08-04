@@ -17,7 +17,6 @@
             android:layout_marginRight="32dp"
             android:layout_marginBottom="8dp"
             android:text="@string/no_workouts_found"
-            android:textColor="@android:color/black"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/create_workout_btn"

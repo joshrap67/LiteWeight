@@ -72,7 +72,7 @@ public class User implements Model {
             this.userExercises = new HashMap<>();
             for (String exerciseId : json.keySet()) {
                 this.userExercises
-                        .put(exerciseId, new ExerciseUser((Map<String, Object>) json.get(exerciseId)));
+                        .put(exerciseId, new ExerciseUser((Map<String, Object>) json.get(exerciseId), exerciseId));
             }
         }
     }

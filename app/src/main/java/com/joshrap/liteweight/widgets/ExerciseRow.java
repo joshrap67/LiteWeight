@@ -39,7 +39,7 @@ public class ExerciseRow implements Comparable<ExerciseRow> {
                        boolean videos, boolean metricUnits, WorkoutViewModel workoutViewModel,
                        ExerciseViewModel exerciseViewModel) {
         /*
-            Constructor utilized by CurrentWorkoutFragment
+            Constructor utilized by ActiveWorkoutFragment
          */
         this.workoutEntity = workoutEntity;
         this.exerciseEntity = exerciseEntity;

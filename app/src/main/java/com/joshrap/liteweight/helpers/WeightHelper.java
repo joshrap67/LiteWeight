@@ -9,6 +9,11 @@ public class WeightHelper {
         return (metricUnits) ? exercise.getCurrentWeight() * Variables.KG : exercise.getCurrentWeight();
     }
 
+    public static double getConvertedWeight(boolean metricUnits, double weight) {
+        // returns current weight of exercise either in lbs or kgs (since in DB its stored in lbs)
+        return (metricUnits) ? weight * Variables.KG : weight;
+    }
+
     public static String validWeight(String weightString) {
         /*
             Checks if a given weight (from a text input so it is a string) is valid. Return null if valid
@@ -41,6 +46,26 @@ public class WeightHelper {
             retVal = String.format("%.1f", aWeight);
         } else {
             retVal = String.format("%.2f", aWeight);
+        }
+        return retVal;
+    }
+
+    public static String getFormattedWeightWithUnits(double aWeight, boolean metricUnits) {
+         /*
+            Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
+         */
+        String retVal;
+        String[] decimalPoints = Double.toString(aWeight).split("\\.");
+        if (aWeight < 0) {
+            retVal = "None";
+        } else if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
+            // Weight is a whole number. don't want to show any decimals
+            retVal = String.format("%s%s", String.format("%.0f", aWeight), metricUnits ? " kg" : " lb");
+        } else if (decimalPoints[1].length() == 1) {
+            // lil hacky, but prevents trailing zeros if user only enters one value after decimal point
+            retVal = String.format("%s%s", String.format("%.1f", aWeight), metricUnits ? " kg" : " lb");
+        } else {
+            retVal = String.format("%s%s", String.format("%.2f", aWeight), metricUnits ? " kg" : " lb");
         }
         return retVal;
     }

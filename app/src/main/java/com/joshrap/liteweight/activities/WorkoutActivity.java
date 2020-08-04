@@ -4,24 +4,28 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.graphics.Rect;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
+
 import com.google.android.material.navigation.NavigationView;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.MenuItem;
+
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,9 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.fragments.*;
-import com.joshrap.liteweight.database.viewModels.*;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -40,8 +42,6 @@ import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,20 +52,17 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private boolean drawerListenerIsRegistered = false;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private ExerciseViewModel exerciseModel;
     private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
-    private SharedPreferences.Editor editor;
     private boolean showPopupFlag;
     private ArrayList<String> fragmentStack = new ArrayList<>();
     private Timer timer;
     private Stopwatch stopwatch;
     // save these as variables since the user can click around and it is ideal to preserve the view that they altered
-    private CurrentWorkoutFragment currentWorkoutFragment;
+    private ActiveWorkoutFragment currentWorkoutFragment;
     private MyExercisesFragment myExercisesFragment;
-    private UpdateExercisesAsync getDefaultExercisesTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,24 +84,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
 
         }
-        // get the view models
-        exerciseModel = ViewModelProviders.of(this).get(ExerciseViewModel.class);
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-        editor = pref.edit();
-        if (pref.getBoolean(Variables.DB_EMPTY_KEY, true)) {
-            setProgressBar(false);
-            getDefaultExercisesTask = new UpdateExercisesAsync();
-            getDefaultExercisesTask.execute();
-        } else {
-            initViews();
-        }
+
+        initViews();
     }
 
     @Override
     protected void onDestroy() {
-        if (getDefaultExercisesTask != null) {
-            getDefaultExercisesTask.cancel(true);
-        }
         // stop any services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
@@ -143,44 +128,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    private class UpdateExercisesAsync extends AsyncTask<Void, Void, Void> {
-        /*
-            Called when the exercise table is empty (such as when app first launches)
-         */
-        @Override
-        protected void onPreExecute() {
-            setProgressBar(true);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            // update the exercises in the database using the default exercise file in the app's asset folder
-            BufferedReader reader;
-            try {
-                reader = new BufferedReader(new InputStreamReader(getAssets().open(Variables.DEFAULT_EXERCISES_FILE)));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String name = line.split(Variables.SPLIT_DELIM)[Variables.NAME_INDEX];
-                    String video = line.split(Variables.SPLIT_DELIM)[Variables.VIDEO_INDEX];
-                    String focuses = line.split(Variables.SPLIT_DELIM)[Variables.FOCUS_INDEX_FILE];
-                    ExerciseEntity entity = new ExerciseEntity(name, focuses, video, true, 0, 0, 0, 0);
-                    exerciseModel.insert(entity);
-                }
-                reader.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            editor.putBoolean(Variables.DB_EMPTY_KEY, false);
-            editor.apply();
-            setProgressBar(false);
-            initViews();
-        }
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -198,14 +145,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
 
             if (currentFragment instanceof NewWorkoutFragment) {
-                if (((NewWorkoutFragment) currentFragment).isModified()) {
-                    // workout is being made, so give user option to prevent navigation change
-                    showUnsavedChangesNewWorkoutPopup(true);
-                    return;
-                } else {
-                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
-                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-                }
+//                if (((NewWorkoutFragment) currentFragment).isModified()) {
+//                    // workout is being made, so give user option to prevent navigation change
+//                    showUnsavedChangesNewWorkoutPopup(true);
+//                    return;
+//                } else {
+//                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
+//                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+//                }
             } else if (currentFragment instanceof EditWorkoutFragment) {
                 if (((EditWorkoutFragment) currentFragment).isEditing()) {
                     // workout is being edited, so give user option to prevent navigation change
@@ -234,7 +181,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         toggle.syncState();
         if (state == null) {
             // default landing fragment is current workout one
-            currentWorkoutFragment = new CurrentWorkoutFragment();
+            currentWorkoutFragment = new ActiveWorkoutFragment();
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
                     currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
             fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
@@ -295,7 +242,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     } else {
                         goToCurrentWorkout();
                     }
-                } else if (!(currentFrag instanceof CurrentWorkoutFragment)) {
+                } else if (!(currentFrag instanceof ActiveWorkoutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToCurrentWorkout();
                 }
@@ -308,7 +255,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     } else {
                         goToMyWorkouts();
                     }
-                } else if (!(currentFrag instanceof MyWorkoutFragment)) {
+                } else if (!(currentFrag instanceof MyWorkoutsFragment)) {
                     // prevent from selecting currently selected fragment
                     goToMyWorkouts();
                 }
@@ -426,34 +373,24 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         /*
-            Found on Stack Overflow. Used to hide the keyboard.
+            Found on SO. Hides keyboard when clicking outside editText.
+            https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
          */
-        View view = getCurrentFocus();
-        if (view != null &&
-                (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_MOVE) &&
-                view instanceof EditText &&
-                !view.getClass().getName().startsWith("android.webkit.")) {
-            int scrcoords[] = new int[2];
-            view.getLocationOnScreen(scrcoords);
-            float x = ev.getRawX() + view.getLeft() - scrcoords[0];
-            float y = ev.getRawY() + view.getTop() - scrcoords[1];
-
-            if (x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
-                hideKeyboard(this);
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect viewRect = new Rect();
+                v.getGlobalVisibleRect(viewRect);
+                if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
         }
-        return super.dispatchTouchEvent(ev);
-    }
-
-    public static void hideKeyboard(Activity activity) {
-        /*
-            Found on Stack Overflow. Hides keyboard when clicking outside focus
-         */
-        if (activity != null && activity.getWindow() != null && activity.getWindow().getDecorView() != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
-        }
+        return super.dispatchTouchEvent(event);
     }
 
     public void showUnsavedChangesNewWorkoutPopup(final boolean timerNotificationClicked) {
@@ -493,19 +430,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle("Unsaved Changes")
                 .setMessage(R.string.popup_message_edit_workout)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (timerNotificationClicked) {
-                            fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-                            alertDialog.dismiss();
-                            enableBackButton(false);
-                            nav.setCheckedItem(R.id.nav_current_workout);
-                            goToCurrentWorkout();
-                        } else {
-                            showPopupFlag = false;
-                            onBackPressed();
-                        }
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    if (timerNotificationClicked) {
+                        fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
+                        alertDialog.dismiss();
+                        enableBackButton(false);
+                        nav.setCheckedItem(R.id.nav_current_workout);
+                        goToCurrentWorkout();
+                    } else {
+                        showPopupFlag = false;
+                        onBackPressed();
                     }
                 })
                 .setNegativeButton("No", null)
@@ -558,7 +492,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (aFragment == null) {
             retVal = false;
         } else if (aFragment instanceof NewWorkoutFragment) {
-            retVal = ((NewWorkoutFragment) aFragment).isModified();
+            retVal = true;
         } else if (aFragment instanceof EditWorkoutFragment) {
             retVal = ((EditWorkoutFragment) aFragment).isEditing();
         }
@@ -587,7 +521,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
         // keeping the fragment as a variable to ensure the timer display seamlessly updates when going back to it
         if (currentWorkoutFragment == null) {
-            currentWorkoutFragment = new CurrentWorkoutFragment();
+            currentWorkoutFragment = new ActiveWorkoutFragment();
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE)
@@ -642,7 +576,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutFragment(), Variables.MY_WORKOUT_TITLE)
+                new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
     }
 

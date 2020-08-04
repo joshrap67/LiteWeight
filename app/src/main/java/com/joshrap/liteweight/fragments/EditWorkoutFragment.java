@@ -28,6 +28,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.database.entities.ExerciseEntity;
 import com.joshrap.liteweight.database.entities.WorkoutEntity;
 import com.joshrap.liteweight.database.viewModels.ExerciseViewModel;
@@ -38,7 +39,6 @@ import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.R;
 
 import java.util.ArrayList;

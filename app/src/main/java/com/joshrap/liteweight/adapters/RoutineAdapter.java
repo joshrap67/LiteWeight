@@ -18,6 +18,7 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.models.ExerciseRoutine;
 
 import java.util.List;
+import java.util.Map;
 
 public class RoutineAdapter extends
         RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
@@ -34,7 +35,7 @@ public class RoutineAdapter extends
         ImageButton videoButton;
         ImageButton saveButton;
         ImageButton cancelButton;
-        EditText notesInput;
+        EditText detailsInput;
         Switch ignoreWeightSwitch;
 
         // We also create a constructor that accepts the entire item row
@@ -52,16 +53,18 @@ public class RoutineAdapter extends
             videoButton = itemView.findViewById(R.id.launch_video);
             saveButton = itemView.findViewById(R.id.save_button);
             cancelButton = itemView.findViewById(R.id.cancel_button);
-            notesInput = itemView.findViewById(R.id.notes_input);
+            detailsInput = itemView.findViewById(R.id.notes_input);
             ignoreWeightSwitch = itemView.findViewById(R.id.ignore_weight_switch);
         }
     }
 
     private List<ExerciseRoutine> exercises;
+    private Map<String, String> exerciseIdToName;
 
     // Pass in the contact array into the constructor
-    public RoutineAdapter(List<ExerciseRoutine> contacts) {
-        this.exercises = contacts;
+    public RoutineAdapter(List<ExerciseRoutine> exerciseRoutines, Map<String, String> exerciseIdToName) {
+        this.exercises = exerciseRoutines;
+        this.exerciseIdToName = exerciseIdToName;
     }
 
 
@@ -93,7 +96,7 @@ public class RoutineAdapter extends
         // Get the data model based on position
         ExerciseRoutine exercise = exercises.get(position);
 
-        final String currentExercise = exercise.getExerciseName();
+        final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         final CheckBox exerciseTV = holder.exerciseTV;
         exerciseTV.setText(currentExercise);
 
@@ -104,13 +107,13 @@ public class RoutineAdapter extends
         final ImageButton videoButton = holder.videoButton;
         final ImageButton saveButton = holder.saveButton;
         final ImageButton cancelButton = holder.cancelButton;
-        final EditText notesInput = holder.notesInput;
+        final EditText notesInput = holder.detailsInput;
         final Switch ignoreWeightSwitch = holder.ignoreWeightSwitch;
 
         // TODO make sure to hidekeyboard when close buttons are pressed
 
         weightButton.setOnClickListener((v) -> {
-            exercise.setExtraShown(true);
+//            exercise.setExtraShown(true);
 
             weightLayout.setVisibility(View.VISIBLE);
             weightLayout.setHint(currentExercise);
@@ -124,7 +127,7 @@ public class RoutineAdapter extends
         });
 
         View.OnClickListener collapseExtraInfo = v -> {
-            exercise.setExtraShown(false);
+//            exercise.setExtraShown(false);
             weightLayout.setVisibility(View.GONE);
             weightButton.setVisibility(View.VISIBLE);
             extraInfo.setVisibility(View.GONE);

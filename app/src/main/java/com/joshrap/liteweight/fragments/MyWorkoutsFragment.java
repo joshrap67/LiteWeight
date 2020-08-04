@@ -44,7 +44,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MyWorkoutFragment extends Fragment implements FragmentWithDialog {
+public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private View view;
     private TextView selectedWorkoutTV, statisticsTV, defaultTV;
     private ListView workoutListView;
