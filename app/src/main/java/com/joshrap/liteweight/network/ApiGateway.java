@@ -54,7 +54,6 @@ public class ApiGateway {
                             textBuilder.append((char) c);
                         }
                     }
-//                    System.out.println(textBuilder.toString());
                     Map<String, Object> jsonMap = new ObjectMapper().readValue(textBuilder.toString(), Map.class);
                     resultStatus.setData(jsonMap);
                     resultStatus.setSuccess(true);

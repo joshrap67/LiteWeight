@@ -11,33 +11,38 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.CognitoResponse;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.network.CognitoGateway;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
 public class SplashActivity extends AppCompatActivity {
+
+    @Inject
+    public SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO new setting: "Auto Track Exercise Updates" -> whether changes in currentworkout auto change for exercise defaults
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-        Globals.refreshToken = pref.getString(Variables.REFRESH_TOKEN_KEY, null);
-        Globals.idToken = pref.getString(Variables.ID_TOKEN_KEY, null);
+        Injector.getInjector(this).inject(this);
+        sharedPreferences = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        // TODO guest mode
+        Globals.refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
+        Globals.idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
 
-        if(Globals.refreshToken == null || Globals.idToken ==null){
+        if (Globals.refreshToken == null || Globals.idToken == null) {
             launchSignInActivity();
-        } else{
+        } else {
             getUser();
         }
     }
 
-    private void getUser(){
+    private void getUser() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             System.out.println("Getting user...");
@@ -46,38 +51,12 @@ public class SplashActivity extends AppCompatActivity {
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
                     System.out.println("**************** USER GET SUCCEEDED *****************");
-                    System.out.println(resultStatus.getData());
                     Globals.user = resultStatus.getData();
                     launchWorkoutActivity();
                 } else {
                     System.out.println("**************** USER GET FAILED *****************");
                     System.out.println(resultStatus.getErrorMessage());
                 }
-            });
-        });
-    }
-
-    private void refreshIdToken(String refreshToken) {
-        if (refreshToken == null) {
-            return;
-        }
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            System.out.println("refreshing...");
-            ResultStatus<CognitoResponse> resultStatus = CognitoGateway.refreshIdToken(refreshToken);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                if (resultStatus.isSuccess()) {
-                    System.out.println("**************** REFRESH SUCCEEDED *****************");
-                    System.out.println(resultStatus.getData());
-                    SharedPreferences pref = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
-                    editor.apply();
-                } else {
-                    System.out.println("**************** REFRESH FAILED *****************");
-                }
-                launchSignInActivity();
             });
         });
     }
@@ -89,13 +68,10 @@ public class SplashActivity extends AppCompatActivity {
         finish();
     }
 
-    private void launchWorkoutActivity(){
-//        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
+    private void launchWorkoutActivity() {
         Intent intent = new Intent(this, WorkoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent, options.toBundle());
         startActivity(intent);
-
         finish();
     }
 

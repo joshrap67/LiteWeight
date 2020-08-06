@@ -64,7 +64,6 @@ public class CognitoResponse {
         try {
             Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
             retVal = Boolean.parseBoolean(jsonMap.get("UserConfirmed").toString());
-//            retVal.setUserConfirmed(userConfirmed);
         } catch (Exception e) {
             // do nothing
             System.out.println(e.toString());

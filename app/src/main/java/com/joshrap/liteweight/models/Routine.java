@@ -51,8 +51,30 @@ public class Routine implements Model {
         this.routine.get(week).get(day).insertNewExercise(exerciseRoutine);
     }
 
-    public void removeExercise(int week, int day, String exerciseId){
+    public void removeExercise(int week, int day, String exerciseId) {
         this.routine.get(week).get(day).deleteExercise(exerciseId);
+    }
+
+    public void deleteWeek(int week) {
+        this.routine.remove(week);
+        int i = 0;
+        Map<Integer, Map<Integer, RoutineDayMap>> temp = new HashMap<>();
+        for (Integer weekIndex : this.routine.keySet()) {
+            temp.put(i, this.routine.get(weekIndex));
+            i++;
+        }
+        this.routine = temp;
+    }
+
+    public void deleteDay(int week, int day) {
+        this.routine.get(week).remove(day);
+        int i = 0;
+        Map<Integer, RoutineDayMap> temp = new HashMap<>();
+        for (Integer dayIndex : this.routine.get(week).keySet()) {
+            temp.put(i, this.routine.get(week).get(dayIndex));
+            i++;
+        }
+        this.routine.put(week, temp);
     }
 
     public List<ExerciseRoutine> getExerciseListForDay(int week, int day) {

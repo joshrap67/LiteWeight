@@ -33,8 +33,9 @@
                     android:background="?android:selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
+                    android:tooltipText="Collapse"
                     android:visibility="gone"
-                    app:srcCompat="@drawable/cancel_icon"
+                    app:srcCompat="@drawable/return_icon"
                     tools:visibility="visible" />
 
             <ImageButton
@@ -45,6 +46,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/trash_icon"
+                    android:tooltipText="Delete exercise"
                     android:visibility="visible"
                     tools:visibility="visible" />
 
@@ -102,6 +104,7 @@
                 android:focusable="true"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
+                android:tooltipText="Save exercise"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

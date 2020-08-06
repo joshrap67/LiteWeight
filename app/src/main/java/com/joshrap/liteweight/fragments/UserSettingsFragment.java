@@ -23,6 +23,7 @@ public class UserSettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
+        // TODO new setting: "Auto Track Exercise Updates" -> whether changes in currentworkout auto change for exercise defaults
         View view = inflater.inflate(R.layout.fragment_user_settings, container, false);
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);

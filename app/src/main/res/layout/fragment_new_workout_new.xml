@@ -48,14 +48,15 @@
             android:id="@+id/empty_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/empty_workout_day"
-            android:layout_marginEnd="30dp"
             android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:text="@string/empty_workout_day"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/title_layout" />
+
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -63,42 +64,74 @@
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:scrollbars="vertical"
-            app:layout_constraintBottom_toTopOf="@id/add_exercises"
+            app:layout_constraintBottom_toTopOf="@+id/add_exercises"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title_layout">
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_exercises"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:drawableStart="@drawable/add_icon"
-            android:foreground="?android:selectableItemBackground"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:text="Add Exercises"
-            app:layout_constraintBottom_toTopOf="@id/relativeLayout"
+            android:src="@drawable/add_icon"
+            android:tooltipText="Add New Exercise"
+            app:backgroundTint="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recyclerView">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Mode"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+        <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@+id/add_radio_btn"
+                    android:layout_width="wrap_content"
+                    android:enabled="true"
+                    android:layout_height="wrap_content"
+                    android:text="Add" />
+
+            <RadioButton
+                    android:id="@+id/delete_radio_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete" />
+        </RadioGroup>
+
+    </LinearLayout>
 
     <RelativeLayout
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/add_exercises">
+            app:layout_constraintStart_toStartOf="parent">
+
 
         <LinearLayout
                 android:id="@+id/spinner_layout"
@@ -119,7 +152,6 @@
                     android:layout_weight="1"
                     android:popupBackground="@color/window_background" />
         </LinearLayout>
-
 
         <RelativeLayout
                 android:layout_width="wrap_content"
@@ -146,7 +178,7 @@
                         android:layout_marginEnd="10dp"
                         android:layout_weight=".67"
                         android:foreground="?android:selectableItemBackground"
-                        android:text="Add Week" />
+                        android:text="ADD WEEK" />
 
                 <Button
                         android:id="@+id/add_day_btn"
@@ -158,9 +190,8 @@
                         android:layout_marginEnd="10dp"
                         android:layout_weight=".67"
                         android:foreground="?android:selectableItemBackground"
-                        android:text="Add Day" />
+                        android:text="ADD DAY" />
             </LinearLayout>
         </RelativeLayout>
     </RelativeLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,10 +30,13 @@ import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.CognitoGateway;
+import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -192,15 +195,11 @@ public class SignInActivity extends AppCompatActivity {
         editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
         editor.apply();
 
-        AlertDialog succ = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
-                .setTitle("Success")
-                .setPositiveButton("Done", null)
-                .create();
-        succ.show();
+        getUser();
+
     }
 
     private void signInFailed(ResultStatus<CognitoResponse> resultStatus) {
-        System.out.println(resultStatus.getErrorMessage());
         AlertDialog f = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Failed :(")
                 .setMessage(resultStatus.getErrorMessage())
@@ -263,6 +262,7 @@ public class SignInActivity extends AppCompatActivity {
                 .setPositiveButton("Done", null)
                 .create();
         succ.show();
+        newUser();
     }
 
     private void signUpFailed(ResultStatus<Boolean> resultStatus) {
@@ -488,6 +488,44 @@ public class SignInActivity extends AppCompatActivity {
         } else {
             specialCharTV.setTextColor(getResources().getColor(R.color.password_constraint_successful_match));
         }
+    }
+
+    private void newUser() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            System.out.println("New user...");
+            ResultStatus<User> resultStatus = UserRepository.newUser(usernameInput.getText().toString().trim());
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (resultStatus.isSuccess()) {
+                    System.out.println("**************** USER NEW SUCCEEDED *****************");
+                    Globals.user = resultStatus.getData();
+                    launchWorkoutActivity();
+                } else {
+                    System.out.println("**************** USER NEW FAILED *****************");
+                    System.out.println(resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
+    private void getUser() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            System.out.println("Getting user...");
+            ResultStatus<User> resultStatus = UserRepository.getUser(null);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (resultStatus.isSuccess()) {
+                    System.out.println("**************** USER GET SUCCEEDED *****************");
+                    Globals.user = resultStatus.getData();
+                    launchWorkoutActivity();
+                } else {
+                    System.out.println("**************** USER GET FAILED *****************");
+                    System.out.println(resultStatus.getErrorMessage());
+                }
+            });
+        });
     }
 
     private void launchWorkoutActivity() {

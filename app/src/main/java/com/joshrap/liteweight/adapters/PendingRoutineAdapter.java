@@ -236,7 +236,6 @@ public class PendingRoutineAdapter extends
             valid = false;
         }
 
-
         if (setsInput.getText().toString().trim().isEmpty() ||
                 setsInput.getText().toString().length() > Variables.MAX_SETS_DIGITS) {
             setsLayout.setError("Invalid");
@@ -250,7 +249,7 @@ public class PendingRoutineAdapter extends
         }
 
         if (detailsInput.getText().toString().length() > Variables.MAX_DETAILS_LENGTH) {
-            detailsLayout.setError("Too long.");
+            detailsLayout.setError("Too many characters.");
             valid = false;
         }
 

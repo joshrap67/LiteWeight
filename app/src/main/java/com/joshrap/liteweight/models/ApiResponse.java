@@ -14,8 +14,6 @@ public class ApiResponse {
     private String jsonString;
 
     public ApiResponse(Map<String, Object> json){
-        System.out.println("gjkhhhhhhhhhhhhkggggggggggggggggggggggggggggggggggggggg");
-
         this.success = Boolean.parseBoolean((String) json.get(SUCCESS));
         this.jsonString = (String) json.get(RESULT_MESSAGE);
     }

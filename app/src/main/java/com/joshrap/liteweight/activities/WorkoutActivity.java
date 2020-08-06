@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 
@@ -35,7 +36,9 @@ import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.services.StopwatchService;
 import com.joshrap.liteweight.services.TimerService;
@@ -44,6 +47,8 @@ import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
@@ -63,10 +68,18 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     // save these as variables since the user can click around and it is ideal to preserve the view that they altered
     private ActiveWorkoutFragment currentWorkoutFragment;
     private MyExercisesFragment myExercisesFragment;
+    @Inject
+    public SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Injector.getInjector(this).inject(this);
+        // immediately store newly gotten id token. Will likely expire but just in case user closes app and reopens it immediately
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Variables.ID_TOKEN_KEY, Globals.idToken);
+        editor.apply();
+
         createNotificationChannel();
         setContentView(R.layout.workout_activity);
         timer = new Timer(this);
@@ -207,12 +220,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // Show back button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             if (!drawerListenerIsRegistered) {
-                toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onBackPressed();
-                    }
-                });
+                toggle.setToolbarNavigationClickListener(v -> onBackPressed());
                 drawerListenerIsRegistered = true;
             }
         } else {
