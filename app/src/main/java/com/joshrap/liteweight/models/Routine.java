@@ -78,11 +78,20 @@ public class Routine implements Model {
     }
 
     public List<ExerciseRoutine> getExerciseListForDay(int week, int day) {
+        // TODO sanity sort based on index?
         List<ExerciseRoutine> list = new ArrayList<>();
         for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
             list.add(this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal));
         }
         return list;
+    }
+
+    public void sortDay(int week, int day, int sortVal, Map<String, String> idToName) {
+        this.routine.get(week).get(day).sortDayMap(sortVal, idToName);
+    }
+
+    public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
+        this.routine.get(week).get(day).swapExerciseOrder(fromPosition, toPosition);
     }
 
     @Override
