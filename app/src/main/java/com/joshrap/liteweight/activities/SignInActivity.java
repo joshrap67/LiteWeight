@@ -178,7 +178,6 @@ public class SignInActivity extends AppCompatActivity {
             ResultStatus<CognitoResponse> resultStatus = CognitoGateway.initiateAuth(username, password);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     signInSuccess(resultStatus);
                 } else {
@@ -194,12 +193,14 @@ public class SignInActivity extends AppCompatActivity {
         editor.putString(Variables.REFRESH_TOKEN_KEY, resultStatus.getData().getRefreshToken());
         editor.putString(Variables.ID_TOKEN_KEY, resultStatus.getData().getIdToken());
         editor.apply();
-
+        Globals.refreshToken = resultStatus.getData().getRefreshToken();
+        Globals.idToken = resultStatus.getData().getIdToken();
         getUser();
 
     }
 
     private void signInFailed(ResultStatus<CognitoResponse> resultStatus) {
+        loadingDialog.dismiss();
         AlertDialog f = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogTheme)
                 .setTitle("Failed :(")
                 .setMessage(resultStatus.getErrorMessage())
@@ -516,6 +517,7 @@ public class SignInActivity extends AppCompatActivity {
             ResultStatus<User> resultStatus = UserRepository.getUser(null);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
+                loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     System.out.println("**************** USER GET SUCCEEDED *****************");
                     Globals.user = resultStatus.getData();

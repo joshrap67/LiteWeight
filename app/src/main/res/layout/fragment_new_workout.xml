@@ -2,147 +2,231 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.WorkoutActivity">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
-    <Switch
-            android:id="@+id/workout_type_switch"
-            android:layout_width="wrap_content"
+    <RelativeLayout
+            android:id="@+id/title_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/workout_type_switch"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_view_layout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <ScrollView
-            android:id="@+id/scrollView3"
+        <ImageButton
+                android:id="@+id/sort_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@drawable/sort_icon" />
+
+        <TextView
+                android:id="@+id/day_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="36sp"
+                tools:text="W1D2" />
+
+        <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:foreground="?android:selectableItemBackground"
+                android:text="@string/save" />
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/recycler_view_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/next_button"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/mode_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workout_type_switch">
+            app:layout_constraintTop_toBottomOf="@id/title_layout">
 
-        <LinearLayout
-                android:id="@+id/linearLayout"
+        <TextView
+                android:id="@+id/empty_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:text="@string/empty_workout_day"
+                android:textSize="24sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:orientation="vertical">
+                android:scrollbars="vertical">
 
-            <TextView
-                    android:id="@+id/workout_name_TV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/workout_name_title"
-                    android:textSize="30sp" />
+        </androidx.recyclerview.widget.RecyclerView>
 
-            <EditText
-                    android:id="@+id/workout_name_input"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="80dp"
-                    android:ems="10"
-                    android:gravity="center"
-                    android:inputType="textPersonName"
-                    android:maxLines="1" />
+    </RelativeLayout>
 
-            <TextView
-                    android:id="@+id/week_TV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/number_of_weeks"
-                    android:textSize="30sp"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-            <EditText
-                    android:id="@+id/week_input"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="80dp"
-                    android:ems="10"
-                    android:gravity="center"
-                    android:hint="@string/week_input_hint"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-            <TextView
-                    android:id="@+id/day_TV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/number_of_days"
-                    android:textSize="30sp"
-                    tools:visibility="visible" />
-
-            <EditText
-                    android:id="@+id/day_input"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="80dp"
-                    android:ems="10"
-                    android:gravity="center"
-                    android:hint="@string/fixed_workout_day_input_hint"
-                    android:imeOptions="actionDone"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    tools:visibility="visible" />
-
-            <ImageButton
-                    android:id="@+id/new_workout_help_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:tooltipText="@string/help"
-                    app:srcCompat="@drawable/help_icon" />
-        </LinearLayout>
-    </ScrollView>
-
-    <Button
-            android:id="@+id/next_button"
-            android:layout_width="wrap_content"
+    <RelativeLayout
+            android:id="@+id/mode_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/forward_button"
-            android:visibility="visible"
-            app:backgroundTint="@android:color/holo_green_light"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/relative_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scrollView3"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toBottomOf="@+id/recycler_view_layout">
 
+        <LinearLayout
+                android:id="@+id/custom_sort_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+            <TextView
+                    android:id="@+id/custom_sort_TV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Press and hold an exercise to drag it to the position you want. When you are finished, hit the button below."
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+            <Button
+                    android:id="@+id/done_sorting_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/done_msg" />
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_exercises"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/add_icon"
+                android:tooltipText="Add New Exercise"
+                app:backgroundTint="@color/colorPrimary" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+            android:id="@+id/mode_linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/relative_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycler_view_layout">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Mode"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+        <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@+id/add_radio_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/add_radio_msg" />
+
+            <RadioButton
+                    android:id="@+id/delete_radio_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delete_radio_msg" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <RelativeLayout
+            android:id="@+id/relative_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+                android:id="@+id/spinner_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <Spinner
+                    android:id="@+id/week_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:popupBackground="@color/window_background" />
+
+            <Spinner
+                    android:id="@+id/day_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:popupBackground="@color/window_background" />
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/spinner_layout"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="15dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                    android:id="@+id/add_week_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight=".67"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/add_week_msg" />
+
+            <Button
+                    android:id="@+id/add_day_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight=".67"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/add_day_msg" />
+        </LinearLayout>
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

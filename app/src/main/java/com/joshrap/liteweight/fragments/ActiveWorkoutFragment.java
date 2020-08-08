@@ -131,7 +131,7 @@ public class ActiveWorkoutFragment extends Fragment {
         rootView.addView(view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
-        mainExercisesTable = view.findViewById(R.id.main_table);
+        mainExercisesTable = view.findViewById(R.id.pick_exercises_recylcer_view);
         dayTV = view.findViewById(R.id.day_text_view);
         ConstraintLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
         ConstraintLayout timerContainer = view.findViewById(R.id.timer_container);

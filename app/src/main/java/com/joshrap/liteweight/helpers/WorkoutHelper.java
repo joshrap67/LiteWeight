@@ -20,4 +20,12 @@ public class WorkoutHelper {
         }
         return retVal;
     }
+
+    public static String generateDayTitleNew(int currentWeekIndex, int currentDayIndex) {
+        /*
+            Generates a day title for a workout.
+         */
+
+        return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
+    }
 }

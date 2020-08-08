@@ -28,7 +28,6 @@ public class Routine implements Model {
                         RoutineDayMap dayExerciseMap = new RoutineDayMap((Map<String, Object>) days.get(sortValue));
                         specificDay.put(Integer.parseInt(day), dayExerciseMap);
                     }
-                    // TODO sort here?
                     this.routine.put(Integer.parseInt(week), specificDay);
                 }
             }
@@ -100,11 +99,12 @@ public class Routine implements Model {
         if (this.routine != null) {
             for (Integer week : this.routine.keySet()) {
                 for (Integer day : this.routine.get(week).keySet()) {
-                    for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
-
-                    }
                     Map<String, Object> specificDay = new HashMap<>();
-//                    specificDay.put(day.toString(), this.routine.get(week).get(day).asMap());
+                    Map<String, Object> dayExercises = new HashMap<>();
+                    for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
+                        dayExercises.put(sortVal.toString(), this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal).asMap());
+                    }
+                    specificDay.put(day.toString(), dayExercises);
                     retVal.put(week.toString(), specificDay);
                 }
             }

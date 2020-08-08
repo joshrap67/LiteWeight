@@ -411,7 +411,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
          */
         View popupView = getLayoutInflater().inflate(R.layout.popup_add_exercise, null);
         addExercisesScrollView = popupView.findViewById(R.id.scroll_view);
-        pickExerciseTable = popupView.findViewById(R.id.main_table);
+        pickExerciseTable = popupView.findViewById(R.id.pick_exercises_recylcer_view);
         final Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
         SearchView searchView = popupView.findViewById(R.id.search_input);
         searchView.setOnSearchClickListener(new View.OnClickListener() {

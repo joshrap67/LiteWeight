@@ -56,6 +56,7 @@ public class SplashActivity extends AppCompatActivity {
                 } else {
                     System.out.println("**************** USER GET FAILED *****************");
                     System.out.println(resultStatus.getErrorMessage());
+                    launchSignInActivity();
                 }
             });
         });
