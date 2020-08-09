@@ -115,11 +115,11 @@ public class ActiveWorkoutFragment extends Fragment {
     @Override
     public void onStop() {
         // as soon as this fragment isn't visible, start any running clock as a service
-        if (timer.isTimerRunning()) {
+        if (timer != null && timer.isTimerRunning()) {
             timer.startService();
         }
 
-        if (stopwatch.isStopwatchRunning()) {
+        if (stopwatch != null && stopwatch.isStopwatchRunning()) {
             stopwatch.startService();
         }
         super.onStop();

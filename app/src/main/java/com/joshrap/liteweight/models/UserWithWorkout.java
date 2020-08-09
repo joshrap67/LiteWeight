@@ -14,6 +14,12 @@ public class UserWithWorkout {
 
     public UserWithWorkout(Map<String, Object> json) {
         this.user = new User((Map<String, Object>) json.get(RequestFields.USER));
-        this.workout = new Workout((Map<String, Object>) json.get(RequestFields.WORKOUT));
+        Map<String, Object> workoutJson = (Map<String, Object>) json.get(RequestFields.WORKOUT);
+        if (workoutJson.isEmpty()) {
+            // would mean the user has no workouts yet
+            this.workout = null;
+        } else {
+            this.workout = new Workout((Map<String, Object>) json.get(RequestFields.WORKOUT));
+        }
     }
 }
