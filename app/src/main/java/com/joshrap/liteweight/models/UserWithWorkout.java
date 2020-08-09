@@ -4,6 +4,9 @@ import com.joshrap.liteweight.network.RequestFields;
 
 import java.util.Map;
 
+import lombok.Data;
+
+@Data
 public class UserWithWorkout {
 
     private User user;

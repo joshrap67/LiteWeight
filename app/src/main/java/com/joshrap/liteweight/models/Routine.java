@@ -21,15 +21,16 @@ public class Routine implements Model {
             this.routine = new HashMap<>();
             for (String week : json.keySet()) {
                 Map<String, Object> days = (Map<String, Object>) json.get(week);
+                Map<Integer, RoutineDayMap> specificDay = new HashMap<>();
                 for (String day : days.keySet()) {
-                    Map<String, Object> exerciseList = (Map<String, Object>) ((Map<String, Object>) json.get(week)).get(day);
-                    Map<Integer, RoutineDayMap> specificDay = new HashMap<>();
-                    for (String sortValue : exerciseList.keySet()) {
-                        RoutineDayMap dayExerciseMap = new RoutineDayMap((Map<String, Object>) days.get(sortValue));
-                        specificDay.put(Integer.parseInt(day), dayExerciseMap);
-                    }
-                    this.routine.put(Integer.parseInt(week), specificDay);
+
+                    RoutineDayMap dayExerciseMap = new RoutineDayMap(
+                            (Map<String, Object>) ((Map<String, Object>) json
+                                    .get(week)).get(day));
+
+                    specificDay.put(Integer.parseInt(day), dayExerciseMap);
                 }
+                this.routine.put(Integer.parseInt(week), specificDay);
             }
         }
     }
@@ -77,7 +78,7 @@ public class Routine implements Model {
     }
 
     public List<ExerciseRoutine> getExerciseListForDay(int week, int day) {
-        // TODO sanity sort based on index?
+        // TODO sanity sort based on index
         List<ExerciseRoutine> list = new ArrayList<>();
         for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
             list.add(this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal));
@@ -98,15 +99,18 @@ public class Routine implements Model {
         HashMap<String, Object> retVal = new HashMap<>();
         if (this.routine != null) {
             for (Integer week : this.routine.keySet()) {
+                Map<String, Object> specificDay = new HashMap<>();
                 for (Integer day : this.routine.get(week).keySet()) {
-                    Map<String, Object> specificDay = new HashMap<>();
-                    Map<String, Object> dayExercises = new HashMap<>();
-                    for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
-                        dayExercises.put(sortVal.toString(), this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal).asMap());
+                    Map<String, Object> exercisesForDay = new HashMap<>();
+                    for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap()
+                            .keySet()) {
+                        exercisesForDay.put(sortVal.toString(),
+                                this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal)
+                                        .asMap());
                     }
-                    specificDay.put(day.toString(), dayExercises);
-                    retVal.put(week.toString(), specificDay);
+                    specificDay.put(day.toString(), exercisesForDay);
                 }
+                retVal.put(week.toString(), specificDay);
             }
         }
         return retVal;

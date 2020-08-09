@@ -2,7 +2,9 @@ package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -22,11 +28,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -35,25 +43,35 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.PendingRoutineAdapter;
+import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseRoutine;
 import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineDayMap;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.network.CognitoGateway;
+import com.joshrap.liteweight.network.repos.WorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import static android.os.Looper.getMainLooper;
 
 public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private RecyclerView routineRecyclerView;
@@ -82,6 +100,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private Button saveButton;
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
+    private ProgressDialog loadingDialog;
 
     @Nullable
     @Override
@@ -92,6 +111,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         pendingRoutine = new Routine();
         pendingRoutine.appendNewDay(0, 0);
         weekSpinnerValues = new ArrayList<>();
+        loadingDialog = new ProgressDialog(getActivity());
+        loadingDialog.setCancelable(false);
         allExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         activeUser = Globals.user; // TODO dependency injection?
@@ -224,6 +245,21 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             }
 
         }));
+        saveButton.setOnClickListener(v -> {
+            boolean validRoutine = true;
+            for (Integer week : pendingRoutine.getRoutine().keySet()) {
+                for (Integer day : pendingRoutine.getRoutine().get(week).keySet()) {
+                    if (pendingRoutine.getExerciseListForDay(week, day).isEmpty()) {
+                        validRoutine = false;
+                    }
+                }
+            }
+            if (validRoutine) {
+                promptSave();
+            } else {
+                Toast.makeText(getContext(), "Each day must have at least one exercise!", Toast.LENGTH_LONG).show();
+            }
+        });
         dayButton.setOnClickListener((v -> {
             if (addMode) {
                 // for now only allow for weeks to be appended not insert
@@ -350,6 +386,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
     }
 
     private void updateRoutineListUI() {
@@ -463,6 +502,92 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
                 })
                 .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
+    }
+
+    private void promptSave() {
+        View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_save_workout, null);
+        final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
+        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
+        workoutNameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (workoutNameInputLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    workoutNameInputLayout.setErrorEnabled(false);
+                    workoutNameInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Save workout")
+                .setView(popupView)
+                .setPositiveButton("Save", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setCancelable(false);
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener(view -> {
+                String workoutName = workoutNameInput.getText().toString().trim();
+                List<String> workoutNames = new ArrayList<>();
+                for (String workoutId : activeUser.getUserWorkouts().keySet()) {
+                    workoutNames.add(activeUser.getUserWorkouts().get(workoutId).getWorkoutName());
+                }
+                String errorMsg = InputHelper.validWorkoutName(workoutName, workoutNames);
+                if (errorMsg != null) {
+                    workoutNameInputLayout.setError(errorMsg);
+                } else {
+                    // no problems so go ahead and save
+                    alertDialog.dismiss();
+                    createWorkout(workoutName);
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void createWorkout(String workoutName) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.createWorkout(pendingRoutine, workoutName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    // TODO save and what not
+                    System.out.println(resultStatus.getData());
+                } else {
+                    showErrorMessage(resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
+    private void showLoadingDialog() {
+        loadingDialog.setMessage("Saving...");
+        loadingDialog.show();
+    }
+
+    private void showErrorMessage(String message) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Save workout error")
+                .setMessage(message)
+                .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
         // make the message font a little bigger than the default one provided by the alertdialog

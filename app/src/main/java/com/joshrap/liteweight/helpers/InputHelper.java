@@ -6,7 +6,7 @@ import com.joshrap.liteweight.imports.Variables;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class InputHelper {
@@ -31,7 +31,7 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validWorkoutName(String aName, ArrayList<String> nameList) {
+    public static String validWorkoutName(String aName, List<String> nameList) {
         /*
             Ensures that the name is valid and doesn't already exist in a given list. If no error, return null
          */

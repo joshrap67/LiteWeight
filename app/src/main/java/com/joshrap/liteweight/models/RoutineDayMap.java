@@ -34,7 +34,7 @@ public class RoutineDayMap implements Model {
         this.exerciseRoutineMap = new HashMap<>();
     }
 
-    Map<Integer, ExerciseRoutine> getExerciseRoutineMap() {
+    public Map<Integer, ExerciseRoutine> getExerciseRoutineMap() {
         return exerciseRoutineMap;
     }
 
@@ -98,7 +98,7 @@ public class RoutineDayMap implements Model {
         for (Integer sortVal : this.exerciseRoutineMap.keySet()) {
             retVal.put(sortVal.toString(), this.exerciseRoutineMap.get(sortVal).asMap());
         }
-        return null;
+        return retVal;
     }
 
 }
