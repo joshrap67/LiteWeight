@@ -374,7 +374,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         previewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExerciseHelper.launchVideo(exercise, getContext(), getActivity());
+//                ExerciseHelper.launchVideo(exercise, getContext(), getActivity());
             }
         });
         if (exercise.getUrl().isEmpty()) {

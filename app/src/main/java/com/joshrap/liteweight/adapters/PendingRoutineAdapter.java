@@ -208,7 +208,7 @@ public class PendingRoutineAdapter extends
                 // remove any errors
                 weightInputLayout.setError(null);
                 setsInputLayout.setError(null);
-                repsInput.setError(null);
+                repsInputLayout.setError(null);
                 detailsInput.setError(null);
                 // hide extra layout
                 weightButton.setVisibility(View.VISIBLE);

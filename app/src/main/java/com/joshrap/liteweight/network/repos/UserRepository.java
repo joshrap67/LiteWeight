@@ -12,8 +12,9 @@ import java.util.Map;
 
 public class UserRepository {
 
-    public static final String getUserAction = "getUserData";
-    public static final String newUserAction = "newUser";
+    private static final String getUserAction = "getUserData";
+    private static final String newUserAction = "newUser";
+    private static final String getUserWorkoutAction = "getUserWorkout";
 
     public static ResultStatus<User> getUser(String username) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
@@ -48,7 +49,7 @@ public class UserRepository {
     public static ResultStatus<UserWithWorkout> getUserAndCurrentWorkout() {
         ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(getUserAction, new HashMap<>(), true);
+        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(getUserWorkoutAction, new HashMap<>(), true);
 
         if (apiResponse.isSuccess()) {
             try {

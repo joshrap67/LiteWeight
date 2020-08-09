@@ -13,7 +13,7 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
@@ -45,13 +45,13 @@ public class SplashActivity extends AppCompatActivity {
     private void getUser() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            System.out.println("Getting user...");
-            ResultStatus<User> resultStatus = UserRepository.getUser(null);
+            ResultStatus<UserWithWorkout> resultStatus = UserRepository.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
                     System.out.println("**************** USER GET SUCCEEDED *****************");
-                    Globals.user = resultStatus.getData();
+                    Globals.user = resultStatus.getData().getUser();
+                    Globals.activeWorkout = resultStatus.getData().getWorkout();
                     launchWorkoutActivity();
                 } else {
                     System.out.println("**************** USER GET FAILED *****************");

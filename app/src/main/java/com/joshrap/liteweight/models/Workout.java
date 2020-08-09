@@ -5,6 +5,9 @@ import com.joshrap.liteweight.interfaces.Model;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+
+@Data
 public class Workout implements Model {
 
     public static final String WORKOUT_ID = "workoutId";

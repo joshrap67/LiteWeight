@@ -33,7 +33,7 @@ public class ExerciseRoutine implements Model {
         this.details = (String) json.get(DETAILS);
     }
 
-    public ExerciseRoutine(ExerciseUser exerciseUser, String exerciseId){
+    public ExerciseRoutine(ExerciseUser exerciseUser, String exerciseId) {
         this.completed = false;
         this.exerciseId = exerciseId;
         this.weight = exerciseUser.getDefaultWeight();

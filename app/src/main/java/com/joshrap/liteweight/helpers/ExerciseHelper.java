@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.helpers;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -16,22 +15,21 @@ import java.util.HashMap;
 
 public class ExerciseHelper {
 
-    public static void launchVideo(ExerciseEntity exerciseEntity, Context context, Activity activity) {
+    public static void launchVideo(String url, Context context) {
         /*
             Attempts to launch a video of a given exercise with either the built in video app (like Youtube) or browser
          */
-        String errorMsg = InputHelper.validUrl(exerciseEntity.getUrl());
+        String errorMsg = InputHelper.validUrl(url);
         if (errorMsg == null) {
-            String videoURL = exerciseEntity.getUrl();
-            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
-            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoURL));
+            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             try {
                 context.startActivity(appIntent);
             } catch (ActivityNotFoundException ex) {
                 context.startActivity(webIntent);
             }
         } else {
-            Toast.makeText(activity, "No valid URL found!", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "No valid URL found!", Toast.LENGTH_LONG).show();
         }
     }
 
