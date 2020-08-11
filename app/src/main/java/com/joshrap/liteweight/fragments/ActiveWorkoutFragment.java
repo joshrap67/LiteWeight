@@ -82,9 +82,12 @@ public class ActiveWorkoutFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if (currentWorkout == null) {
             FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
-            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).createWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
             return;
         }
+
+        currentWeekIndex = Globals.activeWorkout.getCurrentWeek();
+        currentDayIndex = Globals.activeWorkout.getCurrentDay();
 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(currentWorkout.getWorkoutName());
         recyclerView = view.findViewById(R.id.recycler_view);

@@ -484,14 +484,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return stopwatch;
     }
 
-    public void createWorkout() {
-        /*
-            Used when the user has no workouts, a button appears in the fragment that automatically takes them to the
-            workout creator
-         */
-        goToNewWorkout();
-    }
-
     public boolean fragModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified
