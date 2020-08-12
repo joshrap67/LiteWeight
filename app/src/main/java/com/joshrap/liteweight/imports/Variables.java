@@ -23,7 +23,10 @@ public class Variables {
             MAX_USERNAME_LENGTH = 40,
             MIN_PASSWORD_LENGTH = 8,
             MAX_STOPWATCH_TIME = 7200000,
-            DEFAULT_TIMER_VALUE = 60000;
+            DEFAULT_TIMER_VALUE = 60000,
+            ADD_MODE = 0,
+            DELETE_MODE = 1,
+            COPY_MODE = 2;
 
     public static final double KG = 0.45359237; // (kg / 1 lb)
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class ExerciseRoutine implements Model {
+public class ExerciseRoutine implements Model, Cloneable {
 
     public static final String COMPLETED = "completed";
     public static final String EXERCISE_ID = "exerciseId";
@@ -23,6 +23,22 @@ public class ExerciseRoutine implements Model {
     private int sets;
     private int reps;
     private String details;
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    public ExerciseRoutine(ExerciseRoutine toBeCopied) {
+        /*
+            Copy constructor used for deep copies
+         */
+        this.completed = toBeCopied.completed;
+        this.exerciseId = toBeCopied.exerciseId;
+        this.weight = toBeCopied.weight;
+        this.sets = toBeCopied.sets;
+        this.reps = toBeCopied.reps;
+        this.details = toBeCopied.details;
+    }
 
     public ExerciseRoutine(Map<String, Object> json) {
         this.completed = (boolean) json.get(COMPLETED);

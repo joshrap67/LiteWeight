@@ -32,7 +32,7 @@
     <string name="stopwatch_switch_description">Provides a simple stopwatch at the bottom of the current workout page. If the app is put in the background the stopwatch will continue to run.</string>
     <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout page. To change the timer duration, click the timer when it is not running.
         If the app is put in the background the timer will continue to run.</string>
-    <string name="save">Save</string>
+    <string name="save">SAVE</string>
     <string name="edit">Edit</string>
     <string name="select_focus_title">Select Focus(s)</string>
     <string name="new_exercise_title">New Exercise</string>
@@ -136,4 +136,8 @@
     <string name="done_msg">DONE</string>
     <string name="add_radio_msg">Add</string>
     <string name="delete_radio_msg">Delete</string>
+    <string name="copy_msg">Copy</string>
+    <string name="copy_day_msg">COPY DAY</string>
+    <string name="copy_week_msg">COPY WEEK</string>
+    <string name="empty_workout_day_delete_mode">No exercises for this day. Switch modes to add some.</string>
 </resources>

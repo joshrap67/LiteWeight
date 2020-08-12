@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/mode_layout"
+            app:layout_constraintBottom_toTopOf="@+id/fab_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title_layout">
@@ -79,11 +79,13 @@
     </RelativeLayout>
 
     <RelativeLayout
-            android:id="@+id/mode_layout"
+            android:id="@+id/fab_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:layout_constraintBottom_toTopOf="@+id/relative_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -115,14 +117,24 @@
                     android:text="@string/done_msg" />
         </LinearLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/add_exercises"
+        <FrameLayout
+                android:id="@+id/add_exercises_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:src="@drawable/add_icon"
-                android:tooltipText="Add New Exercise"
-                app:backgroundTint="@color/colorPrimary" />
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/add_exercises"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/add_icon"
+                    android:tooltipText="Add New Exercise"
+                    app:backgroundTint="@color/colorPrimary" />
+
+        </FrameLayout>
+
 
     </RelativeLayout>
 
@@ -162,6 +174,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/delete_radio_msg" />
+            <RadioButton
+                    android:id="@+id/copy_radio_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/copy_msg" />
         </RadioGroup>
 
     </LinearLayout>

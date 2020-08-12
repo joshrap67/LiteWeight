@@ -14,7 +14,7 @@ public class Routine implements Model {
 
     Map<Integer, Map<Integer, RoutineDayMap>> routine;
 
-    public Routine(Map<String, Object> json) {
+    Routine(Map<String, Object> json) {
         if (json == null) {
             this.routine = null;
         } else {
@@ -37,6 +37,14 @@ public class Routine implements Model {
 
     public Routine() {
         this.routine = new HashMap<>();
+    }
+
+    public Map<Integer, RoutineDayMap> getWeek(int week) {
+        return this.getRoutine().get(week);
+    }
+
+    public RoutineDayMap getDay(int week, int day) {
+        return this.getRoutine().get(week).get(day);
     }
 
     public void appendNewDay(int week, int day) {

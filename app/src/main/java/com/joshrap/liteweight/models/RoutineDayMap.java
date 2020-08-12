@@ -23,6 +23,15 @@ public class RoutineDayMap implements Model {
 
     private Map<Integer, ExerciseRoutine> exerciseRoutineMap;
 
+    public RoutineDayMap clone() {
+        RoutineDayMap retVal = new RoutineDayMap();
+        for (Integer sortVal : this.getExerciseRoutineMap().keySet()) {
+            ExerciseRoutine specificExerciseCloned = new ExerciseRoutine(this.getExerciseRoutineMap().get(sortVal));
+            retVal.getExerciseRoutineMap().put(sortVal, specificExerciseCloned);
+        }
+        return retVal;
+    }
+
     RoutineDayMap(Map<String, Object> json) {
         this.exerciseRoutineMap = new HashMap<>();
         for (String sortVal : json.keySet()) {

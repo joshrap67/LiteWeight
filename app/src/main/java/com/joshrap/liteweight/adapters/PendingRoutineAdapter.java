@@ -76,17 +76,19 @@ public class PendingRoutineAdapter extends
     private Routine pendingRoutine;
     private int currentWeek;
     private int currentDay;
+    private int mode;
     private boolean metricUnits;
 
     // Pass in the contact array into the constructor
     public PendingRoutineAdapter(List<ExerciseRoutine> exerciseRoutines, Map<String,
-            String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits) {
+            String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits, int mode) {
         this.exercises = exerciseRoutines;
         this.exerciseIdToName = exerciseIdToName;
         this.pendingRoutine = routine;
         this.currentWeek = currentWeek;
         this.currentDay = currentDay;
         this.metricUnits = metricUnits;
+        this.mode = mode;
     }
 
 
@@ -134,6 +136,8 @@ public class PendingRoutineAdapter extends
         final TextInputLayout weightInputLayout = holder.weightInputLayout;
 
         final ImageButton deleteButton = holder.deleteButton;
+        deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
+
         final LinearLayout extraInfo = holder.extraInfo;
         final ImageButton saveButton = holder.saveButton;
         final ImageButton cancelButton = holder.cancelButton;
@@ -168,7 +172,7 @@ public class PendingRoutineAdapter extends
             extraInfo.setVisibility(View.GONE);
             saveButton.setVisibility(View.GONE);
             cancelButton.setVisibility(View.GONE);
-            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
             // remove any errors
             weightInputLayout.setError(null);
             setsInputLayout.setError(null);
@@ -215,7 +219,7 @@ public class PendingRoutineAdapter extends
                 extraInfo.setVisibility(View.GONE);
                 saveButton.setVisibility(View.GONE);
                 cancelButton.setVisibility(View.GONE);
-                deleteButton.setVisibility(View.VISIBLE);
+                deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
                 exerciseTV.setVisibility(View.VISIBLE);
                 notifyDataSetChanged(); // avoids animation on closing the extra info
 
