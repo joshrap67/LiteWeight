@@ -7,8 +7,6 @@
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         android:focusable="true"
         android:focusableInTouchMode="true">
 
@@ -52,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/fab_layout"
+            app:layout_constraintBottom_toTopOf="@+id/add_button_mode_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title_layout">
@@ -79,17 +77,61 @@
     </RelativeLayout>
 
     <RelativeLayout
-            android:id="@+id/fab_layout"
+            android:id="@+id/add_button_mode_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_constraintBottom_toTopOf="@+id/relative_layout"
+            app:layout_constraintBottom_toTopOf="@+id/button_spinner_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/recycler_view_layout">
+
+        <LinearLayout
+                android:id="@+id/mode_linear_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/add_exercises"
+                android:layout_marginStart="16dp"
+                android:layout_centerVertical="true"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Mode"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+            <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                <RadioButton
+                        android:id="@+id/add_radio_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/add_radio_msg" />
+
+                <RadioButton
+                        android:id="@+id/delete_radio_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/delete_radio_msg" />
+
+                <RadioButton
+                        android:id="@+id/copy_radio_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/copy_msg" />
+            </RadioGroup>
+
+        </LinearLayout>
 
         <LinearLayout
                 android:id="@+id/custom_sort_layout"
@@ -117,74 +159,17 @@
                     android:text="@string/done_msg" />
         </LinearLayout>
 
-        <FrameLayout
-                android:id="@+id/add_exercises_container"
+        <Button
+                android:id="@+id/add_exercises"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/add_exercises"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/add_icon"
-                    android:tooltipText="Add New Exercise"
-                    app:backgroundTint="@color/colorPrimary" />
-
-        </FrameLayout>
-
+                android:text="@string/add_exercises" />
 
     </RelativeLayout>
 
-    <LinearLayout
-            android:id="@+id/mode_linear_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@+id/relative_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view_layout">
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="Mode"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-        <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
-
-            <RadioButton
-                    android:id="@+id/add_radio_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/add_radio_msg" />
-
-            <RadioButton
-                    android:id="@+id/delete_radio_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/delete_radio_msg" />
-            <RadioButton
-                    android:id="@+id/copy_radio_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/copy_msg" />
-        </RadioGroup>
-
-    </LinearLayout>
-
     <RelativeLayout
-            android:id="@+id/relative_layout"
+            android:id="@+id/button_spinner_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

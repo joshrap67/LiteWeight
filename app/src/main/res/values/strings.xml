@@ -17,7 +17,7 @@
     <string name="help">Help</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="ignore_weight">Ignore Weight</string>
-    <string name="empty_workout_day">No exercises for this day. Click the plus button below to add some.</string>
+    <string name="empty_workout_day">No exercises for this day. Click the button below to add some.</string>
     <string name="unsaved_workout_msg">You have a workout currently being created. If you quit now, all progress
     will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="popup_message_edit_workout">You have a workout currently being edited. If you quit now, all progress
@@ -92,7 +92,7 @@
     <string name="seconds_title">Seconds</string>
     <string name="time_picker_title">Pick Time</string>
     <string name="save_time">Save Time</string>
-    <string name="add_exercises">Add Exercises</string>
+    <string name="add_exercises">ADD EXERCISES</string>
     <string name="about_overview_title">App Overview</string>
     <string name="username_and_email_hint"><i>Username/Email</i></string>
     <string name="username_hint"><i>Username</i></string>

@@ -13,7 +13,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -27,6 +29,7 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.InputHelper;
@@ -42,7 +45,6 @@ import com.joshrap.liteweight.network.repos.WorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -125,10 +127,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final Menu menu = dropDownMenu.getMenu();
         final int editIndex = 0;
         final int renameIndex = 1;
-        final int resetIndex = 2;
-        final int deleteIndex = 3;
+        final int copyIndex = 2;
+        final int resetIndex = 3;
+        final int deleteIndex = 4;
         menu.add(0, editIndex, 0, "Edit Workout");
         menu.add(0, renameIndex, 0, "Rename Workout");
+        menu.add(0, copyIndex, 0, "Copy Current Workout");
         menu.add(0, resetIndex, 0, "Reset Statistics");
         menu.add(0, deleteIndex, 0, "Delete Workout");
 
@@ -145,6 +149,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     return true;
                 case deleteIndex:
                     promptDelete();
+                    return true;
+                case copyIndex:
+                    if (user.getUserWorkouts().size() < Variables.MAX_NUMBER_OF_WORKOUTS) {
+                        promptCopy();
+                    } else {
+                        showErrorMessage("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout");
+                    }
                     return true;
             }
             return false;
@@ -212,7 +223,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                         updateStatisticsTV();
                         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
                     } else {
-                        showErrorMessage(resultStatus.getErrorMessage());
+                        showErrorMessage("Switch Workout Error", resultStatus.getErrorMessage());
                         workoutListView.setItemChecked(0, true);
                     }
                 }
@@ -223,18 +234,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void showLoadingDialog() {
         loadingDialog.setMessage("Loading...");
         loadingDialog.show();
-    }
-
-    private void showErrorMessage(String message) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Error")
-                .setMessage(message)
-                .setPositiveButton("Ok", null)
-                .create();
-        alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void updateStatisticsTV() {
@@ -319,6 +318,96 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
         alertDialog.show();
 
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
+    }
+
+    private void promptCopy() {
+        View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
+        final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
+        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
+        workoutNameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (workoutNameInputLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    workoutNameInputLayout.setErrorEnabled(false);
+                    workoutNameInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(String.format("Copy \"%s\" as new workout", currentWorkoutMeta.getWorkoutName()))
+                .setView(popupView)
+                .setPositiveButton("Save", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setCancelable(false);
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener(view -> {
+                String workoutName = workoutNameInput.getText().toString().trim();
+                List<String> workoutNames = new ArrayList<>();
+                for (String workoutId : user.getUserWorkouts().keySet()) {
+                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                }
+                String errorMsg = InputHelper.validWorkoutName(workoutName, workoutNames);
+                if (errorMsg != null) {
+                    workoutNameInputLayout.setError(errorMsg);
+                } else {
+                    // no problems so go ahead and save
+                    alertDialog.dismiss();
+                    copyWorkout(workoutName);
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void copyWorkout(String workoutName) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.copyWorkout(currentWorkout, workoutName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Globals.user = resultStatus.getData().getUser();
+                    Globals.activeWorkout = resultStatus.getData().getWorkout();
+
+                    selectedWorkoutTV.setText(Globals.activeWorkout.getWorkoutName());
+                    // since we only sort by date last modified, just newly copied workout at top of list
+                    workoutNames.add(0, Globals.activeWorkout.getWorkoutName());
+                    arrayAdapter.notifyDataSetChanged();
+                    updateStatisticsTV();
+                    workoutListView.setItemChecked(0, true); // programmatically select current workout in list
+
+                } else {
+                    showErrorMessage("Copy Workout Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
+
+    private void showErrorMessage(String title, String message) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Ok", null)
+                .create();
+        alertDialog.show();
         // make the message font a little bigger than the default one provided by the alertdialog
         TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
         messageTV.setTextSize(18);

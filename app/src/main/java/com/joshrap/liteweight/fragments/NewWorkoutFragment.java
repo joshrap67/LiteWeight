@@ -30,7 +30,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -42,7 +41,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
@@ -73,30 +71,21 @@ import java.util.concurrent.Executors;
 import static android.os.Looper.getMainLooper;
 
 public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
-    private RecyclerView routineRecyclerView;
+    private RecyclerView routineRecyclerView, pickExerciseRecyclerView;
     private AlertDialog alertDialog;
-    private RecyclerView pickExerciseRecyclerView;
-    private TextView dayTitleTV, exerciseNotFoundTV;
+    private TextView dayTitleTV, exerciseNotFoundTV, emptyDayView;
     private String spinnerFocus;
-    private HashMap<String, ArrayList<ExerciseUser>> allExercises;
+    private HashMap<String, ArrayList<ExerciseUser>> allUserExercises; // focus -> exercises
     private Routine pendingRoutine;
-    private List<String> weekSpinnerValues;
-    private List<String> daySpinnerValues;
-    private int currentWeekIndex;
-    private int currentDayIndex;
-    private ArrayAdapter<String> weekAdapter;
-    private ArrayAdapter<String> dayAdapter;
-    private Spinner weekSpinner;
-    private Spinner daySpinner;
+    private List<String> weekSpinnerValues, daySpinnerValues;
+    private int currentWeekIndex, currentDayIndex, mode;
+    private ArrayAdapter<String> weekAdapter, dayAdapter;
+    private Spinner weekSpinner, daySpinner;
     private User activeUser;
-    private TextView emptyView;
-    private Button dayButton, weekButton;
-    private int mode;
+    private Button dayButton, weekButton, saveButton, addExercisesButton;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortButton;
-    private FloatingActionButton addExercisesButton;
     private LinearLayout radioLayout, customSortLayout;
-    private Button saveButton;
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
@@ -115,7 +104,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         weekSpinnerValues = new ArrayList<>();
         loadingDialog = new ProgressDialog(getActivity());
         loadingDialog.setCancelable(false);
-        allExercises = new HashMap<>();
+        allUserExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
         activeUser = Globals.user; // TODO dependency injection?
@@ -133,14 +122,14 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             Init all views and buttons when view is loaded onto screen
          */
         routineRecyclerView = view.findViewById(R.id.recycler_view);
-        emptyView = view.findViewById(R.id.empty_view);
+        emptyDayView = view.findViewById(R.id.empty_view);
         dayTitleTV = view.findViewById(R.id.day_text_view);
         weekButton = view.findViewById(R.id.add_week_btn);
         dayButton = view.findViewById(R.id.add_day_btn);
         customSortLayout = view.findViewById(R.id.custom_sort_layout);
         Button saveSortButton = view.findViewById(R.id.done_sorting_btn);
         radioLayout = view.findViewById(R.id.mode_linear_layout);
-        relativeLayout = view.findViewById(R.id.relative_layout);
+        relativeLayout = view.findViewById(R.id.button_spinner_layout);
         saveButton = view.findViewById(R.id.save_button);
 
         dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
@@ -152,22 +141,20 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             customSortLayout.setVisibility(View.GONE);
             saveButton.setVisibility(View.VISIBLE);
             sortButton.setVisibility(View.VISIBLE);
-            addExercisesButton.show();
+            addExercisesButton.setVisibility(View.VISIBLE);
             relativeLayout.setVisibility(View.VISIBLE);
             radioLayout.setVisibility(View.VISIBLE);
             updateRoutineListUI();
             // needed to avoid weird bug that happens when user tries to sort again by dragging
             customSortDispatcher.attachToRecyclerView(null);
         });
-
+        // set up mode options
         RadioButton addRadioButton = view.findViewById(R.id.add_radio_btn);
         addRadioButton.setOnClickListener(v -> {
             if (mode != Variables.ADD_MODE) {
                 // prevent useless function call if already in this mode
                 mode = Variables.ADD_MODE;
-                FrameLayout addExercisesContainer = view.findViewById(R.id.add_exercises_container);
-                addExercisesContainer.setVisibility(View.VISIBLE);
-                addExercisesButton.show();
+                addExercisesButton.setVisibility(View.VISIBLE);
                 setButtons();
                 updateButtonTexts();
                 updateRoutineListUI();
@@ -180,13 +167,10 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 mode = Variables.DELETE_MODE;
                 setButtons();
                 updateButtonTexts();
-                // since hide() sets the button to GONE and then everything will shift (can't setVisibility on this version of material)
-                FrameLayout addExercisesContainer = view.findViewById(R.id.add_exercises_container);
-                addExercisesContainer.setVisibility(View.INVISIBLE);
+                addExercisesButton.setVisibility(View.INVISIBLE);
                 updateRoutineListUI();
             }
         });
-
         RadioButton copyRadioButton = view.findViewById(R.id.copy_radio_btn);
         copyRadioButton.setOnClickListener(v -> {
             if (mode != Variables.COPY_MODE) {
@@ -194,14 +178,13 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 mode = Variables.COPY_MODE;
                 setButtons();
                 updateButtonTexts();
-                // since hide() sets the button to GONE and then everything will shift (can't setVisibility on this version of material)
-                FrameLayout addExercisesContainer = view.findViewById(R.id.add_exercises_container);
-                addExercisesContainer.setVisibility(View.VISIBLE);
+                addExercisesButton.setVisibility(View.VISIBLE);
                 updateRoutineListUI();
             }
         });
         addExercisesButton = view.findViewById(R.id.add_exercises);
         addExercisesButton.setOnClickListener(v -> popupAddExercises());
+        // set up sorting options
         sortButton = view.findViewById(R.id.sort_button);
         final PopupMenu dropDownMenu = new PopupMenu(getContext(), sortButton);
         final Menu menu = dropDownMenu.getMenu();
@@ -469,7 +452,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         saveButton.setVisibility(View.GONE);
         sortButton.setVisibility(View.GONE);
         relativeLayout.setVisibility(View.GONE);
-        addExercisesButton.hide();
+        addExercisesButton.setVisibility(View.GONE);
         radioLayout.setVisibility(View.GONE);
 
         CustomSortAdapter routineAdapter = new CustomSortAdapter(
@@ -509,7 +492,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                         alertDialog.dismiss();
                     } else {
                         // don't allow for week to be deleted if it is the only one
-                        Toast.makeText(getContext(), "Cannot delete only week from routine.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Cannot delete only week from workout.", Toast.LENGTH_LONG).show();
                         alertDialog.dismiss();
                     }
 
@@ -534,7 +517,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                         alertDialog.dismiss();
                     } else {
                         // don't allow for week to be deleted if it is the only one
-                        Toast.makeText(getContext(), "Cannot delete only day from routine.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Cannot delete only day from week.", Toast.LENGTH_LONG).show();
                         alertDialog.dismiss();
                     }
 
@@ -602,7 +585,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
             RoutineDayMap routineToBeCopied = pendingRoutine.getRoutine().get(currentWeekIndex).get(currentDayIndex).clone();
-            currentDayIndex++;
+            currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).size();
             pendingRoutine.getRoutine().get(currentWeekIndex).put(currentDayIndex, routineToBeCopied);
 
             daySpinner.setSelection(currentDayIndex);
@@ -670,18 +653,26 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         copyAsNewTV.setText(copyAsNewMsg);
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
-            RoutineDayMap routineToBeCopied = pendingRoutine.getRoutine().get(currentWeekIndex).get(currentDayIndex).clone();
-            currentDayIndex++;
-            pendingRoutine.getRoutine().get(currentWeekIndex).put(currentDayIndex, routineToBeCopied);
+            Map<Integer, RoutineDayMap> daysToBeCopied = pendingRoutine.getWeek(currentWeekIndex);
+            Map<Integer, RoutineDayMap> targetDays = new HashMap<>();
+            for (Integer day : daysToBeCopied.keySet()) {
+                targetDays.put(day, pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone());
+            }
 
+            // do the copy
+            currentWeekIndex = pendingRoutine.getRoutine().keySet().size();
+            pendingRoutine.getRoutine().put(currentWeekIndex, targetDays);
+            currentDayIndex = 0;
             daySpinner.setSelection(currentDayIndex);
+            weekSpinner.setSelection(currentWeekIndex);
             updateDaySpinnerValues();
+            updateWeekSpinnerValues();
             updateRoutineListUI();
             updateButtonTexts();
             alertDialog.dismiss();
         });
-        if (pendingRoutine.getRoutine().get(currentWeekIndex).size()
-                >= Variables.FIXED_WORKOUT_MAX_NUMBER_OF_DAYS) {
+        if (pendingRoutine.getRoutine().keySet().size()
+                >= Variables.MAX_NUMBER_OF_WEEKS) {
             copyAsNewTV.setVisibility(View.GONE);
             copyAsNewButton.setVisibility(View.GONE);
         }
@@ -820,12 +811,12 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         /*
             Used to check if the specific day has exercises in it or not. If not, show a textview alerting user
          */
-        emptyView.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
+        emptyDayView.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
                 ? View.VISIBLE : View.GONE);
         if (mode == Variables.DELETE_MODE) {
-            emptyView.setText(getString(R.string.empty_workout_day_delete_mode));
+            emptyDayView.setText(getString(R.string.empty_workout_day_delete_mode));
         } else {
-            emptyView.setText(getString(R.string.empty_workout_day));
+            emptyDayView.setText(getString(R.string.empty_workout_day));
         }
     }
 
@@ -838,18 +829,18 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
         final Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
-        allExercises = new HashMap<>();
+        allUserExercises = new HashMap<>();
         ArrayList<String> focusList = new ArrayList<>();
         for (String exerciseId : activeUser.getUserExercises().keySet()) {
             ExerciseUser exerciseUser = activeUser.getUserExercises().get(exerciseId);
             Map<String, Boolean> focuses = exerciseUser.getFocuses();
             for (String focus : focuses.keySet()) {
-                if (!allExercises.containsKey(focus)) {
+                if (!allUserExercises.containsKey(focus)) {
                     // focus hasn't been added before
                     focusList.add(focus);
-                    allExercises.put(focus, new ArrayList<>());
+                    allUserExercises.put(focus, new ArrayList<>());
                 }
-                allExercises.get(focus).add(exerciseUser);
+                allUserExercises.get(focus).add(exerciseUser);
             }
         }
 
@@ -857,8 +848,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         searchView.setOnSearchClickListener(v -> {
             // populate the list view with all exercises
             ArrayList<ExerciseUser> sortedExercises = new ArrayList<>();
-            for (String focus : allExercises.keySet()) {
-                for (ExerciseUser exercise : allExercises.get(focus)) {
+            for (String focus : allUserExercises.keySet()) {
+                for (ExerciseUser exercise : allUserExercises.get(focus)) {
                     if (!sortedExercises.contains(exercise)) {
                         sortedExercises.add(exercise);
                     }
@@ -912,7 +903,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         /*
             Given the current focus spinner value, list all the exercises associated with it.
          */
-        ArrayList<ExerciseUser> sortedExercises = new ArrayList<>(allExercises.get(spinnerFocus));
+        ArrayList<ExerciseUser> sortedExercises = new ArrayList<>(allUserExercises.get(spinnerFocus));
         Collections.sort(sortedExercises);
         addExerciseAdapter = new AddExerciseAdapter(sortedExercises);
         pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
