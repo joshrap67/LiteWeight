@@ -22,6 +22,7 @@ public class WorkoutRepository {
     private static final String copyWorkoutAction = "copyWorkout";
     private static final String renameWorkoutAction = "renameWorkout";
     private static final String deleteWorkoutAction = "deleteWorkout";
+    private static final String resetWorkoutStatisticsAction = "resetWorkoutStatistics";
     // TODO handle if user deletes day that the curentDay is currently on
 
     public static ResultStatus<UserWithWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
@@ -153,6 +154,34 @@ public class WorkoutRepository {
                 ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
                 if (apiResponseBody.isSuccess()) {
                     resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
+                    resultStatus.setSuccess(true);
+                } else {
+                    resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());
+                }
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to copy workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to copy workout.. 3");
+        }
+        return resultStatus;
+    }
+
+    public static ResultStatus<User> resetWorkoutStatistics(@NonNull String workoutId) {
+        ResultStatus<User> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(Workout.WORKOUT_ID, workoutId);
+
+        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(resetWorkoutStatisticsAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
+                if (apiResponseBody.isSuccess()) {
+                    resultStatus.setData(new User(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
                     resultStatus.setSuccess(true);
                 } else {
                     resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());

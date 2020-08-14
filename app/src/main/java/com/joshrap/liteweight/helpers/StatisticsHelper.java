@@ -35,6 +35,17 @@ public class StatisticsHelper {
         }
     }
 
+    public static String getFormattedPercentageCompleted(double percentageCompleted) {
+        String retVal;
+        if ((percentageCompleted == Math.floor(percentageCompleted)) && !Double.isInfinite(percentageCompleted)) {
+            // Percentage is a whole number. don't want to show any decimals
+            retVal = String.format("%s%%", String.format("%.0f", percentageCompleted));
+        } else {
+            retVal = String.format("%s%%", String.format("%.3f", percentageCompleted));
+        }
+        return retVal;
+    }
+
     public static void resetEntireWorkout(MetaEntity metaEntity, MetaViewModel metaViewModel) {
         /*
             Resets all statistics of a given workout.

@@ -33,6 +33,7 @@ import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.WorkoutAdapter;
 import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.helpers.StatisticsHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -208,14 +209,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
          */
         int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double percentage = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
-        String formattedPercentage;
-        if (percentage > 0.0 && percentage < 100.0) {
-            formattedPercentage = String.format("%.3f", percentage) + "%";
-        } else if (percentage == 0.0) {
-            formattedPercentage = "0%";
-        } else {
-            formattedPercentage = "100%";
-        }
+        String formattedPercentage = StatisticsHelper.getFormattedPercentageCompleted(percentage);
         int days = 0;
         for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
             days += currentWorkout.getRoutine().getRoutine().get(week).keySet().size();
@@ -238,8 +232,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setTitle("Reset Statistics")
                 .setMessage(message)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // TODO reset api
-                    updateStatisticsTV();
+                    resetWorkoutStatistics(currentWorkout.getWorkoutId());
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -471,6 +464,26 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     }
                 } else {
                     showErrorMessage("Delete Workout Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
+
+    }
+
+    private void resetWorkoutStatistics(String workoutId) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<User> resultStatus = WorkoutRepository.resetWorkoutStatistics(workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    user = resultStatus.getData();
+                    Globals.user = user;
+                    updateUI();
+                } else {
+                    showErrorMessage("Reset Workout Error", resultStatus.getErrorMessage());
                 }
             });
         });
