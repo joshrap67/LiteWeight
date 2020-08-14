@@ -266,7 +266,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             Prompt the user if they actually want to reset the selected workout's statistics
          */
         String message = "Are you sure you wish to reset the statistics for \"" +
-                Globals.currentWorkout.getWorkoutName() + "\"?\n\n" +
+                Globals.activeWorkout.getWorkoutName() + "\"?\n\n" +
                 "Doing so will reset the times completed and the percentage of exercises completed.";
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Reset Statistics")
@@ -288,8 +288,27 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             Prompt the user if they want to rename the current workout
          */
         View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_rename_workout, null);
-        final EditText renameInput = popupView.findViewById(R.id.rename_workout_input);
+        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+        renameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (workoutNameInputLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    workoutNameInputLayout.setErrorEnabled(false);
+                    workoutNameInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Rename \"" + currentWorkout.getWorkoutName() + "\"")
                 .setView(popupView)
@@ -303,16 +322,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 String newName = renameInput.getText().toString().trim();
                 String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
                 if (errorMsg != null) {
-                    renameInput.setError(errorMsg);
+                    workoutNameInputLayout.setError(errorMsg);
                 } else {
-                    workoutNames.remove(oldName);
-                    workoutNames.add(0, newName);
-                    selectedWorkoutTV.setText(newName);
-                    arrayAdapter.notifyDataSetChanged();
-
-                    Globals.currentWorkout.setWorkoutName(newName);
-                    // todo rename api
                     alertDialog.dismiss();
+                    renameWorkout(workoutNameToId.get(currentWorkout.getWorkoutName()), newName, oldName);
                 }
             });
         });
@@ -349,10 +362,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle(String.format("Copy \"%s\" as new workout", currentWorkoutMeta.getWorkoutName()))
                 .setView(popupView)
-                .setPositiveButton("Save", null)
+                .setPositiveButton("Copy", null)
                 .setNegativeButton("Cancel", null)
                 .create();
-        alertDialog.setCancelable(false);
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
@@ -374,6 +386,51 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
+    private void promptDelete() {
+        /*
+            Prompt user if they actually want to delete the currently selected workout
+         */
+        String message = "Are you sure you wish to permanently delete \"" + currentWorkout.getWorkoutName() + "\"?" +
+                "\n\nIf so, all statistics for it will also be deleted.";
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Delete Workout")
+                .setMessage(message)
+                .setPositiveButton("Yes", (dialog, which) -> deleteWorkout(currentWorkout.getWorkoutId()))
+                .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
+    }
+
+    private void renameWorkout(String workoutId, String newWorkoutName, String oldWorkoutName) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<User> resultStatus = WorkoutRepository.renameWorkout(workoutId, newWorkoutName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Globals.user = resultStatus.getData();
+                    Globals.activeWorkout.setWorkoutName(newWorkoutName);
+
+                    selectedWorkoutTV.setText(newWorkoutName);
+                    workoutNameToId.remove(oldWorkoutName);
+                    workoutNameToId.put(newWorkoutName, workoutId);
+                    // since we only sort by date last modified, just newly copied workout at top of list
+                    workoutNames.remove(oldWorkoutName);
+                    workoutNames.add(0, newWorkoutName);
+                    arrayAdapter.notifyDataSetChanged();
+                    updateStatisticsTV();
+                } else {
+                    showErrorMessage("Rename Workout Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
     private void copyWorkout(String workoutName) {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
@@ -384,7 +441,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     Globals.user = resultStatus.getData().getUser();
-                    Globals.activeWorkout = resultStatus.getData().getWorkout();
+
+                    currentWorkout = resultStatus.getData().getWorkout();
+                    Globals.activeWorkout = currentWorkout;
+                    currentWorkoutMeta = resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId());
 
                     selectedWorkoutTV.setText(Globals.activeWorkout.getWorkoutName());
                     // since we only sort by date last modified, just newly copied workout at top of list
@@ -400,6 +460,40 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
+    private void deleteWorkout(String workoutId) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.deleteWorkout(workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Globals.user = resultStatus.getData().getUser();
+                    if (resultStatus.getData().getWorkout() == null) {
+                        // means there are no workouts left, so change view to tell user to create a workout
+                        resetFragment();
+                    } else {
+                        workoutNames.remove(Globals.activeWorkout.getWorkoutName());
+                        workoutNameToId.remove(workoutId);
+
+                        currentWorkout = resultStatus.getData().getWorkout();
+                        Globals.activeWorkout = currentWorkout;
+                        currentWorkoutMeta = resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId());
+
+                        workoutNames.remove(Globals.activeWorkout.getWorkoutName());
+                        workoutNames.add(0, Globals.activeWorkout.getWorkoutName());
+                        arrayAdapter.notifyDataSetChanged();
+                        selectedWorkoutTV.setText(Globals.activeWorkout.getWorkoutName());
+                        updateStatisticsTV();
+                    }
+                } else {
+                    showErrorMessage("Delete Workout Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
+
+    }
 
     private void showErrorMessage(String title, String message) {
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -413,28 +507,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         messageTV.setTextSize(18);
     }
 
-    private void promptDelete() {
+    private void resetFragment() {
         /*
-            Prompt user if they actually want to delete the currently selected workout
+            Resets the current fragment. Used after the workout is successfully created
          */
-        String message = "Are you sure you wish to permanently delete \"" + currentWorkout.getWorkoutName() + "\"?" +
-                "\n\nIf so, all statistics for it will also be deleted.";
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Delete Workout")
-                .setMessage(message)
-                .setPositiveButton("Yes", (dialog, which) -> deleteWorkout())
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
-    }
-
-    private void deleteWorkout() {
-        /*
-            Deletes the currently selected workout from the DB by using an async task
-         */
-
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }
 }
