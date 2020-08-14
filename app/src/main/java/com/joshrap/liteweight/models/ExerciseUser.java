@@ -26,13 +26,13 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
     private double defaultWeight; // stored in lbs
     private int defaultSets;
     private int defaultReps;
-    private String exerciseId;
+    private String exerciseId; // NOT EVER SENT BACK TO BACKEND, IS A VAR TO MAKE THINGS EASIER
     private String defaultNote;
     private String videoUrl;
     @Setter(AccessLevel.NONE)
     private Map<String, Boolean> focuses;
     @Setter(AccessLevel.NONE)
-    private Map<String, String> workouts; // id to workout name that this exericse is apart of
+    private Map<String, String> workouts; // id to workout name that this exercise is apart of
 
 
     public ExerciseUser(Map<String, Object> json, String exerciseId) {
@@ -64,9 +64,9 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
             this.workouts = null;
         } else {
             this.workouts = new HashMap<>();
-//            for (String workoutId : json.keySet()) {
-//                this.workouts.put(workoutId, (String) json.get(Workout.WORKOUT_NAME));
-//            }
+            for (String workoutId : json.keySet()) {
+                this.workouts.put(workoutId, (String) json.get(workoutId));
+            }
         }
     }
 

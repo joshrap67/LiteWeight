@@ -511,6 +511,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return null;
     }
 
+    public void finishCreateWorkout() {
+        /*
+            Called by the new workout fragment once a workout is successfully made. It destroys that fragment and handles
+            the back stack appropriately.
+         */
+        showPopupFlag = false;
+        onBackPressed();
+    }
+
     // region Navigation Methods
     public void goToCurrentWorkout() {
         if (fragmentStack.contains(Variables.CURRENT_WORKOUT_TITLE)) {

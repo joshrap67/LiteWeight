@@ -746,9 +746,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    // TODO save and what not
                     Globals.user = resultStatus.getData().getUser();
                     Globals.activeWorkout = resultStatus.getData().getWorkout();
+                    ((WorkoutActivity) getActivity()).finishCreateWorkout();
                 } else {
                     showErrorMessage(resultStatus.getErrorMessage());
                 }

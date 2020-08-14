@@ -23,8 +23,10 @@ public class WorkoutUser implements Model {
     private Integer timesCompleted;
     private Double averageExercisesCompleted;
     private Integer totalExercisesSum;
+    private String workoutId;
 
-    public WorkoutUser(Map<String, Object> json) {
+    WorkoutUser(Map<String, Object> json, String workoutId) {
+        this.workoutId = workoutId;
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.dateLast = (String) json.get(DATE_LAST);
         this.timesCompleted = (int) json.get(TIMES_COMPLETED);
@@ -40,5 +42,32 @@ public class WorkoutUser implements Model {
         retVal.put(AVERAGE_EXERCISES_COMPLETED, this.averageExercisesCompleted);
         retVal.put(TOTAL_EXERCISES_SUM, this.totalExercisesSum);
         return retVal;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        // null check
+        if (other == null) {
+            return false;
+        }
+
+        // reflexive check
+        if (this == other) {
+            return true;
+        }
+
+        return (other instanceof WorkoutUser) && (((WorkoutUser) other).getWorkoutId().equals(this.getWorkoutId()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + workoutName.hashCode();
+        result = 31 * result + dateLast.hashCode();
+        result = 31 * result + timesCompleted.hashCode();
+        result = 31 * result + averageExercisesCompleted.hashCode();
+        result = 31 * result + totalExercisesSum.hashCode();
+        result = 31 * result + workoutId.hashCode();
+        return result;
     }
 }

@@ -117,7 +117,7 @@ public class User implements Model {
             this.userWorkouts = new HashMap<>();
             for (String workoutId : json.keySet()) {
                 this.userWorkouts.put(workoutId, new WorkoutUser(
-                        (Map<String, Object>) json.get(workoutId)));
+                        (Map<String, Object>) json.get(workoutId), workoutId));
             }
         }
     }
