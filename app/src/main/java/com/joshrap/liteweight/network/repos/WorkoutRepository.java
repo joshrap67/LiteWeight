@@ -23,7 +23,7 @@ public class WorkoutRepository {
     private static final String renameWorkoutAction = "renameWorkout";
     private static final String deleteWorkoutAction = "deleteWorkout";
     private static final String resetWorkoutStatisticsAction = "resetWorkoutStatistics";
-    // TODO handle if user deletes day that the curentDay is currently on
+    private static final String editWorkoutAction = "editWorkout";
 
     public static ResultStatus<UserWithWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
         ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
@@ -49,7 +49,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to create workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to create workout.. 3");
+            resultStatus.setErrorMessage("Unable to create workout. 3");
         }
         return resultStatus;
     }
@@ -78,7 +78,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.. 3");
+            resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
         return resultStatus;
     }
@@ -107,7 +107,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to switch workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to switch workout.. 3");
+            resultStatus.setErrorMessage("Unable to switch workout. 3");
         }
         return resultStatus;
     }
@@ -136,7 +136,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.. 3");
+            resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
         return resultStatus;
     }
@@ -164,7 +164,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.. 3");
+            resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
         return resultStatus;
     }
@@ -192,7 +192,36 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.. 3");
+            resultStatus.setErrorMessage("Unable to copy workout. 3");
+        }
+        return resultStatus;
+    }
+
+    public static ResultStatus<UserWithWorkout> editWorkout(@NonNull String workoutId, @NonNull Workout workout) {
+        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(Workout.WORKOUT_ID, workoutId);
+        requestBody.put(RequestFields.WORKOUT, workout.asMap());
+
+        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(editWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
+                if (apiResponseBody.isSuccess()) {
+                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
+                    resultStatus.setSuccess(true);
+                } else {
+                    resultStatus.setErrorMessage("Unable to edit workout. 1" + apiResponseBody.getJsonString());
+                }
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to edit workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to edit workout. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to edit workout. 3");
         }
         return resultStatus;
     }

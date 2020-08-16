@@ -21,6 +21,7 @@
 
         <service android:name=".services.TimerService" />
         <service android:name=".services.StopwatchService" />
+        <service android:name=".services.SyncRoutineService" />
 
         <activity
                 android:name=".activities.SignInActivity"

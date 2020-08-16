@@ -11,7 +11,7 @@ public class Variables {
             IGNORE_WEIGHT_VALUE = -1,
             MAX_NUMBER_OF_WORKOUTS = 40,
             MAX_NUMBER_OF_CUSTOM_EXERCISES = 200,
-            FIXED_WORKOUT_MAX_NUMBER_OF_DAYS = 7,
+            WORKOUT_MAX_NUMBER_OF_DAYS = 7,
             MAX_NUMBER_OF_WEEKS = 10,
             MAX_WORKOUT_NAME = 40,
             MAX_EXERCISE_NAME = 40,
@@ -68,5 +68,7 @@ public class Variables {
             INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time",
             INTENT_TIMER_TIME_ON_CLOCK = "Time_on_clock",
             INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked",
-            INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
+            INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked",
+            INTENT_ID_TOKEN = "idToken",
+            INTENT_REFRESH_TOKEN = "refreshToken";
 }

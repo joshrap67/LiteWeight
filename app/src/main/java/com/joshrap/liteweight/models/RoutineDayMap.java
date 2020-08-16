@@ -21,59 +21,59 @@ public class RoutineDayMap implements Model {
     public static final int weightSortDescending = 4;
     public static final int customSort = 5;
 
-    private Map<Integer, ExerciseRoutine> exerciseRoutineMap;
+    private Map<Integer, ExerciseRoutine> exercisesForDay;
 
     public RoutineDayMap clone() {
         RoutineDayMap retVal = new RoutineDayMap();
-        for (Integer sortVal : this.getExerciseRoutineMap().keySet()) {
-            ExerciseRoutine specificExerciseCloned = new ExerciseRoutine(this.getExerciseRoutineMap().get(sortVal));
-            retVal.getExerciseRoutineMap().put(sortVal, specificExerciseCloned);
+        for (Integer sortVal : this.getExercisesForDay().keySet()) {
+            ExerciseRoutine specificExerciseCloned = new ExerciseRoutine(this.getExercisesForDay().get(sortVal));
+            retVal.getExercisesForDay().put(sortVal, specificExerciseCloned);
         }
         return retVal;
     }
 
     RoutineDayMap(Map<String, Object> json) {
-        this.exerciseRoutineMap = new HashMap<>();
+        this.exercisesForDay = new HashMap<>();
         for (String sortVal : json.keySet()) {
-            this.exerciseRoutineMap.put(Integer.valueOf(sortVal), new ExerciseRoutine((Map<String, Object>) json.get(sortVal)));
+            this.exercisesForDay.put(Integer.valueOf(sortVal), new ExerciseRoutine((Map<String, Object>) json.get(sortVal)));
         }
     }
 
     RoutineDayMap() {
-        this.exerciseRoutineMap = new HashMap<>();
+        this.exercisesForDay = new HashMap<>();
     }
 
-    public Map<Integer, ExerciseRoutine> getExerciseRoutineMap() {
-        return exerciseRoutineMap;
+    public Map<Integer, ExerciseRoutine> getExercisesForDay() {
+        return exercisesForDay;
     }
 
     void insertNewExercise(ExerciseRoutine exerciseRoutine) {
-        this.exerciseRoutineMap.put(this.exerciseRoutineMap.keySet().size(), exerciseRoutine);
+        this.exercisesForDay.put(this.exercisesForDay.keySet().size(), exerciseRoutine);
     }
 
     void deleteExercise(String exerciseId) {
         int index = -1;
-        for (Integer sortVal : this.exerciseRoutineMap.keySet()) {
-            if (this.exerciseRoutineMap.get(sortVal).getExerciseId().equals(exerciseId)) {
+        for (Integer sortVal : this.exercisesForDay.keySet()) {
+            if (this.exercisesForDay.get(sortVal).getExerciseId().equals(exerciseId)) {
                 index = sortVal;
             }
         }
-        this.exerciseRoutineMap.remove(index);
+        this.exercisesForDay.remove(index);
         balanceMap();
     }
 
     private void balanceMap() {
         int i = 0;
         Map<Integer, ExerciseRoutine> temp = new HashMap<>();
-        for (Integer sortVal : this.exerciseRoutineMap.keySet()) {
-            temp.put(i, this.exerciseRoutineMap.get(sortVal));
+        for (Integer sortVal : this.exercisesForDay.keySet()) {
+            temp.put(i, this.exercisesForDay.get(sortVal));
             i++;
         }
-        this.exerciseRoutineMap = temp;
+        this.exercisesForDay = temp;
     }
 
     void sortDayMap(int sortVal, Map<String, String> idToName) {
-        List<ExerciseRoutine> list = new LinkedList(exerciseRoutineMap.values());
+        List<ExerciseRoutine> list = new LinkedList(exercisesForDay.values());
         if (sortVal == alphabeticalSortAscending) {
             Collections.sort(list, (o1, o2) -> idToName.get(o1.getExerciseId()).compareTo(idToName.get(o2.getExerciseId())));
         } else if (sortVal == alphabeticalSortDescending) {
@@ -90,22 +90,22 @@ public class RoutineDayMap implements Model {
             temp.put(i, exerciseRoutine);
             i++;
         }
-        this.exerciseRoutineMap = temp;
+        this.exercisesForDay = temp;
     }
 
     void swapExerciseOrder(int i, int j) {
-        ExerciseRoutine fromExercise = this.exerciseRoutineMap.get(i);
-        ExerciseRoutine toExercise = this.exerciseRoutineMap.get(j);
-        this.exerciseRoutineMap.put(j, fromExercise);
-        this.exerciseRoutineMap.put(i, toExercise);
+        ExerciseRoutine fromExercise = this.exercisesForDay.get(i);
+        ExerciseRoutine toExercise = this.exercisesForDay.get(j);
+        this.exercisesForDay.put(j, fromExercise);
+        this.exercisesForDay.put(i, toExercise);
         balanceMap();
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        for (Integer sortVal : this.exerciseRoutineMap.keySet()) {
-            retVal.put(sortVal.toString(), this.exerciseRoutineMap.get(sortVal).asMap());
+        for (Integer sortVal : this.exercisesForDay.keySet()) {
+            retVal.put(sortVal.toString(), this.exercisesForDay.get(sortVal).asMap());
         }
         return retVal;
     }

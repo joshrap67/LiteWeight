@@ -69,7 +69,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         // TODO injection or view model for these two???
         currentWorkout = Globals.activeWorkout;
         user = Globals.user;
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
 
         View view;
         if (currentWorkout == null) {
@@ -124,7 +123,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final int deleteIndex = 4;
         menu.add(0, editIndex, 0, "Edit Workout");
         menu.add(0, renameIndex, 0, "Rename Workout");
-        menu.add(0, copyIndex, 0, "Copy Current Workout");
+        menu.add(0, copyIndex, 0, "Copy Workout");
         menu.add(0, resetIndex, 0, "Reset Statistics");
         menu.add(0, deleteIndex, 0, "Delete Workout");
 
@@ -211,8 +210,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         double percentage = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsHelper.getFormattedPercentageCompleted(percentage);
         int days = 0;
-        for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
-            days += currentWorkout.getRoutine().getRoutine().get(week).keySet().size();
+        for (int week = 0; week < currentWorkout.getRoutine().size(); week++) {
+            days += currentWorkout.getRoutine().getWeek(week).size();
         }
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
@@ -246,7 +245,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         /*
             Prompt the user if they want to rename the current workout
          */
-        View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_rename_workout, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_rename_workout, null);
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
@@ -300,7 +299,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptCopy() {
-        View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
         final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
         workoutNameInput.addTextChangedListener(new TextWatcher() {

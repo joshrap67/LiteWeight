@@ -26,6 +26,8 @@ public class User implements Model {
     public static final String FRIENDS = "friends";
     public static final String FRIENDS_OF = "friendsOf";
     public static final String RECEIVED_WORKOUTS = "receivedWorkouts";
+    public static final String UPDATE_DEFAULT_WEIGHT_ON_SAVE = "updateDefaultWeightOnSave";
+    public static final String UPDATE_DEFAULT_WEIGHT_ON_RESTART = "updateDefaultWeightOnRestart";
 
     private String username;
     private String icon;
@@ -34,6 +36,8 @@ public class User implements Model {
     private String currentWorkout;
     private int workoutsSent;
     private boolean privateAccount;
+    private boolean updateDefaultWeightOnSave;
+    private boolean updateDefaultWeightOnRestart;
     private int notificationPreferences;
 
     @Setter(AccessLevel.NONE)
@@ -55,6 +59,8 @@ public class User implements Model {
         this.setPremiumToken((String) json.get(PREMIUM_TOKEN));
         this.setCurrentWorkout((String) json.get(CURRENT_WORKOUT));
         this.setWorkoutsSent((Integer) json.get(WORKOUTS_SENT));
+        this.setUpdateDefaultWeightOnRestart((Boolean) json.get(UPDATE_DEFAULT_WEIGHT_ON_RESTART));
+        this.setUpdateDefaultWeightOnSave((Boolean) json.get(UPDATE_DEFAULT_WEIGHT_ON_SAVE));
         this.setPrivateAccount((Boolean) json.get(PRIVATE_ACCOUNT));
         this.setNotificationPreferences((Integer) json.get(NOTIFICATION_PREFERENCES));
         this.setUserWorkouts((Map<String, Object>) json.get(WORKOUTS));
@@ -138,6 +144,8 @@ public class User implements Model {
         retVal.put(FRIENDS, this.getFriendsMap());
         retVal.put(FRIENDS_OF, this.friendsOf);
         retVal.put(RECEIVED_WORKOUTS, this.receivedWorkouts);
+        retVal.put(UPDATE_DEFAULT_WEIGHT_ON_SAVE, this.updateDefaultWeightOnSave);
+        retVal.put(UPDATE_DEFAULT_WEIGHT_ON_RESTART, this.updateDefaultWeightOnRestart);
         return retVal;
     }
 

@@ -166,16 +166,17 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 //                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
 //                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
 //                }
-            } else if (currentFragment instanceof EditWorkoutFragment) {
-                if (((EditWorkoutFragment) currentFragment).isEditing()) {
-                    // workout is being edited, so give user option to prevent navigation change
-                    showUnsavedChangesEditWorkoutPopup(true);
-                    return;
-                } else {
-                    // can't ever go back to the edit workout fragment since it's only accessible within the my workout fragment
-                    fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-                }
             }
+//            else if (currentFragment instanceof EditWorkoutFragment) {
+//                if (((EditWorkoutFragment) currentFragment)) {
+//                    // workout is being edited, so give user option to prevent navigation change
+//                    showUnsavedChangesEditWorkoutPopup(true);
+//                    return;
+//                } else {
+//                    // can't ever go back to the edit workout fragment since it's only accessible within the my workout fragment
+//                    fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
+//                }
+//            }
 
             goToCurrentWorkout();
             enableBackButton(false);
@@ -494,7 +495,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         } else if (aFragment instanceof NewWorkoutFragment) {
             retVal = true;
         } else if (aFragment instanceof EditWorkoutFragment) {
-            retVal = ((EditWorkoutFragment) aFragment).isEditing();
+            retVal = true;
         }
         return retVal;
     }
@@ -554,6 +555,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToNewWorkout() {
+        enableBackButton(true);
+        updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
+
         if (fragmentStack.contains(Variables.NEW_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
@@ -566,6 +570,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToEditWorkout() {
+        enableBackButton(true);
+        updateToolbarTitle(Globals.activeWorkout.getWorkoutName());
+
         if (fragmentStack.contains(Variables.EDIT_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
@@ -578,6 +585,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToMyWorkouts() {
+        updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
+
         if (fragmentStack.contains(Variables.MY_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);

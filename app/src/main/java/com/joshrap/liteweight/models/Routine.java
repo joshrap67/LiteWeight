@@ -35,6 +35,18 @@ public class Routine implements Model {
         }
     }
 
+    public Routine(Routine toBeCloned) {
+        // copy constructor
+        this.routine = new HashMap<>();
+        for (int week = 0; week < toBeCloned.size(); week++) {
+            Map<Integer, RoutineDayMap> exercisesForDay = new HashMap<>();
+            for (int day = 0; day < toBeCloned.getWeek(week).size(); day++) {
+                exercisesForDay.put(day, toBeCloned.getDay(week, day).clone());
+            }
+            this.routine.put(week, exercisesForDay);
+        }
+    }
+
     public Routine() {
         this.routine = new HashMap<>();
     }
@@ -53,6 +65,10 @@ public class Routine implements Model {
             this.getRoutine().put(week, new HashMap<>());
         }
         this.routine.get(week).put(day, dayExerciseMap);
+    }
+
+    public void putWeek(int week, Map<Integer, RoutineDayMap> days) {
+        this.routine.put(week, days);
     }
 
     public void insertExercise(int week, int day, ExerciseRoutine exerciseRoutine) {
@@ -88,8 +104,8 @@ public class Routine implements Model {
     public List<ExerciseRoutine> getExerciseListForDay(int week, int day) {
         // TODO sanity sort based on index
         List<ExerciseRoutine> list = new ArrayList<>();
-        for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap().keySet()) {
-            list.add(this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal));
+        for (Integer sortVal : this.routine.get(week).get(day).getExercisesForDay().keySet()) {
+            list.add(this.routine.get(week).get(day).getExercisesForDay().get(sortVal));
         }
         return list;
     }
@@ -102,6 +118,10 @@ public class Routine implements Model {
         this.routine.get(week).get(day).swapExerciseOrder(fromPosition, toPosition);
     }
 
+    public int size() {
+        return this.routine.size();
+    }
+
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
@@ -110,10 +130,10 @@ public class Routine implements Model {
                 Map<String, Object> specificDay = new HashMap<>();
                 for (Integer day : this.routine.get(week).keySet()) {
                     Map<String, Object> exercisesForDay = new HashMap<>();
-                    for (Integer sortVal : this.routine.get(week).get(day).getExerciseRoutineMap()
+                    for (Integer sortVal : this.routine.get(week).get(day).getExercisesForDay()
                             .keySet()) {
                         exercisesForDay.put(sortVal.toString(),
-                                this.routine.get(week).get(day).getExerciseRoutineMap().get(sortVal)
+                                this.routine.get(week).get(day).getExercisesForDay().get(sortVal)
                                         .asMap());
                     }
                     specificDay.put(day.toString(), exercisesForDay);

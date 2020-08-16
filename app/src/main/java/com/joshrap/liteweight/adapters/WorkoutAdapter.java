@@ -33,9 +33,10 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutUser> {
         }
         WorkoutUser currentExercise = workoutList.get(position);
 
-        TextView release = listItem.findViewById(android.R.id.text1);
-        release.setText(currentExercise.getWorkoutName());
+        TextView workoutNameTV = listItem.findViewById(android.R.id.text1);
+        workoutNameTV.setText(currentExercise.getWorkoutName());
+        workoutNameTV.setTextSize(17);
 
-        return release;
+        return workoutNameTV;
     }
 }

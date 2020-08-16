@@ -67,7 +67,7 @@ public class ActiveWorkoutFragment extends Fragment {
 
         View view;
         if (currentWorkout == null) {
-            ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight"); // empty so workout name doesn't flash once loaded
+            ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.default_layout, container, false);
 
         } else {
@@ -191,7 +191,6 @@ public class ActiveWorkoutFragment extends Fragment {
         /*
             Setup button listeners.
          */
-        Routine routine = currentWorkout.getRoutine();
         dayTV.setOnClickListener(v -> jumpDaysPopup());
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
@@ -201,18 +200,18 @@ public class ActiveWorkoutFragment extends Fragment {
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
-                currentDayIndex = routine.getRoutine().get(currentWeekIndex).keySet().size() - 1;
+                currentDayIndex = routine.getWeek(currentWeekIndex).size() - 1;
                 updateRoutineListUI();
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
         });
         forwardButton.setOnClickListener(v -> {
-            if (currentDayIndex + 1 < routine.getRoutine().get(currentWeekIndex).keySet().size()) {
+            if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).size()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
                 updateRoutineListUI();
-            } else if (currentWeekIndex + 1 < routine.getRoutine().keySet().size()) {
+            } else if (currentWeekIndex + 1 < routine.size()) {
                 // there are more weeks
                 currentDayIndex = 0;
                 currentWeekIndex++;
@@ -230,18 +229,17 @@ public class ActiveWorkoutFragment extends Fragment {
         /*
             Updates the visibility and icon of the navigation buttons depending on the current day.
          */
-        Routine routine = currentWorkout.getRoutine();
         if (currentDayIndex == 0 && currentWeekIndex == 0) {
             // means it's the first day in routine, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             forwardButton.setImageResource(R.drawable.next_icon);
-            if (currentWeekIndex + 1 == routine.getRoutine().keySet().size()) {
+            if (currentWeekIndex + 1 == routine.size() && routine.getWeek(currentWeekIndex).size() == 1) {
                 // a one day workout
                 forwardButton.setImageResource(R.drawable.restart_icon);
             }
-        } else if (currentWeekIndex + 1 == routine.getRoutine().keySet().size()
-                && currentDayIndex + 1 == routine.getRoutine().get(currentWeekIndex).keySet().size()) {
+        } else if (currentWeekIndex + 1 == routine.size()
+                && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).size()) {
             // last day, so show reset icon
             backButton.setVisibility(View.VISIBLE);
             // lil hacky, but don't want the ripple showing when the icons switch
@@ -249,7 +247,7 @@ public class ActiveWorkoutFragment extends Fragment {
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
             forwardButton.setImageResource(R.drawable.restart_icon);
-        } else if (currentWeekIndex != 0 && currentWeekIndex < routine.getRoutine().keySet().size()) {
+        } else if (currentWeekIndex != 0 && currentWeekIndex < routine.size()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -276,9 +274,9 @@ public class ActiveWorkoutFragment extends Fragment {
         /*
             Reset all of the exercises to being incomplete and then write to the database with these changes.
          */
-        for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
-            for (Integer day : currentWorkout.getRoutine().getRoutine().get(week).keySet()) {
-                for (ExerciseRoutine exerciseRoutine : currentWorkout.getRoutine().getExerciseListForDay(week, day)) {
+        for (int week = 0; week < routine.size(); week++) {
+            for (int day = 0; day < routine.getWeek(week).size(); day++) {
+                for (ExerciseRoutine exerciseRoutine : routine.getExerciseListForDay(week, day)) {
                     exerciseRoutine.setCompleted(false);
                 }
             }
@@ -297,8 +295,8 @@ public class ActiveWorkoutFragment extends Fragment {
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
-            for (Integer day : currentWorkout.getRoutine().getRoutine().get(week).keySet()) {
+        for (int week = 0; week < routine.size(); week++) {
+            for (int day = 0; day < routine.getWeek(week).size(); day++) {
                 if (week == currentWeekIndex && day == currentDayIndex) {
                     selectedVal = totalDays;
                 }
@@ -324,8 +322,8 @@ public class ActiveWorkoutFragment extends Fragment {
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
-                        for (Integer day : currentWorkout.getRoutine().getRoutine().get(week).keySet()) {
+                    for (int week = 0; week < routine.size(); week++) {
+                        for (int day = 0; day < routine.getWeek(week).size(); day++) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = week;
                                 currentDayIndex = day;
@@ -347,9 +345,9 @@ public class ActiveWorkoutFragment extends Fragment {
          */
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (Integer week : currentWorkout.getRoutine().getRoutine().keySet()) {
-            for (Integer day : currentWorkout.getRoutine().getRoutine().get(week).keySet()) {
-                for (ExerciseRoutine exerciseRoutine : currentWorkout.getRoutine().getExerciseListForDay(week, day)) {
+        for (int week = 0; week < routine.size(); week++) {
+            for (int day = 0; day < routine.getWeek(week).size(); day++) {
+                for (ExerciseRoutine exerciseRoutine : routine.getExerciseListForDay(week, day)) {
                     totalExercises++;
                     if (exerciseRoutine.isCompleted()) {
                         exercisesCompleted++;

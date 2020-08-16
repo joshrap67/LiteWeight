@@ -40,6 +40,18 @@ public class Workout implements Model {
         this.currentWeek = (Integer) json.get(CURRENT_WEEK);
     }
 
+    public Workout(Workout toBeCopied) {
+        // copy constructor
+        this.workoutId = toBeCopied.getWorkoutId();
+        this.workoutName = toBeCopied.getWorkoutName();
+        this.creationDate = toBeCopied.getCreationDate();
+        this.mostFrequentFocus = toBeCopied.getMostFrequentFocus();
+        this.creator = toBeCopied.getCreator();
+        this.currentDay = toBeCopied.getCurrentDay();
+        this.currentWeek = toBeCopied.getCurrentWeek();
+        this.routine = new Routine(toBeCopied.getRoutine());
+    }
+
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();

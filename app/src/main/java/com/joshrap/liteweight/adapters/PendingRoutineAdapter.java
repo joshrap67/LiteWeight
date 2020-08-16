@@ -98,7 +98,7 @@ public class PendingRoutineAdapter extends
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
-        View exerciseView = inflater.inflate(R.layout.row_exercise_pending_new, parent, false);
+        View exerciseView = inflater.inflate(R.layout.row_exercise_pending, parent, false);
 
         // Return a new holder instance
         return new ViewHolder(exerciseView);
