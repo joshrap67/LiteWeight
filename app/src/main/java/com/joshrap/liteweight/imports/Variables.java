@@ -52,11 +52,13 @@ public class Variables {
             MY_WORKOUT_TITLE = "My Workouts",
             NEW_WORKOUT_TITLE = "Create Workout",
             SETTINGS_TITLE = "Settings",
+            EXERCISE_DETAILS_TITLE ="Exercise Details",
             EDIT_WORKOUT_TITLE = "Edit Workout",
             TIMER_RUNNING_CHANNEL = "timer_running_channel",
             TIMER_FINISHED_CHANNEL = "timer_finished_channel",
             STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
             WORKOUT_TYPE_PREF_KEY = "WorkoutType",
+            EXERCISE_ID = "exerciseId",
             WORKOUT_FIXED = "FixedWorkout",
             WORKOUT_FLEXIBLE = "FlexibleWorkout";
 

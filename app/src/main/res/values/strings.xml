@@ -140,4 +140,15 @@
     <string name="copy_day_msg">COPY DAY</string>
     <string name="copy_week_msg">COPY WEEK</string>
     <string name="empty_workout_day_delete_mode">No exercises for this day. Switch modes to add some.</string>
+    <string name="default_weight_help_msg">The default weight of this exercise is the weight that will be defaulted to whenever you add this exercise to a new workout or existing one.
+        \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
+        \n\nIf enabled in your user settings, this default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.
+    </string>
+    <string name="default_sets_reps_help_msg">Reps is short for “repetitions” and is the number of times you complete an exercise in a single cycle. This cycle is called a “set”. The default sets and reps are the values that will be defaulted to whenever you add this exercise to a new workout or existing one.
+        \n\nChanging these values will NOT update any sets/reps in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired sets/reps.
+    </string>
+    <string name="default_details_help_msg">
+        Details are short messages that you can leave for specific exercises to aide in tracking your workouts. Perhaps you may wish to leave a detail that says to only do this exercise with free weights, or only to do this exercise outside. The possibilities are endless.
+        \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
+    </string>
 </resources>

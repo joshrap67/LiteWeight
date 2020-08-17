@@ -15,9 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -27,7 +25,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -41,11 +38,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.PendingRoutineAdapter;
-import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
@@ -96,8 +91,14 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_new_workout, container, false);
-//        pendingRoutine = new Routine(Globals.activeWorkout.getRoutine());
+        View view = inflater.inflate(R.layout.fragment_new_workout, container, false); // TODO separate layout?
+
+        workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
+        pendingRoutine = workout.getRoutine();
+        activeUser = Globals.user; // TODO dependency injection?
+
+        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
         currentDayIndex = 0;
         currentWeekIndex = 0;
         weekSpinnerValues = new ArrayList<>();
@@ -106,10 +107,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         allUserExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
-
-        workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
-        pendingRoutine = workout.getRoutine();
-        activeUser = Globals.user; // TODO dependency injection?
 
         exerciseIdToName = new HashMap<>();
         for (String id : activeUser.getUserExercises().keySet()) {
@@ -688,7 +685,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
     private void saveWorkout() {
         // TODO check if the workout actually changed?
-        System.out.println(pendingRoutine);
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {

@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -95,7 +94,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
-
         }
 
         initViews();
@@ -546,33 +544,51 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
         }
         // keeping the fragment as a variable to ensure the state is maintained (e.g. user can click to filter default, want to keep that)
-        if (myExercisesFragment == null) {
-            myExercisesFragment = new MyExercisesFragment();
-        }
+//        if (myExercisesFragment == null) {
+//
+//        }
+        myExercisesFragment = new MyExercisesFragment();
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 myExercisesFragment, Variables.MY_EXERCISES_TITLE)
                 .commit();
     }
 
-    public void goToNewWorkout() {
-        enableBackButton(true);
-        updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
+    public void goToExerciseDetails(String exerciseId) {
+        if (fragmentStack.contains(Variables.EXERCISE_DETAILS_TITLE)) {
+            fragmentStack.remove(Variables.EXERCISE_DETAILS_TITLE);
+            fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
+        } else {
+            fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
+        }
+        // keeping the fragment as a variable to ensure the state is maintained (e.g. user can click to filter default, want to keep that)
+        if (myExercisesFragment == null) {
+            myExercisesFragment = new MyExercisesFragment();
+        }
+        Bundle arguments = new Bundle();
+        arguments.putString(Variables.EXERCISE_ID, exerciseId);
+        Fragment fragment = new ExerciseDetailsFragment();
+        fragment.setArguments(arguments);
 
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
+                .commit();
+    }
+
+    public void goToNewWorkout() {
         if (fragmentStack.contains(Variables.NEW_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
         } else {
             fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
         }
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .replace(R.id.fragment_container, new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
                 .commit();
     }
 
     public void goToEditWorkout() {
-        enableBackButton(true);
-        updateToolbarTitle(Globals.activeWorkout.getWorkoutName());
-
         if (fragmentStack.contains(Variables.EDIT_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
@@ -585,8 +601,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToMyWorkouts() {
-        updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
-
         if (fragmentStack.contains(Variables.MY_WORKOUT_TITLE)) {
             fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
             fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
