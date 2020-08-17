@@ -113,7 +113,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <LinearLayout
             android:id="@+id/extra_info_layout"
             android:layout_width="match_parent"
@@ -140,6 +139,7 @@
                         android:id="@+id/sets_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
                         android:minWidth="75dp"
@@ -163,6 +163,7 @@
                         android:id="@+id/weight_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
                         android:selectAllOnFocus="true"
@@ -182,6 +183,7 @@
                         android:id="@+id/reps_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
                         android:minWidth="75dp"

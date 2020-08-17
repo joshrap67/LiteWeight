@@ -5,6 +5,9 @@
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="vertical">
 
     <LinearLayout
@@ -31,13 +34,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/delete_exercise"
-                    android:hint="Exercise Name"
+                    android:hint="@string/name_hint"
                     app:autoSizeTextType="uniform">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/exercise_name_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
                         android:inputType="textCapSentences"
                         android:maxLines="1"
                         android:minWidth="75dp"
@@ -74,17 +78,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Focuses" />
+                android:text="@string/focuses" />
 
         <TextView
                 android:id="@+id/focuses"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Focuses"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Focuses" />
 
     </LinearLayout>
 
@@ -104,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Workouts" />
+                android:text="@string/workouts" />
 
         <TextView
                 android:id="@+id/workout_list_tv"
@@ -146,12 +150,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_toStartOf="@id/default_weight_help"
-                        android:hint="Default Weight (lb)">
+                        tools:hint="Default Weight (lb)">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_weight_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:imeOptions="actionDone"
                             android:inputType="numberDecimal"
                             android:maxLines="1"
                             android:minWidth="75dp"
@@ -190,12 +195,13 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
-                            android:hint="Default Sets">
+                            android:hint="@string/default_sets_hint">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_sets_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:imeOptions="actionDone"
                                 android:inputType="number"
                                 android:maxLines="1"
                                 android:minWidth="75dp"
@@ -208,15 +214,15 @@
                             android:id="@+id/default_reps_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
                             android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
-                            android:hint="Default Reps">
+                            android:hint="@string/default_reps_hint">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_reps_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:imeOptions="actionDone"
                                 android:inputType="number"
                                 android:maxLines="1"
                                 android:minWidth="75dp"
@@ -252,14 +258,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_toStartOf="@+id/default_details_help"
-                        android:hint="Default Details">
+                        android:hint="@string/default_details_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_details_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPersonName"
-                            android:lines="5"
+                            android:imeOptions="actionDone"
+                            android:inputType="textMultiLine"
+                            android:maxLines="5"
                             android:minWidth="75dp"
                             android:scrollHorizontally="false"
                             app:autoSizeTextType="uniform" />
@@ -305,6 +312,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:ems="10"
+                                android:imeOptions="actionDone"
                                 android:inputType="textUri"
                                 android:lines="1"
                                 android:maxLines="1"
@@ -349,7 +357,6 @@
         </RelativeLayout>
     </ScrollView>
 
-
     <Button
             android:id="@+id/save_btn"
             android:layout_width="wrap_content"
@@ -359,6 +366,4 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/input_container" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

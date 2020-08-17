@@ -19,12 +19,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.ExerciseHelper;
+import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WeightHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
@@ -47,16 +49,15 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private AlertDialog alertDialog;
     private User user;
     private ProgressDialog loadingDialog;
-    private List<String> workoutList;
     private ExerciseUser originalExercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits;
     private ClipboardManager clipboard;
-
+    private List<String> exerciseNames;
     @Inject
-    public SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -72,6 +73,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
         // TODO injection or view model???
         user = Globals.user;
+        exerciseNames = new ArrayList<>();
+        for (String exerciseId : user.getUserExercises().keySet()) {
+            exerciseNames.add(user.getUserExercises().get(exerciseId).getExerciseName());
+        }
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
     }
@@ -79,7 +84,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        workoutList = new ArrayList<>(user.getUserExercises().get(exerciseId).getWorkouts().values());
+        List<String> workoutList = new ArrayList<>(user.getUserExercises().get(exerciseId).getWorkouts().values());
         originalExercise = user.getUserExercises().get(exerciseId);
         loadingDialog = new ProgressDialog(getActivity());
         loadingDialog.setCancelable(false);
@@ -116,7 +121,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         final ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
         final ImageButton previewBtn = view.findViewById(R.id.preview_btn);
-        previewBtn.setOnClickListener(v -> ExerciseHelper.launchVideo(originalExercise.getVideoUrl(), getContext()));
+        previewBtn.setOnClickListener(v -> ExerciseHelper.launchVideo(urlInput.getText().toString().trim(), getContext()));
         if (originalExercise.getVideoUrl().isEmpty()) {
             clipboardBtn.setVisibility(View.GONE);
             previewBtn.setVisibility(View.GONE);
@@ -185,7 +190,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         ImageView detailsHelpButton = view.findViewById(R.id.default_details_help);
         detailsHelpButton.setOnClickListener(v -> showHelpPopup(detailsHelpMode));
 
-        initViews(view);
+        initViews();
     }
 
     @Override
@@ -199,9 +204,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
     }
 
-    private void initViews(View view) {
+    private void initViews() {
         exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightHelper.getFormattedWeight(originalExercise.getDefaultWeight()));
+        weightInput.setText(WeightHelper.getFormattedWeight(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
         detailsInput.setText(originalExercise.getDefaultNote());
@@ -210,6 +215,40 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     private void saveExercise() {
+        String renameError;
+        String weightError;
+        String setsError;
+        String repsError;
+        String detailsError;
+        String urlError = null;
+
+
+        if (!originalExercise.isDefaultExercise()) {
+            renameError = InputHelper.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+            exerciseNameLayout.setError(renameError);
+        }
+
+        weightError = InputHelper.validWeight(weightInput.getText().toString().trim());
+        weightLayout.setError(weightError);
+
+        setsError = InputHelper.validSets(setsInput.getText().toString().trim());
+        setsLayout.setError(setsError);
+
+        repsError = InputHelper.validReps(repsInput.getText().toString().trim());
+        repsLayout.setError(repsError);
+
+        detailsError = InputHelper.validDetails(detailsInput.getText().toString().trim());
+        detailsLayout.setError(detailsError);
+
+        if (!urlInput.getText().toString().isEmpty()) {
+            // try to validate the url if user has inputted something
+            urlError = InputHelper.validUrl(urlInput.getText().toString().trim());
+        }
+        urlLayout.setError(urlError);
+
+    }
+
+    private void deleteExercise() {
 
     }
 

@@ -1,11 +1,8 @@
 package com.joshrap.liteweight.helpers;
 
-import com.joshrap.liteweight.database.entities.ExerciseEntity;
 import com.joshrap.liteweight.imports.Variables;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -18,14 +15,14 @@ public class InputHelper {
         potentialURL = potentialURL.trim();
         String retVal = null;
         if (potentialURL.isEmpty()) {
-            retVal = "Cannot be empty!";
+            retVal = "URL cannot be empty.";
         } else if (potentialURL.length() > Variables.MAX_URL_LENGTH) {
-            retVal = "URL is too large. Compress it and try again";
+            retVal = "URL is too large. Compress it and try again.";
         } else {
             try {
                 new URL(potentialURL).toURI();
             } catch (Exception e) {
-                retVal = "Not a valid URL! Make sure to include protocol (i.e. https)";
+                retVal = "Not a valid URL! Make sure to include protocol (i.e. https).";
             }
         }
         return retVal;
@@ -41,16 +38,16 @@ public class InputHelper {
             // check if workout name has already been used before
             for (String workout : nameList) {
                 if (workout.equals(aName)) {
-                    retVal = "Workout name already exists!";
+                    retVal = "Workout name already exists.";
                 }
             }
         } else {
-            retVal = String.format("Name must have 1-%s characters!", Variables.MAX_WORKOUT_NAME);
+            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_WORKOUT_NAME);
         }
         return retVal;
     }
 
-    public static String validNewExerciseName(String exerciseName, HashMap<String, ArrayList<ExerciseEntity>> totalExercises) {
+    public static String validNewExerciseName(String exerciseName, List<String> totalExercises) {
         /*
             Ensures the name is the valid number of characters and that the exercise name doesn't already exist for a focus.
             If no error, return null.
@@ -58,35 +55,33 @@ public class InputHelper {
         exerciseName = exerciseName.trim();
         String retVal = null;
         if (exerciseName.isEmpty()) {
-            retVal = "Name cannot be empty!";
+            retVal = "Name cannot be empty.";
         } else if (exerciseName.length() > Variables.MAX_EXERCISE_NAME) {
-            retVal = String.format("Name must have 1-%s characters!", Variables.MAX_EXERCISE_NAME);
+            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_EXERCISE_NAME);
         } else {
             // loop over default to see if this exercise already exists in some focus
-            for (String focus : totalExercises.keySet()) {
-                for (ExerciseEntity exercise : totalExercises.get(focus)) {
-                    if (exercise.getExerciseName().equals(exerciseName)) {
-                        retVal = "Exercise already exists!";
-                    }
+            for (String exercise : totalExercises) {
+                if (exercise.equals(exerciseName)) {
+                    retVal = "Exercise already exists.";
                 }
             }
         }
         return retVal;
     }
 
-    public static String validWeek(String aWeek) {
+    public static String validWeight(String aWeight) {
         /*
-            Ensures that an inputted week is valid. If no error, return null.
+            Ensures that an inputted weight is valid. If no error, return null.
          */
-        aWeek = aWeek.trim();
+        aWeight = aWeight.trim();
         String retVal = null;
-        if (aWeek.isEmpty()) {
-            retVal = String.format("Enter value between 1-%s!", Variables.MAX_NUMBER_OF_WEEKS);
+        if (aWeight.isEmpty()) {
+            retVal = "Weight cannot be empty";
         } else {
             try {
-                int week = Integer.parseInt(aWeek);
-                if (week <= 0 || week > Variables.MAX_NUMBER_OF_WEEKS) {
-                    retVal = String.format("Enter value between 1-%s!", Variables.MAX_NUMBER_OF_WEEKS);
+                int weight = Integer.parseInt(aWeight);
+                if (weight < 0 || weight > Variables.MAX_WEIGHT) {
+                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_WEIGHT);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -95,19 +90,19 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validDayFixedWorkout(String aDay) {
+    public static String validSets(String aSets) {
         /*
-            Ensures that an inputted day is valid for a fixed workout. If no error, return null
+            Ensures that an inputted sets is valid. If no error, return null.
          */
-        aDay = aDay.trim();
+        aSets = aSets.trim();
         String retVal = null;
-        if (aDay.isEmpty()) {
-            retVal = String.format("Enter value between 1-%s!", Variables.WORKOUT_MAX_NUMBER_OF_DAYS);
+        if (aSets.isEmpty()) {
+            retVal = "Sets cannot be empty";
         } else {
             try {
-                int day = Integer.parseInt(aDay);
-                if (day <= 0 || day > Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
-                    retVal = String.format("Enter value between 1-%s!", Variables.WORKOUT_MAX_NUMBER_OF_DAYS);
+                int sets = Integer.parseInt(aSets);
+                if (sets < 0 || sets > Variables.MAX_SETS) {
+                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_SETS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -116,25 +111,35 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validDayFlexibleWorkout(String aDay) {
+    public static String validReps(String aReps) {
         /*
-            Ensures that an inputted day is valid for a flexible workout. If no error, return null
+            Ensures that an inputted reps is valid. If no error, return null.
          */
-        aDay = aDay.trim();
+        aReps = aReps.trim();
         String retVal = null;
-        if (aDay.isEmpty()) {
-            retVal = String.format("Enter value between 1-%s!",
-                    Variables.WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS);
+        if (aReps.isEmpty()) {
+            retVal = "Sets cannot be empty";
         } else {
             try {
-                int day = Integer.parseInt(aDay);
-                if (day <= 0 || day > Variables.WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS) {
-                    retVal = String.format("Enter value between 1-%s!",
-                            Variables.WORKOUT_MAX_NUMBER_OF_DAYS * Variables.MAX_NUMBER_OF_WEEKS);
+                int reps = Integer.parseInt(aReps);
+                if (reps < 0 || reps > Variables.MAX_REPS) {
+                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_REPS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
             }
+        }
+        return retVal;
+    }
+
+    public static String validDetails(String details) {
+        /*
+            Ensures that an inputted details is valid. Note no input is valid. If no error, return null.
+         */
+        details = details.trim();
+        String retVal = null;
+        if (details.length() > Variables.MAX_DETAILS_LENGTH) {
+            retVal = String.format("Enter value between 0-%s.", Variables.MAX_DETAILS_LENGTH);
         }
         return retVal;
     }
@@ -203,7 +208,7 @@ public class InputHelper {
         Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         String retVal = null;
         if (!validEmail.matcher(email).find()) {
-            retVal = "Invalid email";
+            retVal = "Invalid email.";
         }
         return retVal;
     }

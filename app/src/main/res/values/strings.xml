@@ -45,6 +45,8 @@
     <string name="stopwatch_switch">Stopwatch</string>
     <string name="timer_switch">Timer</string>
     <string name="focus_label">Focus</string>
+    <string name="focuses">Focuses</string>
+    <string name="workouts">Workouts</string>
     <string name="save_url">Save URL</string>
     <string name="new_url">New Video URL</string>
     <string name="preview_url">View (Old)</string>
@@ -64,6 +66,9 @@
     <string name="rename_title">Rename</string>
     <string name="edit_workout_tooltip">Edit Workout Name</string>
     <string name="nav_user_settings">App Settings</string>
+    <string name="default_sets_hint">Default Sets</string>
+    <string name="default_reps_hint">Default Reps</string>
+    <string name="default_details_hint">Default Details</string>
     <string name="nav_about">About</string>
     <string name="forward_button">Next</string>
     <string name="metric_switch">Metric</string>

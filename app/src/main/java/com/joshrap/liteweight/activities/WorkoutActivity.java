@@ -391,9 +391,24 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 Rect viewRect = new Rect();
                 v.getGlobalVisibleRect(viewRect);
                 if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                    v.clearFocus();
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    boolean touchTargetIsEditText = false;
+                    //Check if another editText has been touched
+                    for (View vi : v.getRootView().getTouchables()) {
+                        if (vi instanceof EditText) {
+                            Rect clickedViewRect = new Rect();
+                            vi.getGlobalVisibleRect(clickedViewRect);
+                            //Bounding box is to big, reduce it just a little bit
+                            if (clickedViewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                                touchTargetIsEditText = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!touchTargetIsEditText) {
+                        v.clearFocus();
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
                 }
             }
         }
