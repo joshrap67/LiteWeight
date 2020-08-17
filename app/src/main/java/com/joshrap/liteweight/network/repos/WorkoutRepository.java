@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.network.repos;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.joshrap.liteweight.models.ApiResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
@@ -32,17 +31,12 @@ public class WorkoutRepository {
         requestBody.put(Workout.ROUTINE, routine.asMap());
         requestBody.put(Workout.WORKOUT_NAME, workoutName);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(newWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(newWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to create workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to create workout. 2");
             }
@@ -61,17 +55,12 @@ public class WorkoutRepository {
         requestBody.put(RequestFields.WORKOUT, workout.asMap());
         requestBody.put(Workout.WORKOUT_NAME, workoutName);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(copyWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(copyWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
@@ -90,17 +79,12 @@ public class WorkoutRepository {
         requestBody.put(RequestFields.WORKOUT, oldWorkout.asMap());
         requestBody.put(Workout.WORKOUT_ID, workoutId);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(switchWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(switchWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to switch workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to switch workout. 2");
             }
@@ -119,17 +103,12 @@ public class WorkoutRepository {
         requestBody.put(Workout.WORKOUT_ID, workoutId);
         requestBody.put(Workout.WORKOUT_NAME, workoutName);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(renameWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(renameWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new User(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
@@ -147,17 +126,12 @@ public class WorkoutRepository {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(deleteWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(deleteWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
@@ -175,17 +149,12 @@ public class WorkoutRepository {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(resetWorkoutStatisticsAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(resetWorkoutStatisticsAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new User(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to copy workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
@@ -204,17 +173,12 @@ public class WorkoutRepository {
         requestBody.put(Workout.WORKOUT_ID, workoutId);
         requestBody.put(RequestFields.WORKOUT, workout.asMap());
 
-        ResultStatus<Map<String, Object>> apiResponse = ApiGateway.makeRequest(editWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(editWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                ApiResponse apiResponseBody = new ApiResponse(apiResponse.getData());
-                if (apiResponseBody.isSuccess()) {
-                    resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponseBody.getJsonString(), Map.class)));
-                    resultStatus.setSuccess(true);
-                } else {
-                    resultStatus.setErrorMessage("Unable to edit workout. 1" + apiResponseBody.getJsonString());
-                }
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to edit workout. 2");
             }

@@ -2,6 +2,9 @@ package com.joshrap.liteweight.models;
 
 import androidx.annotation.NonNull;
 
+import lombok.Data;
+
+@Data
 public class ResultStatus<T> {
     private boolean success;
     private boolean networkError;
@@ -28,38 +31,6 @@ public class ResultStatus<T> {
 
     public ResultStatus() {
         this.success = false;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public boolean isNetworkError() {
-        return networkError;
-    }
-
-    public void setNetworkError(boolean networkError) {
-        this.networkError = networkError;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
     }
 
     @NonNull
