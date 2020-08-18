@@ -198,11 +198,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
-    private void showLoadingDialog() {
-        loadingDialog.setMessage("Loading...");
-        loadingDialog.show();
-    }
-
     private void updateStatisticsTV() {
         /*
             Displays statistics for the currently selected workout
@@ -488,6 +483,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             });
         });
 
+    }
+
+    private void showLoadingDialog() {
+        loadingDialog.setMessage("Loading...");
+        loadingDialog.show();
     }
 
     private void showErrorMessage(String title, String message) {

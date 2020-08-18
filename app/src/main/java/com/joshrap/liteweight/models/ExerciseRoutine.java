@@ -55,7 +55,7 @@ public class ExerciseRoutine implements Model, Cloneable {
         this.weight = exerciseUser.getDefaultWeight();
         this.sets = exerciseUser.getDefaultSets();
         this.reps = exerciseUser.getDefaultReps();
-        this.details = exerciseUser.getDefaultNote();
+        this.details = exerciseUser.getDefaultDetails();
     }
 
 

@@ -6,7 +6,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -33,15 +35,20 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.os.Looper.getMainLooper;
 
 public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
     private static final int weightHelpMode = 0, setsRepsHelpMode = 1, detailsHelpMode = 2;
@@ -92,6 +99,24 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         exerciseNameInput = view.findViewById(R.id.exercise_name_input);
         exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
+        exerciseNameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (exerciseNameLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    exerciseNameLayout.setErrorEnabled(false);
+                    exerciseNameLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         ImageButton deleteExercise = view.findViewById(R.id.delete_exercise);
         if (originalExercise.isDefaultExercise()) {
             deleteExercise.setVisibility(View.GONE);
@@ -99,7 +124,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
         weightLayout.setHint("Default Weight (" + (metricUnits ? "kg)" : "lb)"));
-
         setsLayout = view.findViewById(R.id.default_sets_input_layout);
         repsLayout = view.findViewById(R.id.default_reps_input_layout);
         detailsLayout = view.findViewById(R.id.default_details_input_layout);
@@ -107,18 +131,109 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
+        weightInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (weightLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    weightLayout.setErrorEnabled(false);
+                    weightLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
+        setsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (setsLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    setsLayout.setErrorEnabled(false);
+                    setsLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
+        repsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (repsLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    repsLayout.setErrorEnabled(false);
+                    repsLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
+        detailsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (detailsLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    detailsLayout.setErrorEnabled(false);
+                    detailsLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         urlInput = view.findViewById(R.id.url_input);
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
+        urlInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (urlLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    urlLayout.setErrorEnabled(false);
+                    urlLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
         final ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
         final ImageButton previewBtn = view.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(v -> ExerciseHelper.launchVideo(urlInput.getText().toString().trim(), getContext()));
@@ -209,13 +324,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         weightInput.setText(WeightHelper.getFormattedWeight(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
-        detailsInput.setText(originalExercise.getDefaultNote());
+        detailsInput.setText(originalExercise.getDefaultDetails());
         urlInput.setText(originalExercise.getVideoUrl());
-
     }
 
     private void saveExercise() {
-        String renameError;
+        String renameError = null;
         String weightError;
         String setsError;
         String repsError;
@@ -245,11 +359,61 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             urlError = InputHelper.validUrl(urlInput.getText().toString().trim());
         }
         urlLayout.setError(urlError);
+        if (renameError == null && weightError == null && setsError == null &&
+                repsError == null && detailsError == null && urlError == null) {
+            ExerciseUser updatedExercise = ExerciseUser.getExerciseForUpdate(originalExercise);
+            if (!updatedExercise.isDefaultExercise()) {
+                updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
+            }
+            updatedExercise.setDefaultWeight(Double.parseDouble(weightInput.getText().toString().trim()));
+            updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
+            updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
+            updatedExercise.setDefaultDetails(detailsInput.getText().toString().trim());
+            updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
 
+            // no errors, so go ahead and save
+            showLoadingDialog();
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                ResultStatus<User> resultStatus = UserRepository.updateExercise(exerciseId, updatedExercise);
+                Handler handler = new Handler(getMainLooper());
+                handler.post(() -> {
+                    loadingDialog.dismiss();
+                    if (resultStatus.isSuccess()) {
+                        Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
+                        user = resultStatus.getData();
+                        Globals.user = user;
+
+                        originalExercise = user.getUserExercises().get(exerciseId);
+                        initViews();
+                    } else {
+                        showErrorMessage("Exercise Update Error", resultStatus.getErrorMessage());
+                    }
+                });
+            });
+        }
+
+    }
+
+    private void showErrorMessage(String title, String message) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Ok", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
     }
 
     private void deleteExercise() {
 
+    }
+
+    private void showLoadingDialog() {
+        loadingDialog.setMessage("Loading...");
+        loadingDialog.show();
     }
 
     private void showHelpPopup(int mode) {

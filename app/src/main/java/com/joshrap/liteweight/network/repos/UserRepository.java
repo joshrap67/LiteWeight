@@ -1,10 +1,12 @@
 package com.joshrap.liteweight.network.repos;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
+import com.joshrap.liteweight.network.RequestFields;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +16,7 @@ public class UserRepository {
     private static final String getUserAction = "getUserData";
     private static final String newUserAction = "newUser";
     private static final String getUserWorkoutAction = "getUserWorkout";
+    private static final String updateExerciseAction = "updateExercise";
 
     public static ResultStatus<User> getUser(String username) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
@@ -81,6 +84,32 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to load user data. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to load user data. 3");
+        }
+        return resultStatus;
+    }
+
+    public static ResultStatus<User> updateExercise(String exerciseId, ExerciseUser exerciseUser) {
+        ResultStatus<User> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (exerciseUser != null) {
+            requestBody.put(RequestFields.EXERCISE, exerciseUser);
+        }
+        requestBody.put(RequestFields.EXERCISE_ID, exerciseId);
+
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(updateExerciseAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to parse user data.");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to update exercise.");
         }
         return resultStatus;
     }
