@@ -790,7 +790,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             User has indicated they wish to add exercises to this specific day. Show a popup that provides a spinner
             that is programmed to list all exercises for a given exercise focus.
          */
-        View popupView = getLayoutInflater().inflate(R.layout.popup_add_exercise_new, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
         final Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
@@ -798,8 +798,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         ArrayList<String> focusList = new ArrayList<>();
         for (String exerciseId : activeUser.getUserExercises().keySet()) {
             ExerciseUser exerciseUser = activeUser.getUserExercises().get(exerciseId);
-            Map<String, Boolean> focuses = exerciseUser.getFocuses();
-            for (String focus : focuses.keySet()) {
+            List<String> focuses = exerciseUser.getFocuses();
+            for (String focus : focuses) {
                 if (!allUserExercises.containsKey(focus)) {
                     // focus hasn't been added before
                     focusList.add(focus);

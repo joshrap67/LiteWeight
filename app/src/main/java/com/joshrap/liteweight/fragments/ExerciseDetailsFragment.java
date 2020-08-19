@@ -289,7 +289,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         TextView focusesTv = view.findViewById(R.id.focuses);
         StringBuilder focuses = new StringBuilder();
         int count = 0;
-        for (String focus : originalExercise.getFocuses().keySet()) {
+        for (String focus : originalExercise.getFocuses()) {
             focuses.append(focus).append((count < originalExercise.getFocuses().size() - 1) ? ", " : "");
             count++;
         }

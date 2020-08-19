@@ -1,8 +1,11 @@
 package com.joshrap.liteweight.models;
 
 import com.joshrap.liteweight.interfaces.Model;
+import com.joshrap.liteweight.network.RequestFields;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lombok.AccessLevel;
@@ -32,7 +35,7 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
     private String defaultDetails;
     private String videoUrl;
     @Setter(AccessLevel.NONE)
-    private Map<String, Boolean> focuses;
+    private List<String> focuses;
     @Setter(AccessLevel.NONE)
     private Map<String, String> workouts; // id to workout name that this exercise is apart of
 
@@ -47,7 +50,22 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
         this.defaultDetails = (String) json.get(DEFAULT_DETAILS);
         this.videoUrl = (String) json.get(VIDEO_URL);
         this.setWorkouts((Map<String, Object>) json.get(User.WORKOUTS));
-        this.setFocuses((Map<String, Object>) json.get(FOCUSES));
+        this.focuses = (List<String>) json.get(FOCUSES);
+    }
+
+    public ExerciseUser(Map<String, Object> json) {
+        this.exerciseId = (String) json.get(RequestFields.EXERCISE_ID);
+        Map<String, Object> exerciseJson = (Map<String, Object>) json.get(RequestFields.EXERCISE);
+
+        this.exerciseName = (String) exerciseJson.get(EXERCISE_NAME);
+        this.defaultExercise = (boolean) exerciseJson.get(DEFAULT_EXERCISE);
+        this.defaultWeight = (double) exerciseJson.get(DEFAULT_WEIGHT);
+        this.defaultSets = (int) exerciseJson.get(DEFAULT_SETS);
+        this.defaultReps = (int) exerciseJson.get(DEFAULT_REPS);
+        this.defaultDetails = (String) exerciseJson.get(DEFAULT_DETAILS);
+        this.videoUrl = (String) exerciseJson.get(VIDEO_URL);
+        this.setWorkouts((Map<String, Object>) exerciseJson.get(User.WORKOUTS));
+        this.focuses = (List<String>) exerciseJson.get(FOCUSES);
     }
 
     public static ExerciseUser getExerciseForUpdate(ExerciseUser toBeCopied) {
@@ -63,23 +81,12 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
         exerciseUser.defaultDetails = toBeCopied.getDefaultDetails();
         exerciseUser.videoUrl = toBeCopied.getVideoUrl();
         exerciseUser.workouts = new HashMap<>(toBeCopied.getWorkouts());
-        exerciseUser.focuses = new HashMap<>(toBeCopied.getFocuses());
+        exerciseUser.focuses = new ArrayList<>(toBeCopied.getFocuses());
 
         return exerciseUser;
     }
 
-    public void setFocuses(Map<String, Object> json) {
-        if (json == null) {
-            this.focuses = null;
-        } else {
-            this.focuses = new HashMap<>();
-            for (String focusName : json.keySet()) {
-                this.focuses.put(focusName, true);
-            }
-        }
-    }
-
-    public void setWorkouts(Map<String, Object> json) {
+    private void setWorkouts(Map<String, Object> json) {
         if (json == null) {
             this.workouts = null;
         } else {

@@ -9,6 +9,7 @@ import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserRepository {
@@ -17,6 +18,7 @@ public class UserRepository {
     private static final String newUserAction = "newUser";
     private static final String getUserWorkoutAction = "getUserWorkout";
     private static final String updateExerciseAction = "updateExercise";
+    private static final String newExerciseAction = "newExercise";
 
     public static ResultStatus<User> getUser(String username) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
@@ -102,6 +104,32 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             try {
                 resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to parse user data.");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to update exercise.");
+        }
+        return resultStatus;
+    }
+
+    public static ResultStatus<ExerciseUser> newExercise(String exerciseName, List<String> focuses) {
+        ResultStatus<ExerciseUser> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (exerciseName != null) {
+            requestBody.put(ExerciseUser.EXERCISE_NAME, exerciseName);
+        }
+        requestBody.put(ExerciseUser.FOCUSES, focuses);
+
+        ResultStatus<String> apiResponse = ApiGateway.makeRequest(newExerciseAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new ExerciseUser(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");

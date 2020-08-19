@@ -1,14 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
-
-import androidx.lifecycle.ViewModelProviders;
-
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,76 +11,70 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
 
-import android.text.Editable;
+import android.os.Handler;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
 import androidx.appcompat.widget.SwitchCompat;
 
-import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
-import com.joshrap.liteweight.database.entities.ExerciseEntity;
-import com.joshrap.liteweight.database.viewModels.ExerciseViewModel;
-import com.joshrap.liteweight.database.viewModels.WorkoutViewModel;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.helpers.ExerciseHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.helpers.WeightHelper;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.os.Looper.getMainLooper;
 
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
-    private ExerciseAdapter exerciseAdapter;
+    private ProgressDialog loadingDialog;
     private View view;
     private boolean filterDefault;
     private int customExerciseCount = 0;
     private String selectedFocus;
     private ArrayList<String> focusList = new ArrayList<>();
-    private ArrayList<ExerciseUser> exercisesForSelectedFocus = new ArrayList<>();
     private HashMap<String, ArrayList<ExerciseUser>> totalExercises = new HashMap<>(); // focus to exercise
     private AlertDialog alertDialog;
-    private User user;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
         // TODO injection or view model???
-        user = Globals.user;
-        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        User user = Globals.user;
         for (String exerciseId : user.getUserExercises().keySet()) {
             ExerciseUser exerciseUser = user.getUserExercises().get(exerciseId);
-            List<String> focusesForExercise = new ArrayList<>(exerciseUser.getFocuses().keySet());
+            List<String> focusesForExercise = new ArrayList<>(exerciseUser.getFocuses());
             if (!exerciseUser.isDefaultExercise()) {
                 // do the count here to avoid double counting if the exercise is in more than one focus
                 customExerciseCount++;
@@ -108,6 +95,8 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        loadingDialog = new ProgressDialog(getActivity());
+        loadingDialog.setCancelable(false);
 
         filterDefault = false; // TODO get from view model
         SwitchCompat filterSwitch = view.findViewById(R.id.filter_switch);
@@ -163,6 +152,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         listView.performItemClick(listView.getAdapter().getView(focusList.indexOf(selectedFocus), null, null),
                 focusList.indexOf(selectedFocus), focusList.indexOf(selectedFocus));
         listView.setSelection(focusList.indexOf(selectedFocus));
+        populateExercisesListView();
     }
 
     private void populateExercisesListView() {
@@ -170,7 +160,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             Populates the exercise list view based on the selected focus
          */
         final ListView listView = view.findViewById(R.id.exercise_list);
-        exercisesForSelectedFocus = new ArrayList<>();
+        ArrayList<ExerciseUser> exercisesForSelectedFocus = new ArrayList<>();
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }
@@ -184,12 +174,12 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             }
         }
         Collections.sort(exercisesForSelectedFocus);
-        exerciseAdapter = new ExerciseAdapter(getContext(), exercisesForSelectedFocus);
+        ExerciseAdapter exerciseAdapter = new ExerciseAdapter(getContext(), exercisesForSelectedFocus);
         listView.setAdapter(exerciseAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             ExerciseUser exercise = (ExerciseUser) listView.getItemAtPosition(position);
-            ((WorkoutActivity)getActivity()).goToExerciseDetails(exercise.getExerciseId());
+            ((WorkoutActivity) getActivity()).goToExerciseDetails(exercise.getExerciseId());
         });
     }
 
@@ -198,71 +188,94 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         /*
             Popup for creating a new exercise
          */
-//        final ArrayList<String> selectedFocuses = new ArrayList<>();
-//        View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
-//        final EditText exerciseNameInput = popupView.findViewById(R.id.edit_name_txt);
-//        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-//        final EditText editURL = popupView.findViewById(R.id.edit_url_txt);
-//        editURL.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
-//
-//        TableLayout focusTable = popupView.findViewById(R.id.table_layout);
-//        for (int i = 0; i < focusList.size(); i++) {
-//            // add a checkbox for each focus that is available
-//            TableRow row = new TableRow(getActivity());
-//            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-//            row.setLayoutParams(lp);
-//            final CheckBox focus = new CheckBox(getContext());
-//            focus.setText(focusList.get(i));
-//            focus.setOnClickListener(v -> {
-//                if (!focus.isChecked()) {
-//                    selectedFocuses.remove(focus.getText().toString());
-//                } else {
-//                    selectedFocuses.add(focus.getText().toString());
-//                }
-//            });
-//            row.addView(focus);
-//            focusTable.addView(row, i);
-//        }
-//        // view is all set up, so now create the dialog with it
-//        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-//                .setTitle("Create Exercise")
-//                .setView(popupView)
-//                .setNegativeButton("Back", null)
-//                .setPositiveButton("Save", null)
-//                .create();
-//        alertDialog.setOnShowListener(dialogInterface -> {
-//            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-//            button.setOnClickListener(view -> {
-//                String exerciseName = exerciseNameInput.getText().toString().trim();
-//                String url = editURL.getText().toString().trim();
-//                if (selectedFocuses.isEmpty()) {
-//                    Toast.makeText(getContext(), "Select at least one focus!", Toast.LENGTH_SHORT).show();
-//                } else if (!url.isEmpty() && InputHelper.validUrl(url) != null) {
-//                    // allow for url to be empty since most people won't want to upload a video
-//                    editURL.setError(InputHelper.validUrl(editURL.getText().toString()));
-//                } else if (InputHelper.validNewExerciseName(exerciseNameInput.getText().toString(), totalExercises) == null) {
-//                    StringBuilder sb = new StringBuilder();
-//                    for (int i = 0; i < selectedFocuses.size(); i++) {
-//                        sb.append(selectedFocuses.get(i) + ((i == selectedFocuses.size() - 1) ? "" : ","));
-//                    }
-//                    String focusEntry = sb.toString().trim();
-//                    // TODO put this in an async and get the ID
-//                    ExerciseEntity newEntity = new ExerciseEntity(exerciseName, focusEntry, url, false, 0,
-//                            0, 0, 0);
-//                    for (int i = 0; i < selectedFocuses.size(); i++) {
-//                        totalExercises.get(selectedFocuses.get(i)).add(newEntity);
-//                    }
-//
-//                    populateExercisesListView();
-//                    Toast.makeText(getContext(), "Exercise successfully created!", Toast.LENGTH_SHORT).show();
-//                    alertDialog.dismiss();
-//                } else {
-//                    // there was an error with the name
-//                    exerciseNameInput.setError(InputHelper.validNewExerciseName(exerciseNameInput.getText().toString(), totalExercises));
-//                }
-//            });
-//        });
-//        alertDialog.show();
+        final ArrayList<String> selectedFocuses = new ArrayList<>();
+        View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
+        final EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
+        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
+        final TextInputLayout nameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
+
+        TableLayout focusTable = popupView.findViewById(R.id.table_layout);
+        for (int i = 0; i < focusList.size(); i++) {
+            // add a checkbox for each focus that is available
+            TableRow row = new TableRow(getActivity());
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            row.setLayoutParams(lp);
+            final CheckBox focus = new CheckBox(getContext());
+            focus.setText(focusList.get(i));
+            focus.setTextSize(20);
+            focus.setOnClickListener(v -> {
+                if (!focus.isChecked()) {
+                    selectedFocuses.remove(focus.getText().toString());
+                } else {
+                    selectedFocuses.add(focus.getText().toString());
+                }
+            });
+            row.addView(focus);
+            focusTable.addView(row, i);
+        }
+        // view is all set up, so now create the dialog with it
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Create Exercise")
+                .setView(popupView)
+                .setNegativeButton("Back", null)
+                .setPositiveButton("Save", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
+                String exerciseName = exerciseNameInput.getText().toString().trim();
+                Set<String> allExerciseNames = new HashSet<>();
+                for (String focus : totalExercises.keySet()) {
+                    for (ExerciseUser exerciseUser : totalExercises.get(focus)) {
+                        allExerciseNames.add(exerciseUser.getExerciseName());
+                    }
+                }
+                String nameError = InputHelper.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
+                if (selectedFocuses.isEmpty()) {
+                    Toast.makeText(getContext(), "Select at least one focus!", Toast.LENGTH_SHORT).show();
+                } else if (nameError == null) {
+                    alertDialog.dismiss();
+                    showLoadingDialog();
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        ResultStatus<ExerciseUser> resultStatus = UserRepository.newExercise(exerciseName, selectedFocuses);
+                        Handler handler = new Handler(getMainLooper());
+                        handler.post(() -> {
+                            loadingDialog.dismiss();
+                            if (resultStatus.isSuccess()) {
+                                Toast.makeText(getContext(), "Exercise successfully added.", Toast.LENGTH_LONG).show();
+                                ExerciseUser exerciseUser = resultStatus.getData();
+                                Globals.user.getUserExercises().put(exerciseUser.getExerciseId(), exerciseUser);
+                                ((WorkoutActivity) getActivity()).goToExerciseDetails(exerciseUser.getExerciseId());
+                            } else {
+                                showErrorMessage("Exercise Add Error", resultStatus.getErrorMessage());
+                            }
+                        });
+                    });
+                    Toast.makeText(getContext(), "Exercise successfully created!", Toast.LENGTH_SHORT).show();
+                } else {
+                    // there was an error with the name
+                    nameLayout.setError(nameError);
+                }
+            });
+        });
+        alertDialog.show();
     }
-    //endregion
+
+    private void showErrorMessage(String title, String message) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Ok", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
+    }
+
+    private void showLoadingDialog() {
+        loadingDialog.setMessage("Loading...");
+        loadingDialog.show();
+    }
 }
