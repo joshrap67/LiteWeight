@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.activities;
 
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,15 +22,28 @@ import javax.inject.Inject;
 
 public class SplashActivity extends AppCompatActivity {
 
+    /*
+        1. If a token key value pair exists in shared prefs
+            If valid then immediately go to WorkoutActivity
+            else prompt for sign in again
+        2. If no token then check if guest mode is active in shared prefs
+            If guest mode is active then immediately go to the WorkoutActivity
+        3. Else the app has never been used before
+           Prompt for signin/signup
+     */
+
     @Inject
     public SharedPreferences sharedPreferences;
+    @Inject
+    UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
+
         sharedPreferences = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-        // TODO guest mode
+        // TODO guest mode?
         Globals.refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
         Globals.idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
 
@@ -63,9 +75,9 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void launchSignInActivity() {
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
         Intent intent = new Intent(this, SignInActivity.class);
-        startActivity(intent, options.toBundle());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         finish();
     }
 

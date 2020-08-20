@@ -243,7 +243,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                         handler.post(() -> {
                             loadingDialog.dismiss();
                             if (resultStatus.isSuccess()) {
-                                Toast.makeText(getContext(), "Exercise successfully added.", Toast.LENGTH_LONG).show();
                                 ExerciseUser exerciseUser = resultStatus.getData();
                                 Globals.user.getUserExercises().put(exerciseUser.getExerciseId(), exerciseUser);
                                 ((WorkoutActivity) getActivity()).goToExerciseDetails(exerciseUser.getExerciseId());

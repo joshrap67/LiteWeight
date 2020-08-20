@@ -3,6 +3,7 @@ package com.joshrap.liteweight.network.repos;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
@@ -12,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 public class UserRepository {
 
     private static final String getUserAction = "getUserData";
@@ -19,6 +22,13 @@ public class UserRepository {
     private static final String getUserWorkoutAction = "getUserWorkout";
     private static final String updateExerciseAction = "updateExercise";
     private static final String newExerciseAction = "newExercise";
+
+    private ApiGateway apiGateway;
+
+    @Inject
+    public UserRepository(ApiGateway apiGateway){
+        this.apiGateway = apiGateway;
+    }
 
     public static ResultStatus<User> getUser(String username) {
         ResultStatus<User> resultStatus = new ResultStatus<>();

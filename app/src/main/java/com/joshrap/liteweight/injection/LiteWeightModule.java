@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.Workout;
 
@@ -13,7 +14,7 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class LiteWeightModule {
+class LiteWeightModule {
     private Workout workout;
     private User user;
     private Context context;
@@ -37,5 +38,13 @@ public class LiteWeightModule {
     @Singleton
     SharedPreferences provideSharedPreference(Context context) {
         return context.getSharedPreferences(Variables.SHARED_PREF_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Singleton
+    Tokens provideTokens(SharedPreferences sharedPreferences) {
+        String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
+        String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
+        return new Tokens(refreshToken, idToken);
     }
 }

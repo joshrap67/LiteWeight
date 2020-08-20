@@ -43,15 +43,6 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 public class SignInActivity extends AppCompatActivity {
-    /*
-        1. If a token key value pair exists in shared prefs
-            If valid then immediately go to WorkoutActivity
-            else prompt for sign in again
-        2. If no token then check if guest mode is active in shared prefs
-            If guest mode is active then immediately go to the WorkoutActivity
-        3. Else the app has never been used before
-           Prompt for signin/signup
-     */
 
     private EditText usernameInput, passwordInput, emailInput, passwordConfirmInput;
     private Button primaryBtn, changeModeBtn, guestBtn;

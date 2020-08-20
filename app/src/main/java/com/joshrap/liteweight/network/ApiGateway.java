@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.Tokens;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,10 +19,19 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 public class ApiGateway {
 
     private static final String ApiUrl = "https://vixcdm7fz5.execute-api.us-east-2.amazonaws.com/";
     private static final int successCode = 200; // THIS MUST MATCH THE CODE RETURNED FROM THE API
+
+    private Tokens tokens;
+
+    @Inject
+    public ApiGateway(Tokens tokens) {
+        this.tokens = tokens;
+    }
 
     public static ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
