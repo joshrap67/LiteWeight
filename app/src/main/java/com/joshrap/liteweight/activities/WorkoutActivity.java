@@ -12,6 +12,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.fragment.app.Fragment;
@@ -39,7 +41,10 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.network.ApiGateway;
+import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.services.StopwatchService;
+import com.joshrap.liteweight.services.SyncRoutineService;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
@@ -68,17 +73,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private ActiveWorkoutFragment currentWorkoutFragment;
     private MyExercisesFragment myExercisesFragment;
     @Inject
+    public ApiGateway apiGateway;
+    @Inject
     public SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
-        // immediately store newly gotten id token. Will likely expire but just in case user closes app and reopens it immediately
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Variables.ID_TOKEN_KEY, Globals.idToken);
-        editor.apply();
-
         createNotificationChannel();
         setContentView(R.layout.workout_activity);
         timer = new Timer(this);
@@ -100,10 +102,30 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     @Override
+    protected void onPause() {
+        Intent intent = new Intent(this, SyncRoutineService.class);
+        intent.putExtra(Variables.INTENT_REFRESH_TOKEN, apiGateway.getTokens().getRefreshToken());
+        intent.putExtra(Variables.INTENT_ID_TOKEN, apiGateway.getTokens().getIdToken());
+        try {
+            intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(Globals.activeWorkout.asMap()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        startService(intent);
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
-        // stop any services that may be running.
+        // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
+        // update tokens just in case they changed in apps life cycle
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Variables.REFRESH_TOKEN_KEY, apiGateway.getTokens().getRefreshToken());
+        editor.putString(Variables.ID_TOKEN_KEY, apiGateway.getTokens().getIdToken());
+        editor.apply();
+
         super.onDestroy();
     }
 
@@ -199,14 +221,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
-    }
-
-    public void setProgressBar(boolean hide) {
-        /*
-            Used in tandem with async tasks. When background work is being done
-            the progress bar is set to true to show user a loading animation.
-         */
-        progressBar.setVisibility((hide) ? View.VISIBLE : View.GONE);
     }
 
     public void enableBackButton(boolean enable) {

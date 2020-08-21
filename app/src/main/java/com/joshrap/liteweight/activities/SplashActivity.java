@@ -41,13 +41,10 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
-
-        sharedPreferences = getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
         // TODO guest mode?
-        Globals.refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
-        Globals.idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
-
-        if (Globals.refreshToken == null || Globals.idToken == null) {
+        String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
+        String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
+        if (refreshToken == null || idToken == null) {
             launchSignInActivity();
         } else {
             getUser();
@@ -57,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
     private void getUser() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = UserRepository.getUserAndCurrentWorkout();
+            ResultStatus<UserWithWorkout> resultStatus = this.userRepository.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {

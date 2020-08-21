@@ -4,7 +4,11 @@ import com.joshrap.liteweight.activities.SignInActivity;
 import com.joshrap.liteweight.activities.SplashActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.fragments.ActiveWorkoutFragment;
+import com.joshrap.liteweight.fragments.EditWorkoutFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
+import com.joshrap.liteweight.fragments.MyExercisesFragment;
+import com.joshrap.liteweight.fragments.MyWorkoutsFragment;
+import com.joshrap.liteweight.fragments.NewWorkoutFragment;
 
 import javax.inject.Singleton;
 
@@ -23,4 +27,12 @@ public interface LiteWeightComponent {
     void inject(SignInActivity signInActivity);
 
     void inject(ExerciseDetailsFragment exerciseDetailsFragment);
+
+    void inject(EditWorkoutFragment editWorkoutFragment);
+
+    void inject(MyExercisesFragment myExercisesFragment);
+
+    void inject(NewWorkoutFragment newWorkoutFragment);
+
+    void inject(MyWorkoutsFragment myWorkoutsFragment);
 }

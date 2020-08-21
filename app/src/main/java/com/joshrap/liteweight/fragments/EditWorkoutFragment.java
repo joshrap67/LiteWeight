@@ -44,6 +44,7 @@ import com.joshrap.liteweight.adapters.PendingRoutineAdapter;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.models.ExerciseRoutine;
@@ -63,6 +64,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
@@ -86,6 +89,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private EditWorkoutFragment.AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
     private Workout workout;
+    @Inject
+    WorkoutRepository workoutRepository;
 
 
     @Nullable
@@ -96,6 +101,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
         pendingRoutine = workout.getRoutine();
         activeUser = Globals.user; // TODO dependency injection?
+        Injector.getInjector(getContext()).inject(this);
 
         ((WorkoutActivity) getActivity()).enableBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
@@ -688,7 +694,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.editWorkout(workout.getWorkoutId(), workout);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.editWorkout(workout.getWorkoutId(), workout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

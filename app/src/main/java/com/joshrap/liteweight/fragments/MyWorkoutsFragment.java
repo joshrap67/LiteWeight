@@ -36,6 +36,7 @@ import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.StatisticsHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
@@ -50,6 +51,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
 import static android.os.Looper.getMainLooper;
 
 public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
@@ -61,12 +64,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private ProgressDialog loadingDialog;
     private List<WorkoutUser> workoutList;
     private WorkoutAdapter workoutAdapter;
+    @Inject
+    WorkoutRepository workoutRepository;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
+        Injector.getInjector(getContext()).inject(this);
         // TODO injection or view model for these two???
         currentWorkout = Globals.activeWorkout;
         user = Globals.user;
@@ -191,10 +197,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             Currently sorts by date last accessed
          */
         workoutList.remove(user.getUserWorkouts().get(currentWorkout.getWorkoutId()));
-        System.out.println(workoutList.size());
         Collections.sort(workoutList, (o1, o2) -> o2.getDateLast().compareTo(o1.getDateLast()));
         workoutList.add(0, user.getUserWorkouts().get(currentWorkout.getWorkoutId())); // selected always on top
-        System.out.println(workoutList.size());
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
@@ -370,7 +374,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
@@ -397,7 +401,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<User> resultStatus = WorkoutRepository.renameWorkout(workoutId, newWorkoutName);
+            ResultStatus<User> resultStatus = this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -418,7 +422,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.copyWorkout(currentWorkout, workoutName);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.copyWorkout(currentWorkout, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -441,7 +445,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.deleteWorkout(workoutId);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.deleteWorkout(workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -469,7 +473,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<User> resultStatus = WorkoutRepository.resetWorkoutStatistics(workoutId);
+            ResultStatus<User> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

@@ -39,6 +39,7 @@ import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -54,6 +55,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
 import static android.os.Looper.getMainLooper;
 
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
@@ -65,11 +68,14 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     private ArrayList<String> focusList = new ArrayList<>();
     private HashMap<String, ArrayList<ExerciseUser>> totalExercises = new HashMap<>(); // focus to exercise
     private AlertDialog alertDialog;
+    @Inject
+    UserRepository userRepository;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
+        Injector.getInjector(getContext()).inject(this);
         // TODO injection or view model???
         User user = Globals.user;
         for (String exerciseId : user.getUserExercises().keySet()) {
@@ -238,7 +244,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                     showLoadingDialog();
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
-                        ResultStatus<ExerciseUser> resultStatus = UserRepository.newExercise(exerciseName, selectedFocuses);
+                        ResultStatus<ExerciseUser> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses);
                         Handler handler = new Handler(getMainLooper());
                         handler.post(() -> {
                             loadingDialog.dismiss();

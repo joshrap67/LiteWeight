@@ -50,6 +50,7 @@ import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseRoutine;
 import com.joshrap.liteweight.models.ExerciseUser;
@@ -67,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
@@ -89,12 +92,15 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
+    @Inject
+    WorkoutRepository workoutRepository;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_workout, container, false);
+        Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).enableBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
         pendingRoutine = new Routine();
@@ -739,7 +745,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = WorkoutRepository.createWorkout(pendingRoutine, workoutName);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.createWorkout(pendingRoutine, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

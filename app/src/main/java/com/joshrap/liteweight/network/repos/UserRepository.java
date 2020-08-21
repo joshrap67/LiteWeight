@@ -3,7 +3,6 @@ package com.joshrap.liteweight.network.repos;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
@@ -17,7 +16,6 @@ import javax.inject.Inject;
 
 public class UserRepository {
 
-    private static final String getUserAction = "getUserData";
     private static final String newUserAction = "newUser";
     private static final String getUserWorkoutAction = "getUserWorkout";
     private static final String updateExerciseAction = "updateExercise";
@@ -30,35 +28,10 @@ public class UserRepository {
         this.apiGateway = apiGateway;
     }
 
-    public static ResultStatus<User> getUser(String username) {
-        ResultStatus<User> resultStatus = new ResultStatus<>();
-
-        Map<String, Object> requestBody = new HashMap<>();
-        if (username != null) {
-            requestBody.put(User.USERNAME, username);
-        }
-
-        ResultStatus<String> apiResponse = ApiGateway.makeRequest(getUserAction, requestBody, true);
-
-        if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse user data.");
-            }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to load user data. Check internet connection.");
-        } else {
-            resultStatus.setErrorMessage("Unable to load user data." + apiResponse.getErrorMessage());
-        }
-        return resultStatus;
-    }
-
-    public static ResultStatus<UserWithWorkout> getUserAndCurrentWorkout() {
+    public ResultStatus<UserWithWorkout> getUserAndCurrentWorkout() {
         ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
 
-        ResultStatus<String> apiResponse = ApiGateway.makeRequest(getUserWorkoutAction, new HashMap<>(), true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getUserWorkoutAction, new HashMap<>(), true);
 
         if (apiResponse.isSuccess()) {
             try {
@@ -75,7 +48,7 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public static ResultStatus<User> newUser(String username) {
+    public ResultStatus<User> newUser(String username) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -83,7 +56,7 @@ public class UserRepository {
             requestBody.put(User.USERNAME, username);
         }
 
-        ResultStatus<String> apiResponse = ApiGateway.makeRequest(newUserAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(newUserAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
@@ -100,7 +73,7 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public static ResultStatus<User> updateExercise(String exerciseId, ExerciseUser exerciseUser) {
+    public ResultStatus<User> updateExercise(String exerciseId, ExerciseUser exerciseUser) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -109,7 +82,7 @@ public class UserRepository {
         }
         requestBody.put(RequestFields.EXERCISE_ID, exerciseId);
 
-        ResultStatus<String> apiResponse = ApiGateway.makeRequest(updateExerciseAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(updateExerciseAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
@@ -126,7 +99,7 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public static ResultStatus<ExerciseUser> newExercise(String exerciseName, List<String> focuses) {
+    public ResultStatus<ExerciseUser> newExercise(String exerciseName, List<String> focuses) {
         ResultStatus<ExerciseUser> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -135,7 +108,7 @@ public class UserRepository {
         }
         requestBody.put(ExerciseUser.FOCUSES, focuses);
 
-        ResultStatus<String> apiResponse = ApiGateway.makeRequest(newExerciseAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(newExerciseAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {

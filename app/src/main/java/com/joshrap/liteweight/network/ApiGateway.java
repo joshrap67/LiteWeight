@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.joshrap.liteweight.imports.ApiConfig;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -21,6 +22,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import lombok.Data;
+
+@Data
 public class ApiGateway {
 
     private static final String ApiUrl = "https://vixcdm7fz5.execute-api.us-east-2.amazonaws.com/";
@@ -33,15 +37,15 @@ public class ApiGateway {
         this.tokens = tokens;
     }
 
-    public static ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
+    public ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
-        if (Globals.idToken != null) {
+        if (this.tokens != null) {
             try {
-                URL url = new URL(ApiUrl + Globals.deploymentStage + action);
+                URL url = new URL(ApiUrl + ApiConfig.deploymentStage + action);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
-                httpURLConnection.setRequestProperty("Authorization", "Bearer " + Globals.idToken);
+                httpURLConnection.setRequestProperty("Authorization", "Bearer " + this.tokens.getIdToken());
                 httpURLConnection.setUseCaches(false);
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.setDoOutput(true);
@@ -71,10 +75,21 @@ public class ApiGateway {
                 } else {
                     // TODO handle specific error codes?
                     if (firstTry) {
-                        if (refreshIdToken(Globals.refreshToken)) {
+                        if (refreshIdToken(this.tokens.getRefreshToken())) {
                             resultStatus = makeRequest(action, body, false);
                         }
 
+                    } else {
+                        // refresh didn't work, so it was a real error.
+                        StringBuilder jsonResponse = new StringBuilder();
+                        try (Reader reader = new BufferedReader(new InputStreamReader
+                                (httpURLConnection.getErrorStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+                            int c;
+                            while ((c = reader.read()) != -1) {
+                                jsonResponse.append((char) c);
+                            }
+                        }
+                        resultStatus.setErrorMessage(jsonResponse.toString());
                     }
                 }
                 httpURLConnection.disconnect();
@@ -93,10 +108,10 @@ public class ApiGateway {
         return resultStatus;
     }
 
-    private static boolean refreshIdToken(String refreshToken) {
+    private boolean refreshIdToken(String refreshToken) {
         ResultStatus<CognitoResponse> resultStatus = CognitoGateway.refreshIdToken(refreshToken);
         if (resultStatus.isSuccess()) {
-            Globals.idToken = resultStatus.getData().getIdToken();
+            this.tokens.setIdToken(resultStatus.getData().getIdToken());
         }
         return resultStatus.isSuccess();
     }

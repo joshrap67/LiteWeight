@@ -65,6 +65,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private List<String> exerciseNames;
     @Inject
     SharedPreferences sharedPreferences;
+    @Inject
+    UserRepository userRepository;
 
     @Nullable
     @Override
@@ -337,7 +339,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         String urlError = null;
 
 
-        if (!originalExercise.isDefaultExercise()) {
+        if (!originalExercise.isDefaultExercise() &&
+                !exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
+            // make sure that if the user doesn't change the name that they can still update other fields
             renameError = InputHelper.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(renameError);
         }
@@ -375,7 +379,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             showLoadingDialog();
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                ResultStatus<User> resultStatus = UserRepository.updateExercise(exerciseId, updatedExercise);
+                ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();

@@ -32,15 +32,19 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.CognitoGateway;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -53,10 +57,15 @@ public class SignInActivity extends AppCompatActivity {
     private static final String passwordNotMatchingMsg = "Passwords do not match.";
     private AlertDialog confirmEmailPopup;
     private ProgressDialog loadingDialog;
+    @Inject
+    UserRepository userRepository;
+    @Inject
+    public SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Injector.getInjector(this).inject(this);
         loadingDialog = new ProgressDialog(SignInActivity.this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_in);
@@ -486,7 +495,7 @@ public class SignInActivity extends AppCompatActivity {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             System.out.println("New user...");
-            ResultStatus<User> resultStatus = UserRepository.newUser(usernameInput.getText().toString().trim());
+            ResultStatus<User> resultStatus = this.userRepository.newUser(usernameInput.getText().toString().trim());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
@@ -505,13 +514,14 @@ public class SignInActivity extends AppCompatActivity {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             System.out.println("Getting user...");
-            ResultStatus<User> resultStatus = UserRepository.getUser(null);
+            ResultStatus<UserWithWorkout> resultStatus = this.userRepository.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     System.out.println("**************** USER GET SUCCEEDED *****************");
-                    Globals.user = resultStatus.getData();
+                    Globals.user = resultStatus.getData().getUser();
+                    Globals.activeWorkout = resultStatus.getData().getWorkout();
                     launchWorkoutActivity();
                 } else {
                     System.out.println("**************** USER GET FAILED *****************");
