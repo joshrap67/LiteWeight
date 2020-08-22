@@ -207,8 +207,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             Displays statistics for the currently selected workout
          */
         int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
-        double percentage = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
-        String formattedPercentage = StatisticsHelper.getFormattedPercentageCompleted(percentage);
+        double average = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
+        String formattedPercentage = StatisticsHelper.getFormattedAverageCompleted(average);
         int days = 0;
         for (int week = 0; week < currentWorkout.getRoutine().size(); week++) {
             days += currentWorkout.getRoutine().getWeek(week).size();

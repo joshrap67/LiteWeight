@@ -2,6 +2,7 @@ package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,25 +25,33 @@ import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.RoutineAdapter;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ExerciseRoutine;
+import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
+
+import static android.os.Looper.getMainLooper;
 
 public class ActiveWorkoutFragment extends Fragment {
     private TextView dayTV;
@@ -54,8 +64,11 @@ public class ActiveWorkoutFragment extends Fragment {
     private User user;
     private Routine routine;
     private RecyclerView recyclerView;
+    private ProgressDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
+    @Inject
+    WorkoutRepository workoutRepository;
 
     @Nullable
     @Override
@@ -64,6 +77,8 @@ public class ActiveWorkoutFragment extends Fragment {
         // TODO injection or view model for these two???
         currentWorkout = Globals.activeWorkout;
         user = Globals.user;
+        loadingDialog = new ProgressDialog(getContext());
+        loadingDialog.setCancelable(false);
 
         View view;
         if (currentWorkout == null) {
@@ -247,7 +262,7 @@ public class ActiveWorkoutFragment extends Fragment {
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
             forwardButton.setImageResource(R.drawable.restart_icon);
-        } else if (currentWeekIndex != 0 && currentWeekIndex < routine.size()) {
+        } else if (currentWeekIndex < routine.size()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -274,18 +289,45 @@ public class ActiveWorkoutFragment extends Fragment {
         /*
             Reset all of the exercises to being incomplete and then write to the database with these changes.
          */
-        for (int week = 0; week < routine.size(); week++) {
-            for (int day = 0; day < routine.getWeek(week).size(); day++) {
-                for (ExerciseRoutine exerciseRoutine : routine.getExerciseListForDay(week, day)) {
-                    exerciseRoutine.setCompleted(false);
-                }
-            }
-        }
-        // TODO api call
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.restartWorkout(currentWorkout);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Globals.activeWorkout = resultStatus.getData().getWorkout();
+                    user = resultStatus.getData().getUser();
+                    currentWorkout = new Workout(resultStatus.getData().getWorkout());
+                    Globals.user = user;
 
-        currentDayIndex = 0;
-        currentWeekIndex = 0;
-        updateRoutineListUI();
+                    routine = currentWorkout.getRoutine();
+                    currentDayIndex = 0;
+                    currentWeekIndex = 0;
+                    updateRoutineListUI();
+                } else {
+                    showErrorMessage(resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
+    private void showLoadingDialog() {
+        loadingDialog.setMessage("Saving...");
+        loadingDialog.show();
+    }
+
+    private void showErrorMessage(String message) {
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Save workout error")
+                .setMessage(message)
+                .setPositiveButton("Ok", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
     }
 
     private void jumpDaysPopup() {

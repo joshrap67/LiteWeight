@@ -26,6 +26,7 @@ public class WorkoutRepository {
     private static final String resetWorkoutStatisticsAction = "resetWorkoutStatistics";
     private static final String editWorkoutAction = "editWorkout";
     private static final String syncWorkoutAction = "syncWorkout";
+    private static final String restartWorkoutAction = "restartWorkout";
 
     private ApiGateway apiGateway;
 
@@ -220,6 +221,29 @@ public class WorkoutRepository {
             resultStatus.setErrorMessage("Network error. Unable to sync workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to sync workout. 3");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<UserWithWorkout> restartWorkout(@NonNull Workout workout) {
+        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(RequestFields.WORKOUT, workout.asMap());
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(restartWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to restart workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to restart workout. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to restart workout. 3");
         }
         return resultStatus;
     }

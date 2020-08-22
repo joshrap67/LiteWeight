@@ -77,32 +77,16 @@ public class Stopwatch {
         } else {
             stopwatchFinishedVisibility();
         }
-        startStopwatch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopwatchRunningVisibility();
-                startStopwatch();
-            }
+        startStopwatch.setOnClickListener(v -> {
+            stopwatchRunningVisibility();
+            startStopwatch();
         });
-        stopStopwatch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopwatchFinishedVisibility();
-                stopStopwatch();
-            }
+        stopStopwatch.setOnClickListener(v -> {
+            stopwatchFinishedVisibility();
+            stopStopwatch();
         });
-        resetStopwatch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetStopwatch();
-            }
-        });
-        showTimerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimer();
-            }
-        });
+        resetStopwatch.setOnClickListener(v -> resetStopwatch());
+        showTimerButton.setOnClickListener(v -> showTimer());
         updateStopwatchDisplay(displayTime);
     }
 

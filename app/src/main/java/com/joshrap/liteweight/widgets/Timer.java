@@ -84,39 +84,20 @@ public class Timer {
         } else {
             timerFinishedVisibility();
         }
-        startTimer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timerRunningVisibility();
-                startTimer();
-            }
+        startTimer.setOnClickListener(v -> {
+            timerRunningVisibility();
+            startTimer();
         });
-        stopTimer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timerFinishedVisibility();
-                stopTimer();
-            }
+        stopTimer.setOnClickListener(v -> {
+            timerFinishedVisibility();
+            stopTimer();
         });
-        resetTimer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetTimer();
-            }
-        });
-        showStopwatchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showStopwatch();
-            }
-        });
-        timerDisplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // allow the timer to be clickable in order for the user to input the time they want
-                if (!timerRunning) {
-                    showTimerPopup();
-                }
+        resetTimer.setOnClickListener(v -> resetTimer());
+        showStopwatchButton.setOnClickListener(v -> showStopwatch());
+        timerDisplay.setOnClickListener(v -> {
+            // allow the timer to be clickable in order for the user to input the time they want
+            if (!timerRunning) {
+                showTimerPopup();
             }
         });
         updateTimerDisplay(displayTime);
@@ -143,29 +124,23 @@ public class Timer {
                 .setPositiveButton("Save Time", null)
                 .setNegativeButton("Cancel", null)
                 .create();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        long minutes = minutePicker.getValue() * (60 * timeUnit);
-                        long seconds = secondPicker.getValue() * timeUnit;
-                        timerDuration = minutes + seconds;
-                        if (timerDuration > 0) {
-                            resetTimer();
-                            editor = pref.edit();
-                            editor.putLong(Variables.TIMER_DURATION, timerDuration);
-                            editor.apply();
-                            alertDialog.dismiss();
-                        } else {
-                            Toast.makeText(context, "Invalid time", Toast.LENGTH_SHORT).show();
-                        }
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
+                long minutes = minutePicker.getValue() * (60 * timeUnit);
+                long seconds = secondPicker.getValue() * timeUnit;
+                timerDuration = minutes + seconds;
+                if (timerDuration > 0) {
+                    resetTimer();
+                    editor = pref.edit();
+                    editor.putLong(Variables.TIMER_DURATION, timerDuration);
+                    editor.apply();
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(context, "Invalid time", Toast.LENGTH_SHORT).show();
+                }
 
-                    }
-                });
-            }
+            });
         });
         alertDialog.show();
     }

@@ -61,7 +61,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private boolean drawerListenerIsRegistered = false;
     private TextView toolbarTitleTV;
     private NavigationView nav;
-    private ProgressBar progressBar;
     private Bundle state;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
@@ -88,7 +87,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         showPopupFlag = true;
         toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
-        progressBar = findViewById(R.id.progress_bar);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         state = savedInstanceState;
