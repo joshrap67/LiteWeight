@@ -1,31 +1,23 @@
 package com.joshrap.liteweight.helpers;
 
-import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.Routine;
 
 public class WorkoutHelper {
-    public static String generateDayTitle(int currentDayIndex, int daysPerWeek, String workoutType) {
-        /*
-            Generates a day title for a workout.
-            If a fixed workout then it will be in the format: W<#>:D<#>.
-            If flexible, then it will be in the format: Day:<#>
-         */
-        String retVal = null;
-        if (workoutType.equals(Variables.WORKOUT_FLEXIBLE)) {
-            // for flexible workouts we just pretend it is a giant one week workout
-            retVal = "Day " + (currentDayIndex + 1);
-        } else if (workoutType.equals(Variables.WORKOUT_FIXED)) {
-            int weekNum = (currentDayIndex / daysPerWeek) + 1;
-            int dayNum = (currentDayIndex % daysPerWeek) + 1;
-            retVal = "W" + weekNum + ":D" + dayNum;
+    public static void deleteExerciseFromRoutine(final String exerciseId, final Routine routine) {
+        if (routine == null) {
+            return;
         }
-        return retVal;
+        for (int week = 0; week < routine.size(); week++) {
+            for (int day = 0; day < routine.getWeek(week).size(); day++) {
+                routine.removeExercise(week, day, exerciseId);
+            }
+        }
     }
 
     public static String generateDayTitleNew(int currentWeekIndex, int currentDayIndex) {
         /*
             Generates a day title for a workout.
          */
-
         return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
     }
 }

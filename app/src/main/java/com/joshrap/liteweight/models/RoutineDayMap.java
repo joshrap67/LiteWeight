@@ -51,15 +51,22 @@ public class RoutineDayMap implements Model {
         this.exercisesForDay.put(this.exercisesForDay.keySet().size(), exerciseRoutine);
     }
 
-    void deleteExercise(String exerciseId) {
+    boolean deleteExercise(String exerciseId) {
+        boolean deleted = false;
         int index = -1;
         for (Integer sortVal : this.exercisesForDay.keySet()) {
             if (this.exercisesForDay.get(sortVal).getExerciseId().equals(exerciseId)) {
                 index = sortVal;
             }
         }
-        this.exercisesForDay.remove(index);
-        balanceMap();
+        if (index != -1) {
+            deleted = true;
+            this.exercisesForDay.remove(index);
+            balanceMap();
+        }
+
+        return deleted;
+
     }
 
     private void balanceMap() {

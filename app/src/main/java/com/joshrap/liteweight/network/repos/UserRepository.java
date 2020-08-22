@@ -20,11 +20,12 @@ public class UserRepository {
     private static final String getUserWorkoutAction = "getUserWorkout";
     private static final String updateExerciseAction = "updateExercise";
     private static final String newExerciseAction = "newExercise";
+    private static final String deleteExerciseAction = "deleteExercise";
 
     private ApiGateway apiGateway;
 
     @Inject
-    public UserRepository(ApiGateway apiGateway){
+    public UserRepository(ApiGateway apiGateway) {
         this.apiGateway = apiGateway;
     }
 
@@ -117,6 +118,26 @@ public class UserRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
             }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to update exercise.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> deleteExercise(String exerciseId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (exerciseId != null) {
+            requestBody.put(RequestFields.EXERCISE_ID, exerciseId);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(deleteExerciseAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
         } else {

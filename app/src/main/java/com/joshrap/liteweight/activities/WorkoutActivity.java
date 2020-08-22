@@ -546,6 +546,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         onBackPressed();
     }
 
+    public void closeExerciseDetails() {
+        /*
+            Called by the new workout fragment once a exercise is successfully destroyed.
+            It destroys that fragment and handles the back stack appropriately.
+         */
+        showPopupFlag = false;
+        onBackPressed();
+    }
+
     // region Navigation Methods
     public void goToCurrentWorkout() {
         if (fragmentStack.contains(Variables.CURRENT_WORKOUT_TITLE)) {

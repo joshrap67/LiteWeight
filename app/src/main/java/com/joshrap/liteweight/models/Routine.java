@@ -75,8 +75,8 @@ public class Routine implements Model {
         this.routine.get(week).get(day).insertNewExercise(exerciseRoutine);
     }
 
-    public void removeExercise(int week, int day, String exerciseId) {
-        this.routine.get(week).get(day).deleteExercise(exerciseId);
+    public boolean removeExercise(int week, int day, String exerciseId) {
+        return this.routine.get(week).get(day).deleteExercise(exerciseId);
     }
 
     public void deleteWeek(int week) {

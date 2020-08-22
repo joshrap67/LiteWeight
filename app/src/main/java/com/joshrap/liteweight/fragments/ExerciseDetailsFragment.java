@@ -30,6 +30,7 @@ import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.ExerciseHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WeightHelper;
+import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -123,6 +124,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (originalExercise.isDefaultExercise()) {
             deleteExercise.setVisibility(View.GONE);
         }
+        deleteExercise.setOnClickListener(v -> promptDelete());
 
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
         weightLayout.setHint("Default Weight (" + (metricUnits ? "kg)" : "lb)"));
@@ -411,8 +413,43 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         messageTV.setTextSize(18);
     }
 
-    private void deleteExercise() {
+    private void promptDelete() {
+        /*
+            Prompt user if they actually want to delete the currently selected workout
+         */
+        String message = "Are you sure you wish to permanently delete \"" + originalExercise.getExerciseName() + "\"?" +
+                "\n\nIf so, this exercise will be removed from ALL workouts that contain it.";
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Delete Exercise")
+                .setMessage(message)
+                .setPositiveButton("Yes", (dialog, which) -> deleteExercise())
+                .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+        // make the message font a little bigger than the default one provided by the alertdialog
+        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
+        messageTV.setTextSize(18);
+    }
 
+    private void deleteExercise() {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    // deleted successfully, so delete everything
+                    user.getUserExercises().remove(exerciseId);
+                    WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
+                    ((WorkoutActivity) getActivity()).closeExerciseDetails();
+
+                } else {
+                    showErrorMessage("Delete Exercise Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
     }
 
     private void showLoadingDialog() {

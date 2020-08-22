@@ -25,7 +25,6 @@ import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.RoutineAdapter;
