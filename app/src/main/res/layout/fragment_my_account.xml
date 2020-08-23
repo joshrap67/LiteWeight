@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/received_workouts_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+                android:id="@+id/username_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/profile_picture"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.cardview.widget.CardView
+                android:id="@+id/profile_picture"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintBottom_toTopOf="@id/upgrade_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/username_tv">
+
+            <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleType="fitXY"
+                    app:srcCompat="@drawable/test" />
+
+            <TextView
+                    android:id="@+id/change_picture_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/gradient"
+                    android:text="Change"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+        </androidx.cardview.widget.CardView>
+
+
+        <Button
+                android:id="@+id/upgrade_btn"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:text="UPGRADE TO PREMIUM"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+            android:id="@+id/received_workouts_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableEnd="@drawable/mail_icon"
+            android:elevation="2dp"
+            android:focusable="true"
+            android:text="Received Workouts"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toTopOf="@+id/friends_list_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+    <TextView
+            android:id="@+id/friends_list_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableEnd="@drawable/friends_icon"
+            android:elevation="2dp"
+            android:focusable="true"
+            android:text="Friends List"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toTopOf="@id/account_preferences_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/received_workouts_tv" />
+
+    <TextView
+            android:id="@+id/account_preferences_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableEnd="@drawable/account_preferences_icon"
+            android:elevation="2dp"
+            android:focusable="true"
+            android:text="Account Preferences"
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/friends_list_tv" />
+
+    <!--    <ScrollView-->
+    <!--            android:id="@+id/settings_scroll_view"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="0dp"-->
+    <!--            android:layout_marginStart="16dp"-->
+    <!--            android:layout_marginTop="16dp"-->
+    <!--            android:layout_marginEnd="16dp"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/log_out_btn"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/friends_list_tv">-->
+
+    <!--        <LinearLayout-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:orientation="vertical">-->
+
+    <!--            <RelativeLayout-->
+    <!--                    android:id="@+id/private_container"-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="wrap_content">-->
+
+    <!--                <Switch-->
+    <!--                        android:id="@+id/private_account_switch"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_centerVertical="true"-->
+    <!--                        android:text="Private Account"-->
+    <!--                        android:textSize="20sp" />-->
+
+    <!--                <ImageButton-->
+    <!--                        android:id="@+id/private_account_help"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_alignParentEnd="true"-->
+    <!--                        android:background="?android:selectableItemBackgroundBorderless"-->
+    <!--                        app:srcCompat="@drawable/help_icon" />-->
+    <!--            </RelativeLayout>-->
+
+    <!--            <RelativeLayout-->
+    <!--                    android:id="@+id/notifications_container"-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="wrap_content">-->
+
+    <!--                <Switch-->
+    <!--                        android:id="@+id/notifications_switch"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_centerVertical="true"-->
+    <!--                        android:text="Mute Notifications"-->
+    <!--                        android:textSize="20sp" />-->
+
+    <!--                <ImageButton-->
+    <!--                        android:id="@+id/notification_help"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_alignParentEnd="true"-->
+    <!--                        android:background="?android:selectableItemBackgroundBorderless"-->
+    <!--                        app:srcCompat="@drawable/help_icon" />-->
+    <!--            </RelativeLayout>-->
+
+    <!--            <RelativeLayout-->
+    <!--                    android:id="@+id/update_on_restart_container"-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="wrap_content">-->
+
+    <!--                <Switch-->
+    <!--                        android:id="@+id/update_on_restart_switch"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_centerVertical="true"-->
+    <!--                        android:text="Update Default Weight on Restart"-->
+    <!--                        android:textSize="20sp" />-->
+
+    <!--                <ImageButton-->
+    <!--                        android:id="@+id/update_on_restart_help"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_alignParentEnd="true"-->
+    <!--                        android:background="?android:selectableItemBackgroundBorderless"-->
+    <!--                        app:srcCompat="@drawable/help_icon" />-->
+    <!--            </RelativeLayout>-->
+
+    <!--            <RelativeLayout-->
+    <!--                    android:id="@+id/update_on_save_container"-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="wrap_content">-->
+
+    <!--                <Switch-->
+    <!--                        android:id="@+id/update_on_save_switch"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_centerVertical="true"-->
+    <!--                        android:text="Update Default Weight on Save"-->
+    <!--                        android:textSize="20sp" />-->
+
+    <!--                <ImageButton-->
+    <!--                        android:id="@+id/update_on_save_help"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_alignParentEnd="true"-->
+    <!--                        android:background="?android:selectableItemBackgroundBorderless"-->
+    <!--                        app:srcCompat="@drawable/help_icon" />-->
+    <!--            </RelativeLayout>-->
+    <!--        </LinearLayout>-->
+    <!--    </ScrollView>-->
+
+    <!--    <Button-->
+    <!--            android:id="@+id/log_out_btn"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginBottom="8dp"-->
+    <!--            android:text="LOG OUT"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/settings_scroll_view" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

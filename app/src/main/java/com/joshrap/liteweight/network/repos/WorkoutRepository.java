@@ -208,7 +208,6 @@ public class WorkoutRepository {
         requestBody.put(RequestFields.WORKOUT, workout.asMap());
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(syncWorkoutAction, requestBody, true);
-        System.out.println(apiResponse);
 
         if (apiResponse.isSuccess()) {
             try {

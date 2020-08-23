@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.Workout;
 
 import javax.inject.Singleton;
 
@@ -15,8 +13,6 @@ import dagger.Provides;
 
 @Module
 class LiteWeightModule {
-    private Workout workout;
-    private User user;
     private Context context;
 
     LiteWeightModule(Context context) {
@@ -28,11 +24,6 @@ class LiteWeightModule {
         return this.context;
     }
 
-    @Provides
-    @Singleton
-    Workout getWorkoutObject() {
-        return this.workout;
-    }
 
     @Provides
     @Singleton

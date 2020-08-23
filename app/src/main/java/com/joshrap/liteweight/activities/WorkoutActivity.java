@@ -32,7 +32,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
@@ -70,7 +69,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private Stopwatch stopwatch;
     // save these as variables since the user can click around and it is ideal to preserve the view that they altered
     private ActiveWorkoutFragment currentWorkoutFragment;
-    private MyExercisesFragment myExercisesFragment;
     @Inject
     public ApiGateway apiGateway;
     @Inject
@@ -176,25 +174,24 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
 
             if (currentFragment instanceof NewWorkoutFragment) {
-//                if (((NewWorkoutFragment) currentFragment).isModified()) {
-//                    // workout is being made, so give user option to prevent navigation change
-//                    showUnsavedChangesNewWorkoutPopup(true);
-//                    return;
-//                } else {
-//                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
-//                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-//                }
+                if (((NewWorkoutFragment) currentFragment).isModified()) {
+                    // workout is being made, so give user option to prevent navigation change
+                    showUnsavedChangesNewWorkoutPopup(true);
+                    return;
+                } else {
+                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
+                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+                }
+            } else if (currentFragment instanceof EditWorkoutFragment) {
+                if (((EditWorkoutFragment) currentFragment).isModified()) {
+                    // workout is being edited, so give user option to prevent navigation change
+                    showUnsavedChangesEditWorkoutPopup(true);
+                    return;
+                } else {
+                    // can't ever go back to the edit workout fragment since it's only accessible within the my workout fragment
+                    fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
+                }
             }
-//            else if (currentFragment instanceof EditWorkoutFragment) {
-//                if (((EditWorkoutFragment) currentFragment)) {
-//                    // workout is being edited, so give user option to prevent navigation change
-//                    showUnsavedChangesEditWorkoutPopup(true);
-//                    return;
-//                } else {
-//                    // can't ever go back to the edit workout fragment since it's only accessible within the my workout fragment
-//                    fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-//                }
-//            }
 
             goToCurrentWorkout();
             enableBackButton(false);
@@ -293,16 +290,29 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 break;
 
+            case R.id.nav_account_settings:
+                if (currentFrag instanceof NewWorkoutFragment) {
+                    if (modified) {
+                        showUnsavedChangesNewWorkoutPopup(false);
+                    } else {
+                        goToAppSettings();
+                    }
+                } else if (!(currentFrag instanceof MyAccountFragment)) {
+                    // prevent from selecting currently selected fragment
+                    goToAccountSettings();
+                }
+                break;
+
             case R.id.nav_user_settings:
                 if (currentFrag instanceof NewWorkoutFragment) {
                     if (modified) {
                         showUnsavedChangesNewWorkoutPopup(false);
                     } else {
-                        goToUserSettings();
+                        goToAppSettings();
                     }
                 } else if (!(currentFrag instanceof UserSettingsFragment)) {
                     // prevent from selecting currently selected fragment
-                    goToUserSettings();
+                    goToAppSettings();
                 }
                 break;
 
@@ -375,7 +385,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     nav.setCheckedItem(R.id.nav_my_workouts);
                     break;
                 case Variables.SETTINGS_TITLE:
-                    goToUserSettings();
+                    goToAppSettings();
                     nav.setCheckedItem(R.id.nav_user_settings);
                     break;
                 case Variables.MY_EXERCISES_TITLE:
@@ -385,6 +395,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 case Variables.ABOUT_TITLE:
                     goToAbout();
                     nav.setCheckedItem(R.id.nav_about);
+                    break;
+                case Variables.ACCOUNT_TITLE:
+                    goToAccountSettings();
+                    nav.setCheckedItem(R.id.nav_account_settings);
                     break;
             }
             enableBackButton(false); // in case the user was in a page that had a back button
@@ -434,19 +448,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle("Unsaved Changes")
                 .setMessage(R.string.unsaved_workout_msg)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (timerNotificationClicked) {
-                            fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-                            alertDialog.dismiss();
-                            enableBackButton(false);
-                            nav.setCheckedItem(R.id.nav_current_workout);
-                            goToCurrentWorkout();
-                        } else {
-                            showPopupFlag = false;
-                            onBackPressed();
-                        }
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    if (timerNotificationClicked) {
+                        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+                        alertDialog.dismiss();
+                        enableBackButton(false);
+                        nav.setCheckedItem(R.id.nav_current_workout);
+                        goToCurrentWorkout();
+                    } else {
+                        showPopupFlag = false;
+                        onBackPressed();
                     }
                 })
                 .setNegativeButton("No", null)
@@ -518,9 +529,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (aFragment == null) {
             retVal = false;
         } else if (aFragment instanceof NewWorkoutFragment) {
-            retVal = true;
+            retVal = ((NewWorkoutFragment) aFragment).isModified();
         } else if (aFragment instanceof EditWorkoutFragment) {
-            retVal = true;
+            retVal = ((EditWorkoutFragment) aFragment).isModified();
         }
         return retVal;
     }
@@ -579,13 +590,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         } else {
             fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
         }
-        // keeping the fragment as a variable to ensure the state is maintained (e.g. user can click to filter default, want to keep that)
-//        if (myExercisesFragment == null) {
-//
-//        }
-        myExercisesFragment = new MyExercisesFragment();
+
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                myExercisesFragment, Variables.MY_EXERCISES_TITLE)
+                new MyExercisesFragment(), Variables.MY_EXERCISES_TITLE)
                 .commit();
     }
 
@@ -596,10 +603,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         } else {
             fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
         }
-        // keeping the fragment as a variable to ensure the state is maintained (e.g. user can click to filter default, want to keep that)
-        if (myExercisesFragment == null) {
-            myExercisesFragment = new MyExercisesFragment();
-        }
+
         Bundle arguments = new Bundle();
         arguments.putString(Variables.EXERCISE_ID, exerciseId);
         Fragment fragment = new ExerciseDetailsFragment();
@@ -648,7 +652,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
-    public void goToUserSettings() {
+    public void goToAppSettings() {
         if (fragmentStack.contains(Variables.SETTINGS_TITLE)) {
             fragmentStack.remove(Variables.SETTINGS_TITLE);
             fragmentStack.add(0, Variables.SETTINGS_TITLE);
@@ -657,6 +661,18 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new UserSettingsFragment(), Variables.SETTINGS_TITLE)
+                .commit();
+    }
+
+    public void goToAccountSettings() {
+        if (fragmentStack.contains(Variables.ACCOUNT_TITLE)) {
+            fragmentStack.remove(Variables.ACCOUNT_TITLE);
+            fragmentStack.add(0, Variables.ACCOUNT_TITLE);
+        } else {
+            fragmentStack.add(0, Variables.ACCOUNT_TITLE);
+        }
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
     }
 

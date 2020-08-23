@@ -57,7 +57,6 @@ public class SyncRoutineService extends Service {
                         System.out.println("**************** SYNC SUCCEEDED *****************");
                     } else {
                         System.out.println("**************** SYNC FAILED *****************");
-                        System.out.println(resultStatus.getErrorMessage());
                     }
                     stopSelf();
                 });

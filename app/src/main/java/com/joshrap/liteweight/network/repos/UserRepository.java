@@ -21,6 +21,7 @@ public class UserRepository {
     private static final String updateExerciseAction = "updateExercise";
     private static final String newExerciseAction = "newExercise";
     private static final String deleteExerciseAction = "deleteExercise";
+    private static final String updateProfilePictureAction = "updateIcon";
 
     private ApiGateway apiGateway;
 
@@ -142,6 +143,26 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> updateProfilePicture(String pictureData) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (pictureData != null) {
+            requestBody.put(User.ICON, pictureData);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(updateProfilePictureAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update icon. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to update icon.");
         }
         return resultStatus;
     }

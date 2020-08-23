@@ -914,6 +914,18 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         pickExerciseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
+    public boolean isModified() {
+        boolean modified = false;
+        for (int week = 0; week < pendingRoutine.size(); week++) {
+            for (int day = 0; day < pendingRoutine.getWeek(week).size(); day++) {
+                if (!pendingRoutine.getExerciseListForDay(week, day).isEmpty()) {
+                    modified = true;
+                }
+            }
+        }
+        return modified;
+    }
+
     private class FocusSpinnerListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
