@@ -146,6 +146,7 @@ public class InputHelper {
 
     public static String validNewUsername(String username) {
         // TODO don't allow @ symbol
+        // Todo check length
         username = username.trim();
         String retVal = null;
         Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
@@ -211,6 +212,20 @@ public class InputHelper {
         String retVal = null;
         if (!validEmail.matcher(email).find()) {
             retVal = "Invalid email.";
+        }
+        return retVal;
+    }
+
+    public static String validNewFriend(String activeUser, String username, List<String> friends) {
+        username = username.trim();
+        String retVal = validUsername(username);
+        if (retVal == null) {
+            // means no issue with base username
+            if (friends.contains(username)) {
+                retVal = "Request already sent"; // todo check if friend vs request?
+            } else if (activeUser.equals(username)) {
+                retVal = "Can't be friends with yourself. Sorry.";
+            }
         }
         return retVal;
     }

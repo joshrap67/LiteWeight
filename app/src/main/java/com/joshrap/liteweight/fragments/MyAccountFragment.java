@@ -72,6 +72,8 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
          */
         TextView usernameTV = view.findViewById(R.id.username_tv);
         final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
+        TextView friendsListTv = view.findViewById(R.id.friends_list_tv);
+        friendsListTv.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList());
         changePictureTv.setVisibility(View.GONE);
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
@@ -163,7 +165,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void performCrop(Uri picUri) {
-        String destinationFileName = UUID.randomUUID().toString() + ".jpg";
+        String destinationFileName = UUID.randomUUID().toString() + ".png";
         UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(getActivity().getCacheDir(), destinationFileName)));
         cropper.withAspectRatio(1, 1);
         cropper.withMaxResultSize(600, 600);
@@ -173,7 +175,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
         options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         options.setToolbarWidgetColor(getResources().getColor(R.color.notification_color));
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setCompressionQuality(100);
         options.setToolbarTitle("Crop Profile Picture");
 

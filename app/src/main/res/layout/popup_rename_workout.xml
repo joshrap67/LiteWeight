@@ -22,7 +22,6 @@
                 android:inputType="textCapSentences"
                 android:maxLines="1"
                 android:minWidth="75dp"
-                android:selectAllOnFocus="true"
                 android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

@@ -55,6 +55,8 @@ public class Variables {
             MY_WORKOUT_TITLE = "My Workouts",
             NEW_WORKOUT_TITLE = "Create Workout",
             ACCOUNT_TITLE = "My Account",
+            ACCOUNT_PREFS_TITLE = "Account Preferences",
+            FRIENDS_LIST_TITLE = "Friends List",
             SETTINGS_TITLE = "Settings",
             EXERCISE_DETAILS_TITLE = "Exercise Details",
             EDIT_WORKOUT_TITLE = "Edit Workout",

@@ -4,10 +4,11 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.view.GravityCompat;
@@ -32,10 +35,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.helpers.ImageHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -47,6 +52,8 @@ import com.joshrap.liteweight.services.SyncRoutineService;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +86,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
         createNotificationChannel();
-        setContentView(R.layout.workout_activity);
+        setContentView(R.layout.activity_workout);
         timer = new Timer(this);
         stopwatch = new Stopwatch(this);
         showPopupFlag = true;
@@ -216,6 +223,28 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
+        View headerView = nav.getHeaderView(0);
+        final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
+        Picasso.get()
+                .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
+                .error(R.drawable.ic_launcher_round)
+                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                .into(profilePicture, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        profilePicture.setImageDrawable(imageDrawable);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
+        final TextView usernameTV = headerView.findViewById(R.id.username_tv);
+        usernameTV.setText(Globals.user.getUsername());
     }
 
     public void enableBackButton(boolean enable) {
@@ -249,81 +278,44 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Called whenever an element in the nav menu is selected
          */
         Fragment currentFrag = getVisibleFragment();
-        boolean modified = fragModified(currentFrag);
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToCurrentWorkout();
-                    }
-                } else if (!(currentFrag instanceof ActiveWorkoutFragment)) {
+                if (!(currentFrag instanceof ActiveWorkoutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToCurrentWorkout();
                 }
                 break;
 
             case R.id.nav_my_workouts:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToMyWorkouts();
-                    }
-                } else if (!(currentFrag instanceof MyWorkoutsFragment)) {
+                if (!(currentFrag instanceof MyWorkoutsFragment)) {
                     // prevent from selecting currently selected fragment
                     goToMyWorkouts();
                 }
                 break;
 
             case R.id.nav_my_exercises:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToMyExercises();
-                    }
-                } else if (!(currentFrag instanceof MyExercisesFragment)) {
+                if (!(currentFrag instanceof MyExercisesFragment)) {
                     // prevent from selecting currently selected fragment
                     goToMyExercises();
                 }
                 break;
 
             case R.id.nav_account_settings:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToAppSettings();
-                    }
-                } else if (!(currentFrag instanceof MyAccountFragment)) {
+                if (!(currentFrag instanceof MyAccountFragment)) {
                     // prevent from selecting currently selected fragment
                     goToAccountSettings();
                 }
                 break;
 
             case R.id.nav_user_settings:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToAppSettings();
-                    }
-                } else if (!(currentFrag instanceof UserSettingsFragment)) {
+                if (!(currentFrag instanceof UserSettingsFragment)) {
                     // prevent from selecting currently selected fragment
                     goToAppSettings();
                 }
                 break;
 
             case R.id.nav_about:
-                if (currentFrag instanceof NewWorkoutFragment) {
-                    if (modified) {
-                        showUnsavedChangesNewWorkoutPopup(false);
-                    } else {
-                        goToAbout();
-                    }
-                } else if (!(currentFrag instanceof AboutFragment)) {
+                if (!(currentFrag instanceof AboutFragment)) {
                     // prevent from selecting currently selected fragment
                     goToAbout();
                 }
@@ -526,9 +518,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Checks if passed in fragment has been modified
          */
         boolean retVal = false;
-        if (aFragment == null) {
-            retVal = false;
-        } else if (aFragment instanceof NewWorkoutFragment) {
+        if (aFragment instanceof NewWorkoutFragment) {
             retVal = ((NewWorkoutFragment) aFragment).isModified();
         } else if (aFragment instanceof EditWorkoutFragment) {
             retVal = ((EditWorkoutFragment) aFragment).isModified();
@@ -673,6 +663,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new MyAccountFragment(), Variables.ACCOUNT_TITLE)
+                .commit();
+    }
+
+    public void goToFriendsList() {
+        if (fragmentStack.contains(Variables.FRIENDS_LIST_TITLE)) {
+            fragmentStack.remove(Variables.FRIENDS_LIST_TITLE);
+            fragmentStack.add(0, Variables.FRIENDS_LIST_TITLE);
+        } else {
+            fragmentStack.add(0, Variables.FRIENDS_LIST_TITLE);
+        }
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .replace(R.id.fragment_container, new FriendsListFragment(), Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
 

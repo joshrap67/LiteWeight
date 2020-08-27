@@ -68,7 +68,7 @@ public class SignInActivity extends AppCompatActivity {
         Injector.getInjector(this).inject(this);
         loadingDialog = new ProgressDialog(SignInActivity.this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sign_in);
+        setContentView(R.layout.activity_sign_in);
 
         this.usernameInput = findViewById(R.id.username_input);
         this.passwordInput = findViewById(R.id.password_input);
