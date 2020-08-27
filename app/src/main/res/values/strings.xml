@@ -157,5 +157,5 @@
         \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
     </string>
     <string name="empty_friend_list_msg">You do not yet have any friends added. Click the button below to add some!</string>
-    <string name="empt_friends_request_msg">You do not have any pending requests.</string>
+    <string name="empty_friends_request_msg">You do not have any pending requests.</string>
 </resources>

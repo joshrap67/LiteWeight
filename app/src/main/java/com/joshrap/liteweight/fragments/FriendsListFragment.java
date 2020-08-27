@@ -80,12 +80,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
          */
         // TODO rename deleteWorkout as popWorkout???
         friends = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 0; i++) {
             friends.add(new Friend("User " + (i + 1), "https://yt3.ggpht.com/-7QXQsjZ-1SE/AAAAAAAAAAI/AAAAAAAAAAA/zIGE4BY7zLs/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
                     (i % 2 == 0)));
         }
         emptyView = view.findViewById(R.id.empty_view);
-        emptyView.setVisibility(View.GONE);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView = view.findViewById(R.id.friends_recycler_view);
         recyclerView.setLayoutManager(llm);
@@ -120,9 +119,20 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         super.onViewCreated(view, savedInstanceState);
     }
 
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+            bottomSheetDialog.dismiss();
+        }
+    }
+
     private void switchToFriendsList() {
         floatingActionButton.show();
         FriendsAdapter adapter = new FriendsAdapter(friends);
+        checkEmptyList(FRIENDS_POSITION);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override
@@ -141,6 +151,33 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
                 checkEmptyList(FRIENDS_POSITION);
+            }
+        });
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void switchToRequestsList() {
+        floatingActionButton.hide();
+        FriendRequestsAdapter adapter = new FriendRequestsAdapter(friends);
+        checkEmptyList(REQUESTS_POSITION);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                checkEmptyList(REQUESTS_POSITION);
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                checkEmptyList(REQUESTS_POSITION);
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                checkEmptyList(REQUESTS_POSITION);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -150,47 +187,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
          /*
             Used to check if the user has any friends. If not, show a textview alerting user
          */
+        // todo need to separate between requests
         emptyView.setVisibility(friends.isEmpty() ? View.VISIBLE : View.GONE);
         if (position == FRIENDS_POSITION) {
             emptyView.setText(getString(R.string.empty_friend_list_msg));
         } else if (position == REQUESTS_POSITION) {
-            emptyView.setText(getString(R.string.empt_friends_request_msg));
-        }
-    }
-
-    private void switchToRequestsList() {
-        floatingActionButton.hide();
-        FriendRequestsAdapter adapter = new FriendRequestsAdapter(friends);
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                checkEmptyList(REQUESTS_POSITION);
-            }
-
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                checkEmptyList(REQUESTS_POSITION);
-            }
-
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                super.onItemRangeRemoved(positionStart, itemCount);
-                checkEmptyList(REQUESTS_POSITION);
-            }
-        });
-        recyclerView.setAdapter(adapter);
-    }
-
-    @Override
-    public void hideAllDialogs() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
-        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-            bottomSheetDialog.dismiss();
+            emptyView.setText(getString(R.string.empty_friends_request_msg));
         }
     }
 
