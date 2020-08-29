@@ -50,7 +50,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:scaleType="fitXY"
-                    app:srcCompat="@mipmap/ic_launcher" />
+                    app:srcCompat="@mipmap/new_icon" />
 
             <TextView
                     android:id="@+id/change_picture_tv"
