@@ -82,7 +82,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         url = ImageHelper.getIconUrl(user.getIcon());
         Picasso.get()
                 .load(url)
-                .error(R.drawable.ic_launcher_round)
+                .error(R.drawable.new_icon_round)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override

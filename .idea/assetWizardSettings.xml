@@ -45,13 +45,25 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="foregroundClipArt">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="000000" />
+                                                <entry key="trimmed" value="true" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="foregroundImage">
                                         <value>
                                           <PersistentState>
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="scalingPercent" value="102" />
+                                                <entry key="scalingPercent" value="110" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -63,8 +75,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="a63f44" />
-                                      <entry key="foregroundImage" value="C:\Users\Josh\Downloads\gym.png" />
+                                      <entry key="backgroundColor" value="0b2027" />
+                                      <entry key="foregroundImage" value="C:\Users\Josh\Documents\rect890.png" />
+                                      <entry key="outputName" value="new_icon" />
                                     </map>
                                   </option>
                                 </PersistentState>
