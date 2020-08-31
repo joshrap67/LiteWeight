@@ -164,9 +164,10 @@ public class InputHelper {
         String retVal = null;
         if (username.isEmpty()) {
             retVal = "Username cannot be empty.";
-        } else if (username.contains("@")) {
-            retVal = "Username cannot have \"@\" symbol.";
         }
+//        else if (username.contains("@")) {
+//            retVal = "Username cannot have \"@\" symbol.";
+//        }
         return retVal;
     }
 

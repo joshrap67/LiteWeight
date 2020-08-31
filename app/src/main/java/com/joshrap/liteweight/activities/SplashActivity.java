@@ -41,7 +41,6 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
-        // TODO guest mode?
         String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
         String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
         if (refreshToken == null || idToken == null) {
@@ -79,6 +78,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void launchWorkoutActivity() {
+        // todo when launching to the workout activity, check if the user had clicked on a notification
         Intent intent = new Intent(this, WorkoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

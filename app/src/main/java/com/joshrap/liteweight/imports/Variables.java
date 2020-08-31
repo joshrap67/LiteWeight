@@ -62,6 +62,7 @@ public class Variables {
             EDIT_WORKOUT_TITLE = "Edit Workout",
             TIMER_RUNNING_CHANNEL = "timer_running_channel",
             TIMER_FINISHED_CHANNEL = "timer_finished_channel",
+            FRIEND_REQUEST_CHANNEL = "friend_request_channel",
             STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
             EXERCISE_ID = "exerciseId";
 
@@ -74,6 +75,8 @@ public class Variables {
             INTENT_TIMER_TIME_ON_CLOCK = "Time_on_clock",
             INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked",
             INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked",
+            INTENT_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
+            INTENT_FRIEND_REQUEST_DATA = "Friend_Request_Data",
             INTENT_ID_TOKEN = "idToken",
             INTENT_REFRESH_TOKEN = "refreshToken";
 }

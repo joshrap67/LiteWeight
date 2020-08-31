@@ -3,8 +3,10 @@ package com.joshrap.liteweight.activities;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -27,9 +29,12 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +42,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
 import com.joshrap.liteweight.helpers.ImageHelper;
@@ -45,8 +52,11 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
+import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
 import com.joshrap.liteweight.services.SyncRoutineService;
 import com.joshrap.liteweight.services.TimerService;
@@ -57,6 +67,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -77,7 +89,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     // save these as variables since the user can click around and it is ideal to preserve the view that they altered
     private ActiveWorkoutFragment currentWorkoutFragment;
     @Inject
-    public ApiGateway apiGateway;
+    public Tokens tokens;
+    @Inject
+    public UserRepository userRepository;
     @Inject
     public SharedPreferences sharedPreferences;
 
@@ -100,15 +114,17 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         }
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver,
+                new IntentFilter(Variables.INTENT_FRIEND_REQUEST_CLICK));
         initViews();
+        updateEndpointToken();
     }
 
     @Override
     protected void onPause() {
         Intent intent = new Intent(this, SyncRoutineService.class);
-        intent.putExtra(Variables.INTENT_REFRESH_TOKEN, apiGateway.getTokens().getRefreshToken());
-        intent.putExtra(Variables.INTENT_ID_TOKEN, apiGateway.getTokens().getIdToken());
+        intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
+        intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
         try {
             intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(Globals.activeWorkout.asMap()));
         } catch (JsonProcessingException e) {
@@ -123,13 +139,33 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
+        // todo clear any timer notification
         // update tokens just in case they changed in apps life cycle
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Variables.REFRESH_TOKEN_KEY, apiGateway.getTokens().getRefreshToken());
-        editor.putString(Variables.ID_TOKEN_KEY, apiGateway.getTokens().getIdToken());
+        editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
+        editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
         editor.apply();
 
         super.onDestroy();
+    }
+
+    private void updateEndpointToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("WorkoutActivity", "getInstanceId failed", task.getException());
+                        return;
+                    }
+
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        // blind send for now for updating notification endpoint id
+                        ResultStatus<String> resultStatus = userRepository.updateEndpointId(token);
+                    });
+                });
     }
 
     private void createNotificationChannel() {
@@ -161,6 +197,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     NotificationManager.IMPORTANCE_DEFAULT);
             manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(stopwatchRunningChannel);
+
+            // channel for incoming friend requests
+            NotificationChannel friendRequestChannel = new NotificationChannel(
+                    Variables.FRIEND_REQUEST_CHANNEL,
+                    "Friend Requests",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(friendRequestChannel);
         }
     }
 
@@ -205,6 +249,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
+
+    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null && action.equals(Variables.INTENT_FRIEND_REQUEST_CLICK)) {
+                System.out.println("it worked!");
+            }
+        }
+    };
 
     public void initViews() {
         /*

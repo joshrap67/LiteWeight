@@ -22,8 +22,9 @@ public class UserRepository {
     private static final String newExerciseAction = "newExercise";
     private static final String deleteExerciseAction = "deleteExercise";
     private static final String updateProfilePictureAction = "updateIcon";
+    private static final String updateEndpointIdAction = "updateEndpointId";
 
-    private ApiGateway apiGateway;
+    private final ApiGateway apiGateway;
 
     @Inject
     public UserRepository(ApiGateway apiGateway) {
@@ -163,6 +164,25 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to update icon. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update icon.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> updateEndpointId(String tokenId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (tokenId != null) {
+            requestBody.put(User.PUSH_ENDPOINT_ARN, tokenId);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(updateEndpointIdAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update icon. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to update endpoint id.");
         }
         return resultStatus;
     }

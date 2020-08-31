@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "354657356555",
+    "firebase_url": "https://liteweight-dev.firebaseio.com",
+    "project_id": "liteweight-dev",
+    "storage_bucket": "liteweight-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354657356555:android:b3267596e80ad48223f00e",
+        "android_client_info": {
+          "package_name": "com.joshrap.liteweightdev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "354657356555-6apmk8i4ltsun5fn6i56i96eamhj56a3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM47_tR33pCqfLNOziupgDHX3l0AdA_DQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "354657356555-6apmk8i4ltsun5fn6i56i96eamhj56a3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
