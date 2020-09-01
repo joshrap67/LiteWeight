@@ -27,7 +27,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(remoteMessage.getData().get("metadata"));
             PushNotification pushNotification = new PushNotification(jsonMap);
-            showNotificationFriendRequest(pushNotification.getAction(), "test");
+            showNotificationFriendRequest(pushNotification.getJsonPayload());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,17 +35,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
-    private void showNotificationFriendRequest(String title, String body) {
+    private void showNotificationFriendRequest(String jsonData) {
         // todo do this same thing for the timer notifications
-        String username = "joe";
+        String username = "Joe";
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.putExtra(Variables.INTENT_FRIEND_REQUEST_DATA, "fuck"); // todo put actual data
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         notificationIntent.setAction(Variables.INTENT_FRIEND_REQUEST_CLICK);
+
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.FRIEND_REQUEST_CHANNEL)
-                .setContentTitle("Friend Request")
-                .setContentText("Joe mama wants to be your friend! Click to respond.")
+                .setContentTitle("New Friend Request")
+                .setContentText(String.format("%s wants to be your friend! Click to respond.", username))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)

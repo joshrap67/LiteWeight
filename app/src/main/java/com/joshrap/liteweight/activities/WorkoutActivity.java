@@ -29,7 +29,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -42,7 +41,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
@@ -54,7 +52,6 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -79,6 +76,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private boolean drawerListenerIsRegistered = false;
     private TextView toolbarTitleTV;
     private NavigationView nav;
+    private int previousMenuItem;
     private Bundle state;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
@@ -98,6 +96,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().getExtras() != null) {
+            // todo actually handle
+            System.out.println(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA));
+        }
         Injector.getInjector(this).inject(this);
         createNotificationChannel();
         setContentView(R.layout.activity_workout);
@@ -255,7 +257,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action != null && action.equals(Variables.INTENT_FRIEND_REQUEST_CLICK)) {
-                System.out.println("it worked!");
+                System.out.println(intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
             }
         }
     };
@@ -270,6 +272,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         if (state == null) {
+            previousMenuItem = R.id.nav_current_workout;
             // default landing fragment is current workout one
             currentWorkoutFragment = new ActiveWorkoutFragment();
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -331,50 +334,37 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         /*
             Called whenever an element in the nav menu is selected
          */
-        Fragment currentFrag = getVisibleFragment();
-        switch (menuItem.getItemId()) {
+        int selectedIndex = menuItem.getItemId();
+        if (selectedIndex == previousMenuItem) {
+            // if user is clicking item which is already active, prevent that fragment from being needlessly reloaded
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        previousMenuItem = selectedIndex;
+        switch (selectedIndex) {
             case R.id.nav_current_workout:
-                if (!(currentFrag instanceof ActiveWorkoutFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToCurrentWorkout();
-                }
+                goToCurrentWorkout();
                 break;
 
             case R.id.nav_my_workouts:
-                if (!(currentFrag instanceof MyWorkoutsFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToMyWorkouts();
-                }
+                goToMyWorkouts();
                 break;
 
             case R.id.nav_my_exercises:
-                if (!(currentFrag instanceof MyExercisesFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToMyExercises();
-                }
+                goToMyExercises();
                 break;
 
             case R.id.nav_account_settings:
-                if (!(currentFrag instanceof MyAccountFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToAccountSettings();
-                }
+                goToAccountSettings();
                 break;
 
             case R.id.nav_user_settings:
-                if (!(currentFrag instanceof UserSettingsFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToAppSettings();
-                }
+                goToAppSettings();
                 break;
 
             case R.id.nav_about:
-                if (!(currentFrag instanceof AboutFragment)) {
-                    // prevent from selecting currently selected fragment
-                    goToAbout();
-                }
+                goToAbout();
                 break;
-
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -419,36 +409,35 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
          */
         showPopupFlag = true;
         fragmentStack.remove(0);
-        if (fragmentStack.size() > 0) {
-            String frag = fragmentStack.get(0);
-            switch (frag) {
-                case Variables.CURRENT_WORKOUT_TITLE:
-                    goToCurrentWorkout();
-                    nav.setCheckedItem(R.id.nav_current_workout);
-                    break;
-                case Variables.MY_WORKOUT_TITLE:
-                    goToMyWorkouts();
-                    nav.setCheckedItem(R.id.nav_my_workouts);
-                    break;
-                case Variables.SETTINGS_TITLE:
-                    goToAppSettings();
-                    nav.setCheckedItem(R.id.nav_user_settings);
-                    break;
-                case Variables.MY_EXERCISES_TITLE:
-                    goToMyExercises();
-                    nav.setCheckedItem(R.id.nav_my_exercises);
-                    break;
-                case Variables.ABOUT_TITLE:
-                    goToAbout();
-                    nav.setCheckedItem(R.id.nav_about);
-                    break;
-                case Variables.ACCOUNT_TITLE:
-                    goToAccountSettings();
-                    nav.setCheckedItem(R.id.nav_account_settings);
-                    break;
-            }
-            enableBackButton(false); // in case the user was in a page that had a back button
+
+        String frag = fragmentStack.get(0);
+        switch (frag) {
+            case Variables.CURRENT_WORKOUT_TITLE:
+                goToCurrentWorkout();
+                nav.setCheckedItem(R.id.nav_current_workout);
+                break;
+            case Variables.MY_WORKOUT_TITLE:
+                goToMyWorkouts();
+                nav.setCheckedItem(R.id.nav_my_workouts);
+                break;
+            case Variables.SETTINGS_TITLE:
+                goToAppSettings();
+                nav.setCheckedItem(R.id.nav_user_settings);
+                break;
+            case Variables.MY_EXERCISES_TITLE:
+                goToMyExercises();
+                nav.setCheckedItem(R.id.nav_my_exercises);
+                break;
+            case Variables.ABOUT_TITLE:
+                goToAbout();
+                nav.setCheckedItem(R.id.nav_about);
+                break;
+            case Variables.ACCOUNT_TITLE:
+                goToAccountSettings();
+                nav.setCheckedItem(R.id.nav_account_settings);
+                break;
         }
+        enableBackButton(false); // in case the user was in a page that had a back button
     }
 
     @Override

@@ -32,6 +32,8 @@ public class SplashActivity extends AppCompatActivity {
            Prompt for signin/signup
      */
 
+    private String notificationData;
+    private String notificationAction;
     @Inject
     public SharedPreferences sharedPreferences;
     @Inject
@@ -40,6 +42,10 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().getExtras() != null && getIntent().getAction() != null) {
+            notificationAction = getIntent().getAction();
+            notificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
+        }
         Injector.getInjector(this).inject(this);
         String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
         String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
@@ -80,6 +86,10 @@ public class SplashActivity extends AppCompatActivity {
     private void launchWorkoutActivity() {
         // todo when launching to the workout activity, check if the user had clicked on a notification
         Intent intent = new Intent(this, WorkoutActivity.class);
+        if (notificationData != null && notificationAction != null) {
+            intent.setAction(notificationAction);
+            intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, notificationData);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

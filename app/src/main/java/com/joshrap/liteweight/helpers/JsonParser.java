@@ -10,16 +10,11 @@ import java.util.Map;
 public class JsonParser {
 
     // todo use this you idiot
-    public static String serializeObject(Map<String, Object> map)
+    public static String serializeObjectMap(Map<String, Object> map)
             throws JsonProcessingException {
         String retVal;
         ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            retVal = mapper.writeValueAsString(map);
-        } catch (JsonProcessingException e) {
-            retVal = "Error";
-        }
+        retVal = mapper.writeValueAsString(map);
         return retVal;
     }
 

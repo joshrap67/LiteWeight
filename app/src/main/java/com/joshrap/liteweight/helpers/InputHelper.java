@@ -79,7 +79,7 @@ public class InputHelper {
             retVal = "Weight cannot be empty";
         } else {
             try {
-                int weight = Integer.parseInt(aWeight);
+                double weight = Double.parseDouble(aWeight);
                 if (weight < 0 || weight > Variables.MAX_WEIGHT) {
                     retVal = String.format("Enter value between 1-%s.", Variables.MAX_WEIGHT);
                 }

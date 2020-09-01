@@ -76,7 +76,7 @@ public class Variables {
             INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked",
             INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked",
             INTENT_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
-            INTENT_FRIEND_REQUEST_DATA = "Friend_Request_Data",
+            INTENT_NOTIFICATION_DATA = "Notification_Data",
             INTENT_ID_TOKEN = "idToken",
             INTENT_REFRESH_TOKEN = "refreshToken";
 }
