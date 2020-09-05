@@ -14,7 +14,9 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.ApiGateway;
+import com.joshrap.liteweight.network.CognitoGateway;
 import com.joshrap.liteweight.network.RequestFields;
+import com.joshrap.liteweight.network.repos.CognitoRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 
 import java.util.Map;
@@ -44,7 +46,8 @@ public class SyncRoutineService extends Service {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken));
+        // todo use injection???
+        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()));
         WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;

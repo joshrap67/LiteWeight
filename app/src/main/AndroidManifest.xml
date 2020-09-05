@@ -17,16 +17,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity
-                android:name=".activities.WorkoutActivity"
-                android:screenOrientation="portrait"
-                android:theme="@style/AppTheme"
-                android:windowSoftInputMode="adjustPan" />
 
         <service android:name=".services.TimerService" />
         <service android:name=".services.StopwatchService" />
         <service android:name=".services.SyncRoutineService" />
-
         <service
                 android:name=".services.MyFirebaseMessagingService"
                 android:exported="false">
@@ -40,6 +34,12 @@
                 android:name="com.yalantis.ucrop.UCropActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+                android:name=".activities.WorkoutActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.SignInActivity"

@@ -165,34 +165,31 @@ public class InputHelper {
         if (username.isEmpty()) {
             retVal = "Username cannot be empty.";
         }
-//        else if (username.contains("@")) {
-//            retVal = "Username cannot have \"@\" symbol.";
-//        }
         return retVal;
     }
 
     public static String validNewPassword(String password) {
         String retVal = null;
-        boolean flag = false;
+        String errorMsg = "";
         if (password.length() < Variables.MIN_PASSWORD_LENGTH) {
-            flag = true;
+            errorMsg += "Must have at least " + Variables.MIN_PASSWORD_LENGTH + " characters.\n";
         }
         if (!Pattern.compile("^.*[a-z].*").matcher(password).find()) {
-            flag = true;
+            errorMsg += "Must have at least one lowercase letter.\n";
         }
         if (!Pattern.compile("^.*[A-Z].*").matcher(password).find()) {
-            flag = true;
+            errorMsg += "Must have at least one uppercase letter.\n";
         }
         if (!Pattern.compile("^.*\\d.*").matcher(password).find()) {
-            flag = true;
+            errorMsg += "Must have at least one number.\n";
         }
         // TODO fix this regex to actually include them all
         // TODO consider invalid chars too
         if (!Pattern.compile("^.*[!@#$%^&*()_].*").matcher(password).find()) {
-            flag = true;
+            errorMsg += "Must have at least one special character.\n";
         }
-        if (flag) {
-            retVal = "Invalid password.";
+        if (!errorMsg.isEmpty()) {
+            retVal = errorMsg;
         }
         return retVal;
     }

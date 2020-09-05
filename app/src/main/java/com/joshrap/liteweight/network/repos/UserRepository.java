@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.network.repos;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
@@ -16,13 +16,13 @@ import javax.inject.Inject;
 
 public class UserRepository {
 
-    private static final String newUserAction = "newUser";
     private static final String getUserWorkoutAction = "getUserWorkout";
     private static final String updateExerciseAction = "updateExercise";
     private static final String newExerciseAction = "newExercise";
     private static final String deleteExerciseAction = "deleteExercise";
     private static final String updateProfilePictureAction = "updateIcon";
     private static final String updateEndpointIdAction = "updateEndpointId";
+    private static final String removeEndpointIdAction = "removeEndpointId";
 
     private final ApiGateway apiGateway;
 
@@ -38,7 +38,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data and workout.");
@@ -47,31 +47,6 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to load user data. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to load user data and workout.");
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<User> newUser(String username) {
-        ResultStatus<User> resultStatus = new ResultStatus<>();
-
-        Map<String, Object> requestBody = new HashMap<>();
-        if (username != null) {
-            requestBody.put(User.USERNAME, username);
-        }
-
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(newUserAction, requestBody, true);
-
-        if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to load user data. 2");
-            }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to load user data. Check internet connection.");
-        } else {
-            resultStatus.setErrorMessage("Unable to load user data. 3");
         }
         return resultStatus;
     }
@@ -89,7 +64,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new User(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setData(new User(JsonParser.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
@@ -115,7 +90,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new ExerciseUser(new ObjectMapper().readValue(apiResponse.getData(), Map.class)));
+                resultStatus.setData(new ExerciseUser(JsonParser.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
@@ -173,16 +148,32 @@ public class UserRepository {
 
         Map<String, Object> requestBody = new HashMap<>();
         if (tokenId != null) {
-            requestBody.put(User.PUSH_ENDPOINT_ARN, tokenId);
+            requestBody.put(RequestFields.PUSH_ENDPOINT_ARN, tokenId);
         }
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(updateEndpointIdAction, requestBody, true);
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update icon. Check internet connection.");
+            resultStatus.setErrorMessage("Network error. Unable to update endpoint id. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update endpoint id.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> removeEndpointId() {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(removeEndpointIdAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to remove endpoint id. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to remove endpoint id.");
         }
         return resultStatus;
     }

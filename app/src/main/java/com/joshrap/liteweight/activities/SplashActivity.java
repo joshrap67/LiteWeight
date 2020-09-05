@@ -23,13 +23,9 @@ import javax.inject.Inject;
 public class SplashActivity extends AppCompatActivity {
 
     /*
-        1. If a token key value pair exists in shared prefs
+        If a token key value pair exists in shared prefs
             If valid then immediately go to WorkoutActivity
-            else prompt for sign in again
-        2. If no token then check if guest mode is active in shared prefs
-            If guest mode is active then immediately go to the WorkoutActivity
-        3. Else the app has never been used before
-           Prompt for signin/signup
+        Else prompt for sign in again
      */
 
     private String notificationData;
@@ -47,6 +43,7 @@ public class SplashActivity extends AppCompatActivity {
             notificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
         Injector.getInjector(this).inject(this);
+        // todo use tokens?
         String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
         String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
         if (refreshToken == null || idToken == null) {
@@ -84,7 +81,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void launchWorkoutActivity() {
-        // todo when launching to the workout activity, check if the user had clicked on a notification
         Intent intent = new Intent(this, WorkoutActivity.class);
         if (notificationData != null && notificationAction != null) {
             intent.setAction(notificationAction);

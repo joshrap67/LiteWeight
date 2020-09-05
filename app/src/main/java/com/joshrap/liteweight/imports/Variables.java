@@ -23,6 +23,7 @@ public class Variables {
             MAX_REPS_DIGITS = 3,
             MAX_DETAILS_LENGTH = 120,
             MAX_URL_LENGTH = 200,
+            EMAIL_CODE_LENGTH = 6,
             MAX_USERNAME_LENGTH = 40,
             MIN_PASSWORD_LENGTH = 8,
             MAX_STOPWATCH_TIME = 7200000,

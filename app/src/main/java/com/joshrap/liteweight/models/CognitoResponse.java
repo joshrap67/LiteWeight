@@ -1,20 +1,18 @@
 package com.joshrap.liteweight.models;
 
-import androidx.annotation.NonNull;
+import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.network.repos.CognitoRepository;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.InputStream;
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class CognitoResponse {
+import lombok.Data;
 
-    @JsonProperty("RefreshToken")
+@Data
+public class CognitoResponse {
+    public static final String expiredCodeErrorMsg = "The code has expired. Please request another one below.";
+    public static final String incorrectCodeErrorMsg = "The entered code is incorrect. Please try again.";
+
     private String refreshToken;
-    @JsonProperty("IdToken")
     private String idToken;
     private String errorMessage;
 
@@ -28,14 +26,12 @@ public class CognitoResponse {
     }
 
 
-    public static CognitoResponse deserializeSignIn(InputStream rawInput) {
+    public static CognitoResponse deserializeInitiateAuth(String jsonString) {
         CognitoResponse retVal = null;
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
+            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
             Map<String, Object> authenticationResult = (Map<String, Object>) jsonMap.get("AuthenticationResult");
             retVal = new CognitoResponse(authenticationResult.get("RefreshToken").toString(), authenticationResult.get("IdToken").toString());
-
         } catch (Exception e) {
             // do nothing
             System.out.println(e.toString());
@@ -43,14 +39,12 @@ public class CognitoResponse {
         return retVal;
     }
 
-    public static CognitoResponse deserializeRefresh(InputStream rawInput) {
+    public static CognitoResponse deserializeRefresh(String jsonString) {
         CognitoResponse retVal = null;
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
+            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
             Map<String, Object> authenticationResult = (Map<String, Object>) jsonMap.get("AuthenticationResult");
             retVal = new CognitoResponse(authenticationResult.get(("IdToken")).toString());
-
         } catch (Exception e) {
             // do nothing
             System.out.println(e.toString());
@@ -58,11 +52,10 @@ public class CognitoResponse {
         return retVal;
     }
 
-    public static boolean deserializeSignUp(InputStream rawInput) {
+    public static boolean deserializeSignUp(String jsonString) {
         boolean retVal = false;
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
+            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
             retVal = Boolean.parseBoolean(jsonMap.get("UserConfirmed").toString());
         } catch (Exception e) {
             // do nothing
@@ -71,17 +64,35 @@ public class CognitoResponse {
         return retVal;
     }
 
-    public static String deserializeError(InputStream rawInput, String action) {
-        // action is either sign in, up, confirm, or reset
-        // TODO just return the errorString???
+    public static String deserializeError(String rawInput, String action) {
         String retVal = null;
-        ObjectMapper mapper = new ObjectMapper();
+        switch (action) {
+            case CognitoRepository.initiateAuthAction:
+                retVal = deserializeSignInError(rawInput);
+                break;
+            case CognitoRepository.signUpAction:
+                retVal = deserializeSignUpError(rawInput);
+                break;
+            case CognitoRepository.confirmSignUpAction:
+                retVal = deserializeConfirmSignUpError(rawInput);
+                break;
+            case CognitoRepository.resendCodeAction:
+                retVal = deserializeResendCodeError(rawInput);
+                break;
+            case CognitoRepository.resetPasswordAction:
+                retVal = deserializeResetPasswordError(rawInput);
+                break;
+        }
+        return retVal;
+    }
+
+    private static String deserializeSignInError(String rawInput) {
+        String retVal = null;
         try {
-            Map<String, Object> jsonMap = mapper.readValue(rawInput, Map.class);
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
             String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
-            // TODO only show specific error messages like incorrect username/pass. Otherwise just do generic failed
-
         } catch (Exception e) {
             // do nothing
             System.out.println(e.toString());
@@ -89,40 +100,72 @@ public class CognitoResponse {
         return retVal;
     }
 
-    public CognitoResponse() {
-        this.refreshToken = null;
-        this.idToken = null;
-        this.errorMessage = null;
+    private static String deserializeSignUpError(String rawInput) {
+        String retVal = null;
+        try {
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
+            String type = jsonMap.get("__type").toString();
+            String msg;
+            if (jsonMap.get("Message") != null) {
+                // .... for some reason cognito has this as capitalized on certain return values...
+                msg = (String) jsonMap.get("Message");
+            } else {
+                msg = (String) jsonMap.get("message");
+            }
+            retVal = msg;
+        } catch (Exception e) {
+            // do nothing
+            System.out.println(e.toString());
+        }
+        return retVal;
     }
 
-    public String getRefreshToken() {
-        return refreshToken;
+    private static String deserializeConfirmSignUpError(String rawInput) {
+        String retVal = null;
+        try {
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
+            String type = jsonMap.get("__type").toString();
+            if (type.equals("ExpiredCodeException")) {
+                retVal = expiredCodeErrorMsg;
+            } else if (type.equals("CodeMismatchException")) {
+                retVal = incorrectCodeErrorMsg;
+            } else {
+                retVal = jsonMap.get("message").toString();
+            }
+        } catch (Exception e) {
+            // do nothing
+            System.out.println(e.toString());
+        }
+        return retVal;
     }
 
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+    private static String deserializeResendCodeError(String rawInput) {
+        String retVal = null;
+        try {
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
+            String type = jsonMap.get("__type").toString();
+            retVal = jsonMap.get("message").toString();
+        } catch (Exception e) {
+            // do nothing
+            System.out.println(e.toString());
+        }
+        return retVal;
     }
 
-    public String getIdToken() {
-        return idToken;
-    }
-
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "RefreshToken: " + this.refreshToken + " IdToken: " + this.idToken +
-                " ErrorMessage: " + this.errorMessage;
+    private static String deserializeResetPasswordError(String rawInput) {
+        String retVal = null;
+        try {
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
+            String type = jsonMap.get("__type").toString();
+            retVal = jsonMap.get("message").toString();
+        } catch (Exception e) {
+            // do nothing
+            System.out.println(e.toString());
+        }
+        return retVal;
     }
 }

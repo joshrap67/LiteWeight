@@ -22,16 +22,14 @@ public class User implements Model {
     public static final String EXERCISES = "exercises";
     public static final String PRIVATE_ACCOUNT = "private_account";
     public static final String NOTIFICATION_PREFERENCES = "notificationPreferences";
-    public static final String PUSH_ENDPOINT_ARN = "pushEndpointArn";
     public static final String FRIENDS = "friends";
-    public static final String FRIENDS_OF = "friendsOf";
+    public static final String FRIENDS_REQUESTS = "friendRequests";
     public static final String RECEIVED_WORKOUTS = "receivedWorkouts";
     public static final String UPDATE_DEFAULT_WEIGHT_ON_SAVE = "updateDefaultWeightOnSave";
     public static final String UPDATE_DEFAULT_WEIGHT_ON_RESTART = "updateDefaultWeightOnRestart";
 
     private String username;
     private String icon;
-    private String pushEndpointArn;
     private String premiumToken;
     private String currentWorkout;
     private int workoutsSent;
@@ -47,7 +45,7 @@ public class User implements Model {
     @Setter(AccessLevel.NONE)
     private Map<String, Friend> friends;
     @Setter(AccessLevel.NONE)
-    private Map<String, Boolean> friendsOf;
+    private Map<String, Friend> friendRequests;
     @Setter(AccessLevel.NONE)
     private Map<String, String> receivedWorkouts;
 
@@ -55,7 +53,6 @@ public class User implements Model {
     public User(Map<String, Object> json) {
         this.setUsername((String) json.get(USERNAME));
         this.setIcon((String) json.get(ICON));
-        this.setPushEndpointArn((String) json.get(PUSH_ENDPOINT_ARN));
         this.setPremiumToken((String) json.get(PREMIUM_TOKEN));
         this.setCurrentWorkout((String) json.get(CURRENT_WORKOUT));
         this.setWorkoutsSent((Integer) json.get(WORKOUTS_SENT));
@@ -66,7 +63,7 @@ public class User implements Model {
         this.setUserWorkouts((Map<String, Object>) json.get(WORKOUTS));
         this.setUserExercises((Map<String, Object>) json.get(EXERCISES));
         this.setFriends((Map<String, Object>) json.get(FRIENDS));
-        this.setFriendsOf((Map<String, Object>) json.get(FRIENDS_OF));
+        this.setFriendRequests((Map<String, Object>) json.get(FRIENDS_REQUESTS));
         this.setReceivedWorkouts((Map<String, Object>) json.get(RECEIVED_WORKOUTS));
     }
 
@@ -94,13 +91,13 @@ public class User implements Model {
         }
     }
 
-    private void setFriendsOf(Map<String, Object> json) {
+    private void setFriendRequests(Map<String, Object> json) {
         if (json == null) {
-            this.friendsOf = null;
+            this.friendRequests = null;
         } else {
-            this.friendsOf = new HashMap<>();
+            this.friendRequests = new HashMap<>();
             for (String username : json.keySet()) {
-                this.friendsOf.put(username, (Boolean) json.get(username));
+                this.friendRequests.put(username, (Friend) json.get(username));
             }
         }
     }
@@ -133,7 +130,6 @@ public class User implements Model {
         Map<String, Object> retVal = new HashMap<>();
         retVal.put(USERNAME, this.username);
         retVal.put(ICON, this.icon);
-        retVal.put(PUSH_ENDPOINT_ARN, this.pushEndpointArn);
         retVal.put(PREMIUM_TOKEN, this.premiumToken);
         retVal.put(CURRENT_WORKOUT, this.currentWorkout);
         retVal.put(WORKOUTS_SENT, this.workoutsSent);
@@ -142,7 +138,7 @@ public class User implements Model {
         retVal.put(WORKOUTS, this.getUserWorkoutsMap());
         retVal.put(EXERCISES, this.getUserExercisesMap());
         retVal.put(FRIENDS, this.getFriendsMap());
-        retVal.put(FRIENDS_OF, this.friendsOf);
+        retVal.put(FRIENDS_REQUESTS, this.friendRequests);
         retVal.put(RECEIVED_WORKOUTS, this.receivedWorkouts);
         retVal.put(UPDATE_DEFAULT_WEIGHT_ON_SAVE, this.updateDefaultWeightOnSave);
         retVal.put(UPDATE_DEFAULT_WEIGHT_ON_RESTART, this.updateDefaultWeightOnRestart);

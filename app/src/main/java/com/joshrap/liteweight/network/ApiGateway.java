@@ -2,13 +2,12 @@ package com.joshrap.liteweight.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.ApiConfig;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.network.repos.CognitoRepository;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,14 +26,15 @@ import lombok.Data;
 @Data
 public class ApiGateway {
 
-    private static final String ApiUrl = "https://vixcdm7fz5.execute-api.us-east-2.amazonaws.com/";
     private static final int successCode = 200; // THIS MUST MATCH THE CODE RETURNED FROM THE API
 
-    private Tokens tokens;
+    private final Tokens tokens;
+    private final CognitoRepository cognitoRepository;
 
     @Inject
-    public ApiGateway(Tokens tokens) {
+    public ApiGateway(Tokens tokens, CognitoRepository cognitoRepository) {
         this.tokens = tokens;
+        this.cognitoRepository = cognitoRepository;
     }
 
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
@@ -42,7 +42,7 @@ public class ApiGateway {
 
         if (this.tokens != null) {
             try {
-                URL url = new URL(ApiUrl + ApiConfig.deploymentStage + action);
+                URL url = new URL(ApiConfig.apiUrl + ApiConfig.deploymentStage + action);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Authorization", "Bearer " + this.tokens.getIdToken());
@@ -109,7 +109,7 @@ public class ApiGateway {
     }
 
     private boolean refreshIdToken(String refreshToken) {
-        ResultStatus<CognitoResponse> resultStatus = CognitoGateway.refreshIdToken(refreshToken);
+        ResultStatus<CognitoResponse> resultStatus = this.cognitoRepository.refreshIdToken(refreshToken);
         if (resultStatus.isSuccess()) {
             this.tokens.setIdToken(resultStatus.getData().getIdToken());
         }

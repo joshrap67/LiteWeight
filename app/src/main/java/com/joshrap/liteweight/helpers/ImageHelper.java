@@ -19,6 +19,6 @@ public class ImageHelper {
     }
 
     public static String getIconUrl(String fileName) {
-        return "https://liteweight-images.s3.us-east-2.amazonaws.com/" + fileName;
+        return "https://liteweight-images.s3.us-east-1.amazonaws.com/" + fileName;
     }
 }

@@ -158,4 +158,6 @@
     </string>
     <string name="empty_friend_list_msg">You do not yet have any friends added. Click the button below to add some!</string>
     <string name="empty_friends_request_msg">You do not have any pending requests.</string>
+    <string name="back_to_sign_in">BACK TO SIGN IN</string>
+    <string name="log_out">Log Out</string>
 </resources>

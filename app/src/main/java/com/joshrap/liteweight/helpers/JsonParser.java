@@ -10,7 +10,7 @@ import java.util.Map;
 public class JsonParser {
 
     // todo use this you idiot
-    public static String serializeObjectMap(Map<String, Object> map)
+    public static String serializeMap(Map<String, Object> map)
             throws JsonProcessingException {
         String retVal;
         ObjectMapper mapper = new ObjectMapper();

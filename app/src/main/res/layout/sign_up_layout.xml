@@ -2,18 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/relative_layout"
+        android:id="@+id/sign_up_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:background="@drawable/login_gradient"
         android:clickable="true"
-        android:fitsSystemWindows="true"
         android:focusable="true"
         android:focusableInTouchMode="true">
 
     <TextView
-            android:id="@+id/app_title"
+            android:id="@+id/sign_up_app_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -23,23 +22,11 @@
             android:textSize="36sp"
             android:textStyle="bold" />
 
-    <ImageView
-            android:id="@+id/app_logo"
-            android:layout_width="185dp"
-            android:layout_height="140dp"
-            android:layout_below="@+id/app_title"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:contentDescription="App Logo"
-            android:visibility="gone"
-            app:srcCompat="@mipmap/new_icon_round"
-            tools:visibility="visible" />
-
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/email_input_layout"
+            android:id="@+id/sign_up_email_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/app_logo"
+            android:layout_below="@+id/sign_up_app_title"
             android:layout_centerHorizontal="true"
             android:backgroundTint="@android:color/white"
             android:hint="@string/email_hint"
@@ -48,7 +35,7 @@
             app:hintTextAppearance="@style/LoginHintStyle">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email_input"
+                android:id="@+id/sign_up_email_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -64,20 +51,20 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/username_input_layout"
+            android:id="@+id/sign_up_username_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/email_input_layout"
+            android:layout_below="@+id/sign_up_email_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/white"
-            android:hint="@string/username_and_email_hint"
+            android:hint="@string/username_hint"
             android:textColor="@color/notification_color"
             android:textColorHint="@android:color/white"
             app:hintTextAppearance="@style/LoginHintStyle">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/username_input"
+                android:id="@+id/sign_up_username_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -93,10 +80,10 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_input_layout"
+            android:id="@+id/sign_up_password_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/username_input_layout"
+            android:layout_below="@+id/sign_up_username_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/white"
@@ -108,7 +95,7 @@
             app:passwordToggleTint="@android:color/white">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password_input"
+                android:id="@+id/sign_up_password_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -123,63 +110,25 @@
                 android:theme="@style/Login.EditText" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-            android:id="@+id/password_attributes_layout"
+    <TextView
+            android:id="@+id/sign_up_password_attributes_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/password_input_layout"
-            android:layout_alignStart="@+id/password_input_layout"
-            android:layout_alignEnd="@+id/password_input_layout"
-            android:orientation="vertical">
-
-        <TextView
-                android:id="@+id/password_length_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
-                android:text="@string/password_length_msg"
-                android:textColor="@color/password_constraint_successful_match"
-                android:textStyle="bold" />
-
-        <TextView
-                android:id="@+id/password_lowercase_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
-                android:text="@string/password_lowercase_msg"
-                android:textColor="@color/password_constraint_unsuccessful_match"
-                android:textStyle="bold" />
-
-        <TextView
-                android:id="@+id/password_uppercase_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
-                android:text="@string/password_uppercase_msg"
-                android:textStyle="bold" />
-
-        <TextView
-                android:id="@+id/password_numbers_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
-                android:text="@string/password_numbers_msg"
-                android:textStyle="bold" />
-
-        <TextView
-                android:id="@+id/password_special_chars_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
-                android:text="@string/password_special_chars_msg"
-                android:textStyle="bold" />
-    </LinearLayout>
+            android:layout_below="@+id/sign_up_password_input_layout"
+            android:layout_alignStart="@+id/sign_up_password_input_layout"
+            android:layout_alignEnd="@+id/sign_up_password_input_layout"
+            android:fontFamily="@font/roboto"
+            android:textColor="@color/password_constraint_unsuccessful_match"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="@string/password_length_msg"
+            tools:visibility="visible" />
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_confirm_layout"
+            android:id="@+id/sign_up_password_confirm_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/password_attributes_layout"
+            android:layout_below="@+id/sign_up_password_attributes_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/white"
@@ -191,7 +140,7 @@
             app:passwordToggleTint="@android:color/white">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password_input_confirm"
+                android:id="@+id/sign_up_password_input_confirm"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -208,27 +157,27 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-            android:id="@+id/primary_btn"
+            android:id="@+id/sign_up_primary_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/password_confirm_layout"
+            android:layout_below="@id/sign_up_password_confirm_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="#50000000"
             android:foreground="?android:selectableItemBackground"
-            android:text="@string/sign_in" />
+            android:text="@string/sign_up" />
 
     <View
             android:id="@+id/divider"
             android:layout_width="300dp"
             android:layout_height="2dp"
-            android:layout_below="@id/primary_btn"
+            android:layout_below="@id/sign_up_primary_btn"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="#c0c0c0" />
 
     <Button
-            android:id="@+id/change_mode_btn"
+            android:id="@+id/sign_up_change_mode_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/divider"
@@ -236,18 +185,6 @@
             android:layout_marginTop="20dp"
             android:background="#50000000"
             android:foreground="?android:selectableItemBackground"
-            android:text="@string/sign_up" />
-
-    <Button
-            android:id="@+id/guest_btn"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/change_mode_btn"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:background="#50000000"
-            android:foreground="?android:selectableItemBackground"
-            android:text="@string/guest_btn"
-            android:visibility="gone" />
+            android:text="@string/back_to_sign_in" />
 
 </RelativeLayout>

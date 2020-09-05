@@ -18,7 +18,7 @@ public class PushNotification implements Model {
     private String action;
 
     public PushNotification(Map<String, Object> json) throws JsonProcessingException {
-        this.jsonPayload = JsonParser.serializeObjectMap((Map<String, Object>) json.get(PAYLOAD));
+        this.jsonPayload = JsonParser.serializeMap((Map<String, Object>) json.get(PAYLOAD));
         this.action = (String) json.get(ACTION);
     }
 

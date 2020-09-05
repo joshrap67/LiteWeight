@@ -142,17 +142,8 @@ public class ActiveWorkoutFragment extends Fragment {
         super.onStop();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // TODO api call to update
-    }
-
-
     private void setupClock(View view) {
-        /*
-            Database queries complete, so switch layouts and init all the widgets
-         */
+        // todo do this differently (using a broadcast?)
 
         ConstraintLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
         ConstraintLayout timerContainer = view.findViewById(R.id.timer_container);
