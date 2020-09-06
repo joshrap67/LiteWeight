@@ -16,7 +16,8 @@ public class CognitoRepository {
     public static final String signUpAction = "SignUp";
     public static final String confirmSignUpAction = "ConfirmSignUp";
     public static final String resendCodeAction = "ResendConfirmationCode";
-    public static final String resetPasswordAction = "ForgotPassword";
+    public static final String forgotPasswordAction = "ForgotPassword";
+    public static final String confirmForgotPasswordAction = "ConfirmForgotPassword";
 
     private final CognitoGateway cognitoGateway;
 
@@ -124,6 +125,46 @@ public class CognitoRepository {
         requestBody.put("Username", username);
 
         ResultStatus<String> cognitoResponse = this.cognitoGateway.makeRequest(resendCodeAction, requestBody);
+        if (cognitoResponse.isSuccess()) {
+            resultStatus.setSuccess(true);
+            resultStatus.setData(true);
+        } else if (cognitoResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Check your internet connection.");
+        } else {
+            resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
+        }
+
+        return resultStatus;
+    }
+
+    public ResultStatus<Boolean> forgotPassword(String username) {
+        ResultStatus<Boolean> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("Username", username);
+
+        ResultStatus<String> cognitoResponse = this.cognitoGateway.makeRequest(forgotPasswordAction, requestBody);
+        if (cognitoResponse.isSuccess()) {
+            resultStatus.setSuccess(true);
+            resultStatus.setData(true);
+        } else if (cognitoResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Check your internet connection.");
+        } else {
+            resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
+        }
+
+        return resultStatus;
+    }
+
+    public ResultStatus<Boolean> confirmForgotPassword(String username, String newPassword, String confirmationCode) {
+        ResultStatus<Boolean> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("Username", username);
+        requestBody.put("ConfirmationCode", confirmationCode);
+        requestBody.put("Password", newPassword);
+
+        ResultStatus<String> cognitoResponse = this.cognitoGateway.makeRequest(confirmForgotPasswordAction, requestBody);
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(true);

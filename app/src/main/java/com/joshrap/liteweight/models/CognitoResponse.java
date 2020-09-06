@@ -79,8 +79,11 @@ public class CognitoResponse {
             case CognitoRepository.resendCodeAction:
                 retVal = deserializeResendCodeError(rawInput);
                 break;
-            case CognitoRepository.resetPasswordAction:
-                retVal = deserializeResetPasswordError(rawInput);
+            case CognitoRepository.forgotPasswordAction:
+                retVal = deserializeForgotPasswordError(rawInput);
+                break;
+            case CognitoRepository.confirmForgotPasswordAction:
+                retVal = deserializeConfirmForgotPasswordError(rawInput);
                 break;
         }
         return retVal;
@@ -155,7 +158,21 @@ public class CognitoResponse {
         return retVal;
     }
 
-    private static String deserializeResetPasswordError(String rawInput) {
+    private static String deserializeForgotPasswordError(String rawInput) {
+        String retVal = null;
+        try {
+            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
+            String type = jsonMap.get("__type").toString();
+            retVal = jsonMap.get("message").toString();
+        } catch (Exception e) {
+            // do nothing
+            System.out.println(e.toString());
+        }
+        return retVal;
+    }
+
+    private static String deserializeConfirmForgotPasswordError(String rawInput) {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);

@@ -160,4 +160,7 @@
     <string name="empty_friends_request_msg">You do not have any pending requests.</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
+    <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. An email with a code will be sent to the email associated with that account.</string>
+    <string name="send_code">SEND CODE</string>
+    <string name="reset_password_btn_msg">RESET PASSWORD</string>
 </resources>

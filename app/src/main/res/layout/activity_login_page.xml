@@ -5,35 +5,46 @@
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         android:background="@drawable/login_gradient"
+        android:fitsSystemWindows="true"
         android:orientation="vertical">
 
-    <ViewFlipper
-            android:id="@+id/view_flipper"
-            android:layout_weight="1"
+    <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:measureAllChildren="true">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-        <include
-                android:id="@+id/sign_in_layout"
-                layout="@layout/sign_in_layout"
+        <ViewFlipper
+                android:id="@+id/view_flipper"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content"
+                android:measureAllChildren="true">
 
-        <include
-                android:id="@+id/sign_up_layout"
-                layout="@layout/sign_up_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            <include
+                    android:id="@+id/sign_in_layout"
+                    layout="@layout/sign_in_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-        <include
-                android:id="@+id/confirm_email_layout"
-                layout="@layout/confirm_email_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-    </ViewFlipper>
+            <include
+                    android:id="@+id/sign_up_layout"
+                    layout="@layout/sign_up_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            <include
+                    android:id="@+id/confirm_email_layout"
+                    layout="@layout/confirm_email_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            <include
+                    android:id="@+id/forgot_password_layout"
+                    layout="@layout/reset_password_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+        </ViewFlipper>
+    </ScrollView>
 
 
 </LinearLayout>

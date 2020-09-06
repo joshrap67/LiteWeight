@@ -23,11 +23,13 @@ import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
@@ -121,20 +123,30 @@ public class SignInActivity extends AppCompatActivity {
             this.usernameLayoutSignIn.setError(null);
             this.passwordLayoutSignIn.setErrorEnabled(false);
             this.passwordLayoutSignIn.setError(null);
-            confirmEmailAddress();
-//            viewFlipper.setInAnimation(this, R.anim.slide_in_right);
-//            viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
-//            viewFlipper.setDisplayedChild(CONFIRM_EMAIL_VIEW);
+
+            viewFlipper.setInAnimation(this, R.anim.slide_in_right);
+            viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
+            viewFlipper.setDisplayedChild(SIGN_UP_VIEW);
         });
         switchToSignIn.setOnClickListener(view -> {
-            switchToSignInFromSignUp();
+            resetViewsToSignInFromSignUp();
             viewFlipper.setInAnimation(this, android.R.anim.slide_in_left);
             viewFlipper.setOutAnimation(this, android.R.anim.slide_out_right);
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
         });
 
         initEditTexts();
-        // TODO password reset - fuck me
+        TextView resetPassword = findViewById(R.id.sign_in_forgot_password);
+        resetPassword.setOnClickListener(view -> {
+            this.usernameInputSignIn.setText(null);
+            this.passwordInputSignIn.setText(null);
+            // erase any errors before switching to the sign up page
+            this.usernameLayoutSignIn.setErrorEnabled(false);
+            this.usernameLayoutSignIn.setError(null);
+            this.passwordLayoutSignIn.setErrorEnabled(false);
+            this.passwordLayoutSignIn.setError(null);
+            resetPassword();
+        });
     }
 
     @Override
@@ -176,7 +188,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (viewFlipper.getDisplayedChild() == SIGN_UP_VIEW) {
-            switchToSignInFromSignUp();
+            resetViewsToSignInFromSignUp();
             viewFlipper.setInAnimation(this, android.R.anim.slide_in_left);
             viewFlipper.setOutAnimation(this, android.R.anim.slide_out_right);
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
@@ -185,7 +197,7 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    private void switchToSignInFromSignUp() {
+    private void resetViewsToSignInFromSignUp() {
         // clear text before switching to the sign up page
         usernameInputSignUp.setText(null);
         passwordInputSignUp.setText(null);
@@ -310,13 +322,198 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
+    private void resetPassword() {
+        viewFlipper.setInAnimation(this, R.anim.slide_in_right);
+        viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
+        viewFlipper.setDisplayedChild(RESET_PASSWORD_VIEW);
+        final boolean[] codeSent = {false};
+        final RelativeLayout forgotContainer = findViewById(R.id.reset_password_username_layout);
+        final RelativeLayout resetContainer = findViewById(R.id.reset_password_layout);
+        final TextInputLayout forgotLayout = findViewById(R.id.forgot_password_input_layout);
+        final EditText forgotInput = findViewById(R.id.forgot_password_input);
+        forgotInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(forgotLayout));
+        final Button primaryButton = findViewById(R.id.reset_password_primary_btn);
+        final Button backButton = findViewById(R.id.reset_password_back_btn);
+        // reset views
+        final TextView resetPasswordAttributesTV = findViewById(R.id.reset_password_password_attributes_tv);
+        final TextInputLayout resetCodeLayout = findViewById(R.id.reset_password_code_input_layout);
+        final EditText resetCode = findViewById(R.id.reset_password_code_input);
+        resetCode.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(resetCodeLayout));
+        resetCode.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.EMAIL_CODE_LENGTH)});
+        final TextInputLayout newPasswordLayout = findViewById(R.id.reset_password_password_input_layout);
+        final EditText newPasswordInput = findViewById(R.id.reset_password_password_input);
+        final TextInputLayout confirmNewPasswordLayout = findViewById(R.id.reset_password_confirm_password_input_layout);
+        final EditText confirmNewPasswordInput = findViewById(R.id.reset_password_confirm_password_input);
+        newPasswordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String errorMessage = InputHelper.validNewPassword(s.toString().trim());
+                if (errorMessage == null) {
+                    // no error so hide attributes
+                    resetPasswordAttributesTV.setVisibility(View.GONE);
+                } else {
+                    resetPasswordAttributesTV.setText(errorMessage);
+                    resetPasswordAttributesTV.setVisibility(View.VISIBLE);
+                }
+
+                if (newPasswordLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    newPasswordLayout.setErrorEnabled(false);
+                    newPasswordLayout.setError(null);
+                }
+                if (confirmNewPasswordLayout.isErrorEnabled() && confirmNewPasswordLayout.getError().equals(passwordNotMatchingMsg)) {
+                    // if the passwords weren't matching, hide the error on confirmPassword edittext since user just acknowledged the error
+                    confirmNewPasswordLayout.setErrorEnabled(false);
+                    confirmNewPasswordLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        confirmNewPasswordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (confirmNewPasswordLayout.isErrorEnabled()) {
+                    // if an error is present, stop showing the error message once the user types (acknowledged it)
+                    confirmNewPasswordLayout.setErrorEnabled(false);
+                    confirmNewPasswordLayout.setError(null);
+                }
+                if (newPasswordLayout.isErrorEnabled() && newPasswordLayout.getError().equals(passwordNotMatchingMsg)) {
+                    // if the passwords weren't matching, hide the error on confirmPassword edittext since user just acknowledged the error
+                    newPasswordLayout.setErrorEnabled(false);
+                    newPasswordLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        primaryButton.setOnClickListener(view -> {
+            if (codeSent[0]) {
+                resetPasswordAttributesTV.setText(null);
+                resetPasswordAttributesTV.setVisibility(View.GONE);
+                // code has already been sent, so this button should send the new password to cognito
+                String confirmationCode = resetCode.getText().toString().trim();
+                String newPassword = newPasswordInput.getText().toString().trim();
+                String newPasswordConfirm = confirmNewPasswordInput.getText().toString().trim();
+
+                String passwordError = InputHelper.validNewPassword(newPassword);
+                String passwordConfirmError = InputHelper.validNewPassword(newPasswordConfirm);
+                String confirmError = (confirmationCode.length() == Variables.EMAIL_CODE_LENGTH) ? null : "Enter a valid code.";
+                if (passwordError == null && confirmError == null &&
+                        passwordConfirmError == null && newPassword.equals(newPasswordConfirm)) {
+                    // all input is valid, so reset the password then sign user in
+                    showLoadingDialog("Resetting password...");
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.confirmForgotPassword(forgotInput.getText().toString().trim(), newPassword, confirmationCode);
+                        Handler handler = new Handler(getMainLooper());
+                        handler.post(() -> {
+                            loadingDialog.dismiss();
+                            if (resultStatus.isSuccess()) {
+                                attemptSignIn(forgotInput.getText().toString().trim(), newPassword);
+                            } else {
+                                ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                            }
+                        });
+                    });
+                } else {
+                    // at least on input error exists
+                    if (passwordError != null) {
+                        newPasswordLayout.setError(passwordError);
+                        newPasswordLayout.startAnimation(shakeError());
+                    }
+                    if (passwordConfirmError != null) {
+                        confirmNewPasswordLayout.setError(passwordConfirmError);
+                        confirmNewPasswordLayout.startAnimation(shakeError());
+                    }
+                    if (confirmError != null) {
+                        resetCodeLayout.setError(confirmError);
+                        resetCodeLayout.startAnimation(shakeError());
+                    }
+
+                    if (passwordError == null && passwordConfirmError == null &&
+                            !newPassword.equals(newPasswordConfirm)) {
+                        newPasswordLayout.setError(passwordNotMatchingMsg);
+                        newPasswordLayout.startAnimation(shakeError());
+                        confirmNewPasswordLayout.setError(passwordNotMatchingMsg);
+                        confirmNewPasswordLayout.startAnimation(shakeError());
+                    }
+                }
+
+            } else {
+                // code hasn't been sent, so this button should send a code to the right email when clicked
+                if (!forgotInput.getText().toString().trim().isEmpty()) {
+                    showLoadingDialog("Sending code...");
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.forgotPassword(forgotInput.getText().toString().trim());
+                        Handler handler = new Handler(getMainLooper());
+                        handler.post(() -> {
+                            loadingDialog.dismiss();
+                            if (resultStatus.isSuccess()) {
+                                codeSent[0] = true;
+                                primaryButton.setText(R.string.reset_password_btn_msg);
+                                resetContainer.setVisibility(View.VISIBLE);
+                                forgotContainer.setVisibility(View.GONE);
+                            } else {
+                                ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                            }
+                        });
+                    });
+                } else {
+                    forgotLayout.setError("Cannot be empty");
+                    forgotLayout.startAnimation(shakeError());
+                }
+            }
+        });
+        backButton.setOnClickListener(view -> {
+            viewFlipper.setInAnimation(this, android.R.anim.slide_in_left);
+            viewFlipper.setOutAnimation(this, android.R.anim.slide_out_right);
+            // reset any text and errors that might be there
+            resetCodeLayout.setError(null);
+            resetCodeLayout.setErrorEnabled(false);
+            newPasswordLayout.setError(null);
+            newPasswordLayout.setErrorEnabled(false);
+            confirmNewPasswordLayout.setError(null);
+            confirmNewPasswordLayout.setErrorEnabled(false);
+            forgotLayout.setError(null);
+            forgotLayout.setErrorEnabled(false);
+
+            resetCode.setText(null);
+            newPasswordInput.setText(null);
+            confirmNewPasswordInput.setText(null);
+            forgotInput.setText(null);
+            resetPasswordAttributesTV.setText(null);
+            passwordAttributesTV.setVisibility(View.GONE);
+
+            resetContainer.setVisibility(View.GONE);
+            forgotContainer.setVisibility(View.VISIBLE);
+            viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
+        });
+    }
+
     private void confirmEmailAddress() {
         viewFlipper.setInAnimation(this, R.anim.slide_in_right);
         viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
         viewFlipper.setDisplayedChild(CONFIRM_EMAIL_VIEW);
         final TextInputLayout codeLayout = findViewById(R.id.code_input_layout);
         final EditText codeInput = findViewById(R.id.code_input);
-        codeInput.requestFocus(); // todo this doesn't work
+        codeInput.requestFocus();
+        // request the keyboard to the code input
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(codeInput, InputMethodManager.SHOW_IMPLICIT);
         codeInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -384,7 +581,6 @@ public class SignInActivity extends AppCompatActivity {
                 });
             });
         });
-
     }
 
     private void hideKeyboard(View view) {
@@ -410,43 +606,9 @@ public class SignInActivity extends AppCompatActivity {
             }
             return false;
         });
+        usernameInputSignIn.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(usernameLayoutSignIn));
 
-        usernameInputSignIn.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (usernameLayoutSignIn.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    usernameLayoutSignIn.setErrorEnabled(false);
-                    usernameLayoutSignIn.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        passwordInputSignIn.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (passwordLayoutSignIn.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    passwordLayoutSignIn.setErrorEnabled(false);
-                    passwordLayoutSignIn.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        passwordInputSignIn.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(passwordLayoutSignIn));
         passwordInputSignIn.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 // only show errors immediately when signing up
@@ -478,24 +640,7 @@ public class SignInActivity extends AppCompatActivity {
             return false;
 
         });
-        emailInputSignUp.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (emailLayoutSignUp.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    emailLayoutSignUp.setErrorEnabled(false);
-                    emailLayoutSignUp.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        emailInputSignUp.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(emailLayoutSignUp));
 
         usernameInputSignUp.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         usernameInputSignUp.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
@@ -511,25 +656,7 @@ public class SignInActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        usernameInputSignUp.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (usernameLayoutSignUp.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    usernameLayoutSignUp.setErrorEnabled(false);
-                    usernameLayoutSignUp.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        usernameInputSignUp.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(usernameLayoutSignUp));
 
         passwordInputSignUp.setOnFocusChangeListener((View v, boolean hasFocus) -> {
             if (v.hasFocus()) {
@@ -540,7 +667,6 @@ public class SignInActivity extends AppCompatActivity {
                 }
             }
         });
-
         passwordInputSignUp.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
