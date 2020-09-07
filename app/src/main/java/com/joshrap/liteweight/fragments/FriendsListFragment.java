@@ -103,13 +103,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         /*
             Init all views and buttons when view is loaded onto screen
          */
-        // TODO rename deleteWorkout as popWorkout???
         friends = new ArrayList<>();
         friendRequests = new ArrayList<>();
-//        for (int i = 0; i < 0; i++) {
-//            friends.add(new Friend("User " + (i + 1), "https://yt3.ggpht.com/-7QXQsjZ-1SE/AAAAAAAAAAI/AAAAAAAAAAA/zIGE4BY7zLs/s900-c-k-no-mo-rj-c0xffffff/photo.jpg",
-//                    (i % 2 == 0)));
-//        }
+
         for (String username : user.getFriends().keySet()) {
             friends.add(user.getFriends().get(username));
         }

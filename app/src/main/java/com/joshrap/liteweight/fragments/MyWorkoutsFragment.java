@@ -445,7 +445,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.deleteWorkout(workoutId);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
