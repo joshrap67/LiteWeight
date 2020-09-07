@@ -13,7 +13,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/received_workouts_tv"
+            app:layout_constraintBottom_toTopOf="@+id/settings_scroll_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -80,60 +80,85 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-            android:id="@+id/received_workouts_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="?android:selectableItemBackground"
-            android:clickable="true"
-            android:drawableEnd="@drawable/mail_icon"
-            android:elevation="2dp"
-            android:focusable="true"
-            android:text="Received Workouts"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toTopOf="@+id/friends_list_tv"
+    <ScrollView
+            android:id="@+id/settings_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
-    <TextView
-            android:id="@+id/friends_list_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="?android:selectableItemBackground"
-            android:clickable="true"
-            android:drawableEnd="@drawable/friends_icon"
-            android:elevation="2dp"
-            android:focusable="true"
-            android:text="Friends List"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toTopOf="@id/account_preferences_tv"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/received_workouts_tv" />
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <TextView
-            android:id="@+id/account_preferences_tv"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="?android:selectableItemBackground"
-            android:clickable="true"
-            android:drawableEnd="@drawable/account_preferences_icon"
-            android:elevation="2dp"
-            android:focusable="true"
-            android:text="Account Preferences"
-            android:textSize="25sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/friends_list_tv" />
+            <TextView
+                    android:id="@+id/received_workouts_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/mail_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Received Workouts"
+                    android:textSize="25sp" />
+
+            <TextView
+                    android:id="@+id/friends_list_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/friends_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Friends List"
+                    android:textSize="25sp" />
+
+            <TextView
+                    android:id="@+id/blocked_list_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/block_user_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Blocked List"
+                    android:textSize="25sp" />
+
+            <TextView
+                    android:id="@+id/account_preferences_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/account_preferences_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Account Preferences"
+                    android:textSize="25sp" />
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

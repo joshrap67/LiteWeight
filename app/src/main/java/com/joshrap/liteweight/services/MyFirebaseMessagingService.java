@@ -15,6 +15,7 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.NotificationActivity;
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.PushNotification;
 
 import java.io.IOException;
@@ -25,9 +26,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
+            System.out.println(remoteMessage.getData());
             Map<String, Object> jsonMap = JsonParser.deserialize(remoteMessage.getData().get("metadata"));
             PushNotification pushNotification = new PushNotification(jsonMap);
-            showNotificationFriendRequest(pushNotification.getJsonPayload());
+            switch (pushNotification.getAction()) {
+                case "friendRequest":
+                    showNotificationFriendRequest(pushNotification.getJsonPayload());
+                    break;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,9 +41,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
-    private void showNotificationFriendRequest(String jsonData) {
+    private void showNotificationFriendRequest(String jsonData) throws IOException {
+        // todo broadcast to activity
         // todo do this same thing for the timer notifications
-        String username = "Joe";
+        FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
@@ -47,7 +54,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.FRIEND_REQUEST_CHANNEL)
                 .setContentTitle("New Friend Request")
-                .setContentText(String.format("%s wants to be your friend! Click to respond.", username))
+                .setContentText(String.format("%s wants to be your friend! Click to respond.", friendRequest.getUsername()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -55,7 +62,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(username.hashCode(), notification);
+            mNotificationManager.notify(friendRequest.getUsername().hashCode(), notification);
         }
     }
 }

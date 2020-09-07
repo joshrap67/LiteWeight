@@ -16,7 +16,14 @@ public class Friend implements Model {
     private boolean confirmed;
     private String username;
 
+    public Friend(Map<String, Object> json, String username) {
+        this.username = username;
+        this.icon = (String) json.get(User.ICON);
+        this.confirmed = (boolean) json.get(CONFIRMED);
+    }
+
     public Friend(Map<String, Object> json) {
+        this.username = (String) json.get(User.USERNAME);
         this.icon = (String) json.get(User.ICON);
         this.confirmed = (boolean) json.get(CONFIRMED);
     }

@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class JsonParser {
 
-    // todo use this you idiot
     public static String serializeMap(Map<String, Object> map)
             throws JsonProcessingException {
         String retVal;

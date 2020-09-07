@@ -45,7 +45,7 @@ public class User implements Model {
     @Setter(AccessLevel.NONE)
     private Map<String, Friend> friends;
     @Setter(AccessLevel.NONE)
-    private Map<String, Friend> friendRequests;
+    private Map<String, FriendRequest> friendRequests;
     @Setter(AccessLevel.NONE)
     private Map<String, String> receivedWorkouts;
 
@@ -86,18 +86,19 @@ public class User implements Model {
         } else {
             this.friends = new HashMap<>();
             for (String username : json.keySet()) {
-                this.friends.put(username, new Friend((Map<String, Object>) json.get(username)));
+                this.friends.put(username, new Friend((Map<String, Object>) json.get(username), username));
             }
         }
     }
 
-    private void setFriendRequests(Map<String, Object> json) {
+    public void setFriendRequests(Map<String, Object> json) {
         if (json == null) {
             this.friendRequests = null;
         } else {
             this.friendRequests = new HashMap<>();
             for (String username : json.keySet()) {
-                this.friendRequests.put(username, (Friend) json.get(username));
+                this.friendRequests.put(username, new FriendRequest(
+                        (Map<String, Object>) json.get(username), username));
             }
         }
     }
@@ -138,7 +139,7 @@ public class User implements Model {
         retVal.put(WORKOUTS, this.getUserWorkoutsMap());
         retVal.put(EXERCISES, this.getUserExercisesMap());
         retVal.put(FRIENDS, this.getFriendsMap());
-        retVal.put(FRIENDS_REQUESTS, this.friendRequests);
+        retVal.put(FRIENDS_REQUESTS, this.getFriendRequestsMap());
         retVal.put(RECEIVED_WORKOUTS, this.receivedWorkouts);
         retVal.put(UPDATE_DEFAULT_WEIGHT_ON_SAVE, this.updateDefaultWeightOnSave);
         retVal.put(UPDATE_DEFAULT_WEIGHT_ON_RESTART, this.updateDefaultWeightOnRestart);
@@ -176,6 +177,18 @@ public class User implements Model {
         Map<String, Map<String, Object>> retVal = new HashMap<>();
         for (String username : this.friends.keySet()) {
             retVal.put(username, this.friends.get(username).asMap());
+        }
+        return retVal;
+    }
+
+    private Map<String, Map<String, Object>> getFriendRequestsMap() {
+        if (this.friendRequests == null) {
+            return null;
+        }
+
+        Map<String, Map<String, Object>> retVal = new HashMap<>();
+        for (String username : this.friendRequests.keySet()) {
+            retVal.put(username, this.friendRequests.get(username).asMap());
         }
         return retVal;
     }

@@ -2,12 +2,14 @@ package com.joshrap.liteweight.network.repos;
 
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ public class UserRepository {
     private static final String updateProfilePictureAction = "updateIcon";
     private static final String updateEndpointIdAction = "updateEndpointId";
     private static final String removeEndpointIdAction = "removeEndpointId";
+    private static final String sendFriendRequestAction = "sendFriendRequest";
 
     private final ApiGateway apiGateway;
 
@@ -174,6 +177,31 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to remove endpoint id. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to remove endpoint id.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<Friend> sendFriendRequest(String username) {
+        ResultStatus<Friend> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(sendFriendRequestAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new Friend(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setSuccess(true);
+            } catch (IOException ioe) {
+                resultStatus.setErrorMessage("Could not parse friend.");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to send friend request. Check internet connection.");
+        } else {
+            // todo probably want to actually use backend messages here...
+            resultStatus.setErrorMessage("Unable to send friend request.");
         }
         return resultStatus;
     }
