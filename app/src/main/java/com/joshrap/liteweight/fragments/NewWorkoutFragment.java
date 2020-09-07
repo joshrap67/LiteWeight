@@ -101,7 +101,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_workout, container, false);
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
         pendingRoutine = new Routine();
         currentDayIndex = 0;

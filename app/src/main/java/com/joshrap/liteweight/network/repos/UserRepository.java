@@ -26,6 +26,7 @@ public class UserRepository {
     private static final String updateEndpointIdAction = "updateEndpointId";
     private static final String removeEndpointIdAction = "removeEndpointId";
     private static final String sendFriendRequestAction = "sendFriendRequest";
+    private static final String cancelFriendRequestAction = "cancelFriendRequest";
 
     private final ApiGateway apiGateway;
 
@@ -202,6 +203,26 @@ public class UserRepository {
         } else {
             // todo probably want to actually use backend messages here...
             resultStatus.setErrorMessage("Unable to send friend request.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> cancelFriendRequest(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(cancelFriendRequestAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to cancel friend request. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to cancel friend request.");
         }
         return resultStatus;
     }

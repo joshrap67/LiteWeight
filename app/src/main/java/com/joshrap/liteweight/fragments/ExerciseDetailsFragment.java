@@ -73,7 +73,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
 
         metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);

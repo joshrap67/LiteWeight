@@ -103,7 +103,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         activeUser = Globals.user; // TODO dependency injection?
         Injector.getInjector(getContext()).inject(this);
 
-        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
         currentDayIndex = 0;
         currentWeekIndex = 0;

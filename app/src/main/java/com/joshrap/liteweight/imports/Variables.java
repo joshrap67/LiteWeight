@@ -76,8 +76,13 @@ public class Variables {
             INTENT_TIMER_TIME_ON_CLOCK = "Time_on_clock",
             INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked",
             INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked",
-            INTENT_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
+            NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
             INTENT_NOTIFICATION_DATA = "Notification_Data",
             INTENT_ID_TOKEN = "idToken",
             INTENT_REFRESH_TOKEN = "refreshToken";
+
+    public static final String
+            CANCELED_FRIEND_REQUEST = "cancelFriendRequest",
+            NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
+    public static final String FRIEND_LIST_POSITION = "friendsListPosition";
 }

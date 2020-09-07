@@ -73,7 +73,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         TextView usernameTV = view.findViewById(R.id.username_tv);
         final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
         TextView friendsListTv = view.findViewById(R.id.friends_list_tv);
-        friendsListTv.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList());
+        friendsListTv.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
         changePictureTv.setVisibility(View.GONE);
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);

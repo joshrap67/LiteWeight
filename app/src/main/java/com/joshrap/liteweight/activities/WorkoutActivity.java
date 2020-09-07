@@ -48,10 +48,12 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
 import com.joshrap.liteweight.helpers.ImageHelper;
+import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.network.RequestFields;
@@ -64,6 +66,7 @@ import com.joshrap.liteweight.widgets.Timer;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -79,8 +82,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private TextView toolbarTitleTV;
     private NavigationView nav;
     private int previousMenuItem;
-    private Bundle state;
-    private Toolbar toolbar;
     private FragmentManager fragmentManager;
     private boolean showPopupFlag;
     private ArrayList<String> fragmentStack = new ArrayList<>();
@@ -99,33 +100,93 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String action = null;
+        String jsonData = null;
         if (getIntent().getExtras() != null) {
-            // todo actually handle
-            System.out.println(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA));
+            action = getIntent().getAction();
+            jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
         loadingDialog = new ProgressDialog(this);
         Injector.getInjector(this).inject(this);
-        createNotificationChannel();
+
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_CLICK);
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST);
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver,
+                receiverActions);
+
         setContentView(R.layout.activity_workout);
         timer = new Timer(this);
         stopwatch = new Stopwatch(this);
         showPopupFlag = true;
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
-        state = savedInstanceState;
-        fragmentManager = getSupportFragmentManager();
         TextView logoutButton = findViewById(R.id.log_out_btn);
+        nav.setNavigationItemSelectedListener(this);
+        fragmentManager = getSupportFragmentManager();
         logoutButton.setOnClickListener(view -> promptLogout());
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         }
-        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver,
-                new IntentFilter(Variables.INTENT_FRIEND_REQUEST_CLICK));
-        initViews();
+
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.nav_draw_open, R.string.nav_draw_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        if (savedInstanceState == null) {
+            previousMenuItem = R.id.nav_current_workout;
+            // default landing fragment is current workout one
+            currentWorkoutFragment = new ActiveWorkoutFragment();
+            fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                    currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
+            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
+            nav.setCheckedItem(R.id.nav_current_workout);
+        }
+        View headerView = nav.getHeaderView(0);
+        final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
+        Picasso.get()
+                .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
+                .error(R.drawable.new_icon_round)
+                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                .into(profilePicture, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        profilePicture.setImageDrawable(imageDrawable);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
+        final TextView usernameTV = headerView.findViewById(R.id.username_tv);
+        usernameTV.setText(Globals.user.getUsername());
+
+        createNotificationChannel();
         updateEndpointToken();
+        if (action != null && jsonData != null) {
+            // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
+            navigateToFragmentFromNotification(action, jsonData);
+        }
+    }
+
+    private void navigateToFragmentFromNotification(String action, String jsonData) {
+        if (action == null) {
+            return;
+        }
+        // note that this is called whenever user opens notification while app was terminated. So no need to update any models
+        if (Variables.NEW_FRIEND_REQUEST_CLICK.equals(action)) {
+            Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+            extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+            goToFriendsList(extras);
+        }
     }
 
     @Override
@@ -279,7 +340,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-
     @Override
     protected void onNewIntent(Intent intent) {
         /*
@@ -287,36 +347,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
          */
         super.onNewIntent(intent); // this has to be first to not crash app when clicking notification when app is in background
         String action = intent.getAction();
+        // todo move this to broadcast receiver
         if (action != null && (action.equals(Variables.INTENT_TIMER_NOTIFICATION_CLICK)
                 || action.equals(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK))) {
             // close any popup that might be showing
-            Fragment currentFragment = getVisibleFragment();
-            if (currentFragment instanceof FragmentWithDialog) {
-                ((FragmentWithDialog) currentFragment).hideAllDialogs();
-            }
-
-            if (currentFragment instanceof NewWorkoutFragment) {
-                if (((NewWorkoutFragment) currentFragment).isModified()) {
-                    // workout is being made, so give user option to prevent navigation change
-                    showUnsavedChangesNewWorkoutPopup(true);
-                    return;
-                } else {
-                    // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
-                    fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-                }
-            } else if (currentFragment instanceof EditWorkoutFragment) {
-                if (((EditWorkoutFragment) currentFragment).isModified()) {
-                    // workout is being edited, so give user option to prevent navigation change
-                    showUnsavedChangesEditWorkoutPopup(true);
-                    return;
-                } else {
-                    // can't ever go back to the edit workout fragment since it's only accessible within the my workout fragment
-                    fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-                }
-            }
-
+            closeAllOpenDialogs();
             goToCurrentWorkout();
-            enableBackButton(false);
+            toggleBackButton(false);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
@@ -325,56 +362,79 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
             // todo receive new icon broadcast
-            if (action != null && action.equals(Variables.INTENT_FRIEND_REQUEST_CLICK)) {
-                System.out.println(intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+            if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
+                // called when app is in background (not terminated) and user clicks notification
+                FriendRequest friendRequest = null;
+                try {
+                    // sanity check update, this should always be taken care of in the branch below but doing it again to be sure
+                    friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
+
+                    Fragment visibleFragment = getVisibleFragment();
+                    if (visibleFragment instanceof FriendsListFragment) {
+                        ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
+                    } else {
+                        // not currently on the friends list fragment, so go there
+                        closeAllOpenDialogs();
+                        toggleBackButton(false);
+                        Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                        extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                        goToFriendsList(extras);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (action.equals(Variables.NEW_FRIEND_REQUEST_BROADCAST)) {
+                // called when user has app open in foreground
+                FriendRequest friendRequest = null;
+                try {
+                    friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
+
+                    Fragment visibleFragment = getVisibleFragment();
+                    if (visibleFragment instanceof FriendsListFragment) {
+                        ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
+                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        if (mNotificationManager != null) {
+                            // user is on this page, so no need to show a push notification
+                            mNotificationManager.cancel(friendRequest.getUsername().hashCode());
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (action.equals(Variables.CANCELED_FRIEND_REQUEST)) {
+                String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
+                Globals.user.getFriendRequests().remove(usernameToRemove);
+
+                Fragment visibleFragment = getVisibleFragment();
+                if (visibleFragment instanceof FriendsListFragment) {
+                    ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
+                }
             }
         }
     };
 
-    public void initViews() {
-        /*
-            Called when the default exercises are present in local memory. Sets up the navigation pane.
-         */
-        nav.setNavigationItemSelectedListener(this);
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.nav_draw_open, R.string.nav_draw_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        if (state == null) {
-            previousMenuItem = R.id.nav_current_workout;
-            // default landing fragment is current workout one
-            currentWorkoutFragment = new ActiveWorkoutFragment();
-            fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
-            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
-            nav.setCheckedItem(R.id.nav_current_workout);
+    private void closeAllOpenDialogs() {
+        Fragment currentFragment = getVisibleFragment();
+        if (currentFragment instanceof FragmentWithDialog) {
+            ((FragmentWithDialog) currentFragment).hideAllDialogs();
         }
-        View headerView = nav.getHeaderView(0);
-        final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
-        Picasso.get()
-                .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
-                .error(R.drawable.new_icon_round)
-                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                .into(profilePicture, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        profilePicture.setImageDrawable(imageDrawable);
-                    }
 
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                });
-        final TextView usernameTV = headerView.findViewById(R.id.username_tv);
-        usernameTV.setText(Globals.user.getUsername());
+        // i no longer care about asking if user is editing or not. If they click the notification and have unsaved changes they're SOL
+        if (currentFragment instanceof NewWorkoutFragment) {
+            // can't ever go back to the new workout fragment since it's only accessible within the my workout fragment
+            fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+        } else if (currentFragment instanceof EditWorkoutFragment) {
+            fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
+        }
     }
 
-    public void enableBackButton(boolean enable) {
+    public void toggleBackButton(boolean enable) {
         /*
             Found on SO. Shows the back button instead of the hamburger icon for the drawer menu
          */
@@ -397,7 +457,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             drawerListenerIsRegistered = false;
         }
     }
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -443,7 +502,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     public void onBackPressed() {
         Fragment visibleFragment = getVisibleFragment();
-        boolean modified = fragModified(visibleFragment);
+        boolean modified = isFragmentModified(visibleFragment);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             // if the user clicked the navigation panel, allow back press to close it.
             drawer.closeDrawer(GravityCompat.START);
@@ -451,13 +510,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         } else if (visibleFragment instanceof NewWorkoutFragment) {
             if (modified && showPopupFlag) {
                 // workout is being made, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesNewWorkoutPopup(false);
+                showUnsavedChangesNewWorkoutPopup();
                 return;
             }
         } else if (visibleFragment instanceof EditWorkoutFragment) {
             if (modified && showPopupFlag) {
                 // workout is being edited, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesEditWorkoutPopup(false);
+                showUnsavedChangesEditWorkoutPopup();
                 return;
             }
         }
@@ -507,7 +566,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 nav.setCheckedItem(R.id.nav_account_settings);
                 break;
         }
-        enableBackButton(false); // in case the user was in a page that had a back button
+        toggleBackButton(false); // in case the user was in a page that had a back button
     }
 
     @Override
@@ -562,7 +621,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         messageTV.setTextSize(18);
     }
 
-    public void showUnsavedChangesNewWorkoutPopup(final boolean timerNotificationClicked) {
+    public void showUnsavedChangesNewWorkoutPopup() {
         /*
             Is called whenever the user has unfinished work in the create workout fragment.
          */
@@ -570,16 +629,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .setTitle("Unsaved Changes")
                 .setMessage(R.string.unsaved_workout_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (timerNotificationClicked) {
-                        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-                        alertDialog.dismiss();
-                        enableBackButton(false);
-                        nav.setCheckedItem(R.id.nav_current_workout);
-                        goToCurrentWorkout();
-                    } else {
-                        showPopupFlag = false;
-                        onBackPressed();
-                    }
+                    showPopupFlag = false;
+                    onBackPressed();
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -589,7 +640,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         messageTV.setTextSize(18);
     }
 
-    public void showUnsavedChangesEditWorkoutPopup(final boolean timerNotificationClicked) {
+    public void showUnsavedChangesEditWorkoutPopup() {
         /*
             Is called whenever the user has unfinished work in the edit workout fragment.
          */
@@ -597,16 +648,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .setTitle("Unsaved Changes")
                 .setMessage(R.string.popup_message_edit_workout)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (timerNotificationClicked) {
-                        fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-                        alertDialog.dismiss();
-                        enableBackButton(false);
-                        nav.setCheckedItem(R.id.nav_current_workout);
-                        goToCurrentWorkout();
-                    } else {
-                        showPopupFlag = false;
-                        onBackPressed();
-                    }
+                    showPopupFlag = false;
+                    onBackPressed();
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -642,7 +685,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return stopwatch;
     }
 
-    public boolean fragModified(Fragment aFragment) {
+    public boolean isFragmentModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified
          */
@@ -795,16 +838,20 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
-    public void goToFriendsList() {
+    public void goToFriendsList(Bundle extras) {
         if (fragmentStack.contains(Variables.FRIENDS_LIST_TITLE)) {
             fragmentStack.remove(Variables.FRIENDS_LIST_TITLE);
             fragmentStack.add(0, Variables.FRIENDS_LIST_TITLE);
         } else {
             fragmentStack.add(0, Variables.FRIENDS_LIST_TITLE);
         }
+        Fragment fragment = new FriendsListFragment();
+        if (extras != null) {
+            fragment.setArguments(extras);
+        }
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new FriendsListFragment(), Variables.FRIENDS_LIST_TITLE)
+                .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
 

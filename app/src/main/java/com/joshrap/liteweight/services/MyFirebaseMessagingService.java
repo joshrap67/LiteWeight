@@ -8,15 +8,18 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.NotificationActivity;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.PushNotification;
+import com.joshrap.liteweight.models.User;
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,12 +29,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
-            System.out.println(remoteMessage.getData());
             Map<String, Object> jsonMap = JsonParser.deserialize(remoteMessage.getData().get("metadata"));
             PushNotification pushNotification = new PushNotification(jsonMap);
             switch (pushNotification.getAction()) {
                 case "friendRequest":
                     showNotificationFriendRequest(pushNotification.getJsonPayload());
+                    break;
+                case "canceledFriendRequest":
+                    cancelFriendRequest(pushNotification.getJsonPayload());
                     break;
             }
         } catch (IOException e) {
@@ -48,7 +53,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        notificationIntent.setAction(Variables.INTENT_FRIEND_REQUEST_CLICK);
+        notificationIntent.setAction(Variables.NEW_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -64,5 +69,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (mNotificationManager != null) {
             mNotificationManager.notify(friendRequest.getUsername().hashCode(), notification);
         }
+        Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
+        broadcastIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
+        broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(broadcastIntent);
+    }
+
+    private void cancelFriendRequest(String jsonData) throws IOException {
+        String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
+        notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(userToRemove.hashCode());
+        }
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(notificationIntent);
     }
 }

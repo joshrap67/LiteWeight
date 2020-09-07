@@ -62,7 +62,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FloatingActionButton floatingActionButton;
     private TextView emptyView;
     private static final int FRIENDS_POSITION = 0;
-    private static final int REQUESTS_POSITION = 1;
+    public static final int REQUESTS_POSITION = 1;
     private RecyclerView recyclerView;
     private AlertDialog alertDialog;
     private ProgressDialog loadingDialog;
@@ -71,6 +71,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private List<FriendRequest> friendRequests;
     private FriendsAdapter friendsAdapter;
     private FriendRequestsAdapter friendRequestsAdapter;
+    private TabLayout tabLayout;
+    private int currentIndex;
     @Inject
     UserRepository userRepository;
 
@@ -80,9 +82,17 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends_list, container, false); // TODO separate layout?
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
-        ((WorkoutActivity) getActivity()).enableBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         user = Globals.user;
+
+        Bundle args = getArguments();
+        if (args != null) {
+            // technically don't need to read the bundle, as long as args are there we know we are starting on friend request page
+            currentIndex = REQUESTS_POSITION;
+        } else {
+            currentIndex = FRIENDS_POSITION;
+        }
         loadingDialog = new ProgressDialog(getContext());
         loadingDialog.setCancelable(false);
         return view;
@@ -106,6 +116,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         for (String username : user.getFriendRequests().keySet()) {
             friendRequests.add(user.getFriendRequests().get(username));
         }
+        friendRequestsAdapter = new FriendRequestsAdapter(friendRequests);
+        friendsAdapter = new FriendsAdapter(friends);
+
         emptyView = view.findViewById(R.id.empty_view);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView = view.findViewById(R.id.friends_recycler_view);
@@ -113,9 +126,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         floatingActionButton = view.findViewById(R.id.floating_action_btn);
         floatingActionButton.setOnClickListener(v -> addFriendPopup());
-        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
+        tabLayout = view.findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Friends"), FRIENDS_POSITION);
         tabLayout.addTab(tabLayout.newTab().setText("Friend Requests"), REQUESTS_POSITION);
+
         tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -136,8 +150,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             }
         });
-        // always default to friends list?
-        switchToFriendsList();
+        if (currentIndex == REQUESTS_POSITION) {
+            tabLayout.getTabAt(REQUESTS_POSITION).select();
+        } else {
+            switchToFriendsList();
+        }
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -156,7 +173,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void switchToFriendsList() {
         floatingActionButton.show();
-        friendsAdapter = new FriendsAdapter(friends);
         checkEmptyList(FRIENDS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
@@ -183,7 +199,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void switchToRequestsList() {
         floatingActionButton.hide();
-        friendRequestsAdapter = new FriendRequestsAdapter(friendRequests);
+        // todo mark all requests as seen
         checkEmptyList(REQUESTS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
@@ -279,6 +295,44 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 }
             });
         });
+    }
+
+    private void cancelFriendRequest(String username) {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.cancelFriendRequest(username);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                // not critical to show any type of loading dialog/handle errors for this action
+                if (!resultStatus.isSuccess()) {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    public void removeFriendRequestFromList(String username) {
+        FriendRequest friendRequestToRemove = null;
+        for (FriendRequest friendRequest : friendRequests) {
+            if (friendRequest.getUsername().equals(username)) {
+                friendRequestToRemove = friendRequest;
+                break;
+            }
+        }
+        if (friendRequestToRemove != null) {
+            friendRequests.remove(friendRequestToRemove);
+            friendRequestsAdapter.notifyDataSetChanged();
+            checkEmptyList(tabLayout.getSelectedTabPosition());
+        }
+    }
+
+    public void addFriendRequestToList(FriendRequest friendRequest) {
+        if (friendRequest != null) {
+            friendRequests.add(friendRequest);
+            // todo sort?
+            // todo show a toast?
+            friendRequestsAdapter.notifyDataSetChanged();
+        }
     }
 
     private void showBlownUpProfilePic(Friend friend) {
@@ -380,6 +434,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 removeFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 blockFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 cancelRequest.setVisibility((friend.isConfirmed() ? View.GONE : View.VISIBLE));
+                cancelRequest.setOnClickListener(view -> {
+                    cancelFriendRequest(friend.getUsername());
+                    bottomSheetDialog.dismiss();
+                    user.getFriends().remove(friend.getUsername());
+                    friends.remove(friend);
+                    notifyDataSetChanged();
+                });
 
                 final RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend));

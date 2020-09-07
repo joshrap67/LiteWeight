@@ -30,6 +30,7 @@ import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.RoutineAdapter;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ExerciseRoutine;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
@@ -52,7 +53,7 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-public class ActiveWorkoutFragment extends Fragment {
+public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialog {
     private TextView dayTV;
     private ImageButton forwardButton, backButton;
     private int currentDayIndex;
@@ -62,6 +63,7 @@ public class ActiveWorkoutFragment extends Fragment {
     private Workout currentWorkout;
     private User user;
     private Routine routine;
+    private AlertDialog alertDialog;
     private RecyclerView recyclerView;
     private ProgressDialog loadingDialog;
     @Inject
@@ -309,7 +311,7 @@ public class ActiveWorkoutFragment extends Fragment {
     }
 
     private void showErrorMessage(String message) {
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Save workout error")
                 .setMessage(message)
                 .setPositiveButton("Ok", null)
@@ -349,7 +351,7 @@ public class ActiveWorkoutFragment extends Fragment {
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
@@ -422,5 +424,12 @@ public class ActiveWorkoutFragment extends Fragment {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
+    }
+
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
     }
 }
