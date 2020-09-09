@@ -165,7 +165,7 @@ public class RoutineAdapter extends
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
             extrasShownMap.add(exercise.getExerciseId());
-            weightInput.setText(WeightHelper.getFormattedWeight(exercise.getWeight()));
+            weightInput.setText(WeightHelper.getFormattedWeight(metricUnits, exercise.getWeight()));
             weightButton.setVisibility(View.INVISIBLE);
             videoButton.setVisibility(View.GONE);
             extraInfo.setVisibility(View.VISIBLE);
@@ -190,7 +190,7 @@ public class RoutineAdapter extends
             setsInput.setText(Integer.toString(exercise.getSets()));
             repsInput.setText(Integer.toString(exercise.getReps()));
             detailsInput.setText(exercise.getDetails());
-            weightInput.setText(WeightHelper.getFormattedWeight(exercise.getWeight()));
+            weightInput.setText(WeightHelper.getFormattedWeight(metricUnits, exercise.getWeight()));
 
             notifyDataSetChanged(); // avoids animation on closing the extra info
         };
@@ -203,7 +203,7 @@ public class RoutineAdapter extends
                 double newWeight = Double.parseDouble(weightInput.getText().toString());
                 if (metricUnits) {
                     // convert if in metric
-                    newWeight /= Variables.KG;
+                    newWeight = WeightHelper.metricWeightToImperial(newWeight);
                 }
 
                 exercise.setWeight(newWeight);

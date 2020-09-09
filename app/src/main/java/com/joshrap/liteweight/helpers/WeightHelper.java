@@ -1,41 +1,25 @@
 package com.joshrap.liteweight.helpers;
 
-import com.joshrap.liteweight.database.entities.ExerciseEntity;
 import com.joshrap.liteweight.imports.Variables;
 
 public class WeightHelper {
-    public static double getConvertedWeight(boolean metricUnits, ExerciseEntity exercise) {
-        // returns current weight of exercise either in lbs or kgs
-        return (metricUnits) ? exercise.getCurrentWeight() * Variables.KG : exercise.getCurrentWeight();
-    }
-
-    public static double getConvertedWeight(boolean metricUnits, double weight) {
+    public static double getConvertedWeight(boolean isMetricUnits, double weight) {
+        // the weight is in imperial units
         // returns current weight of exercise either in lbs or kgs (since in DB its stored in lbs)
-        return (metricUnits) ? weight * Variables.KG : weight;
+        return (isMetricUnits) ? weight * Variables.KG_PER_LB : weight;
     }
 
-    public static String validWeight(String weightString) {
-        /*
-            Checks if a given weight (from a text input so it is a string) is valid. Return null if valid
-         */
-        String retVal = null;
-        weightString = weightString.trim();
-        if (weightString.isEmpty()) {
-            retVal = "Weight cannot be empty.";
-        } else {
-            try {
-                Double.parseDouble(weightString);
-            } catch (Exception e) {
-                retVal = "Invalid weight.";
-            }
-        }
-        return retVal;
+    public static double metricWeightToImperial(double weight) {
+        // used when saving inputted metric weight to DB
+        return weight / Variables.KG_PER_LB;
     }
 
-    public static String getFormattedWeight(double aWeight) {
+    public static String getFormattedWeight(boolean metricUnits, double aWeight) {
          /*
-            Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal
+            Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal.
+            To be used as default text in editTexts
          */
+        aWeight = getConvertedWeight(metricUnits, aWeight);
         String retVal;
         String[] decimalPoints = Double.toString(aWeight).split("\\.");
         if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {

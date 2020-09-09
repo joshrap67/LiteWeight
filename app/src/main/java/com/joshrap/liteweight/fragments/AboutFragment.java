@@ -20,6 +20,7 @@ public class AboutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         String version = null;
         try {

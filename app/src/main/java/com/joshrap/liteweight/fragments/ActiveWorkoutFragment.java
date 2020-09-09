@@ -80,6 +80,7 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         user = Globals.user;
         loadingDialog = new ProgressDialog(getContext());
         loadingDialog.setCancelable(false);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
         View view;
         if (currentWorkout == null) {

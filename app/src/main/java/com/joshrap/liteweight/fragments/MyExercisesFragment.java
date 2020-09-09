@@ -75,6 +75,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
         // TODO injection or view model???
         User user = Globals.user;

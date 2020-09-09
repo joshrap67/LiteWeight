@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -79,9 +80,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered = false;
-    private TextView toolbarTitleTV;
+    private TextView toolbarTitleTV, notificationTV;
     private NavigationView nav;
-    private int previousMenuItem;
     private FragmentManager fragmentManager;
     private boolean showPopupFlag;
     private ArrayList<String> fragmentStack = new ArrayList<>();
@@ -138,7 +138,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         if (savedInstanceState == null) {
-            previousMenuItem = R.id.nav_current_workout;
             // default landing fragment is current workout one
             currentWorkoutFragment = new ActiveWorkoutFragment();
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
@@ -147,6 +146,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             nav.setCheckedItem(R.id.nav_current_workout);
         }
         View headerView = nav.getHeaderView(0);
+        ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
+        headerLayout.setOnClickListener(view -> {
+            goToAccountSettings();
+            drawer.closeDrawer(GravityCompat.START);
+        });
+        notificationTV = headerView.findViewById(R.id.notification_tv);
         final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
@@ -175,6 +180,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action, jsonData);
         }
+        updateNotificationIndicator();
     }
 
     private void navigateToFragmentFromNotification(String action, String jsonData) {
@@ -353,7 +359,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // close any popup that might be showing
             closeAllOpenDialogs();
             goToCurrentWorkout();
-            toggleBackButton(false);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
     }
@@ -368,7 +373,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // todo receive new icon broadcast
             if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
                 // called when app is in background (not terminated) and user clicks notification
-                FriendRequest friendRequest = null;
+                FriendRequest friendRequest;
                 try {
                     // sanity check update, this should always be taken care of in the branch below but doing it again to be sure
                     friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
@@ -380,7 +385,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     } else {
                         // not currently on the friends list fragment, so go there
                         closeAllOpenDialogs();
-                        toggleBackButton(false);
                         Bundle extras = new Bundle(); // to start the fragment on the friend request tab
                         extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
                         goToFriendsList(extras);
@@ -390,7 +394,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
             } else if (action.equals(Variables.NEW_FRIEND_REQUEST_BROADCAST)) {
                 // called when user has app open in foreground
-                FriendRequest friendRequest = null;
+                FriendRequest friendRequest;
                 try {
                     friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                     Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
@@ -404,13 +408,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                             mNotificationManager.cancel(friendRequest.getUsername().hashCode());
                         }
                     }
+                    updateNotificationIndicator();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else if (action.equals(Variables.CANCELED_FRIEND_REQUEST)) {
                 String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                 Globals.user.getFriendRequests().remove(usernameToRemove);
-
+                updateNotificationIndicator();
                 Fragment visibleFragment = getVisibleFragment();
                 if (visibleFragment instanceof FriendsListFragment) {
                     ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
@@ -463,36 +468,35 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         /*
             Called whenever an element in the nav menu is selected
          */
-        int selectedIndex = menuItem.getItemId();
-        if (selectedIndex == previousMenuItem) {
-            // if user is clicking item which is already active, prevent that fragment from being needlessly reloaded
-            drawer.closeDrawer(GravityCompat.START);
-            return true;
-        }
-        previousMenuItem = selectedIndex;
-        switch (selectedIndex) {
+        switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
-                goToCurrentWorkout();
+                if (!(getVisibleFragment() instanceof ActiveWorkoutFragment)) {
+                    goToCurrentWorkout();
+                }
                 break;
 
             case R.id.nav_my_workouts:
-                goToMyWorkouts();
+                if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
+                    goToMyWorkouts();
+                }
                 break;
 
             case R.id.nav_my_exercises:
-                goToMyExercises();
-                break;
-
-            case R.id.nav_account_settings:
-                goToAccountSettings();
+                if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
+                    goToMyExercises();
+                }
                 break;
 
             case R.id.nav_user_settings:
-                goToAppSettings();
+                if (!(getVisibleFragment() instanceof UserSettingsFragment)) {
+                    goToAppSettings();
+                }
                 break;
 
             case R.id.nav_about:
-                goToAbout();
+                if (!(getVisibleFragment() instanceof AboutFragment)) {
+                    goToAbout();
+                }
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
@@ -563,10 +567,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.ACCOUNT_TITLE:
                 goToAccountSettings();
-                nav.setCheckedItem(R.id.nav_account_settings);
                 break;
         }
-        toggleBackButton(false); // in case the user was in a page that had a back button
     }
 
     @Override
@@ -726,6 +728,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
          */
         showPopupFlag = false;
         onBackPressed();
+    }
+
+    public void updateNotificationIndicator() {
+        // check if there are any unseen notifications
+        boolean showAlert = false;
+        for (String username : Globals.user.getFriendRequests().keySet()) {
+            if (!Globals.user.getFriendRequests().get(username).isSeen()) {
+                showAlert = true;
+            }
+        }
+        // todo do this for workouts received as well
+
+        notificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
     }
 
     // region Navigation Methods

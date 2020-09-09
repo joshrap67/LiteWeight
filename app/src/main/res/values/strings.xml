@@ -163,4 +163,9 @@
     <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. An email with a code will be sent to the email associated with that account.</string>
     <string name="send_code">SEND CODE</string>
     <string name="reset_password_btn_msg">RESET PASSWORD</string>
+    <string name="friends_list">Friends List</string>
+    <string name="blocked_list">Blocked List</string>
+    <string name="account_preferences">Account Preferences</string>
+    <string name="received_workouts">Received Workouts</string>
+    <string name="friends_list_alert">Friends List (!)</string>
 </resources>

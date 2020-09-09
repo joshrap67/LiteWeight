@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -99,6 +100,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     @Override
+    public void onPause() {
+        // sanity check to determine if user has any unseen requests after this fragment is paused
+        if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
+            markAllRequestsSeen();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         /*
             Init all views and buttons when view is loaded onto screen
@@ -124,7 +134,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         floatingActionButton.setOnClickListener(v -> addFriendPopup());
         tabLayout = view.findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Friends"), FRIENDS_POSITION);
-        tabLayout.addTab(tabLayout.newTab().setText("Friend Requests"), REQUESTS_POSITION);
+        boolean requestsUnseen = false;
+        for (FriendRequest friendRequest : friendRequests) {
+            if (!friendRequest.isSeen()) {
+                requestsUnseen = true;
+                break;
+            }
+        }
+        tabLayout.addTab(tabLayout.newTab().setText(
+                requestsUnseen ? "Friend Requests (!)" : "Friend Requests"), REQUESTS_POSITION);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
             @Override
@@ -138,7 +156,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
+                if (tab.getPosition() == REQUESTS_POSITION) {
+                    markAllRequestsSeen();
+                }
             }
 
             @Override
@@ -194,8 +214,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void switchToRequestsList() {
+        tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests"); // when user clicks on this tab, all requests are set to "seen"
         floatingActionButton.hide();
-        // todo mark all requests as seen
         checkEmptyList(REQUESTS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
@@ -218,6 +238,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         });
         recyclerView.setAdapter(friendRequestsAdapter);
+        deleteNotifications();
     }
 
     private void checkEmptyList(int position) {
@@ -230,6 +251,36 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         } else if (position == REQUESTS_POSITION) {
             emptyView.setVisibility(friendRequests.isEmpty() ? View.VISIBLE : View.GONE);
             emptyView.setText(getString(R.string.empty_friends_request_msg));
+        }
+    }
+
+    private void deleteNotifications() {
+        for (FriendRequest friendRequest : friendRequests) {
+            if (!friendRequest.isSeen()) {
+                // get rid of any push notification that might be there
+                NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (mNotificationManager != null) {
+                    mNotificationManager.cancel(friendRequest.getUsername().hashCode());
+                }
+            }
+        }
+    }
+
+    private void markAllRequestsSeen() {
+        int unseenCount = 0;
+        for (FriendRequest friendRequest : friendRequests) {
+            if (!friendRequest.isSeen()) {
+                unseenCount++;
+                friendRequest.setSeen(true);
+            }
+        }
+        if (unseenCount > 0) {
+            if (getActivity() != null) {
+                deleteNotifications();
+                ((WorkoutActivity) getActivity()).updateNotificationIndicator();
+            }
+            // prevents useless api calls to update unseen friend requests
+            // todo api mark all requests as seen
         }
     }
 
@@ -324,8 +375,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     public void addFriendRequestToList(FriendRequest friendRequest) {
         if (friendRequest != null) {
-            friendRequests.add(friendRequest);
-            // todo sort?
+            friendRequests.add(0, friendRequest);
             // todo show a toast?
             friendRequestsAdapter.notifyDataSetChanged();
         }
@@ -478,11 +528,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
                         public void onSuccess() {
-                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                            imageDrawable.setCircular(true);
-                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                            profilePicture.setImageDrawable(imageDrawable);
+                            if (FriendsListFragment.this.isResumed()) {
+                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                                imageDrawable.setCircular(true);
+                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                                profilePicture.setImageDrawable(imageDrawable);
+                            }
                         }
 
                         @Override
@@ -501,6 +553,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private class FriendRequestsAdapter extends RecyclerView.Adapter<FriendRequestsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView usernameTV;
+            TextView unseenTV;
             ImageView profilePicture;
             Button acceptRequestButton;
             Button declineRequestButton;
@@ -511,6 +564,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 profilePicture = itemView.findViewById(R.id.profile_picture);
                 acceptRequestButton = itemView.findViewById(R.id.accept_request_btn);
                 declineRequestButton = itemView.findViewById(R.id.decline_request_btn);
+                unseenTV = itemView.findViewById(R.id.unseen_tv);
             }
         }
 
@@ -545,6 +599,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             final FriendRequest friend = friendRequests.get(position);
             final TextView exerciseTV = holder.usernameTV;
             final ImageView profilePicture = holder.profilePicture;
+            final TextView unseenTV = holder.unseenTV;
+            unseenTV.setVisibility(friend.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friend));
             exerciseTV.setText(friend.getUsername());
             Picasso.get()
@@ -554,11 +610,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
                         public void onSuccess() {
-                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                            imageDrawable.setCircular(true);
-                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                            profilePicture.setImageDrawable(imageDrawable);
+                            if (FriendsListFragment.this.isResumed()) {
+                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                                imageDrawable.setCircular(true);
+                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                                profilePicture.setImageDrawable(imageDrawable);
+                            }
                         }
 
                         @Override

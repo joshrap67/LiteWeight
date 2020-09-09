@@ -26,6 +26,7 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -60,6 +62,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_account, container, false); // TODO separate layout?
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         user = Globals.user;
         return view;
@@ -78,6 +81,21 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
         profilePicture.setOnClickListener(v -> getImage());
+        final TextView receivedWorkoutsTV = view.findViewById(R.id.received_workouts_tv);
+        int receivedUnseenCount = 0;
+        for (String workoutId : user.getReceivedWorkouts().keySet()) {
+            // todo actually do this
+            receivedUnseenCount++;
+        }
+        int requestUnseenCount = 0;
+        for (String username : user.getFriendRequests().keySet()) {
+            if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
+                requestUnseenCount++;
+            }
+        }
+        if (requestUnseenCount > 0) {
+            friendsListTv.setText(R.string.friends_list_alert);
+        }
 
         url = ImageHelper.getIconUrl(user.getIcon());
         Picasso.get()

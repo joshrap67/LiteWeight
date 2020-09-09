@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -92,6 +93,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
+    private boolean metricUnits; // todo make this a named var for injection?
+    @Inject
+    SharedPreferences sharedPreferences;
     @Inject
     WorkoutRepository workoutRepository;
 
@@ -103,6 +107,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
+        metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
         pendingRoutine = new Routine();
         currentDayIndex = 0;
         currentWeekIndex = 0;

@@ -325,7 +325,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private void initViews() {
         exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightHelper.getFormattedWeight(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
+        weightInput.setText(WeightHelper.getFormattedWeight(metricUnits, originalExercise.getDefaultWeight()));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
         detailsInput.setText(originalExercise.getDefaultDetails());
@@ -371,7 +371,11 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             if (!updatedExercise.isDefaultExercise()) {
                 updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
             }
-            updatedExercise.setDefaultWeight(Double.parseDouble(weightInput.getText().toString().trim()));
+            double weight = Double.parseDouble(weightInput.getText().toString().trim());
+            if (metricUnits) {
+                weight = WeightHelper.metricWeightToImperial(weight);
+            }
+            updatedExercise.setDefaultWeight(weight);
             updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
             updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
             updatedExercise.setDefaultDetails(detailsInput.getText().toString().trim());

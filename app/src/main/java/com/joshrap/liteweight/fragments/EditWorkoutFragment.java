@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -89,20 +90,21 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private EditWorkoutFragment.AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
     private Workout workout;
+    private boolean metricUnits;
     @Inject
     WorkoutRepository workoutRepository;
-
+    @Inject
+    SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_workout, container, false); // TODO separate layout?
-
+        Injector.getInjector(getContext()).inject(this);
         workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
         pendingRoutine = workout.getRoutine();
         activeUser = Globals.user; // TODO dependency injection?
-        Injector.getInjector(getContext()).inject(this);
-
+        metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
         currentDayIndex = 0;

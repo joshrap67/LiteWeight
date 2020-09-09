@@ -32,7 +32,7 @@ public class Variables {
             DELETE_MODE = 1,
             COPY_MODE = 2;
 
-    public static final double KG = 0.45359237; // (kg / 1 lb)
+    public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
     public static final String
             DEFAULT_EXERCISES_FILE = "DefaultExercises.txt",
