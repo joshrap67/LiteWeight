@@ -27,6 +27,7 @@ public class UserRepository {
     private static final String removeEndpointIdAction = "removeEndpointId";
     private static final String sendFriendRequestAction = "sendFriendRequest";
     private static final String cancelFriendRequestAction = "cancelFriendRequest";
+    private static final String setAllRequestsSeenAction = "setAllRequestsSeen";
 
     private final ApiGateway apiGateway;
 
@@ -223,6 +224,23 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to cancel friend request. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to cancel friend request.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> setAllRequestsSeen() {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllRequestsSeenAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to set all requests seen. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to set all requests seen.");
         }
         return resultStatus;
     }

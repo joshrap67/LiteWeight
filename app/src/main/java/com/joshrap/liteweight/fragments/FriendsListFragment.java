@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -275,12 +276,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
         if (unseenCount > 0) {
+            // prevents useless api calls to update unseen friend requests
             if (getActivity() != null) {
                 deleteNotifications();
                 ((WorkoutActivity) getActivity()).updateNotificationIndicator();
             }
-            // prevents useless api calls to update unseen friend requests
-            // todo api mark all requests as seen
+            // marking all requests seen is not critical at all, so if it fails no need to alarm user
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> userRepository.setAllRequestsSeen());
         }
     }
 
@@ -376,7 +379,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     public void addFriendRequestToList(FriendRequest friendRequest) {
         if (friendRequest != null) {
             friendRequests.add(0, friendRequest);
-            // todo show a toast?
+            Toast.makeText(getContext(), friendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
             friendRequestsAdapter.notifyDataSetChanged();
         }
     }
