@@ -107,7 +107,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
-        metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
+        metricUnits = activeUser.getUserPreferences().isMetricUnits();
         pendingRoutine = new Routine();
         currentDayIndex = 0;
         currentWeekIndex = 0;

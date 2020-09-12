@@ -14,12 +14,11 @@ public class WeightHelper {
         return weight / Variables.KG_PER_LB;
     }
 
-    public static String getFormattedWeight(boolean metricUnits, double aWeight) {
+    public static String getFormattedWeightForInput(double aWeight) {
          /*
             Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal.
             To be used as default text in editTexts
          */
-        aWeight = getConvertedWeight(metricUnits, aWeight);
         String retVal;
         String[] decimalPoints = Double.toString(aWeight).split("\\.");
         if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {

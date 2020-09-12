@@ -5,6 +5,7 @@ import com.joshrap.liteweight.models.ExerciseUser;
 import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserPreferences;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
@@ -28,6 +29,7 @@ public class UserRepository {
     private static final String sendFriendRequestAction = "sendFriendRequest";
     private static final String cancelFriendRequestAction = "cancelFriendRequest";
     private static final String setAllRequestsSeenAction = "setAllRequestsSeen";
+    private static final String updateUserPreferencesAction = "updateUserPreferences";
 
     private final ApiGateway apiGateway;
 
@@ -241,6 +243,26 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to set all requests seen. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to set all requests seen.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> updateUserPreferences(UserPreferences userPreferences) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (userPreferences != null) {
+            requestBody.put(User.USER_PREFERENCES, userPreferences.asMap());
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(updateUserPreferencesAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to update preferences. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to set update preferences.");
         }
         return resultStatus;
     }

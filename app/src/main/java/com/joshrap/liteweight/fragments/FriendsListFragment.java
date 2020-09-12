@@ -82,7 +82,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friends_list, container, false); // TODO separate layout?
+        View view = inflater.inflate(R.layout.fragment_friends_list, container, false);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
@@ -90,7 +90,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Bundle args = getArguments();
         if (args != null) {
-            // technically don't need to read the bundle, as long as args are there we know we are starting on friend request page
+            // don't need to consume the extras, as long as args are there we know we are starting on friend request page
             currentIndex = REQUESTS_POSITION;
         } else {
             currentIndex = FRIENDS_POSITION;
@@ -288,7 +288,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void addFriendPopup() {
-        View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
         final TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
         final EditText friendInput = popupView.findViewById(R.id.friend_name_input);
         friendInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(friendNameLayout));

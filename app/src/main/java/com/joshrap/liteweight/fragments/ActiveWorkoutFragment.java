@@ -268,7 +268,7 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
             Updates the list of displayed exercises in the workout depending on the current day.
          */
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
-        boolean metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
+        boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
                 user.getUserExercises(), getContext(), metricUnits, videosEnabled);

@@ -17,7 +17,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/friend_row_background"
+            android:background="@drawable/bottom_border_selectable"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"

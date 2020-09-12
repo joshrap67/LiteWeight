@@ -104,7 +104,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
         pendingRoutine = workout.getRoutine();
         activeUser = Globals.user; // TODO dependency injection?
-        metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
+        metricUnits = activeUser.getUserPreferences().isMetricUnits();
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
         currentDayIndex = 0;

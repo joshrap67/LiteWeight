@@ -488,7 +488,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
 
             case R.id.nav_user_settings:
-                if (!(getVisibleFragment() instanceof UserSettingsFragment)) {
+                if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
                     goToAppSettings();
                 }
                 break;
@@ -837,7 +837,20 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(0, Variables.SETTINGS_TITLE);
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new UserSettingsFragment(), Variables.SETTINGS_TITLE)
+                new AppSettingsFragment(), Variables.SETTINGS_TITLE)
+                .commit();
+    }
+
+    public void goToAccountPreferences() {
+        if (fragmentStack.contains(Variables.ACCOUNT_PREFS_TITLE)) {
+            fragmentStack.remove(Variables.ACCOUNT_PREFS_TITLE);
+            fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
+        } else {
+            fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
+        }
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
                 .commit();
     }
 
@@ -848,8 +861,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         } else {
             fragmentStack.add(0, Variables.ACCOUNT_TITLE);
         }
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new MyAccountFragment(), Variables.ACCOUNT_TITLE)
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
     }
 

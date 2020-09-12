@@ -2,7 +2,6 @@ package com.joshrap.liteweight.activities;
 
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -12,6 +11,7 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
@@ -31,7 +31,7 @@ public class SplashActivity extends AppCompatActivity {
     private String notificationData;
     private String notificationAction;
     @Inject
-    public SharedPreferences sharedPreferences;
+    public Tokens tokens;
     @Inject
     UserRepository userRepository;
 
@@ -43,10 +43,7 @@ public class SplashActivity extends AppCompatActivity {
             notificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
         Injector.getInjector(this).inject(this);
-        // todo use tokens?
-        String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
-        String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
-        if (refreshToken == null || idToken == null) {
+        if (tokens.getRefreshToken() == null || tokens.getIdToken() == null) {
             launchSignInActivity();
         } else {
             getUser();
@@ -60,13 +57,10 @@ public class SplashActivity extends AppCompatActivity {
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
-                    System.out.println("**************** USER GET SUCCEEDED *****************");
                     Globals.user = resultStatus.getData().getUser();
                     Globals.activeWorkout = resultStatus.getData().getWorkout();
                     launchWorkoutActivity();
                 } else {
-                    System.out.println("**************** USER GET FAILED *****************");
-                    System.out.println(resultStatus.getErrorMessage());
                     launchSignInActivity();
                 }
             });

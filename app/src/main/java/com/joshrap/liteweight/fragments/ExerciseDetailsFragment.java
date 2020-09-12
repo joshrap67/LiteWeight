@@ -76,13 +76,13 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
 
-        metricUnits = sharedPreferences.getBoolean(Variables.UNIT_KEY, false);
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
         }
         // TODO injection or view model???
         user = Globals.user;
+        metricUnits = user.getUserPreferences().isMetricUnits();
         exerciseNames = new ArrayList<>();
         for (String exerciseId : user.getUserExercises().keySet()) {
             exerciseNames.add(user.getUserExercises().get(exerciseId).getExerciseName());
@@ -325,7 +325,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private void initViews() {
         exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightHelper.getFormattedWeight(metricUnits, originalExercise.getDefaultWeight()));
+        weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
         detailsInput.setText(originalExercise.getDefaultDetails());

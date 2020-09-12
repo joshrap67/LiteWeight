@@ -3,7 +3,9 @@ package com.joshrap.liteweight.injection;
 import com.joshrap.liteweight.activities.SignInActivity;
 import com.joshrap.liteweight.activities.SplashActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
 import com.joshrap.liteweight.fragments.ActiveWorkoutFragment;
+import com.joshrap.liteweight.fragments.AppSettingsFragment;
 import com.joshrap.liteweight.fragments.EditWorkoutFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
 import com.joshrap.liteweight.fragments.FriendsListFragment;
@@ -41,4 +43,8 @@ public interface LiteWeightComponent {
     void inject(MyAccountFragment myAccountFragment);
 
     void inject(FriendsListFragment friendsListFragment);
+
+    void inject(AccountPreferencesFragment accountPreferencesFragment);
+
+    void inject(AppSettingsFragment appSettingsFragment);
 }

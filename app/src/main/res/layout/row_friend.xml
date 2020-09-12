@@ -5,7 +5,7 @@
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/friend_row_background"
+        android:background="@drawable/bottom_border_selectable"
         android:clickable="true"
         android:focusable="true">
 

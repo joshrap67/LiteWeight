@@ -28,10 +28,9 @@
         \n\nNote that while you can edit the specific exercises and name of a workout after you create it, you cannot alter the number of days in it regardless of the workout type.</string>
     <string name="video_switch_description">Provides a play button next to each exercise in the current workout page that, when
     clicked, launches a video using the provided URL for the specific exercise.</string>
-    <string name="metric_switch_description">Converts all units in the app from imperial units (lb) to metric units (kg).</string>
-    <string name="stopwatch_switch_description">Provides a simple stopwatch at the bottom of the current workout page. If the app is put in the background the stopwatch will continue to run.</string>
-    <string name="timer_switch_description">Provides a simple timer at the bottom of the current workout page. To change the timer duration, click the timer when it is not running.
-        If the app is put in the background the timer will continue to run.</string>
+    <string name="metric_switch_description">Converts all units from imperial units (lb) to metric units (kg).</string>
+    <string name="stopwatch_switch_description">Provides a stopwatch at the bottom of the current workout page.</string>
+    <string name="timer_switch_description">Provides a timer at the bottom of the current workout page.</string>
     <string name="save">SAVE</string>
     <string name="edit">Edit</string>
     <string name="select_focus_title">Select Focus(s)</string>
@@ -168,4 +167,5 @@
     <string name="account_preferences">Account Preferences</string>
     <string name="received_workouts">Received Workouts</string>
     <string name="friends_list_alert">Friends List (!)</string>
+    <string name="manage_notifications">Manage Notifications</string>
 </resources>
