@@ -2,6 +2,7 @@ package com.joshrap.liteweight.network;
 
 
 import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.imports.ApiConfig;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 
@@ -20,7 +21,6 @@ public class CognitoGateway {
     private static final String baseURL = "https://cognito-idp.us-east-1.amazonaws.com";
     private static final String contentType = "application/x-amz-json-1.1";
     private static final String baseTarget = "com.amazonaws.cognito.identity.idp.model.AWSCognitoIdentityProviderService.";
-    private static final String clientId = "4ueb4e7af7cdnngqfdg0tfm9pk";
 
     @Inject
     public CognitoGateway() {
@@ -28,7 +28,7 @@ public class CognitoGateway {
 
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
-        body.put("ClientId", clientId);
+        body.put("ClientId", ApiConfig.cognitoClientId);
 
         try {
 

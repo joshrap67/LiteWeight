@@ -259,9 +259,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         for (FriendRequest friendRequest : friendRequests) {
             if (!friendRequest.isSeen()) {
                 // get rid of any push notification that might be there
-                NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                if (mNotificationManager != null) {
-                    mNotificationManager.cancel(friendRequest.getUsername().hashCode());
+                NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.cancel(friendRequest.getUsername().hashCode());
                 }
             }
         }
@@ -347,6 +347,52 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         });
     }
 
+    private void acceptFriendRequest(String username) {
+        // we assume it always succeeds
+        FriendRequest friendRequest = user.getFriendRequests().get(username);
+        user.getFriendRequests().remove(username);
+        friendRequests.remove(friendRequest);
+        friendRequestsAdapter.notifyDataSetChanged();
+        checkEmptyList(REQUESTS_POSITION);
+
+        Friend friend = new Friend(friendRequest.getIcon(), true, username);
+        Globals.user.getFriends().put(username, friend);
+        friends.add(friend);
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.acceptFriendRequest(username);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                // not critical to show any type of loading dialog/handle errors for this action.
+                if (!resultStatus.isSuccess()) {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    private void removeFriend(String username) {
+        // we assume it always succeeds
+        Friend friend = user.getFriends().get(username);
+        Globals.user.getFriends().remove(username);
+        friends.remove(friend);
+        friendsAdapter.notifyDataSetChanged();
+        checkEmptyList(FRIENDS_POSITION);
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.removeFriend(username);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                // not critical to show any type of loading dialog/handle errors for this action.
+                if (!resultStatus.isSuccess()) {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
     private void cancelFriendRequest(String username) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -376,12 +422,32 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         }
     }
 
+    public void removeFriendFromList(String username) {
+        Friend friendToRemove = null;
+        for (Friend friend : friends) {
+            if (friend.getUsername().equals(username)) {
+                friendToRemove = friend;
+                break;
+            }
+        }
+        if (friendToRemove != null) {
+            friends.remove(friendToRemove);
+            friendsAdapter.notifyDataSetChanged();
+            checkEmptyList(tabLayout.getSelectedTabPosition());
+        }
+    }
+
     public void addFriendRequestToList(FriendRequest friendRequest) {
         if (friendRequest != null) {
             friendRequests.add(0, friendRequest);
             Toast.makeText(getContext(), friendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
             friendRequestsAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void updateFriendsList() {
+        friendsAdapter.notifyDataSetChanged();
+        checkEmptyList(tabLayout.getSelectedTabPosition());
     }
 
     private void showBlownUpProfilePic(Friend friend) {
@@ -477,6 +543,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 View sheetView = getLayoutInflater().inflate(R.layout.friend_list_bottom_sheet, null);
                 final TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
                 final TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
+                removeFriend.setOnClickListener(view -> {
+                    bottomSheetDialog.dismiss();
+                    removeFriend(friend.getUsername());
+                });
                 final TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
                 final TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
                 sendWorkout.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
@@ -493,9 +563,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
                 final RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend));
-                final TextView exerciseTV = sheetView.findViewById(R.id.username_tv);
+                final TextView usernameTV = sheetView.findViewById(R.id.username_tv);
                 final ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
-                exerciseTV.setText(friend.getUsername());
+                usernameTV.setText(friend.getUsername());
 
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(friend.getIcon()))
@@ -559,6 +629,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             TextView unseenTV;
             ImageView profilePicture;
             Button acceptRequestButton;
+            Button blockButton;
             Button declineRequestButton;
 
             ViewHolder(View itemView) {
@@ -567,6 +638,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 profilePicture = itemView.findViewById(R.id.profile_picture);
                 acceptRequestButton = itemView.findViewById(R.id.accept_request_btn);
                 declineRequestButton = itemView.findViewById(R.id.decline_request_btn);
+                blockButton = itemView.findViewById(R.id.block_btn);
                 unseenTV = itemView.findViewById(R.id.unseen_tv);
             }
         }
@@ -603,6 +675,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             final TextView exerciseTV = holder.usernameTV;
             final ImageView profilePicture = holder.profilePicture;
             final TextView unseenTV = holder.unseenTV;
+            final Button acceptRequestButton = holder.acceptRequestButton;
+            acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friend.getUsername()));
             unseenTV.setVisibility(friend.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friend));
             exerciseTV.setText(friend.getUsername());

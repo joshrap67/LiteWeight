@@ -70,12 +70,14 @@ public class MyAccountFragment extends Fragment {
         /*
             Init all views and buttons when view is loaded onto screen
          */
-        TextView usernameTV = view.findViewById(R.id.username_tv);
+        final TextView usernameTV = view.findViewById(R.id.username_tv);
         final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
-        TextView friendsListTV = view.findViewById(R.id.friends_list_tv);
+        final TextView friendsListTV = view.findViewById(R.id.friends_list_tv);
         friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
-        TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
+        final TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
         accountPrefsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToAccountPreferences());
+        final TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
+        blockedListTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToBlockedList());
         changePictureTv.setVisibility(View.GONE);
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);

@@ -38,6 +38,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case "canceledFriendRequest":
                     cancelFriendRequest(pushNotification.getJsonPayload());
                     break;
+                case "acceptedFriendRequest":
+                    showNotificationAcceptedFriendRequest(pushNotification.getJsonPayload());
+                    break;
+                case "removeFriend":
+                    removedFriend(pushNotification.getJsonPayload());
+                    break;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,7 +53,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private void showNotificationFriendRequest(String jsonData) throws IOException {
-        // todo broadcast to activity
         // todo do this same thing for the timer notifications
         FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
@@ -83,7 +88,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
-        notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST);
+        notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             mNotificationManager.cancel(userToRemove.hashCode());
@@ -91,5 +96,52 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.sendBroadcast(notificationIntent);
+    }
+
+    private void removedFriend(String jsonData) throws IOException {
+        System.out.println("wtf");
+        String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
+        notificationIntent.setAction(Variables.REMOVE_FRIEND_BROADCAST);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (mNotificationManager != null) {
+            // if user still has notification saying this user accepted their request, hide it if user removes them
+            mNotificationManager.cancel(userToRemove.hashCode());
+        }
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(notificationIntent);
+    }
+
+    private void showNotificationAcceptedFriendRequest(String jsonData) throws IOException {
+        String userAccepted = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        Intent notificationIntent = new Intent(this, NotificationActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
+        notificationIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Notification notification = new NotificationCompat.Builder(this, Variables.ACCEPTED_FRIEND_CHANNEL)
+                .setContentTitle("New Friend!")
+                .setContentText(String.format("%s accepted your friend request!", userAccepted))
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setOngoing(false)
+                .build();
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (mNotificationManager != null) {
+            mNotificationManager.notify(userAccepted.hashCode(), notification);
+        }
+        Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
+        broadcastIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
+        broadcastIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(broadcastIntent);
     }
 }

@@ -168,4 +168,5 @@
     <string name="received_workouts">Received Workouts</string>
     <string name="friends_list_alert">Friends List (!)</string>
     <string name="manage_notifications">Manage Notifications</string>
+    <string name="empty_blocked_list_msg">You are not blocking any users. To block a user click the plus button below.</string>
 </resources>

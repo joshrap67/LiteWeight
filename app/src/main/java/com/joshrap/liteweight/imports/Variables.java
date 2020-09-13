@@ -5,10 +5,6 @@ public class Variables {
         Contains read only static variables
      */
     public static final int
-            NAME_INDEX = 0,
-            VIDEO_INDEX = 1,
-            FOCUS_INDEX_FILE = 2,
-            IGNORE_WEIGHT_VALUE = -1,
             MAX_NUMBER_OF_WORKOUTS = 40,
             MAX_NUMBER_OF_CUSTOM_EXERCISES = 200,
             WORKOUT_MAX_NUMBER_OF_DAYS = 7,
@@ -35,9 +31,6 @@ public class Variables {
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
     public static final String
-            DEFAULT_EXERCISES_FILE = "DefaultExercises.txt",
-            SPLIT_DELIM = "\\*",
-            FOCUS_DELIM_DB = ",",
             SHARED_PREF_SETTINGS = "userSettings",
             VIDEO_KEY = "Videos",
             STOPWATCH = "Stopwatch",
@@ -58,12 +51,14 @@ public class Variables {
             ACCOUNT_TITLE = "My Account",
             ACCOUNT_PREFS_TITLE = "Account Preferences",
             FRIENDS_LIST_TITLE = "Friends List",
+            BLOCKED_LIST_TITLE = "Blocked List",
             SETTINGS_TITLE = "Settings",
             EXERCISE_DETAILS_TITLE = "Exercise Details",
             EDIT_WORKOUT_TITLE = "Edit Workout",
             TIMER_RUNNING_CHANNEL = "timer_running_channel",
             TIMER_FINISHED_CHANNEL = "timer_finished_channel",
             FRIEND_REQUEST_CHANNEL = "friend_request_channel",
+            ACCEPTED_FRIEND_CHANNEL = "accepted_friend_channel",
             STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
             EXERCISE_ID = "exerciseId";
 
@@ -77,12 +72,15 @@ public class Variables {
             INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked",
             INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked",
             NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
+            ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked",
             INTENT_NOTIFICATION_DATA = "Notification_Data",
             INTENT_ID_TOKEN = "idToken",
             INTENT_REFRESH_TOKEN = "refreshToken";
 
     public static final String
-            CANCELED_FRIEND_REQUEST = "cancelFriendRequest",
+            CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest",
+            ACCEPTED_FRIEND_REQUEST_BROADCAST = "acceptedFriendRequestBroadcast",
+            REMOVE_FRIEND_BROADCAST = "removeFriendBroadcast",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
     public static final String FRIEND_LIST_POSITION = "friendsListPosition";
 }

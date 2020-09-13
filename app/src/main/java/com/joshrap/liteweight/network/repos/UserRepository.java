@@ -30,6 +30,8 @@ public class UserRepository {
     private static final String cancelFriendRequestAction = "cancelFriendRequest";
     private static final String setAllRequestsSeenAction = "setAllRequestsSeen";
     private static final String updateUserPreferencesAction = "updateUserPreferences";
+    private static final String acceptFriendRequestAction = "acceptFriendRequest";
+    private static final String removeFriendAction = "removeFriend";
 
     private final ApiGateway apiGateway;
 
@@ -263,6 +265,47 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to update preferences. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to set update preferences.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> acceptFriendRequest(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(acceptFriendRequestAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to accept friend request. Check internet connection.");
+        } else {
+            // todo probably want to actually use backend messages here...
+            resultStatus.setErrorMessage("Unable to accept friend request.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> removeFriend(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(removeFriendAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to remove friend. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to remove friend.");
         }
         return resultStatus;
     }

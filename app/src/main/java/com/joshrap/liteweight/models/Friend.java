@@ -5,9 +5,11 @@ import com.joshrap.liteweight.interfaces.Model;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Friend implements Model {
 
     public static final String CONFIRMED = "confirmed";
@@ -26,12 +28,6 @@ public class Friend implements Model {
         this.username = (String) json.get(User.USERNAME);
         this.icon = (String) json.get(User.ICON);
         this.confirmed = (boolean) json.get(CONFIRMED);
-    }
-
-    public Friend(String username, String icon, boolean confirmed) {
-        this.username = username;
-        this.icon = icon;
-        this.confirmed = confirmed;
     }
 
     @Override

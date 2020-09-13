@@ -24,6 +24,7 @@ public class User implements Model {
     public static final String FRIENDS_REQUESTS = "friendRequests";
     public static final String RECEIVED_WORKOUTS = "receivedWorkouts";
     public static final String USER_PREFERENCES = "preferences";
+    public static final String BLOCKED = "blocked";
 
     private String username;
     private String icon;
@@ -32,6 +33,8 @@ public class User implements Model {
     private int workoutsSent;
     private UserPreferences userPreferences;
 
+    @Setter(AccessLevel.NONE)
+    private Map<String, String> blocked;
     @Setter(AccessLevel.NONE)
     private Map<String, WorkoutUser> userWorkouts;
     @Setter(AccessLevel.NONE)
@@ -56,6 +59,7 @@ public class User implements Model {
         this.setUserPreferences(new UserPreferences((Map<String, Object>) json.get(USER_PREFERENCES)));
         this.setFriendRequests((Map<String, Object>) json.get(FRIENDS_REQUESTS));
         this.setReceivedWorkouts((Map<String, Object>) json.get(RECEIVED_WORKOUTS));
+        this.setBlocked((Map<String, Object>) json.get(BLOCKED));
     }
 
     // Setters
@@ -67,6 +71,17 @@ public class User implements Model {
             for (String exerciseId : json.keySet()) {
                 this.userExercises
                         .put(exerciseId, new ExerciseUser((Map<String, Object>) json.get(exerciseId), exerciseId));
+            }
+        }
+    }
+
+    private void setBlocked(Map<String, Object> json) {
+        if (json == null) {
+            this.blocked = null;
+        } else {
+            this.blocked = new HashMap<>();
+            for (String username : json.keySet()) {
+                this.blocked.put(username, (String) json.get(ICON));
             }
         }
     }
@@ -131,6 +146,7 @@ public class User implements Model {
         retVal.put(FRIENDS, this.getFriendsMap());
         retVal.put(FRIENDS_REQUESTS, this.getFriendRequestsMap());
         retVal.put(RECEIVED_WORKOUTS, this.receivedWorkouts);
+        retVal.put(BLOCKED, this.blocked);
         return retVal;
     }
 

@@ -93,7 +93,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
     private ProgressDialog loadingDialog;
-    private boolean metricUnits; // todo make this a named var for injection?
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -107,7 +106,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_WORKOUT_TITLE);
-        metricUnits = activeUser.getUserPreferences().isMetricUnits();
         pendingRoutine = new Routine();
         currentDayIndex = 0;
         currentWeekIndex = 0;
@@ -119,6 +117,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
         activeUser = Globals.user; // TODO dependency injection?
+        // todo make this a named var for injection?
+        boolean metricUnits = activeUser.getUserPreferences().isMetricUnits();
 
         exerciseIdToName = new HashMap<>();
         for (String id : activeUser.getUserExercises().keySet()) {
