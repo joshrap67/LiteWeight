@@ -32,6 +32,7 @@ public class UserRepository {
     private static final String updateUserPreferencesAction = "updateUserPreferences";
     private static final String acceptFriendRequestAction = "acceptFriendRequest";
     private static final String removeFriendAction = "removeFriend";
+    private static final String declineFriendRequestAction = "declineFriendRequest";
 
     private final ApiGateway apiGateway;
 
@@ -306,6 +307,26 @@ public class UserRepository {
             resultStatus.setErrorMessage("Network error. Unable to remove friend. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to remove friend.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> declineFriendRequest(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineFriendRequestAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to decline friend request. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to decline friend request.");
         }
         return resultStatus;
     }

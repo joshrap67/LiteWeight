@@ -372,6 +372,27 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         });
     }
 
+    private void declineFriendRequest(String username) {
+        // we assume it always succeeds
+        FriendRequest friendRequest = user.getFriendRequests().get(username);
+        user.getFriendRequests().remove(username);
+        friendRequests.remove(friendRequest);
+        friendRequestsAdapter.notifyDataSetChanged();
+        checkEmptyList(REQUESTS_POSITION);
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.declineFriendRequest(username);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                // not critical to show any type of loading dialog/handle errors for this action.
+                if (!resultStatus.isSuccess()) {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
     private void removeFriend(String username) {
         // we assume it always succeeds
         Friend friend = user.getFriends().get(username);
@@ -676,7 +697,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             final ImageView profilePicture = holder.profilePicture;
             final TextView unseenTV = holder.unseenTV;
             final Button acceptRequestButton = holder.acceptRequestButton;
+            final Button declineRequestButton = holder.declineRequestButton;
             acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friend.getUsername()));
+            declineRequestButton.setOnClickListener(view -> declineFriendRequest(friend.getUsername()));
             unseenTV.setVisibility(friend.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friend));
             exerciseTV.setText(friend.getUsername());

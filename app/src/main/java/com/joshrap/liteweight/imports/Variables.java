@@ -81,6 +81,7 @@ public class Variables {
             CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest",
             ACCEPTED_FRIEND_REQUEST_BROADCAST = "acceptedFriendRequestBroadcast",
             REMOVE_FRIEND_BROADCAST = "removeFriendBroadcast",
+            DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
     public static final String FRIEND_LIST_POSITION = "friendsListPosition";
 }

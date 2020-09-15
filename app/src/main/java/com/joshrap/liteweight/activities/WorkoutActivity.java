@@ -115,6 +115,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.REMOVE_FRIEND_BROADCAST);
+        receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver,
                 receiverActions);
 
@@ -385,7 +386,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             if (action == null) {
                 return;
             }
-            // todo receive new icon broadcast
             switch (action) {
                 case Variables.NEW_FRIEND_REQUEST_CLICK: {
                     // called when app is in background (not terminated) and user clicks notification
@@ -439,6 +439,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
+                    }
+                    break;
+                }
+                case Variables.DECLINED_FRIEND_REQUEST_BROADCAST: {
+                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
+                    Globals.user.getFriends().remove(usernameToRemove);
+                    updateNotificationIndicator();
+                    Fragment visibleFragment = getVisibleFragment();
+                    if (visibleFragment instanceof FriendsListFragment) {
+                        ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
                     }
                     break;
                 }
@@ -727,7 +737,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Called by other fragments to change the string that the toolbar displays.
          */
         toolbarTitleTV.setText(aTitle);
-
     }
 
     public Timer getTimer() {
@@ -784,7 +793,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     public void closeExerciseDetails() {
         /*
-            Called by the new workout fragment once a exercise is successfully destroyed.
+            Called by the new workout fragment once a exercise is successfully deleted.
             It destroys that fragment and handles the back stack appropriately.
          */
         showPopupFlag = false;

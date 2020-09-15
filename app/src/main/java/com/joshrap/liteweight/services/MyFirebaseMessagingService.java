@@ -44,6 +44,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case "removeFriend":
                     removedFriend(pushNotification.getJsonPayload());
                     break;
+                case "declinedFriendRequest":
+                    declinedFriendRequest(pushNotification.getJsonPayload());
+                    break;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,8 +101,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         localBroadcastManager.sendBroadcast(notificationIntent);
     }
 
+    private void declinedFriendRequest(String jsonData) throws IOException {
+        String declinedUser = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, declinedUser);
+        notificationIntent.setAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(declinedUser.hashCode());
+        }
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(notificationIntent);
+    }
+
     private void removedFriend(String jsonData) throws IOException {
-        System.out.println("wtf");
         String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -158,6 +158,7 @@ public class MyAccountFragment extends Fragment {
             Handler handler = new Handler(getMainLooper());
             ResultStatus<String> finalResultStatus = resultStatus;
             handler.post(() -> {
+                // todo send image data back to workout activity for the icon in the drawer menu
                 if (!finalResultStatus.isSuccess()) {
                     ErrorDialog.showErrorDialog("Upload Profile Picture Error", finalResultStatus.getErrorMessage(), getContext());
                 }
