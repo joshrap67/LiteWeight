@@ -81,7 +81,7 @@ public class User implements Model {
         } else {
             this.blocked = new HashMap<>();
             for (String username : json.keySet()) {
-                this.blocked.put(username, (String) json.get(ICON));
+                this.blocked.put(username, (String) json.get(username));
             }
         }
     }
@@ -97,7 +97,7 @@ public class User implements Model {
         }
     }
 
-    public void setFriendRequests(Map<String, Object> json) {
+    private void setFriendRequests(Map<String, Object> json) {
         if (json == null) {
             this.friendRequests = null;
         } else {

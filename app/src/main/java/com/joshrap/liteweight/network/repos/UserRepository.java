@@ -33,6 +33,8 @@ public class UserRepository {
     private static final String acceptFriendRequestAction = "acceptFriendRequest";
     private static final String removeFriendAction = "removeFriend";
     private static final String declineFriendRequestAction = "declineFriendRequest";
+    private static final String blockUserAction = "blockUser";
+    private static final String unblockUserAction = "unblockUser";
 
     private final ApiGateway apiGateway;
 
@@ -319,6 +321,50 @@ public class UserRepository {
             requestBody.put(User.USERNAME, username);
         }
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineFriendRequestAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to decline friend request. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to decline friend request.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> blockUser(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(blockUserAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(JsonParser.deserialize(apiResponse.getData()).get(User.ICON).toString());
+            } catch (IOException e) {
+                resultStatus.setErrorMessage("Could not parse blocked user icon.");
+            }
+            resultStatus.setSuccess(true);
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to block user. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to block user.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> unblockUser(String username) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        if (username != null) {
+            requestBody.put(User.USERNAME, username);
+        }
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(unblockUserAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());

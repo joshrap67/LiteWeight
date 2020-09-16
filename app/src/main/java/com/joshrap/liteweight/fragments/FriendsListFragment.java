@@ -367,6 +367,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 // not critical to show any type of loading dialog/handle errors for this action.
                 if (!resultStatus.isSuccess()) {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    // todo remove user from list?
                 }
             });
         });

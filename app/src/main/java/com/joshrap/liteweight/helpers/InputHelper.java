@@ -220,9 +220,23 @@ public class InputHelper {
         if (retVal == null) {
             // means no issue with base username
             if (friends.contains(username)) {
-                retVal = "Request already sent"; // todo check if friend vs request?
+                retVal = "Request already sent."; // todo check if friend vs request?
             } else if (activeUser.equals(username)) {
                 retVal = "Can't be friends with yourself. Sorry.";
+            }
+        }
+        return retVal;
+    }
+
+    public static String validUserToBlock(String activeUser, String username, List<String> users) {
+        username = username.trim();
+        String retVal = validUsername(username);
+        if (retVal == null) {
+            // means no issue with base username
+            if (users.contains(username)) {
+                retVal = "User already blocked.";
+            } else if (activeUser.equals(username)) {
+                retVal = "If only it were that simple to block yourself.";
             }
         }
         return retVal;

@@ -37,7 +37,6 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -116,9 +115,10 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             }
         });
         recyclerView.setAdapter(blockedAdapter);
+        checkEmptyList();
 
         FloatingActionButton floatingActionButton = view.findViewById(R.id.floating_action_btn);
-        floatingActionButton.setOnClickListener(v -> addFriendPopup());
+        floatingActionButton.setOnClickListener(v -> blockUserPopup());
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -143,30 +143,30 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         emptyView.setText(getString(R.string.empty_blocked_list_msg));
     }
 
-    private void addFriendPopup() {
+    private void blockUserPopup() {
         final View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
         final TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
-        final EditText friendInput = popupView.findViewById(R.id.friend_name_input);
-        friendInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(friendNameLayout));
-        friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
+        final EditText usernameInput = popupView.findViewById(R.id.friend_name_input);
+        usernameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(friendNameLayout));
+        usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Add Friend")
+                .setTitle("Block User")
                 .setView(popupView)
-                .setPositiveButton("Send Request", null)
+                .setPositiveButton("Block", null)
                 .setNegativeButton("Close", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
-                String friendUsername = friendInput.getText().toString().trim();
-                List<String> existingUsernames = new ArrayList<>(blocked);
-                String errorMsg = InputHelper.validNewFriend(user.getUsername(), friendUsername, existingUsernames);
+                String username = usernameInput.getText().toString().trim();
+                List<String> blockedUsers = new ArrayList<>(blocked);
+                String errorMsg = InputHelper.validUserToBlock(user.getUsername(), username, blockedUsers);
                 if (errorMsg != null) {
                     friendNameLayout.setError(errorMsg);
                 } else {
                     // no problems so go ahead and save
                     alertDialog.dismiss();
-                    sendFriendRequest(friendUsername);
+                    blockUser(username);
                 }
             });
         });
@@ -178,18 +178,19 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         loadingDialog.show();
     }
 
-    private void sendFriendRequest(String username) {
-        showLoadingDialog("Sending request...");
+    private void blockUser(String username) {
+        showLoadingDialog("Blocking user...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<Friend> resultStatus = this.userRepository.sendFriendRequest(username);
+            ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    user.getFriends().put(resultStatus.getData().getUsername(), resultStatus.getData());
+                    user.getBlocked().put(username, resultStatus.getData());
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
+                    checkEmptyList();
                 } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
@@ -198,9 +199,15 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void unblockUser(String username) {
+        // assume it always succeeds
+        user.getBlocked().remove(username);
+        blocked.remove(username);
+        blockedAdapter.notifyDataSetChanged();
+        checkEmptyList();
+
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.cancelFriendRequest(username);
+            ResultStatus<String> resultStatus = this.userRepository.unblockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 // not critical to show any type of loading dialog/handle errors for this action
@@ -212,6 +219,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void showBlownUpProfilePic(String username, String icon) {
+        // todo make this a util method
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
@@ -256,11 +264,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         public BlockedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-
-            // Inflate the custom layout
-            View friendView = inflater.inflate(R.layout.row_friend, parent, false);
-
-            // Return a new holder instance
+            View friendView = inflater.inflate(R.layout.row_blocked, parent, false);
             return new BlockedAdapter.ViewHolder(friendView);
         }
 
@@ -287,12 +291,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_blocked_list, null);
                 final TextView unblockTV = sheetView.findViewById(R.id.unblock_tv);
                 unblockTV.setOnClickListener(view -> {
-                    // todo unblock
-//                    cancelFriendRequest(friend.getUsername());
-//                    bottomSheetDialog.dismiss();
-//                    user.getFriends().remove(friend.getUsername());
-//                    blockedList.remove(friend);
-                    notifyDataSetChanged();
+                    unblockUser(blockedUser);
+                    bottomSheetDialog.dismiss();
                 });
 
                 final RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
@@ -300,7 +300,6 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 final TextView usernameTV = sheetView.findViewById(R.id.username_tv);
                 final ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
                 usernameTV.setText(blockedUser);
-
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(icon))
                         .error(R.drawable.new_icon_round)

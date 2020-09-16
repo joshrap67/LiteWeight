@@ -614,6 +614,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         showPopupFlag = true;
         fragmentStack.remove(0);
 
+        // todo need to handle if user was on exercise details page
         String frag = fragmentStack.get(0);
         switch (frag) {
             case Variables.CURRENT_WORKOUT_TITLE:
@@ -638,6 +639,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.ACCOUNT_TITLE:
                 goToAccountSettings();
+                break;
+            case Variables.BLOCKED_LIST_TITLE:
+                goToBlockedList();
+                break;
+            case Variables.FRIENDS_LIST_TITLE:
+                goToFriendsList(null);
+                break;
+            case Variables.ACCOUNT_PREFS_TITLE:
+                goToAccountPreferences();
                 break;
         }
     }
