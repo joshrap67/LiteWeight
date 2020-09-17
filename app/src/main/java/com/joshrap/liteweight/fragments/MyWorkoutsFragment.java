@@ -231,12 +231,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Reset Statistics")
                 .setMessage(message)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    resetWorkoutStatistics(currentWorkout.getWorkoutId());
-                })
+                .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
+        // todo just alter the damn alert dialog style ya goof
         // make the message font a little bigger than the default one provided by the alertdialog
         TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
         messageTV.setTextSize(18);

@@ -39,6 +39,7 @@
                 android:name=".activities.WorkoutActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme"
+                android:launchMode="singleTop"
                 android:windowSoftInputMode="adjustPan" />
 
         <activity

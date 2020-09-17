@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.joshrap.liteweight.imports.Variables;
 
@@ -26,7 +25,7 @@ public class NotificationActivity extends AppCompatActivity {
                  */
                 launchSplashActivity(jsonData, action);
             } else {
-                broadcastToWorkoutActivity(jsonData, action);
+                launchWorkoutActivity(jsonData, action);
             }
         } else {
             // this shouldn't ever be reached if i do my job properly. But putting it here as a fail safe
@@ -43,12 +42,11 @@ public class NotificationActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void broadcastToWorkoutActivity(String jsonData, String action) {
+    private void launchWorkoutActivity(String jsonData, String action) {
         Intent intent = new Intent(this, WorkoutActivity.class);
         intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(action);
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(intent);
+        startActivity(intent);
     }
 }

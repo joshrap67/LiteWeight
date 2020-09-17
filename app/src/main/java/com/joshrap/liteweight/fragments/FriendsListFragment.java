@@ -323,6 +323,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.show();
     }
 
+    private void blockUserPopup(String username) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Block User")
+                .setMessage(String.format("Are you sure you wish to block \"%s\"? They will no longer be able to add you as a friend or send you any workouts.", username))
+                .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
+                .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+    }
+
     private void showLoadingDialog(String message) {
         loadingDialog.setMessage(message);
         loadingDialog.show();
@@ -388,6 +398,48 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 // not critical to show any type of loading dialog/handle errors for this action.
                 if (!resultStatus.isSuccess()) {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    private void blockUser(String username) {
+        showLoadingDialog("Blocking user...");
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    user.getBlocked().put(username, resultStatus.getData());
+                    // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend a bit otherwise so oh well
+                    user.getFriendRequests().remove(username);
+                    user.getFriends().remove(username);
+                    if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
+                        Friend friendToRemove = null;
+                        for (Friend friend : friends) {
+                            if (friend.getUsername().equals(username)) {
+                                friendToRemove = friend;
+                            }
+                        }
+                        friends.remove(friendToRemove);
+                        friendsAdapter.notifyDataSetChanged();
+                        checkEmptyList(FRIENDS_POSITION);
+                    } else {
+                        FriendRequest requestToRemove = null;
+                        for (FriendRequest friendRequest : friendRequests) {
+                            if (friendRequest.getUsername().equals(username)) {
+                                requestToRemove = friendRequest;
+                            }
+                        }
+                        friendRequests.remove(requestToRemove);
+                        friendRequestsAdapter.notifyDataSetChanged();
+                        checkEmptyList(REQUESTS_POSITION);
+                    }
+                } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
@@ -565,15 +617,20 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 View sheetView = getLayoutInflater().inflate(R.layout.friend_list_bottom_sheet, null);
                 final TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
                 final TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
-                removeFriend.setOnClickListener(view -> {
-                    bottomSheetDialog.dismiss();
-                    removeFriend(friend.getUsername());
-                });
+
                 final TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
                 final TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
                 sendWorkout.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 removeFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                removeFriend.setOnClickListener(view -> {
+                    bottomSheetDialog.dismiss();
+                    removeFriend(friend.getUsername());
+                });
                 blockFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                blockFriend.setOnClickListener(view -> {
+                    bottomSheetDialog.dismiss();
+                    blockUserPopup(friend.getUsername());
+                });
                 cancelRequest.setVisibility((friend.isConfirmed() ? View.GONE : View.VISIBLE));
                 cancelRequest.setOnClickListener(view -> {
                     cancelFriendRequest(friend.getUsername());
@@ -693,19 +750,21 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         @Override
         public void onBindViewHolder(FriendRequestsAdapter.ViewHolder holder, int position) {
             // Get the data model based on position
-            final FriendRequest friend = friendRequests.get(position);
+            final FriendRequest friendRequest = friendRequests.get(position);
             final TextView exerciseTV = holder.usernameTV;
             final ImageView profilePicture = holder.profilePicture;
             final TextView unseenTV = holder.unseenTV;
             final Button acceptRequestButton = holder.acceptRequestButton;
             final Button declineRequestButton = holder.declineRequestButton;
-            acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friend.getUsername()));
-            declineRequestButton.setOnClickListener(view -> declineFriendRequest(friend.getUsername()));
-            unseenTV.setVisibility(friend.isSeen() ? View.GONE : View.VISIBLE);
-            profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friend));
-            exerciseTV.setText(friend.getUsername());
+            final Button blockButton = holder.blockButton;
+            acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friendRequest.getUsername()));
+            declineRequestButton.setOnClickListener(view -> declineFriendRequest(friendRequest.getUsername()));
+            blockButton.setOnClickListener(view -> blockUserPopup(friendRequest.getUsername()));
+            unseenTV.setVisibility(friendRequest.isSeen() ? View.GONE : View.VISIBLE);
+            profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest));
+            exerciseTV.setText(friendRequest.getUsername());
             Picasso.get()
-                    .load(ImageHelper.getIconUrl(friend.getIcon()))
+                    .load(ImageHelper.getIconUrl(friendRequest.getIcon()))
                     .error(R.drawable.new_icon_round)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {

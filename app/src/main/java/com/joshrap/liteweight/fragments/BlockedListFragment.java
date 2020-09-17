@@ -180,6 +180,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void blockUser(String username) {
         showLoadingDialog("Blocking user...");
+
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
@@ -188,6 +189,9 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     user.getBlocked().put(username, resultStatus.getData());
+                    // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend a bit otherwise so oh well
+                    user.getFriendRequests().remove(username);
+                    user.getFriends().remove(username);
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
