@@ -156,7 +156,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
-                .error(R.drawable.new_icon_round)
+                .error(R.drawable.app_icon_round)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override

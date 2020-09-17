@@ -12,5 +12,5 @@
             android:layout_height="400dp"
             android:layout_marginTop="16dp"
             android:layout_gravity="center"
-            tools:srcCompat="@mipmap/new_icon" />
+            tools:srcCompat="@mipmap/app_logo" />
 </LinearLayout>

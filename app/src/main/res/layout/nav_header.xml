@@ -28,7 +28,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_marginStart="8dp"
-                    app:srcCompat="@mipmap/new_icon" />
+                    app:srcCompat="@mipmap/app_logo" />
 
             <TextView
                     android:id="@+id/notification_tv"

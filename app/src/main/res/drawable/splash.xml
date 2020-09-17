@@ -7,7 +7,7 @@
         <bitmap
                 android:gravity="center"
                 android:transitionName="app_logo"
-                android:src="@drawable/new_icon_round" />
+                android:src="@drawable/app_icon_round" />
     </item>
 
 </layer-list>

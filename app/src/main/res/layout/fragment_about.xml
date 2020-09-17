@@ -34,7 +34,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="8dp"
-                    app:srcCompat="@mipmap/new_icon_round" />
+                    app:srcCompat="@mipmap/app_logo_round" />
 
             <TextView
                     android:id="@+id/version_number"

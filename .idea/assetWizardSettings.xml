@@ -76,7 +76,7 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="foregroundImage" value="C:\Users\Josh\Documents\rect890.png" />
-                                      <entry key="outputName" value="new_icon" />
+                                      <entry key="outputName" value="app_logo" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -135,7 +135,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Josh\Downloads\ic_stat_imageedit_2_3081577514\res\drawable-xxxhdpi\ic_stat_imageedit_2_3081577514.png" />
+                                      <entry key="imageAsset" value="C:\Users\Josh\Downloads\imageedit_1_8911856766.png" />
                                       <entry key="outputName" value="notification_icon" />
                                     </map>
                                   </option>

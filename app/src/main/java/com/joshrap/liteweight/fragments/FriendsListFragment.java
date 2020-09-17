@@ -529,7 +529,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(friend.getIcon()))
-                .error(R.drawable.new_icon_round)
+                .error(R.drawable.app_icon_round)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -547,7 +547,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(friend.getIcon()))
-                .error(R.drawable.new_icon_round)
+                .error(R.drawable.app_icon_round)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -648,7 +648,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(friend.getIcon()))
-                        .error(R.drawable.new_icon_round)
+                        .error(R.drawable.app_icon_round)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                         .into(profilePicture, new com.squareup.picasso.Callback() {
                             @Override
@@ -675,7 +675,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             exerciseTV.setText(friend.getUsername());
             Picasso.get()
                     .load(ImageHelper.getIconUrl(friend.getIcon()))
-                    .error(R.drawable.new_icon_round)
+                    .error(R.drawable.app_icon_round)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
@@ -765,7 +765,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             exerciseTV.setText(friendRequest.getUsername());
             Picasso.get()
                     .load(ImageHelper.getIconUrl(friendRequest.getIcon()))
-                    .error(R.drawable.new_icon_round)
+                    .error(R.drawable.app_icon_round)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
