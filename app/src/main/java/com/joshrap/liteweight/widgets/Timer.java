@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
@@ -129,8 +131,9 @@ public class Timer {
             button.setOnClickListener(view -> {
                 long minutes = minutePicker.getValue() * (60 * timeUnit);
                 long seconds = secondPicker.getValue() * timeUnit;
-                timerDuration = minutes + seconds;
-                if (timerDuration > 0) {
+                int totalTime = (int) (minutes + seconds);
+                if (totalTime > 0) {
+                    timerDuration = minutes + seconds;
                     resetTimer();
                     editor = pref.edit();
                     editor.putLong(Variables.TIMER_DURATION, timerDuration);

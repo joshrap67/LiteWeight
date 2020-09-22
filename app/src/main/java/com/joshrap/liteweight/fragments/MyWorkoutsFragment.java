@@ -198,6 +198,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             Currently sorts by date last accessed
          */
         workoutList.remove(user.getUserWorkouts().get(currentWorkout.getWorkoutId()));
+        // todo this isn't actually going by dates...
         Collections.sort(workoutList, (o1, o2) -> o2.getDateLast().compareTo(o1.getDateLast()));
         workoutList.add(0, user.getUserWorkouts().get(currentWorkout.getWorkoutId())); // selected always on top
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
@@ -276,7 +277,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
-                String oldName = currentWorkout.getWorkoutName();
                 String newName = renameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
                 for (WorkoutUser workoutUser : workoutList) {

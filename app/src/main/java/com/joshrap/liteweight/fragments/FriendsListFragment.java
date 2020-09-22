@@ -50,7 +50,11 @@ import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -117,12 +121,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         friends = new ArrayList<>();
         friendRequests = new ArrayList<>();
 
-        for (String username : user.getFriends().keySet()) {
-            friends.add(user.getFriends().get(username));
-        }
-        for (String username : user.getFriendRequests().keySet()) {
-            friendRequests.add(user.getFriendRequests().get(username));
-        }
+        friends.addAll(user.getFriends().values());
+        friendRequests.addAll(user.getFriendRequests().values());
+        sortFriendsList();
+        sortFriendRequestList();
+
         friendRequestsAdapter = new FriendRequestsAdapter(friendRequests);
         friendsAdapter = new FriendsAdapter(friends);
 
@@ -173,6 +176,25 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             switchToFriendsList();
         }
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    private void sortFriendsList() {
+        Collections.sort(friends, (friend, t1) -> friend.getUsername().compareTo(t1.getUsername()));
+    }
+
+    private void sortFriendRequestList() {
+        Collections.sort(friendRequests, (friendRequest, t1) -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            int retVal = 0;
+            try {
+                Date date1 = sdf.parse(friendRequest.getRequestTimeStamp());
+                Date date2 = sdf.parse(t1.getRequestTimeStamp());
+                retVal = date1 != null ? date1.compareTo(date2) : 0;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return retVal;
+        });
     }
 
     @Override
@@ -349,6 +371,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 if (resultStatus.isSuccess()) {
                     user.getFriends().put(resultStatus.getData().getUsername(), resultStatus.getData());
                     friends.add(user.getFriends().get(username));
+                    sortFriendsList();
                     friendsAdapter.notifyDataSetChanged();
                 } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
@@ -368,6 +391,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         Friend friend = new Friend(friendRequest.getIcon(), true, username);
         Globals.user.getFriends().put(username, friend);
         friends.add(friend);
+        sortFriendsList();
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -514,12 +538,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     public void addFriendRequestToList(FriendRequest friendRequest) {
         if (friendRequest != null) {
             friendRequests.add(0, friendRequest);
+            sortFriendRequestList();
             Toast.makeText(getContext(), friendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
             friendRequestsAdapter.notifyDataSetChanged();
+            checkEmptyList(tabLayout.getSelectedTabPosition());
         }
     }
 
     public void updateFriendsList() {
+        sortFriendsList();
         friendsAdapter.notifyDataSetChanged();
         checkEmptyList(tabLayout.getSelectedTabPosition());
     }

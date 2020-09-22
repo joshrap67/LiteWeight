@@ -370,9 +370,9 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to decline friend request. Check internet connection.");
+            resultStatus.setErrorMessage("Network error. Unable to unblock user. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to decline friend request.");
+            resultStatus.setErrorMessage("Unable to unblock user.");
         }
         return resultStatus;
     }

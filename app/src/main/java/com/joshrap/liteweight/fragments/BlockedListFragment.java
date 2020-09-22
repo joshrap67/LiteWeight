@@ -45,6 +45,7 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -88,6 +89,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         blocked = new ArrayList<>();
 
         blocked.addAll(user.getBlocked().keySet());
+        Collections.sort(blocked);
         blockedAdapter = new BlockedAdapter(blocked, user.getBlocked());
 
         emptyView = view.findViewById(R.id.empty_view);
@@ -193,6 +195,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     user.getFriendRequests().remove(username);
                     user.getFriends().remove(username);
                     blocked.add(username);
+                    Collections.sort(blocked);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
                 } else {
