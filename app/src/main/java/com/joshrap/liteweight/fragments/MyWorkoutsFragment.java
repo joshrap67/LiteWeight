@@ -357,7 +357,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Workout")
                 .setMessage(message)
-                .setPositiveButton("Yes", (dialog, which) -> deleteWorkout(currentWorkout.getWorkoutId()))
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    String nextWorkoutId = null;
+                    if (workoutList.size() >= 2) {
+                        // there's at least two elements so next workout after deleting current is the second element in current list
+                        nextWorkoutId = workoutList.get(1).getWorkoutId(); // get next in list
+                    }
+                    deleteWorkout(currentWorkout.getWorkoutId(), nextWorkoutId);
+                })
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
@@ -366,7 +373,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         messageTV.setTextSize(18);
     }
 
-    private void switchWorkout(WorkoutUser selectedWorkout) {
+    private void switchWorkout(final WorkoutUser selectedWorkout) {
         if (selectedWorkout.getWorkoutId().equals(currentWorkout.getWorkoutId())) {
             // don't allow user to switch to current workout since they are already on it
             return;
@@ -397,7 +404,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
-    private void renameWorkout(String workoutId, String newWorkoutName) {
+    private void renameWorkout(final String workoutId, final String newWorkoutName) {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -418,7 +425,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
-    private void copyWorkout(String workoutName) {
+    private void copyWorkout(final String workoutName) {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -441,11 +448,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
-    private void deleteWorkout(String workoutId) {
+    private void deleteWorkout(final String workoutId, final String nextWorkoutId) {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId);
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId, nextWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -469,7 +476,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
     }
 
-    private void resetWorkoutStatistics(String workoutId) {
+    private void resetWorkoutStatistics(final String workoutId) {
         showLoadingDialog();
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {

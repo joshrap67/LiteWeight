@@ -12,9 +12,7 @@
             android:id="@+id/relative_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/recycler_view"
+            app:layout_constraintBottom_toTopOf="@+id/middle_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -45,45 +43,94 @@
                 android:layout_centerVertical="true"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:src="@drawable/next_icon" />
-
-
     </RelativeLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="0dp"
+    <LinearLayout
+            android:id="@+id/middle_container"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/timer_container"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
-
-    <include
-            android:id="@+id/timer_container"
-            layout="@layout/timer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view" />
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout">
 
-    <include
-            android:id="@+id/stopwatch_container"
-            layout="@layout/stopwatch"
+        <RelativeLayout
+                android:id="@+id/relative_layout_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <TextView
+                    android:id="@+id/progress_bar_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:paddingBottom="8dp"
+                    android:text="@string/workout_progress"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+            <RelativeLayout
+                    android:id="@+id/linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/progress_bar_TV"
+                    android:orientation="horizontal">
+
+                <ProgressBar
+                        android:id="@+id/progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:gravity="center" />
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/timer_container"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/bottom_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+            app:layout_constraintTop_toBottomOf="@+id/middle_container">
 
+        <include
+                android:id="@+id/timer_container"
+                layout="@layout/timer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/middle_container" />
 
+        <include
+                android:id="@+id/stopwatch_container"
+                layout="@layout/stopwatch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

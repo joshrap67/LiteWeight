@@ -22,7 +22,7 @@ public class WorkoutRepository {
     private static final String switchWorkoutAction = "switchWorkout";
     private static final String copyWorkoutAction = "copyWorkout";
     private static final String renameWorkoutAction = "renameWorkout";
-    private static final String popWorkoutAction = "popWorkout";
+    private static final String deleteWorkoutThenFetchAction = "deleteWorkoutThenFetch";
     private static final String resetWorkoutStatisticsAction = "resetWorkoutStatistics";
     private static final String editWorkoutAction = "editWorkout";
     private static final String syncWorkoutAction = "syncWorkout";
@@ -131,25 +131,26 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> popWorkout(@NonNull String workoutId) {
+    public ResultStatus<UserWithWorkout> popWorkout(String workoutId, String nextWorkoutId) {
         ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
+        requestBody.put(RequestFields.NEXT_WORKOUT_ID, nextWorkoutId);
 
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(popWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(deleteWorkoutThenFetchAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
                 resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout. 2");
+                resultStatus.setErrorMessage("Unable to delete workout. 2");
             }
         } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
+            resultStatus.setErrorMessage("Network error. Unable to delete workout. Check internet connection.");
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout. 3");
+            resultStatus.setErrorMessage("Unable to delete workout. 3");
         }
         return resultStatus;
     }
