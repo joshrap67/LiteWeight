@@ -37,7 +37,6 @@
                         android:clickable="false"
                         android:text="Private Account"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -64,7 +63,6 @@
                         android:clickable="false"
                         android:text="Metric"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -91,7 +89,6 @@
                         android:clickable="false"
                         android:text="Update Default Weight on Restart"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -118,7 +115,6 @@
                         android:clickable="false"
                         android:text="Update Default Weight on Save"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView

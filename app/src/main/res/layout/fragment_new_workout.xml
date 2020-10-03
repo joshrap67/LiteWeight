@@ -102,8 +102,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Mode"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
+                    android:textAllCaps="true"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
             <RadioGroup
                     android:layout_width="wrap_content"
@@ -148,7 +149,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Press and hold an exercise to drag it to the position you want. When you are finished, hit the button below."
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
             <Button
@@ -186,19 +186,15 @@
 
             <Spinner
                     android:id="@+id/week_spinner"
-                    style="@style/Widget.AppCompat.Spinner.Underlined"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:popupBackground="@color/window_background" />
+                    android:layout_weight="1" />
 
             <Spinner
                     android:id="@+id/day_spinner"
-                    style="@style/Widget.AppCompat.Spinner.Underlined"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:popupBackground="@color/window_background" />
+                    android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout

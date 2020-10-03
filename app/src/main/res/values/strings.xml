@@ -17,7 +17,7 @@
     <string name="help">Help</string>
     <string name="default_workout_marker">Week/Day</string>
     <string name="ignore_weight">Ignore Weight</string>
-    <string name="empty_workout_day">No exercises for this day. Click the button below to add some.</string>
+    <string name="empty_workout_day">No exercises for this day. Click the add exercises button below to add some.</string>
     <string name="unsaved_workout_msg">You have a workout currently being created. If you quit now, all progress
     will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="popup_message_edit_workout">You have a workout currently being edited. If you quit now, all progress
@@ -54,7 +54,7 @@
     <string name="save_weight">Save weight</string>
     <string name="version_number">Version </string>
     <string name="exercise_not_found">Exercise not found.</string>
-    <string name="search_exercise_hint">Enter exercise name.</string>
+    <string name="search_exercise_hint">Search exercise...</string>
     <string name="filter_default">Filter Default</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
@@ -84,12 +84,11 @@
         \n\nNote that deleting it will remove it from already made workouts.
     </string>
     <string name="exercise_title">Add exercises</string>
-    <string name="start_button">Start</string>
-    <string name="stop_button">Stop</string>
-    <string name="hide_stopwatch">Hide</string>
-    <string name="reset">Reset</string>
-    <string name="show_stopwatch">Stopwatch</string>
-    <string name="show_timer">Timer</string>
+    <string name="start_button">START</string>
+    <string name="stop_button">STOP</string>
+    <string name="reset">RESET</string>
+    <string name="show_stopwatch">STOPWATCH</string>
+    <string name="show_timer">TIMER</string>
     <string name="timer_title"><u>Timer</u></string>
     <string name="stopwatch_title"><u>Stopwatch</u></string>
     <string name="minutes_title">Minutes</string>
@@ -169,4 +168,5 @@
     <string name="friends_list_alert">Friends List (!)</string>
     <string name="manage_notifications">Manage Notifications</string>
     <string name="empty_blocked_list_msg">You are not blocking any users. To block a user click the plus button below.</string>
+    <string name="create">Create</string>
 </resources>

@@ -34,8 +34,8 @@ public class AboutFragment extends Fragment {
             String displayText = getResources().getString(R.string.version_number) + " " + version;
             versionTV.setText(displayText);
         }
-        TextView acknowledgementsTV = view.findViewById(R.id.acknowledgments);
-        acknowledgementsTV.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
+//        TextView acknowledgementsTV = view.findViewById(R.id.acknowledgments);
+//        acknowledgementsTV.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
         return view;
     }
 

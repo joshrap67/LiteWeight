@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#00000000"
+        android:background="@android:color/transparent"
         android:orientation="vertical"
         tools:background="@drawable/login_gradient">
 
@@ -49,21 +49,16 @@
             android:backgroundTint="@android:color/white"
             android:hint="Email Verification Code"
             android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white"
-            app:hintTextAppearance="@style/LoginHintStyle">
+            android:textColorHint="@android:color/white">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/code_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@android:color/white"
                 android:drawablePadding="5dp"
                 android:inputType="number"
-                android:textColor="@color/notification_color"
-                android:textColorHint="@android:color/white"
-                android:textCursorDrawable="@null"
-                android:theme="@style/Login.EditText" />
+                android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

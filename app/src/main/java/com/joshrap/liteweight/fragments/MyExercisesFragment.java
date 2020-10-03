@@ -60,14 +60,16 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
-    private ProgressDialog loadingDialog;
+
     private View view;
     private boolean filterDefault;
     private int customExerciseCount = 0;
     private String selectedFocus;
-    private ArrayList<String> focusList = new ArrayList<>();
-    private HashMap<String, ArrayList<ExerciseUser>> totalExercises = new HashMap<>(); // focus to exercise
+    private ArrayList<String> focusList;
+    private HashMap<String, ArrayList<ExerciseUser>> totalExercises; // focus to exercise list
     private AlertDialog alertDialog;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -77,8 +79,11 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
-        // TODO injection or view model???
+        focusList = new ArrayList<>(); // todo hard code this list in config?
+        totalExercises = new HashMap<>();
         User user = Globals.user;
+
+        // todo add search bar for exercise?
         for (String exerciseId : user.getUserExercises().keySet()) {
             ExerciseUser exerciseUser = user.getUserExercises().get(exerciseId);
             List<String> focusesForExercise = new ArrayList<>(exerciseUser.getFocuses());
@@ -102,8 +107,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadingDialog = new ProgressDialog(getActivity());
-        loadingDialog.setCancelable(false);
 
         filterDefault = false; // TODO get from view model
         SwitchCompat filterSwitch = view.findViewById(R.id.filter_switch);
@@ -129,10 +132,20 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     }
 
     @Override
+    public void onPause() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void hideAllDialogs() {
         /*
             Close any dialogs that might be showing. This is essential when clicking a notification that takes
             the user to a new page.
+
+            todo actually isn't this pointless since i can do this in onpause...
          */
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
@@ -275,9 +288,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void showLoadingDialog() {

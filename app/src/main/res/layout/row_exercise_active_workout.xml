@@ -64,11 +64,12 @@
                         android:layout_height="wrap_content"
                         android:drawableStart="@drawable/edit_icon"
                         android:minWidth="75dp"
-                        android:text="12345 lb"
+                        android:textAllCaps="false"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/exercise_name"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="12345 lb" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </RelativeLayout>
@@ -90,8 +91,6 @@
                     android:background="?android:selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="15dp"
                     android:tooltipText="Save exercise"
                     android:visibility="gone"
                     app:srcCompat="@drawable/approve_icon"
@@ -215,5 +214,4 @@
                     app:autoSizeTextType="uniform" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
 </LinearLayout>

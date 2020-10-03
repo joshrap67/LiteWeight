@@ -65,7 +65,8 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
     private Routine routine;
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
-    private ProgressDialog loadingDialog;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -78,14 +79,12 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         // TODO injection or view model for these two???
         currentWorkout = Globals.activeWorkout;
         user = Globals.user;
-        loadingDialog = new ProgressDialog(getContext());
-        loadingDialog.setCancelable(false);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
         View view;
         if (currentWorkout == null) {
             ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight");
-            view = inflater.inflate(R.layout.default_layout, container, false);
+            view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
 
         } else {
             routine = currentWorkout.getRoutine();
@@ -130,6 +129,12 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
             stopwatch.cancelService();
         }
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        loadingDialog.dismiss();
+        super.onPause();
     }
 
     @Override
@@ -318,9 +323,6 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void jumpDaysPopup() {

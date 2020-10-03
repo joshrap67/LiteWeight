@@ -17,7 +17,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 android:elevation="4dp"
-                android:theme="@style/toolbar_style"
+                android:theme="@style/ToolbarStyle"
                 app:popupTheme="@style/Theme.AppCompat.Light">
 
             <LinearLayout
@@ -31,7 +31,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="@string/workout_name_title"
-                        android:textColor="@android:color/white"
                         android:textSize="30sp"
                         android:textStyle="bold"
                         app:autoSizeTextType="uniform" />
@@ -59,6 +58,9 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             app:headerLayout="@layout/nav_header"
+            app:itemBackground="@drawable/nav_item_background"
+            app:itemIconTint="@drawable/nav_item_icon"
+            app:itemTextColor="@drawable/nav_item_text"
             app:menu="@menu/draw_menu">
 
         <LinearLayout
@@ -76,7 +78,6 @@
                     android:background="?android:selectableItemBackground"
                     android:gravity="center"
                     android:text="@string/log_out"
-                    android:textColor="@android:color/black"
                     android:textStyle="bold" />
         </LinearLayout>
     </com.google.android.material.navigation.NavigationView>

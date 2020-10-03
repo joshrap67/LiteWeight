@@ -71,7 +71,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     public static final int REQUESTS_POSITION = 1;
     private RecyclerView recyclerView;
     private AlertDialog alertDialog;
-    private ProgressDialog loadingDialog;
     private BottomSheetDialog bottomSheetDialog;
     private List<Friend> friends;
     private List<FriendRequest> friendRequests;
@@ -79,6 +78,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FriendRequestsAdapter friendRequestsAdapter;
     private TabLayout tabLayout;
     private int currentIndex;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -99,8 +100,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         } else {
             currentIndex = FRIENDS_POSITION;
         }
-        loadingDialog = new ProgressDialog(getContext());
-        loadingDialog.setCancelable(false);
         return view;
     }
 
@@ -109,6 +108,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         // sanity check to determine if user has any unseen requests after this fragment is paused
         if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
             markAllRequestsSeen();
+        }
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
         }
         super.onPause();
     }
@@ -556,7 +558,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(friend.getIcon()))
-                .error(R.drawable.app_icon_round)
+                .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -574,7 +576,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(friend.getIcon()))
-                .error(R.drawable.app_icon_round)
+                .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -640,8 +642,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             final ConstraintLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
-                View sheetView = getLayoutInflater().inflate(R.layout.friend_list_bottom_sheet, null);
+                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friends_list, null);
                 final TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
                 final TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
 
@@ -675,7 +677,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(friend.getIcon()))
-                        .error(R.drawable.app_icon_round)
+                        .error(R.drawable.app_icon_no_background)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                         .into(profilePicture, new com.squareup.picasso.Callback() {
                             @Override
@@ -702,7 +704,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             exerciseTV.setText(friend.getUsername());
             Picasso.get()
                     .load(ImageHelper.getIconUrl(friend.getIcon()))
-                    .error(R.drawable.app_icon_round)
+                    .error(R.drawable.app_icon_no_background)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
@@ -792,7 +794,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             exerciseTV.setText(friendRequest.getUsername());
             Picasso.get()
                     .load(ImageHelper.getIconUrl(friendRequest.getIcon()))
-                    .error(R.drawable.app_icon_round)
+                    .error(R.drawable.app_icon_no_background)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override

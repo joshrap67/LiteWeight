@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="#00000000"
+        android:background="@android:color/transparent"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -19,7 +19,6 @@
             android:layout_centerHorizontal="true"
             android:fontFamily="@font/roboto"
             android:text="@string/app_name"
-            android:textColor="@color/notification_color"
             android:textSize="36sp"
             android:textStyle="bold" />
 
@@ -29,25 +28,17 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/sign_up_app_title"
             android:layout_centerHorizontal="true"
-            android:backgroundTint="@android:color/white"
-            android:hint="@string/email_hint"
-            android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white"
-            app:hintTextAppearance="@style/LoginHintStyle">
+            android:hint="@string/email_hint">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_email_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@android:color/white"
                 android:drawableStart="@drawable/email_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/notification_color"
-                android:textColorHint="@android:color/white"
-                android:textCursorDrawable="@null"
-                android:theme="@style/Login.EditText" />
+                android:textCursorDrawable="@null" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,25 +49,17 @@
             android:layout_below="@+id/sign_up_email_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@android:color/white"
-            android:hint="@string/username_hint"
-            android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white"
-            app:hintTextAppearance="@style/LoginHintStyle">
+            android:hint="@string/username_hint">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_username_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@android:color/white"
                 android:drawableStart="@drawable/user_icon_login"
                 android:drawablePadding="5dp"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/notification_color"
-                android:textColorHint="@android:color/white"
-                android:textCursorDrawable="@null"
-                android:theme="@style/Login.EditText" />
+                android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -87,28 +70,20 @@
             android:layout_below="@+id/sign_up_username_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@android:color/white"
             android:hint="@string/password_hint"
-            android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white"
-            app:hintTextAppearance="@style/LoginHintStyle"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@android:color/white">
+            app:passwordToggleTint="@color/colorAccent">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_password_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@android:color/white"
                 android:drawableStart="@drawable/password_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
                 android:longClickable="false"
-                android:textColor="@color/notification_color"
-                android:textColorHint="@android:color/white"
-                android:textCursorDrawable="@null"
-                android:theme="@style/Login.EditText" />
+                android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -132,28 +107,20 @@
             android:layout_below="@+id/sign_up_password_attributes_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@android:color/white"
             android:hint="@string/password_confirm_hint"
-            android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white"
-            app:hintTextAppearance="@style/LoginHintStyle"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@android:color/white">
+            app:passwordToggleTint="@color/colorAccent">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_password_input_confirm"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@android:color/white"
                 android:drawableStart="@drawable/password_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
                 android:longClickable="false"
-                android:textColor="@color/notification_color"
-                android:textColorHint="@android:color/white"
                 android:textCursorDrawable="@null"
-                android:theme="@style/Login.EditText"
                 android:visibility="visible" />
     </com.google.android.material.textfield.TextInputLayout>
 

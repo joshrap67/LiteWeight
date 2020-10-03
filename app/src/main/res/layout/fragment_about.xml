@@ -48,7 +48,6 @@
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/version_number"
-                    android:textColor="@android:color/black"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -60,7 +59,6 @@
                     android:paddingTop="8sp"
                     android:paddingBottom="8sp"
                     android:text="@string/about_overview_title"
-                    android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -79,7 +77,6 @@
                     android:paddingTop="8sp"
                     android:paddingBottom="8sp"
                     android:text="@string/about_nav_overview_title"
-                    android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -90,25 +87,24 @@
                     android:text="@string/about_nav_overview"
                     android:textSize="15sp" />
 
-            <TextView
-                    android:id="@+id/acknowledgement_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingTop="8sp"
-                    android:paddingBottom="8sp"
-                    android:text="@string/acknowledgements_title"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+<!--            <TextView-->
+<!--                    android:id="@+id/acknowledgement_title"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:paddingTop="8sp"-->
+<!--                    android:paddingBottom="8sp"-->
+<!--                    android:text="@string/acknowledgements_title"-->
+<!--                    android:textSize="20sp"-->
+<!--                    android:textStyle="bold" />-->
 
-            <TextView
-                    android:id="@+id/acknowledgments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:linksClickable="true"
-                    android:text="@string/acknowledgements"
-                    android:textSize="15sp" />
+<!--            <TextView-->
+<!--                    android:id="@+id/acknowledgments"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:linksClickable="true"-->
+<!--                    android:text="@string/acknowledgements"-->
+<!--                    android:textSize="15sp" />-->
 
         </LinearLayout>
     </ScrollView>

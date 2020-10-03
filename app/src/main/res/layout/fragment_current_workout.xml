@@ -32,7 +32,6 @@
                 android:layout_centerInParent="true"
                 android:background="?android:selectableItemBackground"
                 android:text="@string/default_workout_marker"
-                android:textColor="@android:color/black"
                 android:textSize="36sp" />
 
         <ImageButton
@@ -67,7 +66,6 @@
                     android:layout_centerInParent="true"
                     android:paddingBottom="8dp"
                     android:text="@string/workout_progress"
-                    android:textColor="@android:color/black"
                     android:textSize="14sp" />
 
             <RelativeLayout

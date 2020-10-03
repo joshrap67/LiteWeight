@@ -92,7 +92,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private LinearLayout radioLayout, customSortLayout;
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
-    private ProgressDialog loadingDialog;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -111,14 +112,10 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         currentWeekIndex = 0;
         pendingRoutine.appendNewDay(currentWeekIndex, currentDayIndex);
         weekSpinnerValues = new ArrayList<>();
-        loadingDialog = new ProgressDialog(getActivity());
-        loadingDialog.setCancelable(false);
         allUserExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
         activeUser = Globals.user; // TODO dependency injection?
-        // todo make this a named var for injection?
-        boolean metricUnits = activeUser.getUserPreferences().isMetricUnits();
 
         exerciseIdToName = new HashMap<>();
         for (String id : activeUser.getUserExercises().keySet()) {
@@ -143,6 +140,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         relativeLayout = view.findViewById(R.id.button_spinner_layout);
         saveButton = view.findViewById(R.id.save_button);
 
+        saveButton.setText(R.string.create);
         dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
         setSpinnerListeners(view);
         setButtonListeners();
@@ -235,6 +233,14 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         });
         sortButton.setOnClickListener(v -> dropDownMenu.show());
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
+        super.onPause();
     }
 
     private void setButtonListeners() {
@@ -511,9 +517,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptDeleteDay() {
@@ -536,9 +539,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptCopyDay() {
@@ -777,9 +777,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void deleteDay() {

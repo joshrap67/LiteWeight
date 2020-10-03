@@ -60,15 +60,16 @@ public class SignInActivity extends AppCompatActivity {
             usernameLayoutSignIn, passwordLayoutSignIn;
     private ViewFlipper viewFlipper;
     private TextView passwordAttributesTV;
-    private ProgressDialog loadingDialog;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     Tokens tokens;
     @Inject
     UserRepository userRepository;
     @Inject
-    public SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
     @Inject
-    public CognitoRepository cognitoRepository;
+    CognitoRepository cognitoRepository;
 
 
     @Override
@@ -76,7 +77,6 @@ public class SignInActivity extends AppCompatActivity {
         Injector.getInjector(this).inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_page);
-        loadingDialog = new ProgressDialog(this);
         viewFlipper = findViewById(R.id.view_flipper);
         viewFlipper.setMeasureAllChildren(false);
 

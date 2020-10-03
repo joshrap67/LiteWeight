@@ -14,7 +14,6 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:text="@string/restart_msg"
-            android:textColor="@android:color/black"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/relative_layout"
             app:layout_constraintEnd_toEndOf="parent"
@@ -37,7 +36,6 @@
                 android:layout_centerInParent="true"
                 android:paddingBottom="8dp"
                 android:text="@string/workout_progress"
-                android:textColor="@android:color/black"
                 android:textSize="18sp" />
 
         <RelativeLayout

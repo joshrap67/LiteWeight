@@ -88,8 +88,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private LinearLayout radioLayout, customSortLayout;
     private RelativeLayout relativeLayout;
     private EditWorkoutFragment.AddExerciseAdapter addExerciseAdapter;
-    private ProgressDialog loadingDialog;
     private Workout workout;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
@@ -103,14 +104,11 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         workout = new Workout(Globals.activeWorkout); // needed so that currentDay/week are handled properly upon deletion
         pendingRoutine = workout.getRoutine();
         activeUser = Globals.user; // TODO dependency injection?
-        boolean metricUnits = activeUser.getUserPreferences().isMetricUnits();
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workout.getWorkoutName());
         currentDayIndex = 0;
         currentWeekIndex = 0;
         weekSpinnerValues = new ArrayList<>();
-        loadingDialog = new ProgressDialog(getActivity());
-        loadingDialog.setCancelable(false);
         allUserExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
@@ -402,6 +400,14 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     }
 
     @Override
+    public void onPause() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void hideAllDialogs() {
         /*
             Close any dialogs that might be showing. This is essential when clicking a notification that takes
@@ -506,9 +512,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptDeleteDay() {
@@ -531,9 +534,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptCopyDay() {
@@ -727,9 +727,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void deleteDay() {

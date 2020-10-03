@@ -32,7 +32,6 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:text="@string/stopwatch_title"
-            android:textColor="@android:color/black"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/stopwatch"
             app:layout_constraintEnd_toEndOf="parent"

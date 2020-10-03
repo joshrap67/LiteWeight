@@ -59,10 +59,11 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     private User user;
     private TextView emptyView;
     private AlertDialog alertDialog;
-    private ProgressDialog loadingDialog;
     private BottomSheetDialog bottomSheetDialog;
     private List<String> blocked;
     private BlockedAdapter blockedAdapter;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -76,8 +77,6 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         Injector.getInjector(getContext()).inject(this);
         user = Globals.user;
 
-        loadingDialog = new ProgressDialog(getContext());
-        loadingDialog.setCancelable(false);
         return view;
     }
 
@@ -122,6 +121,14 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         FloatingActionButton floatingActionButton = view.findViewById(R.id.floating_action_btn);
         floatingActionButton.setOnClickListener(v -> blockUserPopup());
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+        super.onPause();
     }
 
     @Override
@@ -231,7 +238,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(icon))
-                .error(R.drawable.app_icon_round)
+                .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -294,7 +301,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
             final RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_blocked_list, null);
                 final TextView unblockTV = sheetView.findViewById(R.id.unblock_tv);
                 unblockTV.setOnClickListener(view -> {
@@ -309,7 +316,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 usernameTV.setText(blockedUser);
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(icon))
-                        .error(R.drawable.app_icon_round)
+                        .error(R.drawable.app_icon_no_background)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                         .into(profilePicture, new com.squareup.picasso.Callback() {
                             @Override
@@ -334,7 +341,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             usernameTV.setText(blockedUser);
             Picasso.get()
                     .load(ImageHelper.getIconUrl(icon))
-                    .error(R.drawable.app_icon_round)
+                    .error(R.drawable.app_icon_no_background)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override

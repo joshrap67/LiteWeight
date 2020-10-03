@@ -78,23 +78,26 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private DrawerLayout drawer;
     private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
-    private boolean drawerListenerIsRegistered = false;
+    private boolean drawerListenerIsRegistered;
     private TextView toolbarTitleTV, notificationTV;
     private NavigationView nav;
     private FragmentManager fragmentManager;
     private boolean showPopupFlag;
-    private ArrayList<String> fragmentStack = new ArrayList<>();
+    private ArrayList<String> fragmentStack;
     private Timer timer;
     private Stopwatch stopwatch;
-    private ProgressDialog loadingDialog;
-    // save these as variables since the user can click around and it is ideal to preserve the view that they altered
+
+    // todo don't do this
     private ActiveWorkoutFragment currentWorkoutFragment;
     @Inject
-    public Tokens tokens;
+    Tokens tokens;
     @Inject
-    public UserRepository userRepository;
+    UserRepository userRepository;
     @Inject
-    public SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
+    @Inject
+    ProgressDialog loadingDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +108,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             action = getIntent().getAction();
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
-        loadingDialog = new ProgressDialog(this);
+
         Injector.getInjector(this).inject(this);
 
         IntentFilter receiverActions = new IntentFilter();
@@ -120,7 +123,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         setContentView(R.layout.activity_workout);
         timer = new Timer(this);
         stopwatch = new Stopwatch(this);
+        fragmentStack = new ArrayList<>();
         showPopupFlag = true;
+        drawerListenerIsRegistered = false;
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         drawer = findViewById(R.id.drawer);
@@ -156,7 +161,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
-                .error(R.drawable.app_icon_round)
+                .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override
@@ -694,9 +699,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     public void showUnsavedChangesPopup(String fragmentTitle) {
@@ -719,9 +721,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     public void updateToolbarTitle(String aTitle) {

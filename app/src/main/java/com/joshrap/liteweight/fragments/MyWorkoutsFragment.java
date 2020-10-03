@@ -61,9 +61,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
     private User user;
     private Workout currentWorkout;
-    private ProgressDialog loadingDialog;
     private List<WorkoutUser> workoutList;
     private WorkoutAdapter workoutAdapter;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
 
@@ -80,7 +81,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         View view;
         if (currentWorkout == null) {
-            view = inflater.inflate(R.layout.default_layout, container, false);
+            view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
             view = inflater.inflate(R.layout.fragment_my_workouts, container, false);
         }
@@ -96,9 +97,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             return;
         }
         workoutList = new ArrayList<>(user.getUserWorkouts().values());
-        loadingDialog = new ProgressDialog(getActivity());
-        loadingDialog.setCancelable(false);
         initViews(view);
+    }
+
+    @Override
+    public void onPause() {
+        // todo do this for all fragments
+        loadingDialog.dismiss();
+        super.onPause();
     }
 
     @Override
@@ -236,10 +242,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // todo just alter the damn alert dialog style ya goof
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptRename() {
@@ -292,10 +294,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             });
         });
         alertDialog.show();
-
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptCopy() {
@@ -368,9 +366,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void switchWorkout(final WorkoutUser selectedWorkout) {
@@ -508,9 +503,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void resetFragment() {

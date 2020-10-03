@@ -101,7 +101,7 @@ public class MyAccountFragment extends Fragment {
         url = ImageHelper.getIconUrl(user.getIcon());
         Picasso.get()
                 .load(url)
-                .error(R.drawable.app_icon_round)
+                .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override

@@ -37,7 +37,6 @@
                         android:clickable="false"
                         android:text="@string/video_switch"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -64,7 +63,6 @@
                         android:clickable="false"
                         android:text="@string/stopwatch_switch"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -91,7 +89,6 @@
                         android:clickable="false"
                         android:text="@string/timer_switch"
                         android:textSize="16sp"
-                        android:theme="@style/switch_style"
                         tools:checked="true" />
 
                 <TextView
@@ -102,7 +99,6 @@
 
             <TextView
                     android:id="@+id/manage_notifications_tv"
-                    style="@style/switch_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bottom_border_selectable"

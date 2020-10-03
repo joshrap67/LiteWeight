@@ -56,7 +56,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private AlertDialog alertDialog;
     private User user;
-    private ProgressDialog loadingDialog;
     private ExerciseUser originalExercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
@@ -64,6 +63,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private boolean metricUnits;
     private ClipboardManager clipboard;
     private List<String> exerciseNames;
+    @Inject
+    ProgressDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -80,7 +81,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
         }
-        // TODO injection or view model???
         user = Globals.user;
         metricUnits = user.getUserPreferences().isMetricUnits();
         exerciseNames = new ArrayList<>();
@@ -96,8 +96,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         super.onViewCreated(view, savedInstanceState);
         List<String> workoutList = new ArrayList<>(user.getUserExercises().get(exerciseId).getWorkouts().values());
         originalExercise = user.getUserExercises().get(exerciseId);
-        loadingDialog = new ProgressDialog(getActivity());
-        loadingDialog.setCancelable(false);
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         exerciseNameInput = view.findViewById(R.id.exercise_name_input);
@@ -313,6 +311,14 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     @Override
+    public void onPause() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void hideAllDialogs() {
         /*
             Close any dialogs that might be showing. This is essential when clicking a notification that takes
@@ -382,7 +388,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
 
             // no errors, so go ahead and save
-            showLoadingDialog();
+            showLoadingDialog("Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
@@ -412,9 +418,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void promptDelete() {
@@ -430,13 +433,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-        // make the message font a little bigger than the default one provided by the alertdialog
-        TextView messageTV = alertDialog.getWindow().findViewById(android.R.id.message);
-        messageTV.setTextSize(18);
     }
 
     private void deleteExercise() {
-        showLoadingDialog();
+        showLoadingDialog("Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
@@ -456,8 +456,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         });
     }
 
-    private void showLoadingDialog() {
-        loadingDialog.setMessage("Loading...");
+    private void showLoadingDialog(String message) {
+        loadingDialog.setMessage(message);
         loadingDialog.show();
     }
 

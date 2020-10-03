@@ -23,7 +23,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
-                android:textColor="@color/colorPrimaryDark"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/profile_picture"
@@ -61,12 +60,11 @@
                     android:background="@drawable/gradient"
                     android:text="Change"
                     android:textAlignment="center"
-                    android:textColor="@android:color/background_light"
+                    android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
         </androidx.cardview.widget.CardView>
-
 
         <Button
                 android:id="@+id/upgrade_btn"

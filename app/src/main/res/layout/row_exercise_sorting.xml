@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="#F3F3F3"
+        android:background="@color/row_activated"
         android:clickable="true"
         android:elevation="2dp"
         android:focusable="true"
@@ -19,8 +20,8 @@
             android:focusable="true"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
-            android:text="TextView"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            tools:text="Exercise Name" />
 
     <Button
             android:id="@+id/weight_btn"
@@ -29,5 +30,6 @@
             android:layout_alignParentEnd="true"
             android:clickable="true"
             android:focusable="true"
-            android:text="Button" />
+            android:textAllCaps="false"
+            tools:text="25 lb" />
 </RelativeLayout>
