@@ -35,7 +35,7 @@ public class Routine implements Model {
         }
     }
 
-    public Routine(Routine toBeCloned) {
+    Routine(Routine toBeCloned) {
         // copy constructor
         this.routine = new HashMap<>();
         for (int week = 0; week < toBeCloned.size(); week++) {
