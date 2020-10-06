@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.WeightHelper;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.ExerciseRoutine;
+import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.Routine;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public class PendingRoutineAdapter extends
         }
     }
 
-    private List<ExerciseRoutine> exercises;
+    private List<RoutineExercise> exercises;
     private Map<String, String> exerciseIdToName;
     private Routine pendingRoutine;
     private int currentWeek;
@@ -80,9 +80,9 @@ public class PendingRoutineAdapter extends
     private boolean metricUnits;
 
     // Pass in the contact array into the constructor
-    public PendingRoutineAdapter(List<ExerciseRoutine> exerciseRoutines, Map<String,
+    public PendingRoutineAdapter(List<RoutineExercise> routineExercises, Map<String,
             String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits, int mode) {
-        this.exercises = exerciseRoutines;
+        this.exercises = routineExercises;
         this.exerciseIdToName = exerciseIdToName;
         this.pendingRoutine = routine;
         this.currentWeek = currentWeek;
@@ -118,7 +118,7 @@ public class PendingRoutineAdapter extends
     @Override
     public void onBindViewHolder(PendingRoutineAdapter.ViewHolder holder, int position) {
         // Get the data model based on position
-        ExerciseRoutine exercise = exercises.get(position);
+        RoutineExercise exercise = exercises.get(position);
 
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         final TextView exerciseTV = holder.exerciseTV;

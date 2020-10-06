@@ -15,7 +15,7 @@ import lombok.Setter;
 
 @Data
 @NoArgsConstructor
-public class ExerciseUser implements Model, Comparable<ExerciseUser> {
+public class OwnedExercise implements Model, Comparable<OwnedExercise> {
 
     public static final String EXERCISE_NAME = "exerciseName";
     public static final String FOCUSES = "focuses";
@@ -40,7 +40,7 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
     private Map<String, String> workouts; // id to workout name that this exercise is apart of
 
 
-    public ExerciseUser(Map<String, Object> json, String exerciseId) {
+    public OwnedExercise(Map<String, Object> json, String exerciseId) {
         this.exerciseName = (String) json.get(EXERCISE_NAME);
         this.defaultExercise = (boolean) json.get(DEFAULT_EXERCISE);
         this.defaultWeight = (double) json.get(DEFAULT_WEIGHT);
@@ -53,7 +53,7 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
         this.focuses = (List<String>) json.get(FOCUSES);
     }
 
-    public ExerciseUser(Map<String, Object> json) {
+    public OwnedExercise(Map<String, Object> json) {
         this.exerciseId = (String) json.get(RequestFields.EXERCISE_ID);
         Map<String, Object> exerciseJson = (Map<String, Object>) json.get(RequestFields.EXERCISE);
 
@@ -68,22 +68,22 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
         this.focuses = (List<String>) exerciseJson.get(FOCUSES);
     }
 
-    public static ExerciseUser getExerciseForUpdate(ExerciseUser toBeCopied) {
+    public static OwnedExercise getExerciseForUpdate(OwnedExercise toBeCopied) {
         /*
             Used when updating an exercise to the backend
          */
-        ExerciseUser exerciseUser = new ExerciseUser();
-        exerciseUser.exerciseName = toBeCopied.getExerciseName();
-        exerciseUser.defaultExercise = toBeCopied.isDefaultExercise();
-        exerciseUser.defaultWeight = toBeCopied.getDefaultWeight();
-        exerciseUser.defaultSets = toBeCopied.getDefaultSets();
-        exerciseUser.defaultReps = toBeCopied.getDefaultReps();
-        exerciseUser.defaultDetails = toBeCopied.getDefaultDetails();
-        exerciseUser.videoUrl = toBeCopied.getVideoUrl();
-        exerciseUser.workouts = new HashMap<>(toBeCopied.getWorkouts());
-        exerciseUser.focuses = new ArrayList<>(toBeCopied.getFocuses());
+        OwnedExercise ownedExercise = new OwnedExercise();
+        ownedExercise.exerciseName = toBeCopied.getExerciseName();
+        ownedExercise.defaultExercise = toBeCopied.isDefaultExercise();
+        ownedExercise.defaultWeight = toBeCopied.getDefaultWeight();
+        ownedExercise.defaultSets = toBeCopied.getDefaultSets();
+        ownedExercise.defaultReps = toBeCopied.getDefaultReps();
+        ownedExercise.defaultDetails = toBeCopied.getDefaultDetails();
+        ownedExercise.videoUrl = toBeCopied.getVideoUrl();
+        ownedExercise.workouts = new HashMap<>(toBeCopied.getWorkouts());
+        ownedExercise.focuses = new ArrayList<>(toBeCopied.getFocuses());
 
-        return exerciseUser;
+        return ownedExercise;
     }
 
     private void setWorkouts(Map<String, Object> json) {
@@ -113,7 +113,7 @@ public class ExerciseUser implements Model, Comparable<ExerciseUser> {
     }
 
     @Override
-    public int compareTo(ExerciseUser o) {
+    public int compareTo(OwnedExercise o) {
         return this.getExerciseName().compareTo(o.getExerciseName());
     }
 }

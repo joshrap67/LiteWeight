@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.network.repos;
 
 import com.joshrap.liteweight.helpers.JsonParser;
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
@@ -63,12 +63,12 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public ResultStatus<User> updateExercise(String exerciseId, ExerciseUser exerciseUser) {
+    public ResultStatus<User> updateExercise(String exerciseId, OwnedExercise ownedExercise) {
         ResultStatus<User> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        if (exerciseUser != null) {
-            requestBody.put(RequestFields.EXERCISE, exerciseUser);
+        if (ownedExercise != null) {
+            requestBody.put(RequestFields.EXERCISE, ownedExercise);
         }
         requestBody.put(RequestFields.EXERCISE_ID, exerciseId);
 
@@ -89,20 +89,20 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public ResultStatus<ExerciseUser> newExercise(String exerciseName, List<String> focuses) {
-        ResultStatus<ExerciseUser> resultStatus = new ResultStatus<>();
+    public ResultStatus<OwnedExercise> newExercise(String exerciseName, List<String> focuses) {
+        ResultStatus<OwnedExercise> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         if (exerciseName != null) {
-            requestBody.put(ExerciseUser.EXERCISE_NAME, exerciseName);
+            requestBody.put(OwnedExercise.EXERCISE_NAME, exerciseName);
         }
-        requestBody.put(ExerciseUser.FOCUSES, focuses);
+        requestBody.put(OwnedExercise.FOCUSES, focuses);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(newExerciseAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new ExerciseUser(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new OwnedExercise(JsonParser.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");

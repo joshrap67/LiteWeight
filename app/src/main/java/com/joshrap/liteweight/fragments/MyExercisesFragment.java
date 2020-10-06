@@ -29,7 +29,6 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -41,7 +40,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -66,7 +65,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     private int customExerciseCount = 0;
     private String selectedFocus;
     private ArrayList<String> focusList;
-    private HashMap<String, ArrayList<ExerciseUser>> totalExercises; // focus to exercise list
+    private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private AlertDialog alertDialog;
     @Inject
     ProgressDialog loadingDialog;
@@ -85,9 +84,9 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
         // todo add search bar for exercise?
         for (String exerciseId : user.getUserExercises().keySet()) {
-            ExerciseUser exerciseUser = user.getUserExercises().get(exerciseId);
-            List<String> focusesForExercise = new ArrayList<>(exerciseUser.getFocuses());
-            if (!exerciseUser.isDefaultExercise()) {
+            OwnedExercise ownedExercise = user.getUserExercises().get(exerciseId);
+            List<String> focusesForExercise = new ArrayList<>(ownedExercise.getFocuses());
+            if (!ownedExercise.isDefaultExercise()) {
                 // do the count here to avoid double counting if the exercise is in more than one focus
                 customExerciseCount++;
             }
@@ -97,7 +96,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                     focusList.add(focus);
                     totalExercises.put(focus, new ArrayList<>());
                 }
-                totalExercises.get(focus).add(exerciseUser);
+                totalExercises.get(focus).add(ownedExercise);
             }
         }
         view = inflater.inflate(R.layout.fragment_my_exercises, container, false);
@@ -180,16 +179,16 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             Populates the exercise list view based on the selected focus
          */
         final ListView listView = view.findViewById(R.id.exercise_list);
-        ArrayList<ExerciseUser> exercisesForSelectedFocus = new ArrayList<>();
+        ArrayList<OwnedExercise> exercisesForSelectedFocus = new ArrayList<>();
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }
         if (!filterDefault) {
             exercisesForSelectedFocus.addAll(totalExercises.get(selectedFocus));
         } else {
-            for (ExerciseUser exerciseUser : totalExercises.get(selectedFocus)) {
-                if (!exerciseUser.isDefaultExercise()) {
-                    exercisesForSelectedFocus.add(exerciseUser);
+            for (OwnedExercise ownedExercise : totalExercises.get(selectedFocus)) {
+                if (!ownedExercise.isDefaultExercise()) {
+                    exercisesForSelectedFocus.add(ownedExercise);
                 }
             }
         }
@@ -198,7 +197,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         listView.setAdapter(exerciseAdapter);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            ExerciseUser exercise = (ExerciseUser) listView.getItemAtPosition(position);
+            OwnedExercise exercise = (OwnedExercise) listView.getItemAtPosition(position);
             ((WorkoutActivity) getActivity()).goToExerciseDetails(exercise.getExerciseId());
         });
     }
@@ -246,8 +245,8 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                 String exerciseName = exerciseNameInput.getText().toString().trim();
                 Set<String> allExerciseNames = new HashSet<>();
                 for (String focus : totalExercises.keySet()) {
-                    for (ExerciseUser exerciseUser : totalExercises.get(focus)) {
-                        allExerciseNames.add(exerciseUser.getExerciseName());
+                    for (OwnedExercise ownedExercise : totalExercises.get(focus)) {
+                        allExerciseNames.add(ownedExercise.getExerciseName());
                     }
                 }
                 String nameError = InputHelper.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
@@ -258,14 +257,14 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                     showLoadingDialog();
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
-                        ResultStatus<ExerciseUser> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses);
+                        ResultStatus<OwnedExercise> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses);
                         Handler handler = new Handler(getMainLooper());
                         handler.post(() -> {
                             loadingDialog.dismiss();
                             if (resultStatus.isSuccess()) {
-                                ExerciseUser exerciseUser = resultStatus.getData();
-                                Globals.user.getUserExercises().put(exerciseUser.getExerciseId(), exerciseUser);
-                                ((WorkoutActivity) getActivity()).goToExerciseDetails(exerciseUser.getExerciseId());
+                                OwnedExercise ownedExercise = resultStatus.getData();
+                                Globals.user.getUserExercises().put(ownedExercise.getExerciseId(), ownedExercise);
+                                ((WorkoutActivity) getActivity()).goToExerciseDetails(ownedExercise.getExerciseId());
                             } else {
                                 showErrorMessage("Exercise Add Error", resultStatus.getErrorMessage());
                             }

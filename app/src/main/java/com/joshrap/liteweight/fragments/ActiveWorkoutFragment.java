@@ -31,7 +31,7 @@ import com.joshrap.liteweight.adapters.RoutineAdapter;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.ExerciseRoutine;
+import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
@@ -213,18 +213,18 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
-                currentDayIndex = routine.getWeek(currentWeekIndex).size() - 1;
+                currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
                 updateRoutineListUI();
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
         });
         forwardButton.setOnClickListener(v -> {
-            if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).size()) {
+            if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
                 updateRoutineListUI();
-            } else if (currentWeekIndex + 1 < routine.size()) {
+            } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
                 // there are more weeks
                 currentDayIndex = 0;
                 currentWeekIndex++;
@@ -243,16 +243,16 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
             Updates the visibility and icon of the navigation buttons depending on the current day.
          */
         if (currentDayIndex == 0 && currentWeekIndex == 0) {
-            // means it's the first day in routine, so hide the back button
+            // means it's the first day in weeks, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             forwardButton.setImageResource(R.drawable.next_icon);
-            if (currentWeekIndex + 1 == routine.size() && routine.getWeek(currentWeekIndex).size() == 1) {
+            if (currentWeekIndex + 1 == routine.getNumberOfWeeks() && routine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout
                 forwardButton.setImageResource(R.drawable.restart_icon);
             }
-        } else if (currentWeekIndex + 1 == routine.size()
-                && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).size()) {
+        } else if (currentWeekIndex + 1 == routine.getNumberOfWeeks()
+                && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so show reset icon
             backButton.setVisibility(View.VISIBLE);
             // lil hacky, but don't want the ripple showing when the icons switch
@@ -260,7 +260,7 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
             forwardButton.setImageResource(R.drawable.restart_icon);
-        } else if (currentWeekIndex < routine.size()) {
+        } else if (currentWeekIndex < routine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -332,8 +332,8 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (int week = 0; week < routine.size(); week++) {
-            for (int day = 0; day < routine.getWeek(week).size(); day++) {
+        for (Integer week : routine) {
+            for (Integer day : routine.getWeek(week)) {
                 if (week == currentWeekIndex && day == currentDayIndex) {
                     selectedVal = totalDays;
                 }
@@ -359,8 +359,8 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (int week = 0; week < routine.size(); week++) {
-                        for (int day = 0; day < routine.getWeek(week).size(); day++) {
+                    for (Integer week : routine) {
+                        for (Integer day : routine.getWeek(week)) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = week;
                                 currentDayIndex = day;
@@ -382,11 +382,11 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
          */
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (int week = 0; week < routine.size(); week++) {
-            for (int day = 0; day < routine.getWeek(week).size(); day++) {
-                for (ExerciseRoutine exerciseRoutine : routine.getExerciseListForDay(week, day)) {
+        for (Integer week : routine) {
+            for (Integer day : routine.getWeek(week)) {
+                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
                     totalExercises++;
-                    if (exerciseRoutine.isCompleted()) {
+                    if (routineExercise.isCompleted()) {
                         exercisesCompleted++;
                     }
                 }

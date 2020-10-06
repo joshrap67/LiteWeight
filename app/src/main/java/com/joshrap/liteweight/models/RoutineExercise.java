@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class ExerciseRoutine implements Model, Cloneable {
+public class RoutineExercise implements Model, Cloneable {
 
     public static final String COMPLETED = "completed";
     public static final String EXERCISE_ID = "exerciseId";
@@ -28,7 +28,7 @@ public class ExerciseRoutine implements Model, Cloneable {
         return super.clone();
     }
 
-    public ExerciseRoutine(ExerciseRoutine toBeCopied) {
+    public RoutineExercise(RoutineExercise toBeCopied) {
         /*
             Copy constructor used for deep copies
          */
@@ -40,7 +40,7 @@ public class ExerciseRoutine implements Model, Cloneable {
         this.details = toBeCopied.details;
     }
 
-    public ExerciseRoutine(Map<String, Object> json) {
+    public RoutineExercise(Map<String, Object> json) {
         this.completed = (boolean) json.get(COMPLETED);
         this.exerciseId = (String) json.get(EXERCISE_ID);
         this.weight = (double) json.get(WEIGHT);
@@ -49,13 +49,13 @@ public class ExerciseRoutine implements Model, Cloneable {
         this.details = (String) json.get(DETAILS);
     }
 
-    public ExerciseRoutine(ExerciseUser exerciseUser, String exerciseId) {
+    public RoutineExercise(OwnedExercise ownedExercise, String exerciseId) {
         this.completed = false;
         this.exerciseId = exerciseId;
-        this.weight = exerciseUser.getDefaultWeight();
-        this.sets = exerciseUser.getDefaultSets();
-        this.reps = exerciseUser.getDefaultReps();
-        this.details = exerciseUser.getDefaultDetails();
+        this.weight = ownedExercise.getDefaultWeight();
+        this.sets = ownedExercise.getDefaultSets();
+        this.reps = ownedExercise.getDefaultReps();
+        this.details = ownedExercise.getDefaultDetails();
     }
 
 

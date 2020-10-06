@@ -36,15 +36,13 @@ public class User implements Model {
     @Setter(AccessLevel.NONE)
     private Map<String, String> blocked;
     @Setter(AccessLevel.NONE)
-    private Map<String, WorkoutUser> userWorkouts;
+    private Map<String, WorkoutMeta> userWorkouts;
     @Setter(AccessLevel.NONE)
-    private Map<String, ExerciseUser> userExercises;
+    private Map<String, OwnedExercise> userExercises;
     @Setter(AccessLevel.NONE)
     private Map<String, Friend> friends;
     @Setter(AccessLevel.NONE)
     private Map<String, FriendRequest> friendRequests;
-    @Setter(AccessLevel.NONE)
-    private Map<String, String> receivedWorkouts;
 
 
     public User(Map<String, Object> json) {
@@ -58,7 +56,6 @@ public class User implements Model {
         this.setFriends((Map<String, Object>) json.get(FRIENDS));
         this.setUserPreferences(new UserPreferences((Map<String, Object>) json.get(USER_PREFERENCES)));
         this.setFriendRequests((Map<String, Object>) json.get(FRIENDS_REQUESTS));
-        this.setReceivedWorkouts((Map<String, Object>) json.get(RECEIVED_WORKOUTS));
         this.setBlocked((Map<String, Object>) json.get(BLOCKED));
     }
 
@@ -70,7 +67,7 @@ public class User implements Model {
             this.userExercises = new HashMap<>();
             for (String exerciseId : json.keySet()) {
                 this.userExercises
-                        .put(exerciseId, new ExerciseUser((Map<String, Object>) json.get(exerciseId), exerciseId));
+                        .put(exerciseId, new OwnedExercise((Map<String, Object>) json.get(exerciseId), exerciseId));
             }
         }
     }
@@ -109,24 +106,13 @@ public class User implements Model {
         }
     }
 
-    private void setReceivedWorkouts(Map<String, Object> json) {
-        if (json == null) {
-            this.receivedWorkouts = null;
-        } else {
-            this.receivedWorkouts = new HashMap<>();
-            for (String workoutId : json.keySet()) {
-                this.receivedWorkouts.put(workoutId, (String) json.get(workoutId));
-            }
-        }
-    }
-
     private void setUserWorkouts(Map<String, Object> json) {
         if (json == null) {
             this.userWorkouts = null;
         } else {
             this.userWorkouts = new HashMap<>();
             for (String workoutId : json.keySet()) {
-                this.userWorkouts.put(workoutId, new WorkoutUser(
+                this.userWorkouts.put(workoutId, new WorkoutMeta(
                         (Map<String, Object>) json.get(workoutId), workoutId));
             }
         }
@@ -145,7 +131,6 @@ public class User implements Model {
         retVal.put(EXERCISES, this.getUserExercisesMap());
         retVal.put(FRIENDS, this.getFriendsMap());
         retVal.put(FRIENDS_REQUESTS, this.getFriendRequestsMap());
-        retVal.put(RECEIVED_WORKOUTS, this.receivedWorkouts);
         retVal.put(BLOCKED, this.blocked);
         return retVal;
     }

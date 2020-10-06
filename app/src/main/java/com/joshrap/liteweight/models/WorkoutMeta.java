@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class WorkoutUser implements Model {
+public class WorkoutMeta implements Model {
 
     public static final String WORKOUT_NAME = "workoutName";
     public static final String DATE_LAST = "dateLast";
@@ -25,7 +25,7 @@ public class WorkoutUser implements Model {
     private Integer totalExercisesSum;
     private String workoutId;
 
-    WorkoutUser(Map<String, Object> json, String workoutId) {
+    WorkoutMeta(Map<String, Object> json, String workoutId) {
         this.workoutId = workoutId;
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.dateLast = (String) json.get(DATE_LAST);
@@ -56,7 +56,7 @@ public class WorkoutUser implements Model {
             return true;
         }
 
-        return (other instanceof WorkoutUser) && (((WorkoutUser) other).getWorkoutId().equals(this.getWorkoutId()));
+        return (other instanceof WorkoutMeta) && (((WorkoutMeta) other).getWorkoutId().equals(this.getWorkoutId()));
     }
 
     @Override

@@ -9,15 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.OwnedExercise;
 
 import java.util.List;
 
-public class ExerciseAdapter extends ArrayAdapter<ExerciseUser> {
+public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
     private Context context;
-    private List<ExerciseUser> exerciseList;
+    private List<OwnedExercise> exerciseList;
 
-    public ExerciseAdapter(@NonNull Context context, List<ExerciseUser> list) {
+    public ExerciseAdapter(@NonNull Context context, List<OwnedExercise> list) {
         super(context, 0, list);
         this.context = context;
         this.exerciseList = list;
@@ -30,7 +30,7 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseUser> {
         if (listItem == null) {
             listItem = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
         }
-        ExerciseUser currentExercise = exerciseList.get(position);
+        OwnedExercise currentExercise = exerciseList.get(position);
 
         TextView release = listItem.findViewById(android.R.id.text1);
         release.setText(currentExercise.getExerciseName());

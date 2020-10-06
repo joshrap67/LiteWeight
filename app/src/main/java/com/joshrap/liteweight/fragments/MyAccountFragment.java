@@ -84,10 +84,10 @@ public class MyAccountFragment extends Fragment {
         profilePicture.setOnClickListener(v -> getImage());
         final TextView receivedWorkoutsTV = view.findViewById(R.id.received_workouts_tv);
         int receivedUnseenCount = 0;
-        for (String workoutId : user.getReceivedWorkouts().keySet()) {
-            // todo actually do this
-            receivedUnseenCount++;
-        }
+//        for (String workoutId : user.getReceivedWorkouts().keySet()) {
+//            // todo actually do this
+//            receivedUnseenCount++;
+//        }
         int requestUnseenCount = 0;
         for (String username : user.getFriendRequests().keySet()) {
             if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {

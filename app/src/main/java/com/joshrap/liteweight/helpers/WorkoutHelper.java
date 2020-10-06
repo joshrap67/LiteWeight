@@ -7,8 +7,8 @@ public class WorkoutHelper {
         if (routine == null) {
             return;
         }
-        for (int week = 0; week < routine.size(); week++) {
-            for (int day = 0; day < routine.getWeek(week).size(); day++) {
+        for (int week = 0; week < routine.getNumberOfWeeks(); week++) {
+            for (int day = 0; day < routine.getWeek(week).getNumberOfDays(); day++) {
                 routine.removeExercise(week, day, exerciseId);
             }
         }

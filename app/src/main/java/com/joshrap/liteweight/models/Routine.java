@@ -1,146 +1,140 @@
 package com.joshrap.liteweight.models;
 
+import android.annotation.SuppressLint;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
 
 @Data
-public class Routine implements Model {
+@SuppressLint("UseSparseArrays")
+public class Routine implements Model, Iterable<Integer> {
 
-    Map<Integer, Map<Integer, RoutineDayMap>> routine;
+    private Map<Integer, RoutineWeek> weeks;
 
-    Routine(Map<String, Object> json) {
-        if (json == null) {
-            this.routine = null;
-        } else {
-            this.routine = new HashMap<>();
-            for (String week : json.keySet()) {
-                Map<String, Object> days = (Map<String, Object>) json.get(week);
-                Map<Integer, RoutineDayMap> specificDay = new HashMap<>();
-                for (String day : days.keySet()) {
-
-                    RoutineDayMap dayExerciseMap = new RoutineDayMap(
-                            (Map<String, Object>) ((Map<String, Object>) json
-                                    .get(week)).get(day));
-
-                    specificDay.put(Integer.parseInt(day), dayExerciseMap);
-                }
-                this.routine.put(Integer.parseInt(week), specificDay);
-            }
-        }
+    public Routine() {
+        this.weeks = new HashMap<>();
     }
 
     Routine(Routine toBeCloned) {
         // copy constructor
-        this.routine = new HashMap<>();
-        for (int week = 0; week < toBeCloned.size(); week++) {
-            Map<Integer, RoutineDayMap> exercisesForDay = new HashMap<>();
-            for (int day = 0; day < toBeCloned.getWeek(week).size(); day++) {
-                exercisesForDay.put(day, toBeCloned.getDay(week, day).clone());
+        this.weeks = new HashMap<>();
+        for (int week = 0; week < toBeCloned.getNumberOfWeeks(); week++) {
+            RoutineWeek routineWeek = new RoutineWeek();
+            for (int day = 0; day < toBeCloned.getWeek(week).getNumberOfDays(); day++) {
+                routineWeek.put(day, toBeCloned.getDay(week, day).clone());
             }
-            this.routine.put(week, exercisesForDay);
+            this.weeks.put(week, routineWeek);
         }
     }
 
-    public Routine() {
-        this.routine = new HashMap<>();
+    Routine(Map<String, Object> json) {
+        if (json == null) {
+            this.weeks = null;
+        } else {
+            this.weeks = new HashMap<>();
+            for (String week : json.keySet()) {
+                RoutineWeek routineWeek = new RoutineWeek((Map<String, Object>) json.get(week));
+                this.weeks.put(Integer.parseInt(week), routineWeek);
+            }
+        }
     }
 
-    public Map<Integer, RoutineDayMap> getWeek(int week) {
-        return this.getRoutine().get(week);
+    public List<RoutineExercise> getExerciseListForDay(int week, int day) {
+        List<RoutineExercise> exerciseList = new ArrayList<>();
+        // TODO sanity sort based on index?
+        for (Integer sortVal : this.getWeek(week).getDay(day)) {
+            exerciseList.add(this.getDay(week, day).getExercise(sortVal));
+        }
+        return exerciseList;
     }
 
-    public RoutineDayMap getDay(int week, int day) {
-        return this.getRoutine().get(week).get(day);
+    public RoutineWeek getWeek(int week) {
+        return this.weeks.get(week);
+    }
+
+    public RoutineDay getDay(int week, int day) {
+        return this.weeks.get(week).getDay(day);
     }
 
     public void appendNewDay(int week, int day) {
-        RoutineDayMap dayExerciseMap = new RoutineDayMap();
-        if (this.getRoutine().get(week) == null) {
-            this.getRoutine().put(week, new HashMap<>());
+        RoutineDay routineDay = new RoutineDay();
+        if (this.getWeeks().get(week) == null) {
+            // week with this index doesn't exist yet, so create it before appending the day
+            this.putWeek(week, new RoutineWeek());
         }
-        this.routine.get(week).put(day, dayExerciseMap);
+        this.getWeek(week).put(day, routineDay);
     }
 
-    public void putWeek(int week, Map<Integer, RoutineDayMap> days) {
-        this.routine.put(week, days);
+    public void putWeek(int weekIndex, RoutineWeek week) {
+        this.weeks.put(weekIndex, week);
     }
 
-    public void insertExercise(int week, int day, ExerciseRoutine exerciseRoutine) {
-        this.routine.get(week).get(day).insertNewExercise(exerciseRoutine);
+    public void putDay(int weekIndex, int dayIndex, RoutineDay day) {
+        this.getWeek(weekIndex).put(dayIndex, day);
     }
 
     public boolean removeExercise(int week, int day, String exerciseId) {
-        return this.routine.get(week).get(day).deleteExercise(exerciseId);
-    }
-
-    public void deleteWeek(int week) {
-        this.routine.remove(week);
-        int i = 0;
-        Map<Integer, Map<Integer, RoutineDayMap>> temp = new HashMap<>();
-        for (Integer weekIndex : this.routine.keySet()) {
-            temp.put(i, this.routine.get(weekIndex));
-            i++;
-        }
-        this.routine = temp;
-    }
-
-    public void deleteDay(int week, int day) {
-        this.routine.get(week).remove(day);
-        int i = 0;
-        Map<Integer, RoutineDayMap> temp = new HashMap<>();
-        for (Integer dayIndex : this.routine.get(week).keySet()) {
-            temp.put(i, this.routine.get(week).get(dayIndex));
-            i++;
-        }
-        this.routine.put(week, temp);
-    }
-
-    public List<ExerciseRoutine> getExerciseListForDay(int week, int day) {
-        // TODO sanity sort based on index
-        List<ExerciseRoutine> list = new ArrayList<>();
-        for (Integer sortVal : this.routine.get(week).get(day).getExercisesForDay().keySet()) {
-            list.add(this.routine.get(week).get(day).getExercisesForDay().get(sortVal));
-        }
-        return list;
+        return this.getDay(week, day).deleteExercise(exerciseId);
     }
 
     public void sortDay(int week, int day, int sortVal, Map<String, String> idToName) {
-        this.routine.get(week).get(day).sortDayMap(sortVal, idToName);
+        this.getDay(week, day).sortDay(sortVal, idToName);
+    }
+
+    public int getNumberOfWeeks() {
+        return this.weeks.size();
+    }
+
+    public int getTotalNumberOfDays() {
+        int days = 0;
+        for (Integer week : this.weeks.keySet()) {
+            days += this.weeks.get(week).getNumberOfDays();
+        }
+        return days;
+    }
+
+    public void insertExercise(int week, int day, final RoutineExercise routineExercise) {
+        this.getDay(week, day).insertNewExercise(routineExercise);
+    }
+
+    public void deleteWeek(int week) {
+        this.weeks.remove(week);
+        int i = 0;
+        Map<Integer, RoutineWeek> temp = new HashMap<>();
+        for (Integer weekIndex : this.weeks.keySet()) {
+            temp.put(i, this.weeks.get(weekIndex));
+            i++;
+        }
+        this.weeks = temp;
+    }
+
+    public void deleteDay(int week, int day) {
+        this.getWeek(week).deleteDay(day);
     }
 
     public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
-        this.routine.get(week).get(day).swapExerciseOrder(fromPosition, toPosition);
-    }
-
-    public int size() {
-        return this.routine.size();
+        this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        if (this.routine != null) {
-            for (Integer week : this.routine.keySet()) {
-                Map<String, Object> specificDay = new HashMap<>();
-                for (Integer day : this.routine.get(week).keySet()) {
-                    Map<String, Object> exercisesForDay = new HashMap<>();
-                    for (Integer sortVal : this.routine.get(week).get(day).getExercisesForDay()
-                            .keySet()) {
-                        exercisesForDay.put(sortVal.toString(),
-                                this.routine.get(week).get(day).getExercisesForDay().get(sortVal)
-                                        .asMap());
-                    }
-                    specificDay.put(day.toString(), exercisesForDay);
-                }
-                retVal.put(week.toString(), specificDay);
-            }
+        for (Integer week : this.weeks.keySet()) {
+            retVal.put(week.toString(), this.getWeek(week).asMap());
         }
+
         return retVal;
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return this.weeks.keySet().iterator();
     }
 }

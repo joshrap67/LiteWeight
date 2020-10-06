@@ -18,8 +18,8 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.ExerciseHelper;
 import com.joshrap.liteweight.helpers.WeightHelper;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.ExerciseRoutine;
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.OwnedExercise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,16 +69,16 @@ public class RoutineAdapter extends
         }
     }
 
-    private List<ExerciseRoutine> exercises;
-    private Map<String, ExerciseUser> exerciseUserMap;
+    private List<RoutineExercise> exercises;
+    private Map<String, OwnedExercise> exerciseUserMap;
     private Context context;
     private boolean metricUnits;
     private boolean videosEnabled;
     private List<String> extrasShownMap;
 
     // Pass in the contact array into the constructor
-    public RoutineAdapter(List<ExerciseRoutine> exerciseRoutines, Map<String, ExerciseUser> exerciseIdToName, Context context, boolean metricUnits, boolean videosEnabled) {
-        this.exercises = exerciseRoutines;
+    public RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, Context context, boolean metricUnits, boolean videosEnabled) {
+        this.exercises = routineExercises;
         this.exerciseUserMap = exerciseIdToName;
         this.context = context;
         this.metricUnits = metricUnits;
@@ -113,7 +113,7 @@ public class RoutineAdapter extends
     @Override
     public void onBindViewHolder(RoutineAdapter.ViewHolder holder, int position) {
         // Get the data model based on position
-        ExerciseRoutine exercise = exercises.get(position);
+        RoutineExercise exercise = exercises.get(position);
 
         final String currentExercise = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
         final CheckBox exerciseCheckbox = holder.exerciseCheckbox;

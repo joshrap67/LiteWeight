@@ -35,7 +35,7 @@ import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -56,7 +56,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private AlertDialog alertDialog;
     private User user;
-    private ExerciseUser originalExercise;
+    private OwnedExercise originalExercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
@@ -373,7 +373,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlLayout.setError(urlError);
         if (renameError == null && weightError == null && setsError == null &&
                 repsError == null && detailsError == null && urlError == null) {
-            ExerciseUser updatedExercise = ExerciseUser.getExerciseForUpdate(originalExercise);
+            OwnedExercise updatedExercise = OwnedExercise.getExerciseForUpdate(originalExercise);
             if (!updatedExercise.isDefaultExercise()) {
                 updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
             }

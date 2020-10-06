@@ -42,7 +42,7 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
-import com.joshrap.liteweight.models.WorkoutUser;
+import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
     private User user;
     private Workout currentWorkout;
-    private List<WorkoutUser> workoutList;
+    private List<WorkoutMeta> workoutList;
     private WorkoutAdapter workoutAdapter;
     @Inject
     ProgressDialog loadingDialog;
@@ -217,13 +217,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double average = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsHelper.getFormattedAverageCompleted(average);
-        int days = 0;
-        for (int week = 0; week < currentWorkout.getRoutine().size(); week++) {
-            days += currentWorkout.getRoutine().getWeek(week).size();
-        }
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
-                "Total Number of Days in Workout: " + days + "\n" +
+                "Total Number of Days in Workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
                 "Most Worked Focus: " + currentWorkout.getMostFrequentFocus().replaceAll(",", ", ");
         statisticsTV.setText(msg);
     }
@@ -281,8 +277,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             saveButton.setOnClickListener(view -> {
                 String newName = renameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (WorkoutUser workoutUser : workoutList) {
-                    workoutNames.add(workoutUser.getWorkoutName());
+                for (WorkoutMeta workoutMeta : workoutList) {
+                    workoutNames.add(workoutMeta.getWorkoutName());
                 }
                 String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
                 if (errorMsg != null) {
@@ -368,7 +364,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void switchWorkout(final WorkoutUser selectedWorkout) {
+    private void switchWorkout(final WorkoutMeta selectedWorkout) {
         if (selectedWorkout.getWorkoutId().equals(currentWorkout.getWorkoutId())) {
             // don't allow user to switch to current workout since they are already on it
             return;

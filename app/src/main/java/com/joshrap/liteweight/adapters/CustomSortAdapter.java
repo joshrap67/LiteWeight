@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.helpers.WeightHelper;
-import com.joshrap.liteweight.models.ExerciseRoutine;
+import com.joshrap.liteweight.models.RoutineExercise;
 
 import java.util.List;
 import java.util.Map;
@@ -29,13 +29,13 @@ public class CustomSortAdapter extends
         }
     }
 
-    private List<ExerciseRoutine> exercises;
+    private List<RoutineExercise> exercises;
     private Map<String, String> exerciseIdToName;
     private boolean metricUnits;
 
-    public CustomSortAdapter(List<ExerciseRoutine> exerciseRoutines, Map<String,
+    public CustomSortAdapter(List<RoutineExercise> routineExercises, Map<String,
             String> exerciseIdToName, boolean metricUnits) {
-        this.exercises = exerciseRoutines;
+        this.exercises = routineExercises;
         this.exerciseIdToName = exerciseIdToName;
         this.metricUnits = metricUnits;
     }
@@ -51,7 +51,7 @@ public class CustomSortAdapter extends
 
     @Override
     public void onBindViewHolder(CustomSortAdapter.ViewHolder holder, int position) {
-        ExerciseRoutine exercise = exercises.get(position);
+        RoutineExercise exercise = exercises.get(position);
 
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         final TextView exerciseTV = holder.exerciseTV;

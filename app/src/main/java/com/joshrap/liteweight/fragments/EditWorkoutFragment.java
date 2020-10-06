@@ -48,11 +48,12 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.models.ExerciseRoutine;
-import com.joshrap.liteweight.models.ExerciseUser;
+import com.joshrap.liteweight.models.RoutineDay;
+import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineDayMap;
+import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
@@ -75,7 +76,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private AlertDialog alertDialog;
     private TextView dayTitleTV, exerciseNotFoundTV, emptyDayView;
     private String spinnerFocus;
-    private HashMap<String, ArrayList<ExerciseUser>> allUserExercises; // focus -> exercises
+    private HashMap<String, ArrayList<OwnedExercise>> allUserExercises; // focus -> exercises
     private Routine pendingRoutine;
     private List<String> weekSpinnerValues, daySpinnerValues;
     private int currentWeekIndex, currentDayIndex, mode;
@@ -192,31 +193,31 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         sortButton = view.findViewById(R.id.sort_button);
         final PopupMenu dropDownMenu = new PopupMenu(getContext(), sortButton);
         final Menu menu = dropDownMenu.getMenu();
-        menu.add(0, RoutineDayMap.alphabeticalSortAscending, 0, "Sort Alphabetical (A-Z)");
-        menu.add(0, RoutineDayMap.alphabeticalSortDescending, 0, "Sort Alphabetical (Z-A)");
-        menu.add(0, RoutineDayMap.weightSortAscending, 0, "Sort by Weight (Ascending)");
-        menu.add(0, RoutineDayMap.weightSortDescending, 0, "Sort by Weight (Descending)");
-        menu.add(0, RoutineDayMap.customSort, 0, "Custom Sort (Drag 'n Drop)");
+        menu.add(0, RoutineDay.alphabeticalSortAscending, 0, "Sort Alphabetical (A-Z)");
+        menu.add(0, RoutineDay.alphabeticalSortDescending, 0, "Sort Alphabetical (Z-A)");
+        menu.add(0, RoutineDay.weightSortAscending, 0, "Sort by Weight (Ascending)");
+        menu.add(0, RoutineDay.weightSortDescending, 0, "Sort by Weight (Descending)");
+        menu.add(0, RoutineDay.customSort, 0, "Custom Sort (Drag 'n Drop)");
 
         dropDownMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
-                case RoutineDayMap.alphabeticalSortAscending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDayMap.alphabeticalSortAscending, exerciseIdToName);
+                case RoutineDay.alphabeticalSortAscending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortAscending, exerciseIdToName);
                     updateRoutineListUI();
                     return true;
-                case RoutineDayMap.alphabeticalSortDescending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDayMap.alphabeticalSortDescending, exerciseIdToName);
+                case RoutineDay.alphabeticalSortDescending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortDescending, exerciseIdToName);
                     updateRoutineListUI();
                     return true;
-                case RoutineDayMap.weightSortDescending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDayMap.weightSortDescending, exerciseIdToName);
+                case RoutineDay.weightSortDescending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortDescending, exerciseIdToName);
                     updateRoutineListUI();
                     return true;
-                case RoutineDayMap.weightSortAscending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDayMap.weightSortAscending, exerciseIdToName);
+                case RoutineDay.weightSortAscending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortAscending, exerciseIdToName);
                     updateRoutineListUI();
                     return true;
-                case RoutineDayMap.customSort:
+                case RoutineDay.customSort:
                     if (pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() < 2) {
                         Toast.makeText(getContext(), "Add at least two exercises.", Toast.LENGTH_LONG).show();
                     } else {
@@ -238,7 +239,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             if (mode == Variables.ADD_MODE) {
                 currentDayIndex = 0;
                 // for now only allow for weeks to be appended not inserted
-                currentWeekIndex = pendingRoutine.size();
+                currentWeekIndex = pendingRoutine.getNumberOfWeeks();
                 pendingRoutine.appendNewDay(currentWeekIndex, currentDayIndex);
                 weekSpinner.setSelection(currentWeekIndex);
                 daySpinner.setSelection(0);
@@ -258,8 +259,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         }));
         saveButton.setOnClickListener(v -> {
             boolean validRoutine = true;
-            for (int week = 0; week < pendingRoutine.size(); week++) {
-                for (int day = 0; day < pendingRoutine.getWeek(week).size(); day++) {
+            for (Integer week : pendingRoutine) {
+                for (Integer day : pendingRoutine.getWeek(week)) {
                     if (pendingRoutine.getExerciseListForDay(week, day).isEmpty()) {
                         validRoutine = false;
                     }
@@ -274,7 +275,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         dayButton.setOnClickListener((v -> {
             if (mode == Variables.ADD_MODE) {
                 // for now only allow for weeks to be appended not insert
-                currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).size();
+                currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
                 pendingRoutine.appendNewDay(currentWeekIndex, currentDayIndex);
                 updateWeekSpinnerValues();
                 updateDaySpinnerValues();
@@ -286,7 +287,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             } else if (mode == Variables.DELETE_MODE) {
                 promptDeleteDay();
             } else if (mode == Variables.COPY_MODE) {
-                if (pendingRoutine.getDay(currentWeekIndex, currentDayIndex).getExercisesForDay().isEmpty()) {
+                if (pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()) {
                     Toast.makeText(getContext(), "Must have at least one exercise in this day to copy it.", Toast.LENGTH_LONG).show();
                 } else {
                     promptCopyDay();
@@ -300,15 +301,14 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             Updates the button texts of the week/day buttons depending on the current mode
          */
         if (mode == Variables.ADD_MODE) {
-            if (this.pendingRoutine.size() >= Variables.MAX_NUMBER_OF_WEEKS) {
+            if (this.pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                 weekButton.setText(getString(R.string.max_reached_msg));
                 weekButton.setEnabled(false);
             } else {
                 weekButton.setText(getString(R.string.add_week_msg));
                 weekButton.setEnabled(true);
             }
-            if (this.pendingRoutine.getWeek(currentWeekIndex).size() >=
-                    Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+            if (this.pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
                 dayButton.setText(getString(R.string.max_reached_msg));
                 dayButton.setEnabled(false);
             } else {
@@ -330,7 +330,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
     private void setSpinnerListeners(View view) {
         /*
-            Enable the spinners to provide a means of navigating the routine by week and day
+            Enable the spinners to provide a means of navigating the weeks by week and day
          */
         // setup the week spinner
         weekAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, weekSpinnerValues);
@@ -382,8 +382,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             Update spinner list with all the available weeks to progress
          */
         weekSpinnerValues.clear();
-        for (int i = 0; i < pendingRoutine.size(); i++) {
-            weekSpinnerValues.add("Week " + (i + 1));
+        for (Integer weekIndex : pendingRoutine) {
+            weekSpinnerValues.add("Week " + (weekIndex + 1));
         }
         weekAdapter.notifyDataSetChanged();
     }
@@ -393,8 +393,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             Update spinner list with all the available day to progress
          */
         daySpinnerValues.clear();
-        for (int i = 0; i < pendingRoutine.getWeek(currentWeekIndex).size(); i++) {
-            daySpinnerValues.add("Day " + (i + 1));
+        for (Integer dayIndex : pendingRoutine.getWeek(currentWeekIndex)) {
+            daySpinnerValues.add("Day " + (dayIndex + 1));
         }
         dayAdapter.notifyDataSetChanged();
     }
@@ -423,7 +423,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
     private void updateRoutineListUI() {
         /*
-            Updates the list of displayed exercises in the routine depending on the current day.
+            Updates the list of displayed exercises in the weeks depending on the current day.
          */
 
         PendingRoutineAdapter routineAdapter = new PendingRoutineAdapter
@@ -499,7 +499,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setTitle("Delete Week " + (currentWeekIndex + 1))
                 .setMessage(message)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (pendingRoutine.size() > 1) {
+                    if (pendingRoutine.getNumberOfWeeks() > 1) {
                         deleteWeek();
                         alertDialog.dismiss();
                     } else {
@@ -521,7 +521,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setTitle("Delete Day " + (currentDayIndex + 1))
                 .setMessage(message)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (pendingRoutine.getWeek(currentWeekIndex).size() > 1) {
+                    if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() > 1) {
                         deleteDay();
                         alertDialog.dismiss();
                     } else {
@@ -540,8 +540,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_week, null);
         int totalDays = 0;
         List<String> days = new ArrayList<>();
-        for (int week = 0; week < pendingRoutine.size(); week++) {
-            for (int day = 0; day < pendingRoutine.getWeek(week).size(); day++) {
+        for (Integer week : pendingRoutine) {
+            for (Integer day : pendingRoutine.getWeek(week)) {
                 String dayTitle = WorkoutHelper.generateDayTitleNew(week, day);
                 days.add(dayTitle);
                 totalDays++;
@@ -564,10 +564,10 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         copyToExistingTv.setText(copyToExistingMsg);
         Button copyToExistingButton = popupView.findViewById(R.id.copy_to_existing_btn);
         copyToExistingButton.setOnClickListener(v -> {
-            RoutineDayMap dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
+            final RoutineDay dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
             int count = 0;
-            for (int week = 0; week < pendingRoutine.size(); week++) {
-                for (int day = 0; day < pendingRoutine.getWeek(week).size(); day++) {
+            for (Integer week : pendingRoutine) {
+                for (Integer day : pendingRoutine.getWeek(week)) {
                     if (count == dayPicker.getValue()) {
                         currentWeekIndex = week;
                         currentDayIndex = day;
@@ -576,7 +576,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 }
             }
             // do the copy
-            pendingRoutine.getWeek(currentWeekIndex).put(currentDayIndex, dayToBeCopied);
+            pendingRoutine.putDay(currentWeekIndex, currentDayIndex, dayToBeCopied);
+
             daySpinner.setSelection(currentDayIndex);
             weekSpinner.setSelection(currentWeekIndex);
             updateRoutineListUI();
@@ -590,9 +591,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         copyAsNewTV.setText(copyAsNewMsg);
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
-            RoutineDayMap routineToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
-            currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).size();
-            pendingRoutine.getWeek(currentWeekIndex).put(currentDayIndex, routineToBeCopied);
+            final RoutineDay dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
+            currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
+            pendingRoutine.putDay(currentWeekIndex, currentDayIndex, dayToBeCopied);
 
             daySpinner.setSelection(currentDayIndex);
             updateDaySpinnerValues();
@@ -600,7 +601,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             updateButtonTexts();
             alertDialog.dismiss();
         });
-        if (pendingRoutine.getWeek(currentWeekIndex).size() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+        if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
             copyAsNewTV.setVisibility(View.GONE);
             copyAsNewButton.setVisibility(View.GONE);
         }
@@ -616,7 +617,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
     private void promptCopyWeek() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_week, null);
-        int totalWeeks = pendingRoutine.size();
+        int totalWeeks = pendingRoutine.getNumberOfWeeks();
 
         String[] daysAsArray = new String[totalWeeks];
         for (int i = 0; i < totalWeeks; i++) {
@@ -636,16 +637,13 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         Button copyToExistingButton = popupView.findViewById(R.id.copy_to_existing_btn);
         copyToExistingButton.setOnClickListener(v -> {
             int targetWeek = dayPicker.getValue();
-            Map<Integer, RoutineDayMap> daysToBeCopied = pendingRoutine.getWeek(currentWeekIndex);
-            Map<Integer, RoutineDayMap> targetDays = new HashMap<>();
-            for (Integer day : daysToBeCopied.keySet()) {
-                targetDays.put(day, pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone());
-            }
+            final RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeekIndex);
 
             // do the copy
-            pendingRoutine.putWeek(targetWeek, targetDays);
+            pendingRoutine.putWeek(targetWeek, weekToBeCopied.clone());
             currentWeekIndex = targetWeek;
             currentDayIndex = 0;
+
             daySpinner.setSelection(currentDayIndex);
             weekSpinner.setSelection(currentWeekIndex);
             updateRoutineListUI();
@@ -658,16 +656,12 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         copyAsNewTV.setText(copyAsNewMsg);
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
-            Map<Integer, RoutineDayMap> daysToBeCopied = pendingRoutine.getWeek(currentWeekIndex);
-            Map<Integer, RoutineDayMap> targetDays = new HashMap<>();
-            for (Integer day : daysToBeCopied.keySet()) {
-                targetDays.put(day, pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone());
-            }
-
+            final RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeekIndex);
             // do the copy
-            currentWeekIndex = pendingRoutine.size();
-            pendingRoutine.putWeek(currentWeekIndex, targetDays);
+            currentWeekIndex = pendingRoutine.getNumberOfWeeks();
+            pendingRoutine.putWeek(currentWeekIndex, weekToBeCopied.clone());
             currentDayIndex = 0;
+
             daySpinner.setSelection(currentDayIndex);
             weekSpinner.setSelection(currentWeekIndex);
             updateDaySpinnerValues();
@@ -676,7 +670,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             updateButtonTexts();
             alertDialog.dismiss();
         });
-        if (pendingRoutine.size() >= Variables.MAX_NUMBER_OF_WEEKS) {
+        if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
             copyAsNewTV.setVisibility(View.GONE);
             copyAsNewButton.setVisibility(View.GONE);
         }
@@ -801,24 +795,24 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         allUserExercises = new HashMap<>();
         ArrayList<String> focusList = new ArrayList<>();
         for (String exerciseId : activeUser.getUserExercises().keySet()) {
-            ExerciseUser exerciseUser = activeUser.getUserExercises().get(exerciseId);
-            List<String> focuses = exerciseUser.getFocuses();
+            OwnedExercise ownedExercise = activeUser.getUserExercises().get(exerciseId);
+            List<String> focuses = ownedExercise.getFocuses();
             for (String focus : focuses) {
                 if (!allUserExercises.containsKey(focus)) {
                     // focus hasn't been added before
                     focusList.add(focus);
                     allUserExercises.put(focus, new ArrayList<>());
                 }
-                allUserExercises.get(focus).add(exerciseUser);
+                allUserExercises.get(focus).add(ownedExercise);
             }
         }
 
         SearchView searchView = popupView.findViewById(R.id.search_input);
         searchView.setOnSearchClickListener(v -> {
             // populate the list view with all exercises
-            ArrayList<ExerciseUser> sortedExercises = new ArrayList<>();
+            ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
             for (String focus : allUserExercises.keySet()) {
-                for (ExerciseUser exercise : allUserExercises.get(focus)) {
+                for (OwnedExercise exercise : allUserExercises.get(focus)) {
                     if (!sortedExercises.contains(exercise)) {
                         sortedExercises.add(exercise);
                     }
@@ -872,7 +866,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         /*
             Given the current focus spinner value, list all the exercises associated with it.
          */
-        ArrayList<ExerciseUser> sortedExercises = new ArrayList<>(allUserExercises.get(spinnerFocus));
+        ArrayList<OwnedExercise> sortedExercises = new ArrayList<>(allUserExercises.get(spinnerFocus));
         Collections.sort(sortedExercises);
         addExerciseAdapter = new EditWorkoutFragment.AddExerciseAdapter(sortedExercises);
         pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
@@ -882,13 +876,6 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     public boolean isModified() {
         boolean modified = false;
         // todo fix
-//        for (int week = 0; week < pendingRoutine.size(); week++) {
-//            for (int day = 0; day < pendingRoutine.getWeek(week).size(); day++) {
-//                if (!pendingRoutine.getExerciseListForDay(week, day).toString().equals(workout.get)) {
-//                    modified = true;
-//                }
-//            }
-//        }
         return !pendingRoutine.toString().equals(workout.getRoutine().toString());
     }
 
@@ -914,10 +901,10 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<ExerciseUser> exercises;
-        private List<ExerciseUser> displayList;
+        private List<OwnedExercise> exercises;
+        private List<OwnedExercise> displayList;
 
-        AddExerciseAdapter(List<ExerciseUser> exerciseRoutines) {
+        AddExerciseAdapter(List<OwnedExercise> exerciseRoutines) {
             this.exercises = exerciseRoutines;
             displayList = new ArrayList<>(this.exercises);
         }
@@ -933,13 +920,13 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
         @Override
         public void onBindViewHolder(EditWorkoutFragment.AddExerciseAdapter.ViewHolder holder, int position) {
-            final ExerciseUser exerciseUser = displayList.get(position);
+            final OwnedExercise ownedExercise = displayList.get(position);
             final CheckBox exercise = holder.exercise;
-            exercise.setText(exerciseUser.getExerciseName());
+            exercise.setText(ownedExercise.getExerciseName());
             // check if the exercise is already in this specific day
             boolean isChecked = false;
-            for (ExerciseRoutine exerciseRoutine : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-                if (exerciseRoutine.getExerciseId().equals(exerciseUser.getExerciseId())) {
+            for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+                if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
                     isChecked = true;
                     break;
                 }
@@ -949,9 +936,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             exercise.setOnClickListener(v -> {
                 if (exercise.isChecked()) {
                     pendingRoutine.insertExercise(currentWeekIndex, currentDayIndex,
-                            new ExerciseRoutine(exerciseUser, exerciseUser.getExerciseId()));
+                            new RoutineExercise(ownedExercise, ownedExercise.getExerciseId()));
                 } else {
-                    pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, exerciseUser.getExerciseId());
+                    pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
                 }
                 updateRoutineListUI();
             });
@@ -971,14 +958,14 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             // responsible for filtering the search of the user in the add user popup (by exercise name)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                List<ExerciseUser> filteredList = new ArrayList<>();
+                List<OwnedExercise> filteredList = new ArrayList<>();
                 if (constraint == null || constraint.length() == 0) {
                     filteredList.addAll(exercises);
                 } else {
                     String filterPattern = constraint.toString().toLowerCase().trim();
-                    for (ExerciseUser exerciseUser : exercises) {
-                        if (exerciseUser.getExerciseName().toLowerCase().contains(filterPattern)) {
-                            filteredList.add(exerciseUser);
+                    for (OwnedExercise ownedExercise : exercises) {
+                        if (ownedExercise.getExerciseName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(ownedExercise);
                         }
                     }
                 }
