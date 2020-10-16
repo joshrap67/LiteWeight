@@ -20,32 +20,6 @@
                 android:orientation="vertical">
 
             <LinearLayout
-                    android:id="@+id/private_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bottom_border_selectable"
-                    android:clickable="true"
-                    android:descendantFocusability="blocksDescendants"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/private_switch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="false"
-                        android:text="Private Account"
-                        android:textSize="16sp"
-                        tools:checked="true" />
-
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Prevents users not on your friend's list from sending you friend requests or workouts." />
-            </LinearLayout>
-
-            <LinearLayout
                     android:id="@+id/metric_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -69,6 +43,32 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/metric_switch_description" />
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/private_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bottom_border_selectable"
+                    android:clickable="true"
+                    android:descendantFocusability="blocksDescendants"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/private_switch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:text="Private Account"
+                        android:textSize="16sp"
+                        tools:checked="true" />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Prevents users not on your friend's list from sending you friend requests or workouts." />
             </LinearLayout>
 
             <LinearLayout

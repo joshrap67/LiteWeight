@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.text.Editable;
@@ -21,17 +22,24 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.adapters.WorkoutAdapter;
+import com.joshrap.liteweight.adapters.WorkoutsAdapter;
+import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.StatisticsHelper;
 import com.joshrap.liteweight.imports.Globals;
@@ -44,6 +52,7 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +71,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private User user;
     private Workout currentWorkout;
     private List<WorkoutMeta> workoutList;
-    private WorkoutAdapter workoutAdapter;
+    private WorkoutsAdapter workoutsAdapter;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -131,11 +140,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
         final Menu menu = dropDownMenu.getMenu();
         final int editIndex = 0;
-        final int renameIndex = 1;
-        final int copyIndex = 2;
-        final int resetIndex = 3;
-        final int deleteIndex = 4;
+        final int sendIndex = 1;
+        final int renameIndex = 2;
+        final int copyIndex = 3;
+        final int resetIndex = 4;
+        final int deleteIndex = 5;
         menu.add(0, editIndex, 0, "Edit Workout");
+        menu.add(0, sendIndex, 0, "Send Workout");
         menu.add(0, renameIndex, 0, "Rename Workout");
         menu.add(0, copyIndex, 0, "Copy Workout");
         menu.add(0, resetIndex, 0, "Reset Statistics");
@@ -155,6 +166,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 case deleteIndex:
                     promptDelete();
                     return true;
+                case sendIndex:
+                    if (user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
+                        promptSend();
+                    } else {
+                        showErrorMessage("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!");
+                    }
+                    break;
                 case copyIndex:
                     if (user.getUserWorkouts().size() < Variables.MAX_NUMBER_OF_WORKOUTS) {
                         promptCopy();
@@ -179,8 +197,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
 
         // set up the list view
-        workoutAdapter = new WorkoutAdapter(getContext(), workoutList);
-        workoutListView.setAdapter(workoutAdapter);
+        workoutsAdapter = new WorkoutsAdapter(getContext(), workoutList);
+        workoutListView.setAdapter(workoutsAdapter);
         workoutListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         workoutListView.setOnItemClickListener((parent, _view, position, id) ->
                 switchWorkout(workoutList.get(position)));
@@ -195,7 +213,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutList.addAll(user.getUserWorkouts().values());
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         sortWorkouts();
-        workoutAdapter.notifyDataSetChanged();
+        workoutsAdapter.notifyDataSetChanged();
         updateStatisticsTV();
     }
 
@@ -248,24 +266,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
-        renameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (workoutNameInputLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    workoutNameInputLayout.setErrorEnabled(false);
-                    workoutNameInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Rename \"" + currentWorkout.getWorkoutName() + "\"")
                 .setView(popupView)
@@ -293,27 +294,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptCopy() {
-        View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
         final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
-        workoutNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (workoutNameInputLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    workoutNameInputLayout.setErrorEnabled(false);
-                    workoutNameInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        workoutNameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle(String.format("Copy \"%s\" as new workout", currentWorkout.getWorkoutName()))
@@ -336,6 +320,57 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     // no problems so go ahead and save
                     alertDialog.dismiss();
                     copyWorkout(workoutName);
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void promptSend() {
+        /*
+            Prompt user to send workout to a friend or any other user
+         */
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
+        final EditText usernameInput = popupView.findViewById(R.id.username_input);
+        final TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
+        final ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
+        List<String> friendsUsernames = new ArrayList<>();
+        for (String username : user.getFriends().keySet()) {
+            if (user.getFriends().get(username).isConfirmed()) {
+                friendsUsernames.add(username);
+            }
+        }
+        if (friendsUsernames.isEmpty()) {
+            // user has not friends, so hide the TV and listview that displays the friends
+            popupView.findViewById(R.id.friends_text_view).setVisibility(View.GONE);
+            friendsListView.setVisibility(View.GONE);
+        }
+        Collections.sort(friendsUsernames, String::compareToIgnoreCase);
+        ArrayAdapter<String> friendsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, friendsUsernames);
+        friendsListView.setAdapter(friendsAdapter);
+        // when user clicks on one of their friends, put that friend's username into the input
+        friendsListView.setOnItemClickListener((adapterView, view, i, l) -> usernameInput.setText(friendsUsernames.get(i)));
+
+
+        usernameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(usernameInputLayout));
+        usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(String.format("Send \"%s\" to another user", currentWorkout.getWorkoutName()))
+                .setView(popupView)
+                .setPositiveButton("Send", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            final Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener(view -> {
+                String username = usernameInput.getText().toString().trim();
+                String errorMsg = InputHelper.validUserToSendWorkout(user.getUsername(), username);
+                if (errorMsg != null) {
+                    usernameInputLayout.setError(errorMsg);
+                } else {
+                    // no problems so go ahead and send
+                    alertDialog.dismiss();
+                    sendWorkout(username, currentWorkout.getWorkoutId());
                 }
             });
         });
@@ -387,7 +422,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                                 resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
                         updateUI();
                     } else {
-                        showErrorMessage("Switch Workout Error", resultStatus.getErrorMessage());
+                        ErrorDialog.showErrorDialog("Switch Workout Error", resultStatus.getErrorMessage(), getContext());
                         workoutListView.setItemChecked(0, true);
                     }
                 }
@@ -432,6 +467,25 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     Globals.activeWorkout = currentWorkout;
 
                     updateUI();
+                } else {
+                    showErrorMessage("Copy Workout Error", resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
+
+    private void sendWorkout(final String recipientUsername, String workoutId) {
+        showLoadingDialog();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
+                    user.setWorkoutsSent(user.getWorkoutsSent() + 1);
+
                 } else {
                     showErrorMessage("Copy Workout Error", resultStatus.getErrorMessage());
                 }

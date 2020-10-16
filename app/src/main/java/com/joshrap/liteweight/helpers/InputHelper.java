@@ -241,4 +241,16 @@ public class InputHelper {
         }
         return retVal;
     }
+
+    public static String validUserToSendWorkout(String activeUser, String username) {
+        username = username.trim();
+        String retVal = validUsername(username);
+        if (retVal == null) {
+            // means no issue with base username
+            if (activeUser.equals(username)) {
+                retVal = "Cannot send a workout to yourself.";
+            }
+        }
+        return retVal;
+    }
 }

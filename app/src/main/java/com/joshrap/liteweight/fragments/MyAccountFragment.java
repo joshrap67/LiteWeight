@@ -83,6 +83,7 @@ public class MyAccountFragment extends Fragment {
         profilePicture = view.findViewById(R.id.profile_image);
         profilePicture.setOnClickListener(v -> getImage());
         final TextView receivedWorkoutsTV = view.findViewById(R.id.received_workouts_tv);
+        receivedWorkoutsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToReceivedWorkouts());
         int receivedUnseenCount = 0;
 //        for (String workoutId : user.getReceivedWorkouts().keySet()) {
 //            // todo actually do this

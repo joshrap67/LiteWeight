@@ -87,8 +87,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private Timer timer;
     private Stopwatch stopwatch;
 
-    // todo don't do this
-    private ActiveWorkoutFragment currentWorkoutFragment;
+    private ActiveWorkoutFragment currentWorkoutFragment; // todo don't do this
     @Inject
     Tokens tokens;
     @Inject
@@ -117,8 +116,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.REMOVE_FRIEND_BROADCAST);
         receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
-        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver,
-                receiverActions);
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
         timer = new Timer(this);
@@ -151,7 +150,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
-        View headerView = nav.getHeaderView(0);
+        final View headerView = nav.getHeaderView(0);
         ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
         headerLayout.setOnClickListener(view -> {
             goToAccountSettings();
@@ -182,11 +181,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         createNotificationChannel();
         updateEndpointToken();
+        updateNotificationIndicator();
         if (action != null && jsonData != null) {
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
         }
-        updateNotificationIndicator();
     }
 
     private void navigateToFragmentFromNotification(String action) {
@@ -362,6 +361,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     NotificationManager.IMPORTANCE_DEFAULT);
             manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(acceptedRequestChannel);
+
+            // channel for accepted friend requests
+            NotificationChannel receivedWorkoutChannel = new NotificationChannel(
+                    Variables.RECEIVED_WORKOUT_CHANNEL,
+                    "Received Workouts",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(receivedWorkoutChannel);
         }
     }
 
@@ -688,7 +695,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return super.dispatchTouchEvent(event);
     }
 
-    public void promptLogout() {
+    private void promptLogout() {
         /*
             Is called whenever the user has unfinished work in the create workout fragment.
          */
@@ -701,7 +708,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         alertDialog.show();
     }
 
-    public void showUnsavedChangesPopup(String fragmentTitle) {
+    private void showUnsavedChangesPopup(String fragmentTitle) {
         /*
             Is called whenever the user has unfinished work in the create workout fragment.
          */
@@ -748,7 +755,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return stopwatch;
     }
 
-    public boolean isFragmentModified(Fragment aFragment) {
+    private boolean isFragmentModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified
          */
@@ -919,6 +926,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
+                .commit();
+    }
+
+    public void goToReceivedWorkouts() {
+        fragmentStack.remove(Variables.RECEIVED_WORKOUTS_TITLE);
+        fragmentStack.add(0, Variables.RECEIVED_WORKOUTS_TITLE);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, new ReceivedWorkoutsFragment(), Variables.RECEIVED_WORKOUTS_TITLE)
                 .commit();
     }
 

@@ -24,6 +24,7 @@ public class Variables {
             MIN_PASSWORD_LENGTH = 8,
             MAX_STOPWATCH_TIME = 7200000,
             DEFAULT_TIMER_VALUE = 60000,
+            MAX_FREE_WORKOUTS_SENT = 1500, // todo change after dev work is done
             ADD_MODE = 0,
             DELETE_MODE = 1,
             COPY_MODE = 2;
@@ -50,6 +51,7 @@ public class Variables {
             NEW_WORKOUT_TITLE = "Create Workout",
             ACCOUNT_TITLE = "My Account",
             ACCOUNT_PREFS_TITLE = "Account Preferences",
+            RECEIVED_WORKOUTS_TITLE = "Received Workouts",
             FRIENDS_LIST_TITLE = "Friends List",
             BLOCKED_LIST_TITLE = "Blocked List",
             SETTINGS_TITLE = "Settings",
@@ -59,10 +61,13 @@ public class Variables {
             TIMER_FINISHED_CHANNEL = "timer_finished_channel",
             FRIEND_REQUEST_CHANNEL = "friend_request_channel",
             ACCEPTED_FRIEND_CHANNEL = "accepted_friend_channel",
+            RECEIVED_WORKOUT_CHANNEL = "received_workout_channel",
             STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
+            FRIEND_LIST_POSITION = "friendsListPosition",
             EXERCISE_ID = "exerciseId";
 
-    public static final String ID_TOKEN_KEY = "IdToken",
+    public static final String
+            ID_TOKEN_KEY = "IdToken",
             REFRESH_TOKEN_KEY = "RefreshToken";
 
     // intent keys
@@ -74,6 +79,7 @@ public class Variables {
             NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked",
             ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked",
             INTENT_NOTIFICATION_DATA = "Notification_Data",
+            RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked",
             INTENT_ID_TOKEN = "idToken",
             INTENT_REFRESH_TOKEN = "refreshToken";
 
@@ -82,6 +88,6 @@ public class Variables {
             ACCEPTED_FRIEND_REQUEST_BROADCAST = "acceptedFriendRequestBroadcast",
             REMOVE_FRIEND_BROADCAST = "removeFriendBroadcast",
             DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
-            NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
-    public static final String FRIEND_LIST_POSITION = "friendsListPosition";
+            NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
+            RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast";
 }

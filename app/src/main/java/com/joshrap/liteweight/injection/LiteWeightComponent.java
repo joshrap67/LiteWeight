@@ -14,6 +14,7 @@ import com.joshrap.liteweight.fragments.MyAccountFragment;
 import com.joshrap.liteweight.fragments.MyExercisesFragment;
 import com.joshrap.liteweight.fragments.MyWorkoutsFragment;
 import com.joshrap.liteweight.fragments.NewWorkoutFragment;
+import com.joshrap.liteweight.fragments.ReceivedWorkoutsFragment;
 
 import javax.inject.Singleton;
 
@@ -50,4 +51,6 @@ public interface LiteWeightComponent {
     void inject(AppSettingsFragment appSettingsFragment);
 
     void inject(BlockedListFragment blockedListFragment);
+
+    void inject(ReceivedWorkoutsFragment receivedWorkoutsFragment);
 }

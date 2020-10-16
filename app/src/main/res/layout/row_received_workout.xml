@@ -2,68 +2,63 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bottom_border_selectable">
+        android:layout_height="100dp"
+        android:background="@drawable/bottom_border_selectable"
+        android:clickable="true"
+        android:focusable="true">
 
-    <LinearLayout
-            android:id="@+id/workout_info_layout"
+    <TextView
+            android:id="@+id/workout_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:textSize="20sp"
+            tools:text="Client Workout" />
 
-        <TextView
-                android:id="@+id/workout_name_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                tools:text="Client Workout" />
-
-        <TextView
-                android:id="@+id/sender_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                tools:text="Sent by: Josh" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                tools:text="Received: April 21, 2020" />
-
-        <TextView
-                android:id="@+id/unseen_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(NEW)"
-                android:textSize="20sp"
-                tools:text="(New)" />
-
-    </LinearLayout>
-
-    <RelativeLayout
+    <TextView
+            android:id="@+id/date_sent_tv"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_toEndOf="@+id/workout_info_layout"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:textSize="16sp"
+            tools:text="Sent 10/16/2020" />
 
-        <Button
-                android:id="@+id/accept_request_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/decline_request_btn"
-                android:text="ACCEPT"
-                app:backgroundTint="@android:color/holo_green_light" />
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:text="Click for more details..."
+            android:textSize="14sp" />
 
-        <Button
-                android:id="@+id/decline_request_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:text="DECLINE"
-                app:backgroundTint="@android:color/holo_red_light" />
-    </RelativeLayout>
+    <TextView
+            android:id="@+id/sender_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/workout_name_tv"
+            android:textSize="16sp"
+            tools:text="Sent by: Josh" />
+
+    <Button
+            android:id="@+id/accept_request_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/decline_request_btn"
+            android:text="Accept" />
+
+    <Button
+            android:id="@+id/decline_request_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
+            android:text="Decline"
+            app:backgroundTint="@android:color/holo_red_light" />
 </RelativeLayout>

@@ -1,15 +1,19 @@
 package com.joshrap.liteweight.network.repos;
 
 import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
+import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -27,6 +31,8 @@ public class WorkoutRepository {
     private static final String editWorkoutAction = "editWorkout";
     private static final String syncWorkoutAction = "syncWorkout";
     private static final String restartWorkoutAction = "restartWorkout";
+    private static final String getReceivedWorkoutsAction = "getReceivedWorkouts";
+    private static final String sendWorkoutAction = "sendWorkout";
 
     private ApiGateway apiGateway;
 
@@ -244,6 +250,58 @@ public class WorkoutRepository {
             resultStatus.setErrorMessage("Network error. Unable to restart workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to restart workout. 3");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> sendWorkout(String recipientUsername, String workoutId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(User.USERNAME, recipientUsername);
+        requestBody.put(Workout.WORKOUT_ID, workoutId);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(sendWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData((String) JsonParser.deserialize(apiResponse.getData()).get(SentWorkout.SENT_WORKOUT_ID));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to send workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to send workout. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to send workout. 3");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<List<ReceivedWorkoutMeta>> getReceivedWorkouts(final int batchNumber) {
+        ResultStatus<List<ReceivedWorkoutMeta>> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(RequestFields.BATCH_NUMBER, batchNumber);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getReceivedWorkoutsAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                Map<String, Object> receivedWorkoutsResponseRaw = JsonParser.deserialize(apiResponse.getData());
+                List<ReceivedWorkoutMeta> receivedWorkoutMetas = new ArrayList<>();
+                for (String workoutId : receivedWorkoutsResponseRaw.keySet()) {
+                    receivedWorkoutMetas.add(new ReceivedWorkoutMeta((Map<String, Object>) receivedWorkoutsResponseRaw.get(workoutId)));
+                }
+                resultStatus.setData(receivedWorkoutMetas);
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to receive workouts. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to receive workouts. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to receive workouts. 3");
         }
         return resultStatus;
     }
