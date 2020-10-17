@@ -16,11 +16,11 @@ public class SentWeek implements Iterable<Integer>, Model {
 
     private Map<Integer, SentDay> days;
 
-    SentWeek() {
+    public SentWeek() {
         this.days = new HashMap<>();
     }
 
-    SentWeek(Map<String, Object> daysForWeek) {
+    public SentWeek(Map<String, Object> daysForWeek) {
         this.days = new HashMap<>();
         for (String day : daysForWeek.keySet()) {
             SentDay sentDay = new SentDay((Map<String, Object>) daysForWeek.get(day));
@@ -28,11 +28,11 @@ public class SentWeek implements Iterable<Integer>, Model {
         }
     }
 
-    int getNumberOfDays() {
+    public int getNumberOfDays() {
         return this.days.size();
     }
 
-    SentDay getDay(int day) {
+    public SentDay getDay(int day) {
         return this.days.get(day);
     }
 

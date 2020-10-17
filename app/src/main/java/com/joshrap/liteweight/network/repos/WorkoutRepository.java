@@ -33,6 +33,7 @@ public class WorkoutRepository {
     private static final String restartWorkoutAction = "restartWorkout";
     private static final String getReceivedWorkoutsAction = "getReceivedWorkouts";
     private static final String sendWorkoutAction = "sendWorkout";
+    private static final String getReceivedWorkoutAction = "getSentWorkout";
 
     private ApiGateway apiGateway;
 
@@ -302,6 +303,29 @@ public class WorkoutRepository {
             resultStatus.setErrorMessage("Network error. Unable to receive workouts. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to receive workouts. 3");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<SentWorkout> getReceivedWorkout(final String sentWorkoutId) {
+        ResultStatus<SentWorkout> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getReceivedWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new SentWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to receive workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to receive workouts. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to receive workout. 3");
         }
         return resultStatus;
     }

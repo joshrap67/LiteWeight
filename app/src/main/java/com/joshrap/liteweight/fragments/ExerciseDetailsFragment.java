@@ -80,7 +80,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
-        }
+        } // todo error if none
         user = Globals.user;
         metricUnits = user.getUserPreferences().isMetricUnits();
         exerciseNames = new ArrayList<>();

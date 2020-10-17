@@ -54,6 +54,7 @@ public class Variables {
             RECEIVED_WORKOUTS_TITLE = "Received Workouts",
             FRIENDS_LIST_TITLE = "Friends List",
             BLOCKED_LIST_TITLE = "Blocked List",
+            RECEIVED_WORKOUT_TITLE = "Received Workout",
             SETTINGS_TITLE = "Settings",
             EXERCISE_DETAILS_TITLE = "Exercise Details",
             EDIT_WORKOUT_TITLE = "Edit Workout",

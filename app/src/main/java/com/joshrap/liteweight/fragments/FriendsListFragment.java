@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +48,7 @@ import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -55,7 +58,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -82,6 +87,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     ProgressDialog loadingDialog;
     @Inject
     UserRepository userRepository;
+    @Inject
+    WorkoutRepository workoutRepository;
 
 
     @Nullable
@@ -493,6 +500,81 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         });
     }
 
+    private void promptSend(String friendUsername) {
+        /*
+            Prompt user to send workout to a friend or any other user
+         */
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
+        final RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
+        List<String> workoutNames = new ArrayList<>();
+        Map<String, String> workoutNameToId = new HashMap<>();
+        for (String workoutId : user.getUserWorkouts().keySet()) {
+            workoutNameToId.put(user.getUserWorkouts().get(workoutId).getWorkoutName(), workoutId);
+            workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+        }
+        int id = 0;
+        for (String workoutName : workoutNames) {
+            RadioButton radioButton = new RadioButton(getContext());
+            radioButton.setId(id);
+            radioButton.setTextColor(getResources().getColor(R.color.defaultTextColor)); // hate this but don't know another way
+            radioButton.setText(workoutName);
+            radioButton.setTextSize(16);
+            workoutsRadioGroup.addView(radioButton);
+            id++;
+        }
+        if (workoutNames.isEmpty()) {
+            // user has no workouts to send
+            TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
+            workoutTV.setText("You have no workouts to send.");
+            workoutsRadioGroup.setVisibility(View.GONE);
+        }
+        Collections.sort(workoutNames, String::compareToIgnoreCase);
+
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(String.format("Send a workout to \"%s\"", friendUsername))
+                .setView(popupView)
+                .setPositiveButton("Send", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            final Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (workoutNames.isEmpty()) {
+                sendButton.setVisibility(View.GONE);
+            }
+            sendButton.setOnClickListener(view -> {
+                int selectedId = workoutsRadioGroup.getCheckedRadioButtonId();
+                if (selectedId == -1) {
+                    // no workout is selected
+                    Toast.makeText(getContext(), "Please select a workout to send.", Toast.LENGTH_LONG).show();
+                } else {
+                    RadioButton radioButtonSelected = popupView.findViewById(selectedId);
+                    sendWorkout(friendUsername, workoutNameToId.get(radioButtonSelected.getText().toString()));
+                    alertDialog.dismiss();
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void sendWorkout(final String recipientUsername, String workoutId) {
+        showLoadingDialog("Sending...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
+                    user.setWorkoutsSent(user.getWorkoutsSent() + 1);
+
+                } else {
+                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
     private void cancelFriendRequest(String username) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -616,11 +698,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         public FriendsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-
-            // Inflate the custom layout
             View friendView = inflater.inflate(R.layout.row_friend, parent, false);
-
-            // Return a new holder instance
             return new FriendsAdapter.ViewHolder(friendView);
         }
 
@@ -650,6 +728,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 final TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
                 final TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
                 sendWorkout.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                sendWorkout.setOnClickListener(view -> {
+                    bottomSheetDialog.dismiss();
+                    promptSend(friend.getUsername());
+                });
                 removeFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 removeFriend.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();

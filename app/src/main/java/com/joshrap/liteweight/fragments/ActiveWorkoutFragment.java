@@ -41,6 +41,7 @@ import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
@@ -305,7 +306,7 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
                     currentWeekIndex = 0;
                     updateRoutineListUI();
                 } else {
-                    showErrorMessage(resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Restart Errror", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -314,15 +315,6 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
     private void showLoadingDialog() {
         loadingDialog.setMessage("Saving...");
         loadingDialog.show();
-    }
-
-    private void showErrorMessage(String message) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Save workout error")
-                .setMessage(message)
-                .setPositiveButton("Ok", null)
-                .create();
-        alertDialog.show();
     }
 
     private void jumpDaysPopup() {

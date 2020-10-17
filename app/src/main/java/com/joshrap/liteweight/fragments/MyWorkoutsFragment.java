@@ -170,14 +170,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     if (user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
                         promptSend();
                     } else {
-                        showErrorMessage("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!");
+                        ErrorDialog.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!", getContext());
                     }
                     break;
                 case copyIndex:
                     if (user.getUserWorkouts().size() < Variables.MAX_NUMBER_OF_WORKOUTS) {
                         promptCopy();
                     } else {
-                        showErrorMessage("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout");
+                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout", getContext());
                     }
                     return true;
             }
@@ -445,7 +445,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
                     updateUI();
                 } else {
-                    showErrorMessage("Rename Workout Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Rename Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -468,7 +468,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
                     updateUI();
                 } else {
-                    showErrorMessage("Copy Workout Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -487,7 +487,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     user.setWorkoutsSent(user.getWorkoutsSent() + 1);
 
                 } else {
-                    showErrorMessage("Copy Workout Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -514,7 +514,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                         updateUI();
                     }
                 } else {
-                    showErrorMessage("Delete Workout Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Delete Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -534,7 +534,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     Globals.user = user;
                     updateUI();
                 } else {
-                    showErrorMessage("Reset Workout Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Reset Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -544,15 +544,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void showLoadingDialog() {
         loadingDialog.setMessage("Loading...");
         loadingDialog.show();
-    }
-
-    private void showErrorMessage(String title, String message) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Ok", null)
-                .create();
-        alertDialog.show();
     }
 
     private void resetFragment() {

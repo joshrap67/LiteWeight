@@ -7,6 +7,7 @@ import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
 import com.joshrap.liteweight.fragments.ActiveWorkoutFragment;
 import com.joshrap.liteweight.fragments.AppSettingsFragment;
 import com.joshrap.liteweight.fragments.BlockedListFragment;
+import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
 import com.joshrap.liteweight.fragments.EditWorkoutFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
 import com.joshrap.liteweight.fragments.FriendsListFragment;
@@ -53,4 +54,6 @@ public interface LiteWeightComponent {
     void inject(BlockedListFragment blockedListFragment);
 
     void inject(ReceivedWorkoutsFragment receivedWorkoutsFragment);
+
+    void inject(BrowseReceivedWorkoutFragment browseReceivedWorkoutFragment);
 }

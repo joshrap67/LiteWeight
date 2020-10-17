@@ -14,15 +14,15 @@ import lombok.Data;
 
 @Data
 @SuppressLint("UseSparseArrays")
-class SentRoutine implements Model, Iterable<Integer> {
+public class SentRoutine implements Model, Iterable<Integer> {
 
     private Map<Integer, SentWeek> weeks;
 
-    SentRoutine() {
+    public SentRoutine() {
         this.weeks = new HashMap<>();
     }
 
-    SentRoutine(Map<String, Object> json) {
+    public SentRoutine(Map<String, Object> json) {
         if (json == null) {
             this.weeks = null;
         } else {
@@ -42,11 +42,11 @@ class SentRoutine implements Model, Iterable<Integer> {
         return exerciseList;
     }
 
-    SentWeek getWeek(int week) {
+    public SentWeek getWeek(int week) {
         return this.weeks.get(week);
     }
 
-    SentDay getDay(int week, int day) {
+    public SentDay getDay(int week, int day) {
         return this.weeks.get(week).getDay(day);
     }
 

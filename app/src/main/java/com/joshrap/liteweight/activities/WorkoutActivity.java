@@ -55,6 +55,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.FriendRequest;
+import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -427,6 +428,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            // todo move this instead to all the fragments that actually handle notifications
             String action = intent.getAction();
             if (action == null) {
                 return;
@@ -646,6 +648,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.ACCOUNT_PREFS_TITLE:
                 goToAccountPreferences();
+                break;
+            case Variables.RECEIVED_WORKOUTS_TITLE:
+                goToReceivedWorkouts();
                 break;
             default:
                 /*
@@ -936,6 +941,22 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new ReceivedWorkoutsFragment(), Variables.RECEIVED_WORKOUTS_TITLE)
+                .commit();
+    }
+
+    public void goToBrowseReceivedWorkout(String workoutId, String workoutName) {
+        fragmentStack.remove(Variables.RECEIVED_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
+
+        Bundle arguments = new Bundle();
+        arguments.putString(SentWorkout.SENT_WORKOUT_ID, workoutId);
+        arguments.putString(SentWorkout.WORKOUT_NAME, workoutName);
+        Fragment fragment = new BrowseReceivedWorkoutFragment();
+        fragment.setArguments(arguments);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }
 
