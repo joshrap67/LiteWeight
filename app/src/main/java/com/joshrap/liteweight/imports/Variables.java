@@ -1,12 +1,16 @@
 package com.joshrap.liteweight.imports;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Variables {
     /*
         Contains read only static variables
      */
     public static final int
             MAX_NUMBER_OF_WORKOUTS = 40,
-            MAX_NUMBER_OF_CUSTOM_EXERCISES = 200,
+            MAX_NUMBER_OF_FREE_EXERCISES = 100,
             WORKOUT_MAX_NUMBER_OF_DAYS = 7,
             MAX_NUMBER_OF_WEEKS = 10,
             MAX_WORKOUT_NAME = 40,
@@ -28,6 +32,20 @@ public class Variables {
             ADD_MODE = 0,
             DELETE_MODE = 1,
             COPY_MODE = 2;
+
+    public static final List<String> FOCUS_LIST = Arrays.asList(
+            "Back",
+            "Biceps",
+            "Cardio",
+            "Chest",
+            "Core",
+            "Forearms",
+            "Legs",
+            "Shoulders",
+            "Strength Training",
+            "Triceps"
+    );
+
 
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 

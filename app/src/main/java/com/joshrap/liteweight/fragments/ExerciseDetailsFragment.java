@@ -119,9 +119,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             }
         });
         ImageButton deleteExercise = view.findViewById(R.id.delete_exercise);
-        if (originalExercise.isDefaultExercise()) {
-            deleteExercise.setVisibility(View.GONE);
-        }
         deleteExercise.setOnClickListener(v -> promptDelete());
 
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
@@ -280,14 +277,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             workoutListTv.setText(workouts.toString());
         }
 
-        if (originalExercise.isDefaultExercise()) {
-            exerciseNameLayout.setVisibility(View.GONE);
-        }
-
-        TextView defaultExerciseTv = view.findViewById(R.id.default_exercise_tv);
-        defaultExerciseTv.setText(originalExercise.getExerciseName());
-        defaultExerciseTv.setVisibility(originalExercise.isDefaultExercise() ? View.VISIBLE : View.GONE);
-
         TextView focusesTv = view.findViewById(R.id.focuses);
         StringBuilder focuses = new StringBuilder();
         int count = 0;
@@ -347,8 +336,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         String urlError = null;
 
 
-        if (!originalExercise.isDefaultExercise() &&
-                !exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
+        if (!exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
             // make sure that if the user doesn't change the name that they can still update other fields
             renameError = InputHelper.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(renameError);
@@ -374,13 +362,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (renameError == null && weightError == null && setsError == null &&
                 repsError == null && detailsError == null && urlError == null) {
             OwnedExercise updatedExercise = OwnedExercise.getExerciseForUpdate(originalExercise);
-            if (!updatedExercise.isDefaultExercise()) {
-                updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
-            }
             double weight = Double.parseDouble(weightInput.getText().toString().trim());
             if (metricUnits) {
                 weight = WeightHelper.metricWeightToImperial(weight);
             }
+
+            updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
             updatedExercise.setDefaultWeight(weight);
             updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
             updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
@@ -446,7 +433,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 if (resultStatus.isSuccess()) {
                     // deleted successfully, so delete everything
                     user.getUserExercises().remove(exerciseId);
-                    WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
+                    if (Globals.activeWorkout != null) {
+                        WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
+                    }
                     ((WorkoutActivity) getActivity()).closeExerciseDetails();
 
                 } else {

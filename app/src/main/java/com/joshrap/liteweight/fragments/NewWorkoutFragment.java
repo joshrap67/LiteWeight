@@ -829,13 +829,18 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
         final Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
         allUserExercises = new HashMap<>();
-        ArrayList<String> focusList = new ArrayList<>();
+        List<String> focusList = Variables.FOCUS_LIST;
+        for (String focus : focusList) {
+            // init the map of a specific focus to the list of exercises it contains
+            allUserExercises.put(focus, new ArrayList<>());
+        }
+
         for (String exerciseId : activeUser.getUserExercises().keySet()) {
             OwnedExercise ownedExercise = activeUser.getUserExercises().get(exerciseId);
-            List<String> focuses = ownedExercise.getFocuses();
-            for (String focus : focuses) {
+            List<String> focusesOfExercise = ownedExercise.getFocuses();
+            for (String focus : focusesOfExercise) {
                 if (!allUserExercises.containsKey(focus)) {
-                    // focus hasn't been added before
+                    // focus somehow hasn't been added before
                     focusList.add(focus);
                     allUserExercises.put(focus, new ArrayList<>());
                 }

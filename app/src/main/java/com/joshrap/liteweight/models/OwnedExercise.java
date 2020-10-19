@@ -19,7 +19,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
 
     public static final String EXERCISE_NAME = "exerciseName";
     public static final String FOCUSES = "focuses";
-    public static final String DEFAULT_EXERCISE = "defaultExercise";
     public static final String DEFAULT_WEIGHT = "defaultWeight";
     public static final String DEFAULT_SETS = "defaultSets";
     public static final String DEFAULT_REPS = "defaultReps";
@@ -27,7 +26,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
     public static final String VIDEO_URL = "videoUrl";
 
     private String exerciseName;
-    private boolean defaultExercise;
     private double defaultWeight; // stored in lbs
     private int defaultSets;
     private int defaultReps;
@@ -42,7 +40,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
 
     public OwnedExercise(Map<String, Object> json, String exerciseId) {
         this.exerciseName = (String) json.get(EXERCISE_NAME);
-        this.defaultExercise = (boolean) json.get(DEFAULT_EXERCISE);
         this.defaultWeight = (double) json.get(DEFAULT_WEIGHT);
         this.defaultSets = (int) json.get(DEFAULT_SETS);
         this.exerciseId = exerciseId;
@@ -58,7 +55,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
         Map<String, Object> exerciseJson = (Map<String, Object>) json.get(RequestFields.EXERCISE);
 
         this.exerciseName = (String) exerciseJson.get(EXERCISE_NAME);
-        this.defaultExercise = (boolean) exerciseJson.get(DEFAULT_EXERCISE);
         this.defaultWeight = (double) exerciseJson.get(DEFAULT_WEIGHT);
         this.defaultSets = (int) exerciseJson.get(DEFAULT_SETS);
         this.defaultReps = (int) exerciseJson.get(DEFAULT_REPS);
@@ -70,11 +66,12 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
 
     public static OwnedExercise getExerciseForUpdate(OwnedExercise toBeCopied) {
         /*
-            Used when updating an exercise to the backend
+            Used when updating an exercise to the backend. Persists data that can't be changed by
+            editing an exercise (such as workouts and focuses). Fragment's responsibility is updating
+            the fields that have changed from an edit.
          */
         OwnedExercise ownedExercise = new OwnedExercise();
         ownedExercise.exerciseName = toBeCopied.getExerciseName();
-        ownedExercise.defaultExercise = toBeCopied.isDefaultExercise();
         ownedExercise.defaultWeight = toBeCopied.getDefaultWeight();
         ownedExercise.defaultSets = toBeCopied.getDefaultSets();
         ownedExercise.defaultReps = toBeCopied.getDefaultReps();
@@ -101,7 +98,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
         retVal.put(EXERCISE_NAME, this.exerciseName);
-        retVal.put(DEFAULT_EXERCISE, this.defaultExercise);
         retVal.put(DEFAULT_WEIGHT, this.defaultWeight);
         retVal.put(DEFAULT_REPS, this.defaultReps);
         retVal.put(DEFAULT_SETS, this.defaultSets);

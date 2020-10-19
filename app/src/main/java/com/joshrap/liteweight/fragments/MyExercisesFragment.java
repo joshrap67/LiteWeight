@@ -25,8 +25,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import androidx.appcompat.widget.SwitchCompat;
-
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
@@ -44,6 +42,7 @@ import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,12 +60,11 @@ import static android.os.Looper.getMainLooper;
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
 
     private View view;
-    private boolean filterDefault;
-    private int customExerciseCount = 0;
     private String selectedFocus;
-    private ArrayList<String> focusList;
+    private User user;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private AlertDialog alertDialog;
+    private List<String> focusList;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -78,21 +76,21 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
-        focusList = new ArrayList<>(); // todo hard code this list in config?
+        focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
-        User user = Globals.user;
+        user = Globals.user;
+        for (String focus : focusList) {
+            // init the map of a specific focus to the list of exercises it contains
+            totalExercises.put(focus, new ArrayList<>());
+        }
 
         // todo add search bar for exercise?
         for (String exerciseId : user.getUserExercises().keySet()) {
             OwnedExercise ownedExercise = user.getUserExercises().get(exerciseId);
-            List<String> focusesForExercise = new ArrayList<>(ownedExercise.getFocuses());
-            if (!ownedExercise.isDefaultExercise()) {
-                // do the count here to avoid double counting if the exercise is in more than one focus
-                customExerciseCount++;
-            }
-            for (String focus : focusesForExercise) {
+            List<String> focusesOfExercise = new ArrayList<>(ownedExercise.getFocuses());
+            for (String focus : focusesOfExercise) {
                 if (!focusList.contains(focus)) {
-                    // found a new focus, so init the hash map with it
+                    // somehow found a new focus, so init the hash map with it (this should never happen but just in case)
                     focusList.add(focus);
                     totalExercises.put(focus, new ArrayList<>());
                 }
@@ -107,22 +105,14 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        filterDefault = false; // TODO get from view model
-        SwitchCompat filterSwitch = view.findViewById(R.id.filter_switch);
-        filterSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // allow for custom exercises to be filtered
-            filterDefault = isChecked;
-            populateFocusListView();
-        });
-
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_btn);
         createBtn.setOnClickListener(v -> {
-            if (!(customExerciseCount > Variables.MAX_NUMBER_OF_CUSTOM_EXERCISES)) {
+            if (!(user.getUserExercises().size() > Variables.MAX_NUMBER_OF_FREE_EXERCISES)) {
                 newExercisePopup();
             } else {
                 // TODO premium check
-                Toast.makeText(getContext(), "You already have the max number (" + Variables.MAX_NUMBER_OF_CUSTOM_EXERCISES +
-                        ") of custom exercises allowed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES +
+                        ") of exercises allowed!", Toast.LENGTH_SHORT).show();
             }
         });
         Collections.sort(focusList);
@@ -179,19 +169,11 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             Populates the exercise list view based on the selected focus
          */
         final ListView listView = view.findViewById(R.id.exercise_list);
-        ArrayList<OwnedExercise> exercisesForSelectedFocus = new ArrayList<>();
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }
-        if (!filterDefault) {
-            exercisesForSelectedFocus.addAll(totalExercises.get(selectedFocus));
-        } else {
-            for (OwnedExercise ownedExercise : totalExercises.get(selectedFocus)) {
-                if (!ownedExercise.isDefaultExercise()) {
-                    exercisesForSelectedFocus.add(ownedExercise);
-                }
-            }
-        }
+        ArrayList<OwnedExercise> exercisesForSelectedFocus = new ArrayList<>(totalExercises.get(selectedFocus));
+
         Collections.sort(exercisesForSelectedFocus);
         ExerciseAdapter exerciseAdapter = new ExerciseAdapter(getContext(), exercisesForSelectedFocus);
         listView.setAdapter(exerciseAdapter);
@@ -266,7 +248,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                                 Globals.user.getUserExercises().put(ownedExercise.getExerciseId(), ownedExercise);
                                 ((WorkoutActivity) getActivity()).goToExerciseDetails(ownedExercise.getExerciseId());
                             } else {
-                                showErrorMessage("Exercise Add Error", resultStatus.getErrorMessage());
+                                ErrorDialog.showErrorDialog("Exercise Add Error", resultStatus.getErrorMessage(), getContext());
                             }
                         });
                     });
@@ -277,15 +259,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                 }
             });
         });
-        alertDialog.show();
-    }
-
-    private void showErrorMessage(String title, String message) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Ok", null)
-                .create();
         alertDialog.show();
     }
 
