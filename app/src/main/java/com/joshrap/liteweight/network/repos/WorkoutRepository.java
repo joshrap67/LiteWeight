@@ -34,6 +34,8 @@ public class WorkoutRepository {
     private static final String getReceivedWorkoutsAction = "getReceivedWorkouts";
     private static final String sendWorkoutAction = "sendWorkout";
     private static final String getReceivedWorkoutAction = "getSentWorkout";
+    private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
+    private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
 
     private ApiGateway apiGateway;
 
@@ -328,5 +330,18 @@ public class WorkoutRepository {
             resultStatus.setErrorMessage("Unable to receive workout. 3");
         }
         return resultStatus;
+    }
+
+    public void setReceivedWorkoutSeen(String sentWorkoutId) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        // todo maybe this shouldn't be a blind send?
+        this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
+    }
+
+    public void setAllReceivedWorkoutsSeen() {
+        Map<String, Object> requestBody = new HashMap<>();
+        // todo maybe this shouldn't be a blind send?
+        this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
     }
 }

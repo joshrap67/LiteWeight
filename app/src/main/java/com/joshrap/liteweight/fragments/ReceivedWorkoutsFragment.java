@@ -88,6 +88,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         emptyView.setVisibility(View.GONE);
         markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_read_btn);
         markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
+        markAllReceivedWorkoutsSeen.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
 
         getReceivedWorkouts();
         return view;
@@ -204,7 +205,42 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
+    private void setReceivedWorkoutSeen(String workoutId) {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // blind send for marking a workout read
+            this.workoutRepository.setReceivedWorkoutSeen(workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                int unseenCount = user.getUnseenReceivedWorkouts();
+                unseenCount--;
+                if (unseenCount <= 0) {
+                    markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
+                }
+                user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+            });
+        });
+    }
+
+    private void setAllReceivedWorkoutsSeen() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // blind send for marking all workout read
+            this.workoutRepository.setAllReceivedWorkoutsSeen();
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
+                user.setUnseenReceivedWorkouts(0);
+                for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
+                    receivedWorkoutMeta.setSeen(true);
+                }
+                displayReceivedWorkouts(); // to remove any unseen indicators
+            });
+        });
+    }
+
     private void showLoadingDialog(String message) {
+        // todo make this a static method
         loadingDialog.setMessage(message);
         loadingDialog.show();
     }
@@ -292,6 +328,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             workoutNameTV.setText(receivedWorkout.getWorkoutName());
             final RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
+                if (!receivedWorkout.isSeen()) {
+                    // when user clicks on the workout, mark it as seen
+                    setReceivedWorkoutSeen(receivedWorkout.getWorkoutId());
+                    receivedWorkout.setSeen(true);
+                    dateSentTv.setTypeface(null, Typeface.NORMAL);
+                    dateSentTv.setPaintFlags(0);
+                }
+
                 bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_received_workout, null);
                 final TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
