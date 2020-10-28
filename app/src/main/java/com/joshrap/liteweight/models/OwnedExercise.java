@@ -110,7 +110,7 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
 
     @Override
     public int compareTo(OwnedExercise o) {
-        return this.getExerciseName().compareTo(o.getExerciseName());
+        return this.getExerciseName().toLowerCase().compareTo(o.getExerciseName().toLowerCase());
     }
 }
 

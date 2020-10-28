@@ -44,16 +44,16 @@
             tools:text="Sent by: Josh" />
 
     <Button
-            android:id="@+id/accept_request_btn"
+            android:id="@+id/accept_workout_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@id/decline_request_btn"
+            android:layout_toStartOf="@id/decline_workout_btn"
             android:text="Accept" />
 
     <Button
-            android:id="@+id/decline_request_btn"
+            android:id="@+id/decline_workout_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

@@ -252,7 +252,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                             }
                         });
                     });
-                    Toast.makeText(getContext(), "Exercise successfully created!", Toast.LENGTH_SHORT).show();
                 } else {
                     // there was an error with the name
                     nameLayout.setError(nameError);

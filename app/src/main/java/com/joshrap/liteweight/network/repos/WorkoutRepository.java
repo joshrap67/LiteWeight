@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.network.repos;
 
 import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.models.AcceptWorkoutResponse;
 import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
@@ -36,6 +37,7 @@ public class WorkoutRepository {
     private static final String getReceivedWorkoutAction = "getSentWorkout";
     private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
     private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
+    private static final String acceptReceivedWorkoutAction = "acceptReceivedWorkout";
 
     private ApiGateway apiGateway;
 
@@ -343,5 +345,28 @@ public class WorkoutRepository {
         Map<String, Object> requestBody = new HashMap<>();
         // todo maybe this shouldn't be a blind send?
         this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
+    }
+
+    public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sentWorkoutId) {
+        ResultStatus<AcceptWorkoutResponse> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(acceptReceivedWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(new AcceptWorkoutResponse(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to accept workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to accept workout. Check internet connection.");
+        } else {
+            resultStatus.setErrorMessage("Unable to accept workout. 3");
+        }
+        return resultStatus;
     }
 }
