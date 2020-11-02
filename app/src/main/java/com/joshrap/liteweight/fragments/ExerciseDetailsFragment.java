@@ -436,7 +436,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     if (Globals.activeWorkout != null) {
                         WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
                     }
-                    ((WorkoutActivity) getActivity()).closeExerciseDetails();
+                    ((WorkoutActivity) getActivity()).finishFragment();
 
                 } else {
                     showErrorMessage("Delete Exercise Error", resultStatus.getErrorMessage());

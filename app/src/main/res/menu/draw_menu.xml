@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
                 android:id="@+id/nav_current_workout"
@@ -13,6 +14,12 @@
                 android:id="@+id/nav_my_exercises"
                 android:icon="@drawable/weight_icon"
                 android:title="@string/my_exercises" />
+
+        <item
+                android:id="@+id/nav_received_workouts"
+                android:icon="@drawable/email_icon"
+                app:actionLayout="@layout/menu_counter"
+                android:title="@string/received_workouts" />
     </group>
     <item android:title="@string/nav_divider_title">
         <menu>

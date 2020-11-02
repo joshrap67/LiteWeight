@@ -310,7 +310,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             // prevents useless api calls to update unseen friend requests
             if (getActivity() != null) {
                 deleteNotifications();
-                ((WorkoutActivity) getActivity()).updateNotificationIndicator();
+                ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
             }
             // marking all requests seen is not critical at all, so if it fails no need to alarm user
             Executor executor = Executors.newSingleThreadExecutor();

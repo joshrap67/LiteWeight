@@ -1,11 +1,15 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
@@ -18,15 +22,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.RoutineAdapter;
 import com.joshrap.liteweight.adapters.SentRoutineAdapter;
+import com.joshrap.liteweight.helpers.AndroidHelper;
+import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.models.AcceptWorkoutResponse;
 import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.SentRoutine;
@@ -57,17 +65,20 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private int currentWeekIndex;
     private AlertDialog alertDialog;
     private ConstraintLayout mainLayout;
+    private String receivedWorkoutId;
     @Inject
     WorkoutRepository workoutRepository;
+    @Inject
+    ProgressDialog loadingDialog;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         Injector.getInjector(getContext()).inject(this);
-        String sentWorkoutId = null;
+        receivedWorkoutId = null;
         if (this.getArguments() != null) {
-            sentWorkoutId = this.getArguments().getString(SentWorkout.SENT_WORKOUT_ID);
+            receivedWorkoutId = this.getArguments().getString(SentWorkout.SENT_WORKOUT_ID);
             workoutName = this.getArguments().getString(SentWorkout.WORKOUT_NAME);
             // todo return if these aren't here?
         }
@@ -82,9 +93,93 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dayTV = view.findViewById(R.id.day_text_view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
+        Button acceptWorkoutButton = view.findViewById(R.id.accept_workout_btn);
+        acceptWorkoutButton.setOnClickListener(view1 -> {
+            boolean workoutNameExists = false;
+            for (String workoutId : user.getUserWorkouts().keySet()) {
+                if (user.getUserWorkouts().get(workoutId).getWorkoutName().equals(workoutName)) {
+                    workoutNameExists = true;
+                    break;
+                }
+            }
+            if (workoutNameExists) {
+                workoutNameAlreadyExistsPopup(sentWorkout);
+            } else {
+                acceptWorkout(null);
+            }
+        });
+        Button declineWorkoutButton = view.findViewById(R.id.decline_workout_btn);
 
-        getReceivedWorkout(sentWorkoutId);
+        getReceivedWorkout(receivedWorkoutId);
         return view;
+    }
+
+    private void workoutNameAlreadyExistsPopup(final SentWorkout receivedWorkout) {
+        /*
+            Prompt the user if they want to rename the current workout
+         */
+        View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
+        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
+        renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("\"" + receivedWorkout.getWorkoutName() + "\" already exists")
+                .setView(popupView)
+                .setPositiveButton("Submit", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener(view -> {
+                String newName = renameInput.getText().toString().trim();
+                List<String> workoutNames = new ArrayList<>();
+                for (String workoutId : user.getUserWorkouts().keySet()) {
+                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                }
+                String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
+                if (errorMsg == null) {
+                    acceptWorkout(newName);
+                    alertDialog.dismiss();
+                } else {
+                    workoutNameInputLayout.setError(errorMsg);
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void acceptWorkout(final String optionalName) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Accepting...");
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<AcceptWorkoutResponse> resultStatus = this.workoutRepository.acceptReceivedWorkout(receivedWorkoutId, optionalName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    AcceptWorkoutResponse response = resultStatus.getData();
+                    if (user.getCurrentWorkout() == null) {
+                        // this newly accepted workout is the only workout the user now owns, so make it the current one
+                        user.setCurrentWorkout(response.getWorkoutId());
+                        Globals.activeWorkout = response.getWorkout();
+                    }
+                    user.getUserWorkouts().put(response.getWorkoutId(), response.getWorkoutMeta());
+                    user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
+                    user.addNewExercises(response.getExercises());
+                    if (!user.getReceivedWorkouts().get(receivedWorkoutId).isSeen()) {
+                        // this workout was not seen, so make sure to decrease the unseen count since it is no longer in the list
+                        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+                    }
+                    user.getReceivedWorkouts().remove(receivedWorkoutId);
+                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    ((WorkoutActivity) getActivity()).finishFragment();
+                } else {
+                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
     }
 
     private void getReceivedWorkout(String sentWorkoutId) {
@@ -111,7 +206,6 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             });
         });
     }
-
 
     private void setupButtons() {
         /*

@@ -26,6 +26,7 @@ public class User implements Model {
     public static final String USER_PREFERENCES = "preferences";
     public static final String BLOCKED = "blocked";
     public static final String UNSEEN_RECEIVED_WORKOUTS = "unseenReceivedWorkouts";
+    public static final String TOTAL_RECEIVED_WORKOUTS = "totalReceivedWorkouts";
 
     private String username;
     private String icon;
@@ -34,6 +35,7 @@ public class User implements Model {
     private int workoutsSent;
     private UserPreferences userPreferences;
     private int unseenReceivedWorkouts;
+    private int totalReceivedWorkouts;
 
     @Setter(AccessLevel.NONE)
     private Map<String, String> blocked;
@@ -45,6 +47,8 @@ public class User implements Model {
     private Map<String, Friend> friends;
     @Setter(AccessLevel.NONE)
     private Map<String, FriendRequest> friendRequests;
+    @Setter(AccessLevel.NONE)
+    private Map<String, ReceivedWorkoutMeta> receivedWorkouts;
 
 
     public User(Map<String, Object> json) {
@@ -60,6 +64,16 @@ public class User implements Model {
         this.setFriendRequests((Map<String, Object>) json.get(FRIENDS_REQUESTS));
         this.setBlocked((Map<String, Object>) json.get(BLOCKED));
         this.setUnseenReceivedWorkouts((Integer) json.get(UNSEEN_RECEIVED_WORKOUTS));
+        this.setReceivedWorkouts((Map<String, Object>) json.get(RECEIVED_WORKOUTS));
+        this.setTotalReceivedWorkouts((Integer) json.get(TOTAL_RECEIVED_WORKOUTS));
+    }
+
+    public void addNewExercises(Map<String, OwnedExercise> exercises) {
+        for (String exerciseId : exercises.keySet()) {
+            if (!this.userExercises.containsKey(exerciseId)) {
+                this.userExercises.put(exerciseId, exercises.get(exerciseId));
+            }
+        }
     }
 
     // Setters
@@ -82,6 +96,18 @@ public class User implements Model {
             this.blocked = new HashMap<>();
             for (String username : json.keySet()) {
                 this.blocked.put(username, (String) json.get(username));
+            }
+        }
+    }
+
+    public void setReceivedWorkouts(Map<String, Object> json) {
+        if (json == null) {
+            this.receivedWorkouts = null;
+        } else {
+            this.receivedWorkouts = new HashMap<>();
+            for (String workoutId : json.keySet()) {
+                this.receivedWorkouts.put(workoutId, new ReceivedWorkoutMeta(
+                        (Map<String, Object>) json.get(workoutId), workoutId));
             }
         }
     }

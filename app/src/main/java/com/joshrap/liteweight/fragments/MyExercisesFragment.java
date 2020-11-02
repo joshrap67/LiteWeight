@@ -59,6 +59,7 @@ import static android.os.Looper.getMainLooper;
 
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
 
+    private static final String SELECTED_FOCUS_KEY = "selectedFocus";
     private View view;
     private String selectedFocus;
     private User user;
@@ -83,6 +84,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             // init the map of a specific focus to the list of exercises it contains
             totalExercises.put(focus, new ArrayList<>());
         }
+
 
         // todo add search bar for exercise?
         for (String exerciseId : user.getUserExercises().keySet()) {
@@ -116,8 +118,18 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             }
         });
         Collections.sort(focusList);
-        selectedFocus = focusList.get(0); // initially select first focus (todo get from view model)
+        if (savedInstanceState != null) {
+            selectedFocus = savedInstanceState.getString(SELECTED_FOCUS_KEY);
+        } else {
+            selectedFocus = focusList.get(0); // initially select first focus if this is first time using this fragment
+        }
         populateFocusListView();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SELECTED_FOCUS_KEY, selectedFocus);
     }
 
     @Override

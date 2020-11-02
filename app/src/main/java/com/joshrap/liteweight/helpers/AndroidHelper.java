@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.helpers;
 
+import android.app.ProgressDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 
@@ -26,5 +27,10 @@ public class AndroidHelper {
             public void afterTextChanged(Editable s) {
             }
         };
+    }
+
+    public static void showLoadingDialog(ProgressDialog loadingDialog, String message) {
+        loadingDialog.setMessage(message);
+        loadingDialog.show();
     }
 }

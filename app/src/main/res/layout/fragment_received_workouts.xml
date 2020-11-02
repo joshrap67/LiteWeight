@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="12dp"
@@ -25,20 +27,23 @@
             android:text="You have not yet received any workouts."
             android:textSize="24sp" />
 
-    <ProgressBar
-            android:id="@+id/loading_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
-            android:layout_below="@id/mark_all_read_btn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@id/loading_icon_list"
+            android:layout_below="@id/mark_all_read_btn"
             android:layout_marginTop="8dp"
             android:scrollbars="vertical">
 
     </androidx.recyclerview.widget.RecyclerView>
+
+    <ProgressBar
+            android:id="@+id/loading_icon_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            android:visibility="invisible" />
 
 </RelativeLayout>

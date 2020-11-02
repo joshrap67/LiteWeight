@@ -55,8 +55,10 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.FriendRequest;
+import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -69,7 +71,9 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -87,6 +91,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private ArrayList<String> fragmentStack;
     private Timer timer;
     private Stopwatch stopwatch;
+    private Map<String, Fragment.SavedState> fragamentSavedStatesMap;
+    private User user;
 
     private ActiveWorkoutFragment currentWorkoutFragment; // todo don't do this
     @Inject
@@ -104,6 +110,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         super.onCreate(savedInstanceState);
         String action = null;
         String jsonData = null;
+        fragamentSavedStatesMap = new HashMap<>();
         if (getIntent().getExtras() != null) {
             action = getIntent().getAction();
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
@@ -118,6 +125,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.REMOVE_FRIEND_BROADCAST);
         receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_CLICK);
+        receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_CLICK);
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
@@ -130,6 +140,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
+        user = Globals.user; // todo instantiate this from intent from splash activity
         TextView logoutButton = findViewById(R.id.log_out_btn);
         nav.setNavigationItemSelectedListener(this);
         fragmentManager = getSupportFragmentManager();
@@ -182,7 +193,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         createNotificationChannel();
         updateEndpointToken();
-        updateNotificationIndicator();
+        updateAccountNotificationIndicator();
+        updateReceivedWorkoutNotificationIndicator();
         if (action != null && jsonData != null) {
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
@@ -194,12 +206,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             return;
         }
         // note that this is called whenever user opens notification while app was terminated. So no need to update any models
-        if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
-            Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-            extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-            goToFriendsList(extras);
-        } else if (action.equals(Variables.ACCEPTED_FRIEND_REQUEST_CLICK)) {
-            goToFriendsList(null);
+        switch (action) {
+            case Variables.NEW_FRIEND_REQUEST_CLICK:
+                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+
+                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extras);
+                break;
+            case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
+                goToFriendsList(null);
+                break;
+            case Variables.RECEIVED_WORKOUT_CLICK:
+                goToReceivedWorkouts();
+                break;
         }
     }
 
@@ -386,42 +405,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if ((action.equals(Variables.INTENT_TIMER_NOTIFICATION_CLICK)
                 || action.equals(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK))) {
             // close any popup that might be showing
+            // todo update this with new broadcast system
             closeAllOpenDialogs();
             goToCurrentWorkout();
             nav.setCheckedItem(R.id.nav_current_workout);
-        } else if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
-            FriendRequest friendRequest;
-            try {
-                // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
-                friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
-
-                Fragment visibleFragment = getVisibleFragment();
-                if (visibleFragment instanceof FriendsListFragment) {
-                    ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
-                } else {
-                    // not currently on the friends list fragment, so go there
-                    closeAllOpenDialogs();
-                    Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                    extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                    goToFriendsList(extras);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else if (action.equals(Variables.ACCEPTED_FRIEND_REQUEST_CLICK)) {
-            // called when app is in background (not terminated) and user clicks notification
-            String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-            // sanity check update, this should always be taken care of when service broadcasts
-            Globals.user.getFriends().get(usernameAccepted).setConfirmed(true);
-            Fragment visibleFragment = getVisibleFragment();
-            if (visibleFragment instanceof FriendsListFragment) {
-                ((FriendsListFragment) visibleFragment).updateFriendsList();
-            } else {
-                // not currently on the friends list fragment, so go there
-                closeAllOpenDialogs();
-                goToFriendsList(null);
-            }
         }
     }
 
@@ -434,8 +421,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 return;
             }
             switch (action) {
+                // the broadcasts should only be updating the base models (user/workout). Individual fragments handle UI changes on their own
                 case Variables.NEW_FRIEND_REQUEST_BROADCAST: {
-                    // called when user has app open in foreground
                     FriendRequest friendRequest;
                     try {
                         friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
@@ -450,7 +437,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                                 mNotificationManager.cancel(friendRequest.getUsername().hashCode());
                             }
                         }
-                        updateNotificationIndicator();
+                        updateAccountNotificationIndicator();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -459,7 +446,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 case Variables.CANCELED_FRIEND_REQUEST_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     Globals.user.getFriendRequests().remove(usernameToRemove);
-                    updateNotificationIndicator();
+                    updateAccountNotificationIndicator();
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
@@ -469,7 +456,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 case Variables.DECLINED_FRIEND_REQUEST_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     Globals.user.getFriends().remove(usernameToRemove);
-                    updateNotificationIndicator();
+                    updateAccountNotificationIndicator();
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
@@ -497,6 +484,73 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                             // user is on this page, so no need to show a push notification
                             mNotificationManager.cancel(usernameAccepted.hashCode());
                         }
+                    }
+                    break;
+                }
+                case Variables.RECEIVED_WORKOUT_BROADCAST: {
+                    try {
+                        ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        Map<String, ReceivedWorkoutMeta> receivedWorkouts = user.getReceivedWorkouts();
+
+                        boolean updateTotal = receivedWorkouts.get(receivedWorkoutMeta.getWorkoutId()) == null; // workout wasn't here, so total needs to be increased
+                        receivedWorkouts.put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
+                        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
+                        updateReceivedWorkoutNotificationIndicator();
+                        if (updateTotal) {
+                            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
+                        }
+
+                        // send broadcast to any fragments waiting on this model update
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
+                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                        localBroadcastManager.sendBroadcast(broadcastIntent);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+                // responsible for navigation when app is in foreground
+                case Variables.RECEIVED_WORKOUT_CLICK: {
+                    closeAllOpenDialogs();
+                    nav.setCheckedItem(R.id.nav_received_workouts);
+                    goToReceivedWorkouts();
+                    break;
+                }
+                case Variables.ACCEPTED_FRIEND_REQUEST_CLICK: {
+                    String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
+                    // sanity check update, this should always be taken care of when service broadcasts
+                    user.getFriends().get(usernameAccepted).setConfirmed(true);
+                    Fragment visibleFragment = getVisibleFragment();
+                    if (visibleFragment instanceof FriendsListFragment) {
+                        ((FriendsListFragment) visibleFragment).updateFriendsList();
+                    } else {
+                        // not currently on the friends list fragment, so go there
+                        closeAllOpenDialogs();
+                        goToFriendsList(null);
+                    }
+                    break;
+                }
+                case Variables.NEW_FRIEND_REQUEST_CLICK: {
+                    FriendRequest friendRequest;
+                    try {
+                        // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
+                        friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
+
+                        Fragment visibleFragment = getVisibleFragment();
+                        if (visibleFragment instanceof FriendsListFragment) {
+                            ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
+                        } else {
+                            // not currently on the friends list fragment, so go there
+                            closeAllOpenDialogs();
+                            Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                            extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                            goToFriendsList(extras);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                     break;
                 }
@@ -556,6 +610,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             case R.id.nav_my_exercises:
                 if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
                     goToMyExercises();
+                }
+                break;
+
+            case R.id.nav_received_workouts:
+                if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
+                    goToReceivedWorkouts();
                 }
                 break;
 
@@ -651,6 +711,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.RECEIVED_WORKOUTS_TITLE:
                 goToReceivedWorkouts();
+                nav.setCheckedItem(R.id.nav_received_workouts);
                 break;
             default:
                 /*
@@ -785,39 +846,48 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return null;
     }
 
-    public void finishCreateWorkout() {
+    public void finishFragment() {
         /*
-            Called by the new workout fragment once a workout is successfully made. It destroys that fragment and handles
+            Called by a fragment that wishes to end itself. It destroys that fragment and handles
             the back stack appropriately.
          */
         showPopupFlag = false;
         onBackPressed();
     }
 
-    public void closeExerciseDetails() {
-        /*
-            Called by the new workout fragment once a exercise is successfully deleted.
-            It destroys that fragment and handles the back stack appropriately.
-         */
-        showPopupFlag = false;
-        onBackPressed();
-    }
-
-    public void updateNotificationIndicator() {
-        // check if there are any unseen notifications
+    public void updateAccountNotificationIndicator() {
+        // check if there are any unseen notifications for friend requests
         boolean showAlert = false;
         for (String username : Globals.user.getFriendRequests().keySet()) {
             if (!Globals.user.getFriendRequests().get(username).isSeen()) {
                 showAlert = true;
             }
         }
-        // todo do this for workouts received as well
 
         notificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
     }
 
+    public void updateReceivedWorkoutNotificationIndicator() {
+        // check if there are any unseen notifications for received workouts
+
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
+        view.setText(user.getUnseenReceivedWorkouts() > 0 ? String.valueOf(user.getUnseenReceivedWorkouts()) : null);
+    }
+
+    private void saveCurrentFragmentState() {
+        Fragment visibleFragment = getVisibleFragment();
+        if (visibleFragment == null) {
+            return;
+        }
+        // for now, only care about saving the states of these fragments
+        if (visibleFragment.getTag().equals(Variables.MY_EXERCISES_TITLE) || visibleFragment.getTag().equals(Variables.RECEIVED_WORKOUTS_TITLE)) {
+            fragamentSavedStatesMap.put(visibleFragment.getTag(), fragmentManager.saveFragmentInstanceState(visibleFragment));
+        }
+    }
+
     // region Navigation Methods
     public void goToCurrentWorkout() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
         // keeping the fragment as a variable to ensure the timer display seamlessly updates when going back to it
@@ -831,15 +901,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToMyExercises() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.MY_EXERCISES_TITLE);
         fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
+        MyExercisesFragment myExercisesFragment = new MyExercisesFragment();
+        myExercisesFragment.setInitialSavedState(fragamentSavedStatesMap.get(Variables.MY_EXERCISES_TITLE));
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new MyExercisesFragment(), Variables.MY_EXERCISES_TITLE)
+                myExercisesFragment, Variables.MY_EXERCISES_TITLE)
                 .commit();
     }
 
     public void goToExerciseDetails(String exerciseId) {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.EXERCISE_DETAILS_TITLE);
         fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
 
@@ -855,6 +929,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToNewWorkout() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
 
@@ -865,6 +940,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToEditWorkout() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
 
@@ -874,6 +950,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToMyWorkouts() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
 
@@ -883,6 +960,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToAppSettings() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.SETTINGS_TITLE);
         fragmentStack.add(0, Variables.SETTINGS_TITLE);
 
@@ -892,6 +970,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToAccountPreferences() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_PREFS_TITLE);
         fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
 
@@ -902,6 +981,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToAccountSettings() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_TITLE);
         fragmentStack.add(0, Variables.ACCOUNT_TITLE);
 
@@ -911,6 +991,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToFriendsList(Bundle extras) {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.FRIENDS_LIST_TITLE);
         fragmentStack.add(0, Variables.FRIENDS_LIST_TITLE);
 
@@ -925,6 +1006,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToBlockedList() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.BLOCKED_LIST_TITLE);
         fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
 
@@ -935,16 +1017,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToReceivedWorkouts() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.RECEIVED_WORKOUTS_TITLE);
         fragmentStack.add(0, Variables.RECEIVED_WORKOUTS_TITLE);
+        ReceivedWorkoutsFragment receivedWorkoutsFragment = new ReceivedWorkoutsFragment();
+        receivedWorkoutsFragment.setInitialSavedState(fragamentSavedStatesMap.get(Variables.RECEIVED_WORKOUTS_TITLE));
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new ReceivedWorkoutsFragment(), Variables.RECEIVED_WORKOUTS_TITLE)
+                .replace(R.id.fragment_container, receivedWorkoutsFragment, Variables.RECEIVED_WORKOUTS_TITLE)
                 .commit();
     }
 
     public void goToBrowseReceivedWorkout(String workoutId, String workoutName) {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.RECEIVED_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
 
@@ -961,6 +1046,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     public void goToAbout() {
+        saveCurrentFragmentState();
         fragmentStack.remove(Variables.ABOUT_TITLE);
         fragmentStack.add(0, Variables.ABOUT_TITLE);
 

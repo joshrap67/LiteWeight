@@ -347,11 +347,14 @@ public class WorkoutRepository {
         this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
     }
 
-    public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sentWorkoutId) {
+    public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sentWorkoutId, final String optionalName) {
         ResultStatus<AcceptWorkoutResponse> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        if (optionalName != null) {
+            requestBody.put(Workout.WORKOUT_NAME, optionalName);
+        }
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(acceptReceivedWorkoutAction, requestBody, true);
 

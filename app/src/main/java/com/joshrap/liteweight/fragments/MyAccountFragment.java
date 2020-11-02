@@ -82,8 +82,6 @@ public class MyAccountFragment extends Fragment {
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
         profilePicture.setOnClickListener(v -> getImage());
-        final TextView receivedWorkoutsTV = view.findViewById(R.id.received_workouts_tv);
-        receivedWorkoutsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToReceivedWorkouts());
         int requestUnseenCount = 0;
         for (String username : user.getFriendRequests().keySet()) {
             if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
@@ -92,9 +90,6 @@ public class MyAccountFragment extends Fragment {
         }
         if (requestUnseenCount > 0) {
             friendsListTV.setText(R.string.friends_list_alert);
-        }
-        if(user.getUnseenReceivedWorkouts()>0){
-            receivedWorkoutsTV.setText(R.string.received_workouts_alert);
         }
 
         url = ImageHelper.getIconUrl(user.getIcon());

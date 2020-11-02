@@ -16,11 +16,24 @@ public class AcceptWorkoutResponse implements Model {
     private String workoutId;
     private WorkoutMeta workoutMeta;
     private Workout workout;
+    private Map<String, OwnedExercise> exercises;
 
     public AcceptWorkoutResponse(Map<String, Object> json) {
         this.workoutId = (String) json.get(Workout.WORKOUT_ID);
         this.workoutMeta = new WorkoutMeta((Map<String, Object>) json.get(RequestFields.WORKOUT_META), workoutId);
         this.workout = new Workout((Map<String, Object>) json.get(RequestFields.WORKOUT));
+        this.setExercises((Map<String, Object>) json.get(RequestFields.EXERCISES));
+    }
+
+    private void setExercises(Map<String, Object> json) {
+        if (json == null) {
+            this.exercises = null;
+        } else {
+            this.exercises = new HashMap<>();
+            for (String exerciseId : json.keySet()) {
+                this.exercises.put(exerciseId, new OwnedExercise((Map<String, Object>) json.get(exerciseId), exerciseId));
+            }
+        }
     }
 
     @Override

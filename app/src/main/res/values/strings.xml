@@ -152,7 +152,7 @@
     </string>
     <string name="default_details_help_msg">
         Details are short messages that you can leave for specific exercises to aide in tracking your workouts. Perhaps you may wish to leave a detail that says to only do this exercise with free weights, or only to do this exercise outside. The possibilities are endless.
-        \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
+        \n\nChanging this value will NOT update this exercise\'s details in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired details.
     </string>
     <string name="empty_friend_list_msg">You do not yet have any friends added. Click the button below to add some!</string>
     <string name="empty_friends_request_msg">You do not have any pending requests.</string>

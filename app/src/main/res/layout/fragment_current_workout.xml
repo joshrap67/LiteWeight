@@ -63,9 +63,9 @@
                     android:id="@+id/progress_bar_TV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
+                    android:layout_alignParentStart="true"
                     android:paddingBottom="8dp"
-                    android:text="@string/workout_progress"
+                    android:text="Workout Progress - 0%"
                     android:textSize="14sp" />
 
             <RelativeLayout

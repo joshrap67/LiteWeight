@@ -63,7 +63,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // todo do this same thing for the timer notifications
         FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         notificationIntent.setAction(Variables.NEW_FRIEND_REQUEST_CLICK);
 
@@ -82,7 +81,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.notify(friendRequest.getUsername().hashCode(), notification);
         }
         Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
 
@@ -93,7 +91,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void cancelFriendRequest(final String jsonData) throws IOException {
         String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
         notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -108,7 +105,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void declinedFriendRequest(final String jsonData) throws IOException {
         String declinedUser = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, declinedUser);
         notificationIntent.setAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -123,7 +119,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void removedFriend(final String jsonData) throws IOException {
         String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
         notificationIntent.setAction(Variables.REMOVE_FRIEND_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -139,7 +134,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
         String userAccepted = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
         notificationIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
 
@@ -158,7 +152,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.notify(userAccepted.hashCode(), notification);
         }
         Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
         broadcastIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
 
@@ -169,7 +162,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
         final ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         notificationIntent.setAction(Variables.RECEIVED_WORKOUT_CLICK);
 
@@ -189,7 +181,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.notify(receivedWorkoutMeta.getWorkoutId().hashCode(), notification);
         }
         Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_BROADCAST);
 

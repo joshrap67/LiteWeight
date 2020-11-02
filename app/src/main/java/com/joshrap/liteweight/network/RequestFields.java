@@ -10,4 +10,5 @@ public class RequestFields {
     public static final String PUSH_ENDPOINT_ARN = "pushEndpointArn";
     public static final String BATCH_NUMBER = "batchNumber";
     public static final String WORKOUT_META = "workoutMeta";
+    public static final String EXERCISES = "exercises";
 }

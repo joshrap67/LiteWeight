@@ -750,7 +750,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 if (resultStatus.isSuccess()) {
                     Globals.user = resultStatus.getData().getUser();
                     Globals.activeWorkout = resultStatus.getData().getWorkout();
-                    ((WorkoutActivity) getActivity()).finishCreateWorkout();
+                    ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
                     showErrorMessage(resultStatus.getErrorMessage());
                 }

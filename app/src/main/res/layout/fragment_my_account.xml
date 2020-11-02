@@ -137,23 +137,6 @@
                     android:focusable="true"
                     android:text="@string/friends_list"
                     android:textSize="25sp" />
-
-
-            <TextView
-                    android:id="@+id/received_workouts_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="?android:selectableItemBackground"
-                    android:clickable="true"
-                    android:drawableEnd="@drawable/mail_icon"
-                    android:elevation="2dp"
-                    android:focusable="true"
-                    android:text="@string/received_workouts"
-                    android:textSize="25sp" />
-
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

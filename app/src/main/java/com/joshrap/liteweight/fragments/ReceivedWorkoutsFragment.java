@@ -1,30 +1,42 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.helpers.AndroidHelper;
+import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -38,6 +50,7 @@ import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.ErrorDialog;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,14 +71,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private User user;
     private Workout currentWorkout;
     private List<ReceivedWorkoutMeta> receivedWorkouts;
-    private int currentBatch;
-    private ProgressBar loadingIcon;
+    private ProgressBar listLoadingIcon;
     private RecyclerView receivedWorkoutsRecyclerView;
     private ImageButton markAllReceivedWorkoutsSeen;
     private TextView emptyView;
     private BottomSheetDialog bottomSheetDialog;
     private AlertDialog alertDialog;
     private ReceivedWorkoutsAdapter receivedWorkoutsAdapter;
+    private boolean isGettingNextBatch;
+
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -77,57 +91,132 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
         user = Globals.user;
         currentWorkout = Globals.activeWorkout;
-        currentBatch = 0;
+        isGettingNextBatch = false;
         receivedWorkouts = new ArrayList<>();
+
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
+
         final View view = inflater.inflate(R.layout.fragment_received_workouts, container, false);
 
-        loadingIcon = view.findViewById(R.id.loading_icon);
-        loadingIcon.setVisibility(View.VISIBLE);
+        listLoadingIcon = view.findViewById(R.id.loading_icon_list);
+        listLoadingIcon.setVisibility(View.INVISIBLE);
         receivedWorkoutsRecyclerView = view.findViewById(R.id.recycler_view);
-        receivedWorkoutsRecyclerView.setVisibility(View.GONE);
         emptyView = view.findViewById(R.id.empty_view);
-        emptyView.setVisibility(View.GONE);
         markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_read_btn);
-        markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
+        updateAllSeenButton();
         markAllReceivedWorkoutsSeen.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
 
-        getReceivedWorkouts();
+        receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
+        sortReceivedWorkouts();
+        removeReceivedWorkoutNotification();
+        displayReceivedWorkouts();
+        receivedWorkoutsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (!isGettingNextBatch && receivedWorkouts.size() < user.getTotalReceivedWorkouts()) {
+                        isGettingNextBatch = true;
+                        getNextBatch();
+                    }
+                }
+            }
+        });
         return view;
     }
 
-    private void getReceivedWorkouts() {
-        loadingIcon.setVisibility(View.VISIBLE);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState); // used to restore any previous state
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+            if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
+                try {
+                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
+                    sortReceivedWorkouts();
+                    receivedWorkoutsAdapter.refresh(receivedWorkouts);
+                    // get rid of push notification since user is currently on this page
+                    NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (notificationManager != null) {
+                        notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                    }
+                    Toast.makeText(getContext(), "New workout: " + receivedWorkoutMeta.getWorkoutName(), Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    private void sortReceivedWorkouts() {
+        Collections.sort(receivedWorkouts, (r1, r2) -> {
+            // sanity sort based on received workout sent time
+            DateFormat dateFormattter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
+            dateFormattter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            int retVal = 0;
+            try {
+                Date date1 = dateFormattter.parse(r1.getDateSent());
+                Date date2 = dateFormattter.parse(r2.getDateSent());
+                retVal = date1 != null ? date2.compareTo(date1) : 0;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return retVal;
+        });
+    }
+
+    private void removeReceivedWorkoutNotification() {
+        // get rid of any push notification that might be in the status bar
+        for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
+            if (!receivedWorkoutMeta.isSeen()) {
+                // get rid of any push notification that might be there
+                NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                }
+            }
+        }
+    }
+
+    private void getNextBatch() {
+        listLoadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<List<ReceivedWorkoutMeta>> resultStatus = this.workoutRepository.getReceivedWorkouts(currentBatch);
+            int batchNumber = receivedWorkouts.size() / Variables.BATCH_SIZE;
+            ResultStatus<List<ReceivedWorkoutMeta>> resultStatus = this.workoutRepository.getReceivedWorkouts(batchNumber);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
-                    // not sure if this does what i think it does? But would prevent potential memory leaks
-                    loadingIcon.setVisibility(View.GONE);
+                    listLoadingIcon.setVisibility(View.INVISIBLE);
+                    isGettingNextBatch = false;
                     if (resultStatus.isSuccess()) {
-
-                        receivedWorkouts = resultStatus.getData();
-                        Collections.sort(receivedWorkouts, (r1, r2) -> {
-                            // sanity sort based on received workout sent time
-                            DateFormat dateFormattter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
-                            dateFormattter.setTimeZone(TimeZone.getTimeZone("UTC"));
-                            int retVal = 0;
-                            try {
-                                Date date1 = dateFormattter.parse(r1.getDateSent());
-                                Date date2 = dateFormattter.parse(r2.getDateSent());
-                                retVal = date1 != null ? date2.compareTo(date1) : 0;
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            return retVal;
-                        });
-                        checkAllSeenButton();
-                        displayReceivedWorkouts();
+                        for (ReceivedWorkoutMeta receivedWorkoutMeta : resultStatus.getData()) {
+                            user.getReceivedWorkouts().put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
+                        }
+                        // this is honestly unapologetically hacky but i don't care anymore
+                        receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
+                        sortReceivedWorkouts();
+                        receivedWorkoutsAdapter.refresh(receivedWorkouts);
+                        updateAllSeenButton();
                     } else {
                         ErrorDialog.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
                     }
@@ -135,7 +224,6 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             });
         });
     }
-
 
     private void displayReceivedWorkouts() {
         receivedWorkoutsRecyclerView.setVisibility(View.VISIBLE);
@@ -172,7 +260,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         emptyView.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private void checkAllSeenButton() {
+    private void updateAllSeenButton() {
         markAllReceivedWorkoutsSeen.setVisibility(user.getUnseenReceivedWorkouts() > 0 ? View.VISIBLE : View.GONE);
     }
 
@@ -187,9 +275,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void blockUser(String username) {
-        showLoadingDialog("Blocking user...");
-        // todo also just go ahead and decline the workout?
-
+        AndroidHelper.showLoadingDialog(loadingDialog, "Blocking user...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
@@ -207,12 +293,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
-    private void acceptWorkout(final ReceivedWorkoutMeta workoutToAccept) {
-        showLoadingDialog("Accepting...");
+    private void acceptWorkout(final ReceivedWorkoutMeta workoutToAccept, final String optionalName) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Accepting...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<AcceptWorkoutResponse> resultStatus = this.workoutRepository.acceptReceivedWorkout(workoutToAccept.getWorkoutId());
+            ResultStatus<AcceptWorkoutResponse> resultStatus = this.workoutRepository.acceptReceivedWorkout(workoutToAccept.getWorkoutId(), optionalName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -224,13 +310,17 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         Globals.activeWorkout = response.getWorkout();
                     }
                     user.getUserWorkouts().put(response.getWorkoutId(), response.getWorkoutMeta());
+                    user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
+                    user.addNewExercises(response.getExercises());
                     if (!workoutToAccept.isSeen()) {
                         // this workout was not seen, so make sure to decrease the unseen count since it is no longer in the list
                         user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
                     }
                     receivedWorkouts.remove(workoutToAccept);
+                    user.getReceivedWorkouts().remove(workoutToAccept.getWorkoutId());
                     receivedWorkoutsAdapter.notifyDataSetChanged();
-                    checkAllSeenButton();
+                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    updateAllSeenButton();
                 } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
@@ -238,8 +328,39 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
-    private void workoutNameAlreadyExistsPopup(){
-
+    private void workoutNameAlreadyExistsPopup(final ReceivedWorkoutMeta receivedWorkoutMeta) {
+        /*
+            Prompt the user if they want to rename the current workout
+         */
+        View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
+        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
+        renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("\"" + receivedWorkoutMeta.getWorkoutName() + "\" already exists")
+                .setView(popupView)
+                .setPositiveButton("Submit", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            saveButton.setOnClickListener(view -> {
+                String newName = renameInput.getText().toString().trim();
+                List<String> workoutNames = new ArrayList<>();
+                for (String workoutId : user.getUserWorkouts().keySet()) {
+                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                }
+                String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
+                if (errorMsg == null) {
+                    acceptWorkout(receivedWorkoutMeta, newName);
+                    alertDialog.dismiss();
+                } else {
+                    workoutNameInputLayout.setError(errorMsg);
+                }
+            });
+        });
+        alertDialog.show();
     }
 
     private void setReceivedWorkoutSeen(String workoutId) {
@@ -250,7 +371,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
-                checkAllSeenButton();
+                ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                updateAllSeenButton();
             });
         });
     }
@@ -267,15 +389,10 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
                     receivedWorkoutMeta.setSeen(true);
                 }
+                ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                 displayReceivedWorkouts(); // to remove any unseen indicators
             });
         });
-    }
-
-    private void showLoadingDialog(String message) {
-        // todo make this a static method
-        loadingDialog.setMessage(message);
-        loadingDialog.show();
     }
 
     @Override
@@ -283,6 +400,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
         super.onPause();
     }
 
@@ -346,7 +464,20 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             final Button acceptButton = holder.acceptButton;
             final Button declineButton = holder.declineButton;
 
-            acceptButton.setOnClickListener(view -> acceptWorkout(receivedWorkout));
+            acceptButton.setOnClickListener(view -> {
+                boolean workoutNameExists = false;
+                for (String workoutId : user.getUserWorkouts().keySet()) {
+                    if (user.getUserWorkouts().get(workoutId).getWorkoutName().equals(receivedWorkout.getWorkoutName())) {
+                        workoutNameExists = true;
+                        break;
+                    }
+                }
+                if (workoutNameExists) {
+                    workoutNameAlreadyExistsPopup(receivedWorkout);
+                } else {
+                    acceptWorkout(receivedWorkout, null);
+                }
+            });
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSender()));
 
             DateFormat dateFormatInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
@@ -398,6 +529,21 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();
             });
+        }
+
+        void refresh(List<ReceivedWorkoutMeta> receivedWorkouts) {
+            this.receivedWorkouts = receivedWorkouts;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
         }
 
         @Override

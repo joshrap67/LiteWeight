@@ -37,6 +37,16 @@ public class ReceivedWorkoutMeta implements Model {
         this.totalDays = (Integer) json.get(TOTAL_DAYS);
     }
 
+    ReceivedWorkoutMeta(Map<String, Object> json, String workoutId) {
+        this.workoutName = (String) json.get(WORKOUT_NAME);
+        this.workoutId = workoutId;
+        this.dateSent = (String) json.get(DATE_SENT);
+        this.mostFrequentFocus = (String) json.get(MOST_FREQUENT_FOCUS);
+        this.seen = (boolean) json.get(SEEN);
+        this.sender = (String) json.get(SENDER);
+        this.totalDays = (Integer) json.get(TOTAL_DAYS);
+    }
+
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();

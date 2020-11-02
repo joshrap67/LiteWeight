@@ -108,5 +108,7 @@ public class Variables {
             REMOVE_FRIEND_BROADCAST = "removeFriendBroadcast",
             DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
-            RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast";
+            RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
+            RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
+    public static final int BATCH_SIZE = 10;
 }

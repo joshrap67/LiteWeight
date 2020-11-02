@@ -19,6 +19,7 @@ public class WeightHelper {
             Formats a weight to either be rounded to 0 decimal points if it's a whole number or 2 if a decimal.
             To be used as default text in editTexts
          */
+        // todo just do it the long way since if i have a weight as 10.000005, it will display 10.00
         String retVal;
         String[] decimalPoints = Double.toString(aWeight).split("\\.");
         if ((aWeight == Math.floor(aWeight)) && !Double.isInfinite(aWeight)) {
