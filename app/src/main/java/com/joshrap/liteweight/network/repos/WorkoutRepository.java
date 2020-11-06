@@ -368,6 +368,7 @@ public class WorkoutRepository {
         } else if (apiResponse.isNetworkError()) {
             resultStatus.setErrorMessage("Network error. Unable to accept workout. Check internet connection.");
         } else {
+            // todo actually use the error messages
             resultStatus.setErrorMessage("Unable to accept workout. 3");
         }
         return resultStatus;

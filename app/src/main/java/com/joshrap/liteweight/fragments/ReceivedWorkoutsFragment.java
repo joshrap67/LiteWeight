@@ -316,11 +316,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         // this workout was not seen, so make sure to decrease the unseen count since it is no longer in the list
                         user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
                     }
-                    receivedWorkouts.remove(workoutToAccept);
                     user.getReceivedWorkouts().remove(workoutToAccept.getWorkoutId());
-                    receivedWorkoutsAdapter.notifyDataSetChanged();
-                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+
+                    // this is honestly unapologetically hacky but i don't care anymore
+                    receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
+                    sortReceivedWorkouts();
+                    receivedWorkoutsAdapter.refresh(receivedWorkouts);
                     updateAllSeenButton();
+                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                 } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
@@ -370,9 +373,11 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             this.workoutRepository.setReceivedWorkoutSeen(workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
-                ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                updateAllSeenButton();
+                if (this.isResumed()) {
+                    user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    updateAllSeenButton();
+                }
             });
         });
     }
@@ -384,13 +389,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             this.workoutRepository.setAllReceivedWorkoutsSeen();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
-                user.setUnseenReceivedWorkouts(0);
-                for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
-                    receivedWorkoutMeta.setSeen(true);
+                if (this.isResumed()) {
+                    markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
+                    user.setUnseenReceivedWorkouts(0);
+                    for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
+                        receivedWorkoutMeta.setSeen(true);
+                    }
+                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    displayReceivedWorkouts(); // to remove any unseen indicators
                 }
-                ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                displayReceivedWorkouts(); // to remove any unseen indicators
             });
         });
     }

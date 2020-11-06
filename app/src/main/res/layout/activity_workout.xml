@@ -61,24 +61,5 @@
             app:itemBackground="@drawable/nav_item_background"
             app:itemIconTint="@drawable/nav_item_icon"
             app:itemTextColor="@drawable/nav_item_text"
-            app:menu="@menu/draw_menu">
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="vertical">
-
-            <TextView
-                    android:id="@+id/log_out_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:gravity="center"
-                    android:text="@string/log_out"
-                    android:textStyle="bold" />
-        </LinearLayout>
-    </com.google.android.material.navigation.NavigationView>
+            app:menu="@menu/draw_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

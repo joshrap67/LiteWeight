@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +26,7 @@ import com.joshrap.liteweight.helpers.ImageHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -45,13 +48,14 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-public class MyAccountFragment extends Fragment {
+public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private static final int PICK_PHOTO_FOR_AVATAR = 1;
     private User user;
     private ImageView profilePicture;
     private String url;
     @Inject
     UserRepository userRepository;
+    private AlertDialog alertDialog;
 
 
     @Nullable
@@ -78,6 +82,8 @@ public class MyAccountFragment extends Fragment {
         accountPrefsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToAccountPreferences());
         final TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
         blockedListTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToBlockedList());
+        Button logoutButton = view.findViewById(R.id.log_out_btn);
+        logoutButton.setOnClickListener(view1 -> promptLogout());
         changePictureTv.setVisibility(View.GONE);
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
@@ -183,5 +189,25 @@ public class MyAccountFragment extends Fragment {
 
         cropper.withOptions(options);
         cropper.start(getActivity().getApplicationContext(), getFragmentManager().findFragmentByTag(Variables.ACCOUNT_TITLE));
+    }
+
+    private void promptLogout() {
+        /*
+            Is called whenever the user has unfinished work in the create workout fragment.
+         */
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Log Out")
+                .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
+                .setPositiveButton("Yes", (dialog, which) -> ((WorkoutActivity) getActivity()).logout())
+                .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
     }
 }

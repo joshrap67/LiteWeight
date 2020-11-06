@@ -48,6 +48,7 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.ImageHelper;
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Globals;
@@ -141,10 +142,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         user = Globals.user; // todo instantiate this from intent from splash activity
-        TextView logoutButton = findViewById(R.id.log_out_btn);
         nav.setNavigationItemSelectedListener(this);
         fragmentManager = getSupportFragmentManager();
-        logoutButton.setOnClickListener(view -> promptLogout());
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
@@ -258,12 +257,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         super.onDestroy();
     }
 
-    private void showLoadingDialog(String message) {
-        loadingDialog.setMessage(message);
-        loadingDialog.show();
-    }
-
-    private void logout() {
+    public void logout() {
         // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
@@ -278,7 +272,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 e.printStackTrace();
             }
         }
-        showLoadingDialog("Logging out...");
+        AndroidHelper.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
@@ -490,16 +484,20 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 case Variables.RECEIVED_WORKOUT_BROADCAST: {
                     try {
                         ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        Map<String, ReceivedWorkoutMeta> receivedWorkouts = user.getReceivedWorkouts();
-
-                        boolean updateTotal = receivedWorkouts.get(receivedWorkoutMeta.getWorkoutId()) == null; // workout wasn't here, so total needs to be increased
-                        receivedWorkouts.put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
-                        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
-                        updateReceivedWorkoutNotificationIndicator();
+                        boolean updateTotal = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null;
                         if (updateTotal) {
+                            // workout wasn't here, so total needs to be increased
                             user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
                         }
 
+                        boolean updateUnseen = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) != null
+                                && user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()).isSeen();
+                        if (updateUnseen) {
+                            // workout has not been seen yet so increase the unseen count
+                            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
+                        }
+                        updateReceivedWorkoutNotificationIndicator();
+                        user.getReceivedWorkouts().put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
                         // send broadcast to any fragments waiting on this model update
                         Intent broadcastIntent = new Intent();
                         broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
