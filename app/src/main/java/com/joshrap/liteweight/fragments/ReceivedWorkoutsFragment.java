@@ -257,7 +257,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         /*
             Used to check if there are any received workouts
          */
-        emptyView.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
+        if (receivedWorkouts.isEmpty() && user.getTotalReceivedWorkouts() > 0 && !isGettingNextBatch) {
+            // still workouts left so load next batch
+            // todo this has a bug where first one can't be declined after new batch
+            isGettingNextBatch = true;
+            getNextBatch();
+        } else {
+            emptyView.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void updateAllSeenButton() {
@@ -367,36 +374,67 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void setReceivedWorkoutSeen(String workoutId) {
+        // blind send for marking a workout read for now
+        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+
+        ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+        updateAllSeenButton();
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            // blind send for marking a workout read
-            this.workoutRepository.setReceivedWorkoutSeen(workoutId);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                if (this.isResumed()) {
-                    user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
-                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                    updateAllSeenButton();
-                }
-            });
-        });
+        executor.execute(() -> this.workoutRepository.setReceivedWorkoutSeen(workoutId));
     }
 
     private void setAllReceivedWorkoutsSeen() {
+        // blind send for marking all workout read for now
+        user.setUnseenReceivedWorkouts(0);
+        for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
+            receivedWorkoutMeta.setSeen(true);
+        }
+        ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+        displayReceivedWorkouts(); // to remove any unseen indicators
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            // blind send for marking all workout read
             this.workoutRepository.setAllReceivedWorkoutsSeen();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
-                    user.setUnseenReceivedWorkouts(0);
-                    for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
-                        receivedWorkoutMeta.setSeen(true);
+                }
+            });
+        });
+    }
+
+    private void declineWorkout(ReceivedWorkoutMeta receivedWorkoutMeta) {
+        // blind send for declining for now
+        receivedWorkouts.remove(receivedWorkoutMeta);
+        user.getReceivedWorkouts().remove(receivedWorkoutMeta.getWorkoutId());
+        if (!receivedWorkoutMeta.isSeen()) {
+            // if it was unread, then we need to make sure to decrease unseen count
+            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+            ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+            updateAllSeenButton();
+        }
+        user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
+        receivedWorkoutsAdapter.notifyDataSetChanged();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(receivedWorkoutMeta.getWorkoutId());
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (!resultStatus.isSuccess()) {
+                    Toast.makeText(getContext(), "Unable to decline workout.", Toast.LENGTH_LONG).show();
+                    if (!receivedWorkoutMeta.isSeen()) {
+                        // if it was unread, then we need to make sure to re count it
+                        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
                     }
-                    ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                    displayReceivedWorkouts(); // to remove any unseen indicators
+                    user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
+                    user.getReceivedWorkouts().put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
+                    if (this.isResumed()) {
+                        ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                        updateAllSeenButton();
+                        receivedWorkouts.add(receivedWorkoutMeta);
+                        sortReceivedWorkouts();
+                        receivedWorkoutsAdapter.refresh(receivedWorkouts);
+                    }
                 }
             });
         });
@@ -470,6 +508,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             final TextView dateSentTv = holder.dateSentTV;
             final Button acceptButton = holder.acceptButton;
             final Button declineButton = holder.declineButton;
+
+            declineButton.setOnClickListener(view -> declineWorkout(receivedWorkout));
 
             acceptButton.setOnClickListener(view -> {
                 boolean workoutNameExists = false;

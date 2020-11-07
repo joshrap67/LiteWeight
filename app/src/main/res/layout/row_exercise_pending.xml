@@ -103,7 +103,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:paddingStart="15dp"
-                android:paddingEnd="15dp"
                 android:tooltipText="Save exercise"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -24,10 +24,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.RoutineAdapter;
+import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -66,6 +68,8 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
     private Routine routine;
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
+    private ProgressBar workoutProgressBar;
+    private TextView workoutProgressTV;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -113,6 +117,12 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
         dayTV = view.findViewById(R.id.day_text_view);
+        workoutProgressBar = view.findViewById(R.id.progress_bar);
+        if (!sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true)) {
+            RelativeLayout progressBarLayout = view.findViewById(R.id.relative_layout_progress);
+            progressBarLayout.setVisibility(View.GONE);
+        }
+        workoutProgressTV = view.findViewById(R.id.progress_bar_TV);
 
         setupClock(view);
         setupButtons();
@@ -288,7 +298,7 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         /*
             Reset all of the exercises to being incomplete and then write to the database with these changes.
          */
-        showLoadingDialog();
+        AndroidHelper.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.restartWorkout(currentWorkout);
@@ -312,9 +322,22 @@ public class ActiveWorkoutFragment extends Fragment implements FragmentWithDialo
         });
     }
 
-    private void showLoadingDialog() {
-        loadingDialog.setMessage("Saving...");
-        loadingDialog.show();
+    private void updateWorkoutProgress() {
+        int exercisesCompleted = 0;
+        int totalExercises = 0;
+        for (Integer week : routine) {
+            for (Integer day : routine.getWeek(week)) {
+                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
+                    totalExercises++;
+                    if (routineExercise.isCompleted()) {
+                        exercisesCompleted++;
+                    }
+                }
+            }
+        }
+        int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
+        workoutProgressBar.setProgress(percentage);
+        workoutProgressTV.setText(String.format("%d %%", percentage));
     }
 
     private void jumpDaysPopup() {

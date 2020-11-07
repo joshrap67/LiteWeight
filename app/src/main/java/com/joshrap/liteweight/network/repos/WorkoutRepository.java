@@ -38,6 +38,7 @@ public class WorkoutRepository {
     private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
     private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
     private static final String acceptReceivedWorkoutAction = "acceptReceivedWorkout";
+    private static final String declineReceivedWorkoutAction = "declineReceivedWorkout";
 
     private ApiGateway apiGateway;
 
@@ -370,6 +371,30 @@ public class WorkoutRepository {
         } else {
             // todo actually use the error messages
             resultStatus.setErrorMessage("Unable to accept workout. 3");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> declineReceivedWorkout(final String receivedWorkoutId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(SentWorkout.SENT_WORKOUT_ID, receivedWorkoutId);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineReceivedWorkoutAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData("Workout successfully declined.");
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to decline workout. 2");
+            }
+        } else if (apiResponse.isNetworkError()) {
+            resultStatus.setErrorMessage("Network error. Unable to decline workout. Check internet connection.");
+        } else {
+            // todo actually use the error messages
+            resultStatus.setErrorMessage("Unable to decline workout. 3");
         }
         return resultStatus;
     }

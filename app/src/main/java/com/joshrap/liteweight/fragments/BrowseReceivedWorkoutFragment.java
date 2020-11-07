@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -109,6 +110,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             }
         });
         Button declineWorkoutButton = view.findViewById(R.id.decline_workout_btn);
+        declineWorkoutButton.setOnClickListener(view1 -> declineWorkout(receivedWorkoutId));
 
         getReceivedWorkout(receivedWorkoutId);
         return view;
@@ -177,6 +179,29 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    private void declineWorkout(String receivedWorkoutId) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Declining...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(receivedWorkoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    ReceivedWorkoutMeta receivedWorkoutMeta = user.getReceivedWorkouts().get(receivedWorkoutId);
+                    user.getReceivedWorkouts().remove(receivedWorkoutId);
+                    if (!receivedWorkoutMeta.isSeen()) {
+                        // if it was unread, then we need to make sure to decrease unseen count
+                        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+                        ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    }
+                    user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
+                    ((WorkoutActivity) getActivity()).finishFragment();
                 }
             });
         });

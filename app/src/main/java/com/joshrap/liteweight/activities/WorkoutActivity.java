@@ -490,8 +490,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                             user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
                         }
 
-                        boolean updateUnseen = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) != null
-                                && user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()).isSeen();
+                        // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update unseen
+                        boolean updateUnseen =
+                                user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null ||
+                                        user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()).isSeen();
+                        // no npe since Java will see the first part is true and then immediately return true
                         if (updateUnseen) {
                             // workout has not been seen yet so increase the unseen count
                             user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
@@ -598,31 +601,26 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     goToCurrentWorkout();
                 }
                 break;
-
             case R.id.nav_my_workouts:
                 if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
                     goToMyWorkouts();
                 }
                 break;
-
             case R.id.nav_my_exercises:
                 if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
                     goToMyExercises();
                 }
                 break;
-
             case R.id.nav_received_workouts:
                 if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
                     goToReceivedWorkouts();
                 }
                 break;
-
             case R.id.nav_user_settings:
                 if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
                     goToAppSettings();
                 }
                 break;
-
             case R.id.nav_about:
                 if (!(getVisibleFragment() instanceof AboutFragment)) {
                     goToAbout();
@@ -757,19 +755,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
         }
         return super.dispatchTouchEvent(event);
-    }
-
-    private void promptLogout() {
-        /*
-            Is called whenever the user has unfinished work in the create workout fragment.
-         */
-        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Log Out")
-                .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
-                .setPositiveButton("Yes", (dialog, which) -> logout())
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
     }
 
     private void showUnsavedChangesPopup(String fragmentTitle) {

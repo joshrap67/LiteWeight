@@ -42,6 +42,7 @@ public class AppSettingsFragment extends Fragment {
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
+        SwitchCompat workoutProgressSwitch = view.findViewById(R.id.workout_progress_switch);
 
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -74,6 +75,15 @@ public class AppSettingsFragment extends Fragment {
             editor.putBoolean(Variables.VIDEO_KEY, isChecked);
             editor.apply();
         });
+
+        LinearLayout workoutProgressLayout = view.findViewById(R.id.workout_progress_container);
+        workoutProgressLayout.setOnClickListener(view1 -> workoutProgressSwitch.performClick());
+        workoutProgressSwitch.setChecked(sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true));
+        workoutProgressSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editor.putBoolean(Variables.WORKOUT_PROGRESS_KEY, isChecked);
+            editor.apply();
+        });
+
         TextView manageNotificationsTV = view.findViewById(R.id.manage_notifications_tv);
         manageNotificationsTV.setOnClickListener(view1 -> {
             Intent intent = new Intent();

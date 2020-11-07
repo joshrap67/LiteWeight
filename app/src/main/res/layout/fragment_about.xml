@@ -68,44 +68,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/about_overview"
                     android:textSize="15sp" />
-
-            <TextView
-                    android:id="@+id/nav_overview_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingTop="8sp"
-                    android:paddingBottom="8sp"
-                    android:text="@string/about_nav_overview_title"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            <TextView
-                    android:id="@+id/nav_overview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/about_nav_overview"
-                    android:textSize="15sp" />
-
-<!--            <TextView-->
-<!--                    android:id="@+id/acknowledgement_title"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_gravity="center"-->
-<!--                    android:paddingTop="8sp"-->
-<!--                    android:paddingBottom="8sp"-->
-<!--                    android:text="@string/acknowledgements_title"-->
-<!--                    android:textSize="20sp"-->
-<!--                    android:textStyle="bold" />-->
-
-<!--            <TextView-->
-<!--                    android:id="@+id/acknowledgments"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:linksClickable="true"-->
-<!--                    android:text="@string/acknowledgements"-->
-<!--                    android:textSize="15sp" />-->
-
         </LinearLayout>
     </ScrollView>
 
