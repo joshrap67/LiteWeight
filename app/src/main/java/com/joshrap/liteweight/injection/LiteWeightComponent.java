@@ -4,7 +4,7 @@ import com.joshrap.liteweight.activities.SignInActivity;
 import com.joshrap.liteweight.activities.SplashActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
-import com.joshrap.liteweight.fragments.ActiveWorkoutFragment;
+import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
 import com.joshrap.liteweight.fragments.AppSettingsFragment;
 import com.joshrap.liteweight.fragments.BlockedListFragment;
 import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
@@ -25,7 +25,7 @@ import dagger.Component;
 @Component(modules = LiteWeightModule.class)
 public interface LiteWeightComponent {
 
-    void inject(ActiveWorkoutFragment currentWorkoutFragment);
+    void inject(CurrentWorkoutFragment currentWorkoutFragment);
 
     void inject(WorkoutActivity workoutActivity);
 

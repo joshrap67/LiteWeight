@@ -6,12 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -21,12 +22,12 @@ import java.util.Locale;
 public class Stopwatch {
     private Button startStopwatch, stopStopwatch, resetStopwatch, showTimerButton;
     private boolean stopwatchRunning, showTimer;
-    private final long timeUnit = 1000;
+    private static final long timeUnit = 1000; // in SI units of milliseconds
     private long startTimeAbsolute, initialTimeOnClock, displayTime; // in SI units of milliseconds
     private TextView stopwatchDisplay;
     private ConstraintLayout timerContainer, stopwatchContainer;
     private Activity activity;
-    private SharedPreferences pref;
+    private SharedPreferences preferences;
     private final Handler stopwatchHandler = new Handler();
     private final Runnable stopwatch = new Runnable() {
         @Override
@@ -47,14 +48,21 @@ public class Stopwatch {
         }
     };
 
-    public Stopwatch(Activity _activity) {
+    public Stopwatch(Activity _activity, SharedPreferences sharedPreferences) {
         activity = _activity;
         stopwatchRunning = false;
-        pref = activity.getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
+        preferences = sharedPreferences;
         initialTimeOnClock = 0; // assume at initialization the stopwatch isn't running
         displayTime = 0;
     }
 
+    /**
+     * Initializes the UI of the stopwatch. Called when the current workout fragment loads.
+     *
+     * @param stopwatchView view with all the stopwatch components.
+     * @param _activity     activity that the fragment belongs to
+     * @param timerVisible  whether the button to change to the timer should be visible or not
+     */
     public void initStopwatchUI(View stopwatchView, Activity _activity, boolean timerVisible) {
         // this is called whenever the current workout fragment loads. It sets up the UI for the stopwatch to update
         activity = _activity;
@@ -71,6 +79,9 @@ public class Stopwatch {
         initStopwatch();
     }
 
+    /**
+     * Initializes the buttons of the stopwatch.
+     */
     private void initStopwatch() {
         if (stopwatchRunning) {
             stopwatchRunningVisibility();
@@ -142,31 +153,29 @@ public class Stopwatch {
         showTimerButton.setVisibility(View.GONE);
     }
 
+    /**
+     * User has indicated that they want the timer, so hide the stopwatch and show timer
+     */
     private void showTimer() {
-        /*
-            User has indicated that they want the timer, so hide the stopwatch and show timer
-         */
-        SharedPreferences.Editor editor = pref.edit();
+        SharedPreferences.Editor editor = preferences.edit();
         editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
         editor.apply();
         timerContainer.setVisibility(View.VISIBLE);
         stopwatchContainer.setVisibility(View.GONE);
     }
 
+    /**
+     * Stopwatch is going out of the visible screen, so start a service to maintain its progress.
+     */
     public void startService() {
-        /*
-            Stopwatch is going out of the visible screen, so start a service to maintain its progress.
-         */
         Intent serviceIntent = new Intent(activity, StopwatchService.class);
         serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, initialTimeOnClock);
         activity.startService(serviceIntent);
-        Globals.stopwatchServiceRunning = true;
     }
 
     public void cancelService() {
         activity.stopService(new Intent(activity, StopwatchService.class));
-        Globals.stopwatchServiceRunning = false;
         // get rid of any notifications that are still showing now that the stopwatch is on the screen
         NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(StopwatchService.stopwatchRunningId);

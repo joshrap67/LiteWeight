@@ -12,7 +12,9 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
@@ -59,7 +61,7 @@ public class SplashActivity extends AppCompatActivity {
                 if (resultStatus.isSuccess()) {
                     Globals.user = resultStatus.getData().getUser();
                     Globals.activeWorkout = resultStatus.getData().getWorkout();
-                    launchWorkoutActivity();
+                    launchWorkoutActivity(resultStatus.getData().getUser(), resultStatus.getData().getWorkout());
                 } else {
                     launchSignInActivity();
                 }
@@ -74,7 +76,7 @@ public class SplashActivity extends AppCompatActivity {
         finish();
     }
 
-    private void launchWorkoutActivity() {
+    private void launchWorkoutActivity(User user, Workout workout) {
         Intent intent = new Intent(this, WorkoutActivity.class);
         if (notificationData != null && notificationAction != null) {
             intent.setAction(notificationAction);

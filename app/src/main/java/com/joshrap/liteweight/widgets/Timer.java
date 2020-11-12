@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -17,7 +16,6 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.services.TimerService;
@@ -27,13 +25,13 @@ import java.util.Locale;
 public class Timer {
     private Button startTimer, stopTimer, resetTimer, showStopwatchButton;
     private boolean timerRunning, showStopwatch;
-    private final long timeUnit = 1000;
+    private static final long timeUnit = 1000; // in SI units of milliseconds
     private long startTimeAbsolute, initialTimeOnClock, timerDuration, displayTime; // in SI units of milliseconds
     private TextView timerDisplay;
     private ConstraintLayout timerContainer, stopwatchContainer;
     private Activity activity;
-    private Context context;
-    private SharedPreferences pref;
+    private SharedPreferences preferences;
+    private AlertDialog alertDialog;
     private SharedPreferences.Editor editor;
     private final Handler timerHandler = new Handler();
     private final Runnable timer = new Runnable() {
@@ -55,17 +53,24 @@ public class Timer {
         }
     };
 
-    public Timer(Activity _activity) {
+    public Timer(Activity _activity, SharedPreferences sharedPreferences) {
         activity = _activity;
         timerRunning = false;
-        pref = activity.getApplicationContext().getSharedPreferences(Variables.SHARED_PREF_SETTINGS, 0);
-        timerDuration = pref.getLong(Variables.TIMER_DURATION, Variables.DEFAULT_TIMER_VALUE);
+        preferences = sharedPreferences;
+        timerDuration = preferences.getLong(Variables.TIMER_DURATION, Variables.DEFAULT_TIMER_VALUE);
         initialTimeOnClock = timerDuration; // assume at initialization the timer isn't running
         displayTime = initialTimeOnClock;
     }
 
-    public void initTimerUI(View timerView, Activity _activity, Context _context, boolean stopwatchVisible) {
-        // this is called whenever the current workout fragment loads. It sets up the UI for the timer to update
+    /**
+     * Initializes the UI of the timer. Called when the current workout fragment loads.
+     *
+     * @param timerView        view with all the timer components.
+     * @param _activity        activity that the fragment belongs to
+     * @param stopwatchVisible whether the button to change to the stopwatch should be visible or not
+     */
+    public void initTimerUI(View timerView, Activity _activity, boolean stopwatchVisible) {
+        //
         activity = _activity;
         startTimer = timerView.findViewById(R.id.start_timer);
         stopTimer = timerView.findViewById(R.id.stop_timer);
@@ -75,11 +80,13 @@ public class Timer {
         timerContainer = timerView.findViewById(R.id.timer_container);
         stopwatchContainer = timerView.findViewById(R.id.stopwatch_container);
         showStopwatch = stopwatchVisible;
-        context = _context;
         cancelService();
         initTimer();
     }
 
+    /**
+     * Initializes the buttons of the timer.
+     */
     private void initTimer() {
         if (timerRunning) {
             timerRunningVisibility();
@@ -105,10 +112,10 @@ public class Timer {
         updateTimerDisplay(displayTime);
     }
 
+    /**
+     * Allows the user to choose the time they wish the timer to have.
+     */
     private void showTimerPopup() {
-        /*
-            Allows the user to choose the time they wish the timer to have.
-         */
         View popupView = activity.getLayoutInflater().inflate(R.layout.popup_pick_time, null);
         final NumberPicker minutePicker = popupView.findViewById(R.id.minutes_picker);
         minutePicker.setMaxValue(59);
@@ -120,7 +127,7 @@ public class Timer {
         secondPicker.setValue((int) (timerDuration / timeUnit) % 60);
 
         // now that the widgets are all initialized from the view, create the dialog and insert the view into it
-        final AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(activity, R.style.AlertDialogTheme)
                 .setView(popupView)
                 .setTitle("Pick Time")
                 .setPositiveButton("Save Time", null)
@@ -135,17 +142,26 @@ public class Timer {
                 if (totalTime > 0) {
                     timerDuration = minutes + seconds;
                     resetTimer();
-                    editor = pref.edit();
+                    editor = preferences.edit();
                     editor.putLong(Variables.TIMER_DURATION, timerDuration);
                     editor.apply();
                     alertDialog.dismiss();
                 } else {
-                    Toast.makeText(context, "Invalid time", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Invalid time", Toast.LENGTH_SHORT).show();
                 }
 
             });
         });
         alertDialog.show();
+    }
+
+    /**
+     * Hides the pick timer dialog if it is open. Needed to be closed when navigating from clicking a notification.
+     */
+    public void hideDialog() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
     }
 
     private void startTimer() {
@@ -209,31 +225,29 @@ public class Timer {
         showStopwatchButton.setVisibility(View.GONE);
     }
 
+    /**
+     * User has indicated that they want the stopwatch, so hide the timer and show stopwatch
+     */
     private void showStopwatch() {
-        /*
-            User has indicated that they want the stopwatch, so hide the timer and show stopwatch
-         */
-        editor = pref.edit();
+        editor = preferences.edit();
         editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
         editor.apply();
         timerContainer.setVisibility(View.GONE);
         stopwatchContainer.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Timer is going out of the visible screen, so start a service to maintain its progress.
+     */
     public void startService() {
-        /*
-            Timer is going out of the visible screen, so start a service to maintain its progress.
-         */
         Intent serviceIntent = new Intent(activity, TimerService.class);
         serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, initialTimeOnClock);
         activity.startService(serviceIntent);
-        Globals.timerServiceRunning = true;
     }
 
     public void cancelService() {
         activity.stopService(new Intent(activity, TimerService.class));
-        Globals.timerServiceRunning = false;
 
         // get rid of any notifications that are still showing now that the timer is on the screen
         NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);

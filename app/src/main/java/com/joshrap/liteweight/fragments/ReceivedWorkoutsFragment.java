@@ -259,7 +259,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
          */
         if (receivedWorkouts.isEmpty() && user.getTotalReceivedWorkouts() > 0 && !isGettingNextBatch) {
             // still workouts left so load next batch
-            // todo this has a bug where first one can't be declined after new batch
+            // todo race condition if user spam clicks decline. Probably just need to have a loading dialog
             isGettingNextBatch = true;
             getNextBatch();
         } else {

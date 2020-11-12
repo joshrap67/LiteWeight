@@ -60,6 +60,7 @@ import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -80,6 +81,8 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+import lombok.Getter;
+
 public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private AlertDialog alertDialog;
@@ -92,10 +95,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private ArrayList<String> fragmentStack;
     private Timer timer;
     private Stopwatch stopwatch;
-    private Map<String, Fragment.SavedState> fragamentSavedStatesMap;
+    private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
+    @Getter
     private User user;
+    @Getter
+    private Workout currentWorkout;
 
-    private ActiveWorkoutFragment currentWorkoutFragment; // todo don't do this
     @Inject
     Tokens tokens;
     @Inject
@@ -111,10 +116,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         super.onCreate(savedInstanceState);
         String action = null;
         String jsonData = null;
-        fragamentSavedStatesMap = new HashMap<>();
         if (getIntent().getExtras() != null) {
             action = getIntent().getAction();
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
+            // todo deserialize user/workout
         }
 
         Injector.getInjector(this).inject(this);
@@ -129,19 +134,23 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.RECEIVED_WORKOUT_CLICK);
         receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
         receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_CLICK);
+        receiverActions.addAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        receiverActions.addAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
-        timer = new Timer(this);
-        stopwatch = new Stopwatch(this);
+        timer = new Timer(this, sharedPreferences);
+        stopwatch = new Stopwatch(this, sharedPreferences);
         fragmentStack = new ArrayList<>();
         showPopupFlag = true;
+        fragmentSavedStatesMap = new HashMap<>();
         drawerListenerIsRegistered = false;
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         user = Globals.user; // todo instantiate this from intent from splash activity
+        currentWorkout = Globals.activeWorkout;
         nav.setNavigationItemSelectedListener(this);
         fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);
@@ -155,9 +164,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         toggle.syncState();
         if (savedInstanceState == null) {
             // default landing fragment is current workout one
-            currentWorkoutFragment = new ActiveWorkoutFragment();
             fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE).commit();
+                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
             fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
             nav.setCheckedItem(R.id.nav_current_workout);
         }
@@ -301,8 +309,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
                 Globals.user = null;
                 Globals.activeWorkout = null;
-                Globals.timerServiceRunning = false;
-                Globals.stopwatchServiceRunning = false;
                 // take user back to sign in activity
                 Intent intent = new Intent(this, SignInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -386,26 +392,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        /*
-            Called whenever the user clicks on a notification while the app is running or paused.
-         */
-        super.onNewIntent(intent); // this has to be first to not crash app when clicking notification when app is in background
-        String action = intent.getAction();
-        if (action == null) {
-            return;
-        }
-        if ((action.equals(Variables.INTENT_TIMER_NOTIFICATION_CLICK)
-                || action.equals(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK))) {
-            // close any popup that might be showing
-            // todo update this with new broadcast system
-            closeAllOpenDialogs();
-            goToCurrentWorkout();
-            nav.setCheckedItem(R.id.nav_current_workout);
-        }
-    }
-
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -414,8 +400,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             if (action == null) {
                 return;
             }
+            // the broadcasts should only be updating the base models (user/workout). Individual fragments handle UI changes on their own
             switch (action) {
-                // the broadcasts should only be updating the base models (user/workout). Individual fragments handle UI changes on their own
                 case Variables.NEW_FRIEND_REQUEST_BROADCAST: {
                     FriendRequest friendRequest;
                     try {
@@ -466,8 +452,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     }
                     break;
                 }
-                case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {
-                    // called when user has app open in foreground
+                case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {// called when user has app open in foreground
                     String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     Globals.user.getFriends().get(usernameAccepted).setConfirmed(true);
                     Fragment visibleFragment = getVisibleFragment();
@@ -481,7 +466,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     }
                     break;
                 }
-                case Variables.RECEIVED_WORKOUT_BROADCAST: {
+                case Variables.RECEIVED_WORKOUT_BROADCAST:
                     try {
                         ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                         boolean updateTotal = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null;
@@ -510,15 +495,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    // responsible for navigation when app is in foreground
                     break;
-                }
-                // responsible for navigation when app is in foreground
-                case Variables.RECEIVED_WORKOUT_CLICK: {
+                case Variables.RECEIVED_WORKOUT_CLICK:
                     closeAllOpenDialogs();
                     nav.setCheckedItem(R.id.nav_received_workouts);
                     goToReceivedWorkouts();
                     break;
-                }
                 case Variables.ACCEPTED_FRIEND_REQUEST_CLICK: {
                     String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     // sanity check update, this should always be taken care of when service broadcasts
@@ -555,6 +538,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     }
                     break;
                 }
+                case Variables.INTENT_TIMER_NOTIFICATION_CLICK:
+                case Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK:
+                    // close any popup that might be showing
+                    closeAllOpenDialogs();
+                    goToCurrentWorkout();
+                    nav.setCheckedItem(R.id.nav_current_workout);
+                    break;
             }
         }
     };
@@ -564,6 +554,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (currentFragment instanceof FragmentWithDialog) {
             ((FragmentWithDialog) currentFragment).hideAllDialogs();
         }
+        timer.hideDialog();
     }
 
     public void toggleBackButton(boolean enable) {
@@ -597,7 +588,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
          */
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
-                if (!(getVisibleFragment() instanceof ActiveWorkoutFragment)) {
+                if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
                     goToCurrentWorkout();
                 }
                 break;
@@ -864,7 +855,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
         // for now, only care about saving the states of these fragments
         if (visibleFragment.getTag().equals(Variables.MY_EXERCISES_TITLE) || visibleFragment.getTag().equals(Variables.RECEIVED_WORKOUTS_TITLE)) {
-            fragamentSavedStatesMap.put(visibleFragment.getTag(), fragmentManager.saveFragmentInstanceState(visibleFragment));
+            fragmentSavedStatesMap.put(visibleFragment.getTag(), fragmentManager.saveFragmentInstanceState(visibleFragment));
         }
     }
 
@@ -873,13 +864,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
-        // keeping the fragment as a variable to ensure the timer display seamlessly updates when going back to it
-        if (currentWorkoutFragment == null) {
-            // todo not going to do this anymore
-            currentWorkoutFragment = new ActiveWorkoutFragment();
-        }
+
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                currentWorkoutFragment, Variables.CURRENT_WORKOUT_TITLE)
+                new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
     }
 
@@ -888,7 +875,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.remove(Variables.MY_EXERCISES_TITLE);
         fragmentStack.add(0, Variables.MY_EXERCISES_TITLE);
         MyExercisesFragment myExercisesFragment = new MyExercisesFragment();
-        myExercisesFragment.setInitialSavedState(fragamentSavedStatesMap.get(Variables.MY_EXERCISES_TITLE));
+        myExercisesFragment.setInitialSavedState(fragmentSavedStatesMap.get(Variables.MY_EXERCISES_TITLE));
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 myExercisesFragment, Variables.MY_EXERCISES_TITLE)
@@ -1004,7 +991,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.remove(Variables.RECEIVED_WORKOUTS_TITLE);
         fragmentStack.add(0, Variables.RECEIVED_WORKOUTS_TITLE);
         ReceivedWorkoutsFragment receivedWorkoutsFragment = new ReceivedWorkoutsFragment();
-        receivedWorkoutsFragment.setInitialSavedState(fragamentSavedStatesMap.get(Variables.RECEIVED_WORKOUTS_TITLE));
+        receivedWorkoutsFragment.setInitialSavedState(fragmentSavedStatesMap.get(Variables.RECEIVED_WORKOUTS_TITLE));
 
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, receivedWorkoutsFragment, Variables.RECEIVED_WORKOUTS_TITLE)

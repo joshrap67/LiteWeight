@@ -14,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.adapters.RoutineAdapter;
 import com.joshrap.liteweight.adapters.SentRoutineAdapter;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;

@@ -52,6 +52,12 @@ public class Workout implements Model {
         this.routine = new Routine(toBeCopied.getRoutine());
     }
 
+    public static boolean workoutsIdentical(Workout workout1, Workout workout2) {
+        boolean retVal = false;
+        // todo compare dem bitches
+        return retVal;
+    }
+
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();

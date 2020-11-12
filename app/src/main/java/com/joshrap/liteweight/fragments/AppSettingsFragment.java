@@ -21,7 +21,6 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 
@@ -50,10 +49,8 @@ public class AppSettingsFragment extends Fragment {
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());
         stopwatchSwitch.setChecked(sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true));
         stopwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (Globals.stopwatchServiceRunning) {
-                ((WorkoutActivity) getActivity()).getStopwatch().cancelService();
-                ((WorkoutActivity) getActivity()).getStopwatch().stopStopwatch();
-            }
+            ((WorkoutActivity) getActivity()).getStopwatch().cancelService();
+            ((WorkoutActivity) getActivity()).getStopwatch().stopStopwatch();
             editor.putBoolean(Variables.STOPWATCH_ENABLED, isChecked);
             editor.apply();
         });
@@ -61,10 +58,8 @@ public class AppSettingsFragment extends Fragment {
         timerLayout.setOnClickListener(view1 -> timerSwitch.performClick());
         timerSwitch.setChecked(sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true));
         timerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (Globals.timerServiceRunning) {
-                ((WorkoutActivity) getActivity()).getTimer().cancelService();
-                ((WorkoutActivity) getActivity()).getTimer().stopTimer();
-            }
+            ((WorkoutActivity) getActivity()).getTimer().cancelService();
+            ((WorkoutActivity) getActivity()).getTimer().stopTimer();
             editor.putBoolean(Variables.TIMER_ENABLED, isChecked);
             editor.apply();
         });

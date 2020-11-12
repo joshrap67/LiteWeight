@@ -19,8 +19,8 @@
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/hintColor
     </color>
 
-    <color name="workout_very_low_percentage">#700d02</color>
-    <color name="workout_low_percentage">#E81809</color>
+    <color name="workout_very_low_percentage">#FF1D00</color>
+    <color name="workout_low_percentage">#E6382C</color>
     <color name="workout_medium_percentage">#e88b09</color>
     <color name="workout_high_percentage">#51f079</color>
     <color name="workout_very_high_percentage">#2d8744</color>
