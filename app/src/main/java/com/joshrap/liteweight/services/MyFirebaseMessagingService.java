@@ -26,6 +26,12 @@ import java.io.IOException;
 import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    private static final String friendRequestAction = "friendRequest";
+    private static final String canceledFriendRequestAction = "canceledFriendRequest";
+    private static final String acceptedFriendRequestAction = "acceptedFriendRequest";
+    private static final String removedAsFriendAction = "removeFriend"; // todo change this...
+    private static final String declinedFriendRequestAction = "declinedFriendRequest";
+    private static final String receivedNotificationAction = "receivedWorkout";
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -33,22 +39,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Map<String, Object> jsonMap = JsonParser.deserialize(remoteMessage.getData().get("metadata"));
             PushNotification pushNotification = new PushNotification(jsonMap);
             switch (pushNotification.getAction()) {
-                case "friendRequest":
+                case friendRequestAction:
                     showNotificationFriendRequest(pushNotification.getJsonPayload());
                     break;
-                case "canceledFriendRequest":
+                case canceledFriendRequestAction:
+                    // silent notification
                     cancelFriendRequest(pushNotification.getJsonPayload());
                     break;
-                case "acceptedFriendRequest":
+                case acceptedFriendRequestAction:
                     showNotificationAcceptedFriendRequest(pushNotification.getJsonPayload());
                     break;
-                case "removeFriend":
+                case removedAsFriendAction:
+                    // silent notification
                     removedFriend(pushNotification.getJsonPayload());
                     break;
-                case "declinedFriendRequest":
+                case declinedFriendRequestAction:
+                    // silent notification
                     declinedFriendRequest(pushNotification.getJsonPayload());
                     break;
-                case "receivedWorkout":
+                case receivedNotificationAction:
                     showNotificationReceivedWorkout(pushNotification.getJsonPayload());
                     break;
             }
@@ -60,11 +69,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private void showNotificationFriendRequest(final String jsonData) throws IOException {
-        // todo do this same thing for the timer notifications
         FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize(jsonData));
-        Intent notificationIntent = new Intent(this, NotificationActivity.class);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        notificationIntent.setAction(Variables.NEW_FRIEND_REQUEST_CLICK);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.NEW_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -133,14 +143,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
         String userAccepted = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
-        Intent notificationIntent = new Intent(this, NotificationActivity.class);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
-        notificationIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.ACCEPTED_FRIEND_CHANNEL)
-                .setContentTitle("New Friend!")
+                .setContentTitle("New Workout Buddy!")
                 .setContentText(String.format("%s accepted your friend request!", userAccepted))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
@@ -161,9 +173,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
         final ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize(jsonData));
-        Intent notificationIntent = new Intent(this, NotificationActivity.class);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        notificationIntent.setAction(Variables.RECEIVED_WORKOUT_CLICK);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);

@@ -19,12 +19,13 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * This service once created only is there for showing the stopwatch progress. It currently does not
+ * need to constantly communicate to any activities listening. In the future buttons could be provided in the
+ * notification to stop/reset the stopwatch.
+ */
 public class StopwatchService extends Service {
-    /*
-        This service once created only is there for showing the stopwatch progress. It currently does not
-        need to constantly communicate to any activities listening. In the future buttons could be provided in the
-        notification to stop/reset the stopwatch.
-     */
+
     public static final int stopwatchRunningId = 3;
 
     private long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
@@ -66,9 +67,11 @@ public class StopwatchService extends Service {
         return START_REDELIVER_INTENT;
     }
 
+    /**
+     * Get rid of the stopwatch running notification whenever the service is killed
+     */
     @Override
     public void onDestroy() {
-        // get rid of the stopwatch running notification whenever the service is killed
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(stopwatchRunningId);
         stopwatch.cancel();
@@ -100,7 +103,9 @@ public class StopwatchService extends Service {
      */
     private Notification stopwatchRunningNotification(String content) {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -120,7 +125,9 @@ public class StopwatchService extends Service {
      */
     private void showStopwatchFinishedNotification() {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,

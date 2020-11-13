@@ -84,6 +84,8 @@ public class Variables {
             STOPWATCH_RUNNING_CHANNEL = "stopwatch_running",
             FRIEND_LIST_POSITION = "friendsListPosition",
             WORKOUT_PROGRESS_KEY = "WorkoutProgressKey",
+            NOTIFICATION_CLICKED = "NotificationClicked",
+            NOTIFICATION_ACTION = "NotificationAction",
             EXERCISE_ID = "exerciseId";
 
     public static final String

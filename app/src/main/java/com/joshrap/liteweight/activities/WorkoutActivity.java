@@ -96,6 +96,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private Timer timer;
     private Stopwatch stopwatch;
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
+    private boolean activityFinishing;
     @Getter
     private User user;
     @Getter
@@ -116,8 +117,21 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         super.onCreate(savedInstanceState);
         String action = null;
         String jsonData = null;
+        activityFinishing = false;
         if (getIntent().getExtras() != null) {
             action = getIntent().getAction();
+            if (action.equals(Variables.NOTIFICATION_CLICKED)) {
+                /*
+                    So freaking hacky. Essentially if user clicked a notification, we immediately finish this
+                    activity and start the splash activity. This is due to android being awful and their flags
+                    aren't working properly so this is the only way i can avoid this activity needlessly being destroyed twice.
+                 */
+                activityFinishing = true;
+                launchSplashActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
+                        getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION));
+                finish();
+                return;
+            }
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
             // todo deserialize user/workout
         }
@@ -131,11 +145,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.REMOVE_FRIEND_BROADCAST);
         receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
-        receiverActions.addAction(Variables.RECEIVED_WORKOUT_CLICK);
-        receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_CLICK);
-        receiverActions.addAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-        receiverActions.addAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
@@ -208,6 +217,73 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    private void launchSplashActivity(String jsonData, String action) {
+        Intent intent = new Intent(this, SplashActivity.class);
+        intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(action);
+        startActivity(intent);
+    }
+
+    /**
+     * Called whenever the user clicks on a notification while the app is running or paused.
+     *
+     * @param intent contains data about how to route and what data to consume.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // this has to be first since android is dum dum and shits the bed otherwise
+        super.onNewIntent(intent);
+
+        String action = intent.getExtras().getString(Variables.NOTIFICATION_ACTION);
+        if (action == null) {
+            return;
+        }
+        if ((action.equals(Variables.INTENT_TIMER_NOTIFICATION_CLICK)
+                || action.equals(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK))) {
+            // close any popup that might be showing
+            closeAllOpenDialogs();
+            goToCurrentWorkout();
+            nav.setCheckedItem(R.id.nav_current_workout);
+        } else if (action.equals(Variables.RECEIVED_WORKOUT_CLICK)) {
+            closeAllOpenDialogs();
+            nav.setCheckedItem(R.id.nav_received_workouts);
+            goToReceivedWorkouts();
+        } else if (action.equals(Variables.ACCEPTED_FRIEND_REQUEST_CLICK)) {
+            // sanity check update, this should always be taken care of when service broadcasts
+            String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
+            user.getFriends().get(usernameAccepted).setConfirmed(true);
+
+            Fragment visibleFragment = getVisibleFragment();
+            if (visibleFragment instanceof FriendsListFragment) {
+                ((FriendsListFragment) visibleFragment).updateFriendsList();
+            } else {
+                // not currently on the friends list fragment, so go there
+                closeAllOpenDialogs();
+                goToFriendsList(null);
+            }
+        } else if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
+            try {
+                // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
+                FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
+
+                Fragment visibleFragment = getVisibleFragment();
+                if (visibleFragment instanceof FriendsListFragment) {
+                    ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
+                } else {
+                    // not currently on the friends list fragment, so go there
+                    closeAllOpenDialogs();
+                    Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                    extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                    goToFriendsList(extras);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void navigateToFragmentFromNotification(String action) {
         if (action == null) {
             return;
@@ -247,21 +323,22 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onDestroy() {
-        // stop any timer/stopwatch services that may be running.
-        stopService(new Intent(this, TimerService.class));
-        stopService(new Intent(this, StopwatchService.class));
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
-            notificationManager.cancel(TimerService.timerFinishedId);
+        if (!activityFinishing) {
+            // stop any timer/stopwatch services that may be running.
+            stopService(new Intent(this, TimerService.class));
+            stopService(new Intent(this, StopwatchService.class));
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
+                notificationManager.cancel(TimerService.timerFinishedId);
+            }
+            // update tokens just in case they changed in apps life cycle
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
+            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
+            editor.apply();
         }
-        // update tokens just in case they changed in apps life cycle
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
-        editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
-        editor.apply();
-
         super.onDestroy();
     }
 
@@ -495,55 +572,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    // responsible for navigation when app is in foreground
-                    break;
-                case Variables.RECEIVED_WORKOUT_CLICK:
-                    closeAllOpenDialogs();
-                    nav.setCheckedItem(R.id.nav_received_workouts);
-                    goToReceivedWorkouts();
-                    break;
-                case Variables.ACCEPTED_FRIEND_REQUEST_CLICK: {
-                    String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    // sanity check update, this should always be taken care of when service broadcasts
-                    user.getFriends().get(usernameAccepted).setConfirmed(true);
-                    Fragment visibleFragment = getVisibleFragment();
-                    if (visibleFragment instanceof FriendsListFragment) {
-                        ((FriendsListFragment) visibleFragment).updateFriendsList();
-                    } else {
-                        // not currently on the friends list fragment, so go there
-                        closeAllOpenDialogs();
-                        goToFriendsList(null);
-                    }
-                    break;
-                }
-                case Variables.NEW_FRIEND_REQUEST_CLICK: {
-                    FriendRequest friendRequest;
-                    try {
-                        // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
-                        friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
-
-                        Fragment visibleFragment = getVisibleFragment();
-                        if (visibleFragment instanceof FriendsListFragment) {
-                            ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
-                        } else {
-                            // not currently on the friends list fragment, so go there
-                            closeAllOpenDialogs();
-                            Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                            extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                            goToFriendsList(extras);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-                case Variables.INTENT_TIMER_NOTIFICATION_CLICK:
-                case Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK:
-                    // close any popup that might be showing
-                    closeAllOpenDialogs();
-                    goToCurrentWorkout();
-                    nav.setCheckedItem(R.id.nav_current_workout);
                     break;
             }
         }

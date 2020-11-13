@@ -102,8 +102,10 @@ public class TimerService extends Service {
      * @return Push Notification to display on status bar.
      */
     private Notification timerRunningNotification(String content) {
-        Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -122,8 +124,10 @@ public class TimerService extends Service {
      * Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
      */
     private void showTimerFinishedNotification() {
-        Intent notificationIntent = new Intent(this, NotificationActivity.class);
-        notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
