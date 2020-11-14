@@ -109,7 +109,7 @@ public class StopwatchService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.STOPWATCH_RUNNING_REQUEST_CODE, notificationIntent, 0);
         return new NotificationCompat.Builder(this, Variables.STOPWATCH_RUNNING_CHANNEL)
                 .setContentTitle("Stopwatch")
                 .setContentText(content)
@@ -131,7 +131,7 @@ public class StopwatchService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.STOPWATCH_FINISHED_REQUEST_CODE, notificationIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, Variables.STOPWATCH_RUNNING_CHANNEL)
                 .setContentTitle("Stopwatch")
                 .setContentText("Stopwatch limit reached.")

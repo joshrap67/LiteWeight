@@ -109,7 +109,7 @@ public class TimerService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         return new NotificationCompat.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText(content)
@@ -131,7 +131,7 @@ public class TimerService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.TIMER_FINISHED_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText("Timer finished!")

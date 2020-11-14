@@ -114,4 +114,13 @@ public class Variables {
             RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
             RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
     public static final int BATCH_SIZE = 10;
+
+    // request codes for pending intents
+    public static final int TIMER_RUNNING_REQUEST_CODE = 0,
+            TIMER_FINISHED_REQUEST_CODE = 1,
+            STOPWATCH_RUNNING_REQUEST_CODE = 2,
+            STOPWATCH_FINISHED_REQUEST_CODE = 3,
+            FRIEND_REQUEST_CODE = 4,
+            ACCEPTED_REQUEST_CODE = 5,
+            RECEIVED_WORKOUT_REQUEST_CODE = 6;
 }
