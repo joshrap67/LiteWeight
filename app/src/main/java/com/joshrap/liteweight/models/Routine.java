@@ -46,6 +46,39 @@ public class Routine implements Model, Iterable<Integer> {
         }
     }
 
+    public static boolean routinesIdentical(Routine routine1, Routine routine2) {
+        if (routine1.getTotalNumberOfDays() != routine2.getTotalNumberOfDays()) {
+            // one routine has more total days than the other, so not equal
+            return false;
+        }
+
+        if (routine1.getNumberOfWeeks() != routine2.getNumberOfWeeks()) {
+            // one routine has more or less weeks than the other, so not equal
+            return false;
+        }
+        for (Integer week : routine1) {
+            if (routine1.getWeek(week).getNumberOfDays() != routine2.getWeek(week).getNumberOfDays()) {
+                // one routine has more or less days in a week than the other, so not equal
+                return false;
+            }
+            for (Integer day : routine1.getWeek(week)) {
+                List<RoutineExercise> exercises1 = routine1.getExerciseListForDay(week, day);
+                List<RoutineExercise> exercises2 = routine2.getExerciseListForDay(week, day);
+                if (exercises1.size() != exercises2.size()) {
+                    // one routine has more or less exercises in a day than the other, so not equal
+                    return false;
+                }
+                for (int i = 0; i < exercises1.size(); i++) {
+                    if (!RoutineExercise.exercisesIdentical(exercises1.get(i), exercises2.get(i))) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     public List<RoutineExercise> getExerciseListForDay(int week, int day) {
         List<RoutineExercise> exerciseList = new ArrayList<>();
         // TODO sanity sort based on index?
@@ -100,7 +133,7 @@ public class Routine implements Model, Iterable<Integer> {
         return days;
     }
 
-    public void insertExercise(int week, int day, final RoutineExercise routineExercise) {
+    public void addExercise(int week, int day, final RoutineExercise routineExercise) {
         this.getDay(week, day).insertNewExercise(routineExercise);
     }
 

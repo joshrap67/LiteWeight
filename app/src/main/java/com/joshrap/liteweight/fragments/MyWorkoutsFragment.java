@@ -151,6 +151,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         dropDownMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case editIndex:
+                    dropDownMenu.dismiss();
                     ((WorkoutActivity) getActivity()).goToEditWorkout();
                     return true;
                 case renameIndex:

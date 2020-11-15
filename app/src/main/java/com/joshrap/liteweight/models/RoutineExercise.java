@@ -58,6 +58,29 @@ public class RoutineExercise implements Model, Cloneable {
         this.details = ownedExercise.getDefaultDetails();
     }
 
+    public static boolean exercisesIdentical(RoutineExercise exercise1, RoutineExercise exercise2) {
+        boolean retVal = true;
+        System.out.println("wtf");
+        if (exercise1.isCompleted() != exercise2.isCompleted()) {
+            retVal = false;
+        }
+        if (!exercise1.getExerciseId().equals(exercise2.getExerciseId())) {
+            retVal = false;
+        }
+        if (exercise1.getWeight() != exercise2.getWeight()) {
+            retVal = false;
+        }
+        if (exercise1.getSets() != exercise2.getSets()) {
+            retVal = false;
+        }
+        if (exercise1.getReps() != exercise2.getReps()) {
+            retVal = false;
+        }
+        if (!exercise1.getDetails().equals(exercise2.getDetails())) {
+            retVal = false;
+        }
+        return retVal;
+    }
 
     @Override
     public Map<String, Object> asMap() {

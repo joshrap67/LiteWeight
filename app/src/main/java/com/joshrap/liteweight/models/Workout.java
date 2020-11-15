@@ -53,8 +53,16 @@ public class Workout implements Model {
     }
 
     public static boolean workoutsIdentical(Workout workout1, Workout workout2) {
-        boolean retVal = false;
-        // todo compare dem bitches
+        boolean retVal = true;
+        if (!workout1.getCurrentWeek().equals(workout2.getCurrentWeek())) {
+            retVal = false;
+        }
+        if (!workout1.getCurrentDay().equals(workout2.getCurrentDay())) {
+            retVal = false;
+        }
+        if (!Routine.routinesIdentical(workout1.getRoutine(), workout2.getRoutine())) {
+            retVal = false;
+        }
         return retVal;
     }
 

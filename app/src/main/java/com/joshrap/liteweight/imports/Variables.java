@@ -1,8 +1,5 @@
 package com.joshrap.liteweight.imports;
 
-import com.joshrap.liteweight.models.WorkoutMeta;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +8,6 @@ public class Variables {
         Contains read only static variables
      */
     public static final int
-            MAX_NUMBER_OF_WORKOUTS = 40,
             MAX_NUMBER_OF_FREE_EXERCISES = 100,
             WORKOUT_MAX_NUMBER_OF_DAYS = 7,
             MAX_NUMBER_OF_WEEKS = 10,
@@ -49,7 +45,6 @@ public class Variables {
             "Strength Training",
             "Triceps"
     );
-
 
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
