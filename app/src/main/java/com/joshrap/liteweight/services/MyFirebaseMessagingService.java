@@ -13,7 +13,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.NotificationActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.Variables;

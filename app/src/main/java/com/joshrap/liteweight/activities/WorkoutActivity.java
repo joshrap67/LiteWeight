@@ -60,6 +60,7 @@ import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -101,6 +102,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private User user;
     @Getter
     private Workout currentWorkout;
+    @Getter
+    private UserWithWorkout userWithWorkout;
 
     @Inject
     Tokens tokens;
@@ -160,6 +163,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         nav = findViewById(R.id.nav_view);
         user = Globals.user; // todo instantiate this from intent from splash activity
         currentWorkout = Globals.activeWorkout;
+
+        userWithWorkout = new UserWithWorkout(user, currentWorkout);
         nav.setNavigationItemSelectedListener(this);
         fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);

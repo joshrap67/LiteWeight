@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.imports;
 
+import com.joshrap.liteweight.models.WorkoutMeta;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,9 @@ public class Variables {
             MAX_FREE_WORKOUTS_SENT = 1500, // todo change after dev work is done
             ADD_MODE = 0,
             DELETE_MODE = 1,
-            COPY_MODE = 2;
+            COPY_MODE = 2,
+            MAX_FREE_WORKOUTS = 10,
+            MAX_WORKOUTS = 20;
 
     public static final List<String> FOCUS_LIST = Arrays.asList(
             "Back",
@@ -115,12 +119,12 @@ public class Variables {
             RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
     public static final int BATCH_SIZE = 10;
 
-    // request codes for pending intents
-    public static final int TIMER_RUNNING_REQUEST_CODE = 0,
-            TIMER_FINISHED_REQUEST_CODE = 1,
-            STOPWATCH_RUNNING_REQUEST_CODE = 2,
-            STOPWATCH_FINISHED_REQUEST_CODE = 3,
-            FRIEND_REQUEST_CODE = 4,
-            ACCEPTED_REQUEST_CODE = 5,
-            RECEIVED_WORKOUT_REQUEST_CODE = 6;
+    // request codes for pending intents. These values are arbitrary
+    public static final int TIMER_RUNNING_REQUEST_CODE = 67,
+            TIMER_FINISHED_REQUEST_CODE = 68,
+            STOPWATCH_RUNNING_REQUEST_CODE = 69,
+            STOPWATCH_FINISHED_REQUEST_CODE = 70,
+            FRIEND_REQUEST_CODE = 71,
+            ACCEPTED_REQUEST_CODE = 72,
+            RECEIVED_WORKOUT_REQUEST_CODE = 73;
 }

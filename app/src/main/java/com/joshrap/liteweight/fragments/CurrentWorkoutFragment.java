@@ -77,6 +77,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private RecyclerView recyclerView;
     private ProgressBar workoutProgressBar;
     private TextView workoutProgressTV;
+    private UserWithWorkout userWithWorkout;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -84,16 +85,19 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     WorkoutRepository workoutRepository;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
-        currentWorkout = ((WorkoutActivity) getActivity()).getCurrentWorkout();
-        user = ((WorkoutActivity) getActivity()).getUser();
+
+        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        currentWorkout = userWithWorkout.getWorkout();
+        user = userWithWorkout.getUser();
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
         View view;
-        if (currentWorkout == null) {
+        if (!userWithWorkout.isWorkoutPresent()) {
             // user has no workouts, display special layout telling them to create one
             ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
@@ -107,7 +111,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (currentWorkout == null) {
+        if (!userWithWorkout.isWorkoutPresent()) {
             FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
             return;
@@ -152,7 +156,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
     @Override
     public void onPause() {
-        loadingDialog.dismiss();
+        hideAllDialogs();
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
             timer.startService();
@@ -168,6 +172,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void hideAllDialogs() {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
+        }
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 
@@ -295,7 +302,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
-                user.getUserExercises(), metricUnits, videosEnabled);
+                user.getOwnedExercises(), metricUnits, videosEnabled);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

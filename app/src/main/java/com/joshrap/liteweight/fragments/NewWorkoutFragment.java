@@ -49,7 +49,6 @@ import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.PendingRoutineAdapter;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -61,6 +60,7 @@ import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 
 import java.util.ArrayList;
@@ -93,6 +93,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     private LinearLayout radioLayout, customSortLayout;
     private RelativeLayout relativeLayout;
     private AddExerciseAdapter addExerciseAdapter;
+    private Workout currentWorkout;
+    private UserWithWorkout userWithWorkout;
+
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -116,11 +119,13 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         allUserExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
         mode = Variables.ADD_MODE;
-        activeUser = Globals.user; // TODO dependency injection?
+        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        currentWorkout = userWithWorkout.getWorkout();
+        activeUser = userWithWorkout.getUser();
 
         exerciseIdToName = new HashMap<>();
-        for (String id : activeUser.getUserExercises().keySet()) {
-            exerciseIdToName.put(id, activeUser.getUserExercises().get(id).getExerciseName());
+        for (String id : activeUser.getOwnedExercises().keySet()) {
+            exerciseIdToName.put(id, activeUser.getOwnedExercises().get(id).getExerciseName());
         }
         return view;
     }
@@ -748,8 +753,9 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    Globals.user = resultStatus.getData().getUser();
-                    Globals.activeWorkout = resultStatus.getData().getWorkout();
+                    userWithWorkout.setUser(resultStatus.getData().getUser());
+                    userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
+                    userWithWorkout.setWorkoutPresent(true);
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
                     showErrorMessage(resultStatus.getErrorMessage());
@@ -835,8 +841,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             allUserExercises.put(focus, new ArrayList<>());
         }
 
-        for (String exerciseId : activeUser.getUserExercises().keySet()) {
-            OwnedExercise ownedExercise = activeUser.getUserExercises().get(exerciseId);
+        for (String exerciseId : activeUser.getOwnedExercises().keySet()) {
+            OwnedExercise ownedExercise = activeUser.getOwnedExercises().get(exerciseId);
             List<String> focusesOfExercise = ownedExercise.getFocuses();
             for (String focus : focusesOfExercise) {
                 if (!allUserExercises.containsKey(focus)) {

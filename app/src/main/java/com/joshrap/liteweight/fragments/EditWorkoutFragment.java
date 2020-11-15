@@ -115,8 +115,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         mode = Variables.ADD_MODE;
 
         exerciseIdToName = new HashMap<>();
-        for (String id : activeUser.getUserExercises().keySet()) {
-            exerciseIdToName.put(id, activeUser.getUserExercises().get(id).getExerciseName());
+        for (String id : activeUser.getOwnedExercises().keySet()) {
+            exerciseIdToName.put(id, activeUser.getOwnedExercises().get(id).getExerciseName());
         }
         return view;
     }
@@ -799,8 +799,8 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             allUserExercises.put(focus, new ArrayList<>());
         }
 
-        for (String exerciseId : activeUser.getUserExercises().keySet()) {
-            OwnedExercise ownedExercise = activeUser.getUserExercises().get(exerciseId);
+        for (String exerciseId : activeUser.getOwnedExercises().keySet()) {
+            OwnedExercise ownedExercise = activeUser.getOwnedExercises().get(exerciseId);
             List<String> focusesOfExercise = ownedExercise.getFocuses();
             for (String focus : focusesOfExercise) {
                 if (!allUserExercises.containsKey(focus)) {

@@ -42,7 +42,7 @@ public class User implements Model {
     @Setter(AccessLevel.NONE)
     private Map<String, WorkoutMeta> userWorkouts;
     @Setter(AccessLevel.NONE)
-    private Map<String, OwnedExercise> userExercises;
+    private Map<String, OwnedExercise> ownedExercises;
     @Setter(AccessLevel.NONE)
     private Map<String, Friend> friends;
     @Setter(AccessLevel.NONE)
@@ -58,7 +58,7 @@ public class User implements Model {
         this.setCurrentWorkout((String) json.get(CURRENT_WORKOUT));
         this.setWorkoutsSent((Integer) json.get(WORKOUTS_SENT));
         this.setUserWorkouts((Map<String, Object>) json.get(WORKOUTS));
-        this.setUserExercises((Map<String, Object>) json.get(EXERCISES));
+        this.setOwnedExercises((Map<String, Object>) json.get(EXERCISES));
         this.setFriends((Map<String, Object>) json.get(FRIENDS));
         this.setUserPreferences(new UserPreferences((Map<String, Object>) json.get(USER_PREFERENCES)));
         this.setFriendRequests((Map<String, Object>) json.get(FRIENDS_REQUESTS));
@@ -70,20 +70,38 @@ public class User implements Model {
 
     public void addNewExercises(Map<String, OwnedExercise> exercises) {
         for (String exerciseId : exercises.keySet()) {
-            if (!this.userExercises.containsKey(exerciseId)) {
-                this.userExercises.put(exerciseId, exercises.get(exerciseId));
+            if (!this.ownedExercises.containsKey(exerciseId)) {
+                this.ownedExercises.put(exerciseId, exercises.get(exerciseId));
             }
         }
     }
 
+    /**
+     * Utilized when getting updated exercises from backend.
+     *
+     * @param newExercises exercises that may or may not all be updated.
+     */
+    public void updateOwnedExercises(Map<String, OwnedExercise> newExercises) {
+        this.ownedExercises = newExercises;
+    }
+
+    /**
+     * Utilized when getting updated workouts from backend.
+     *
+     * @param newWorkouts workouts that may or may not all be updated.
+     */
+    public void updateUserWorkouts(Map<String, WorkoutMeta> newWorkouts) {
+        this.userWorkouts = newWorkouts;
+    }
+
     // Setters
-    private void setUserExercises(Map<String, Object> json) {
+    private void setOwnedExercises(Map<String, Object> json) {
         if (json == null) {
-            this.userExercises = null;
+            this.ownedExercises = null;
         } else {
-            this.userExercises = new HashMap<>();
+            this.ownedExercises = new HashMap<>();
             for (String exerciseId : json.keySet()) {
-                this.userExercises
+                this.ownedExercises
                         .put(exerciseId, new OwnedExercise((Map<String, Object>) json.get(exerciseId), exerciseId));
             }
         }
@@ -100,7 +118,7 @@ public class User implements Model {
         }
     }
 
-    public void setReceivedWorkouts(Map<String, Object> json) {
+    private void setReceivedWorkouts(Map<String, Object> json) {
         if (json == null) {
             this.receivedWorkouts = null;
         } else {
@@ -177,13 +195,13 @@ public class User implements Model {
     }
 
     private Map<String, Map<String, Object>> getUserExercisesMap() {
-        if (this.userExercises == null) {
+        if (this.ownedExercises == null) {
             return null;
         }
 
         Map<String, Map<String, Object>> retVal = new HashMap<>();
-        for (String exerciseId : this.userExercises.keySet()) {
-            retVal.put(exerciseId, this.userExercises.get(exerciseId).asMap());
+        for (String exerciseId : this.ownedExercises.keySet()) {
+            retVal.put(exerciseId, this.ownedExercises.get(exerciseId).asMap());
         }
         return retVal;
     }

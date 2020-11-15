@@ -11,27 +11,20 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +35,6 @@ import com.joshrap.liteweight.adapters.WorkoutsAdapter;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.StatisticsHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -54,9 +46,15 @@ import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.ErrorDialog;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -70,6 +68,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
     private User user;
     private Workout currentWorkout;
+    private UserWithWorkout userWithWorkout;
     private List<WorkoutMeta> workoutList;
     private WorkoutsAdapter workoutsAdapter;
     @Inject
@@ -81,15 +80,17 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Injector.getInjector(getContext()).inject(this);
+
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
-        Injector.getInjector(getContext()).inject(this);
-        // TODO injection or view model for these two???
-        currentWorkout = Globals.activeWorkout;
-        user = Globals.user;
+
+        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        currentWorkout = userWithWorkout.getWorkout();
+        user = userWithWorkout.getUser();
 
         View view;
-        if (currentWorkout == null) {
+        if (!userWithWorkout.isWorkoutPresent()) {
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
             view = inflater.inflate(R.layout.fragment_my_workouts, container, false);
@@ -100,7 +101,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (currentWorkout == null) {
+        if (!userWithWorkout.isWorkoutPresent()) {
             FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
             return;
@@ -111,44 +112,39 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
     @Override
     public void onPause() {
-        // todo do this for all fragments
-        loadingDialog.dismiss();
+        hideAllDialogs();
         super.onPause();
     }
 
     @Override
     public void hideAllDialogs() {
-        /*
-            Close any dialogs that might be showing. This is essential when clicking a notification that takes
-            the user to a new page.
-         */
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
-
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
     }
 
+    /**
+     * Once at least one workout is found, change layouts and initialize all views.
+     *
+     * @param view root view with all necessary widgets
+     */
     private void initViews(View view) {
-        /*
-            Once at least one workout is found, change layouts and initialize all views
-         */
-
         ImageButton workoutOptionsButton = view.findViewById(R.id.workout_options_btn);
         final PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
         final Menu menu = dropDownMenu.getMenu();
         final int editIndex = 0;
         final int sendIndex = 1;
-        final int renameIndex = 2;
-        final int copyIndex = 3;
+        final int copyIndex = 2;
+        final int renameIndex = 3;
         final int resetIndex = 4;
         final int deleteIndex = 5;
         menu.add(0, editIndex, 0, "Edit Workout");
-        menu.add(0, sendIndex, 0, "Send Workout");
-        menu.add(0, renameIndex, 0, "Rename Workout");
+        menu.add(0, sendIndex, 0, "Share Workout");
         menu.add(0, copyIndex, 0, "Copy Workout");
+        menu.add(0, renameIndex, 0, "Rename Workout");
         menu.add(0, resetIndex, 0, "Reset Statistics");
         menu.add(0, deleteIndex, 0, "Delete Workout");
 
@@ -167,17 +163,22 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     promptDelete();
                     return true;
                 case sendIndex:
-                    if (user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
-                        promptSend();
+                    if (user.getPremiumToken() != null ||
+                            user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
+                        promptShare();
                     } else {
                         ErrorDialog.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!", getContext());
                     }
-                    break;
+                    return true;
                 case copyIndex:
-                    if (user.getUserWorkouts().size() < Variables.MAX_NUMBER_OF_WORKOUTS) {
-                        promptCopy();
+                    if (user.getPremiumToken() == null &&
+                            workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of free workouts you can own. Delete some of your other ones if you wish to copy this workout. Or, you can upgrade to premium :)", getContext());
+                    } else if (user.getPremiumToken() != null
+                            && workoutList.size() >= Variables.MAX_WORKOUTS) {
+                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
                     } else {
-                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout", getContext());
+                        promptCopy();
                     }
                     return true;
             }
@@ -191,12 +192,22 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         updateStatisticsTV();
 
-        sortWorkouts();
-        // set up the create workout button
         FloatingActionButton createWorkoutBtn = view.findViewById(R.id.new_workout_btn);
-        createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
+        createWorkoutBtn.setOnClickListener(v -> {
+            if (user.getPremiumToken() == null
+                    && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+                ErrorDialog.showErrorDialog("Too many workouts", "You have reached the maximum amount of free workouts allowed. Delete some of your other ones if you wish to create a new one, or upgrade to premium.", getContext());
+            } else if (user.getPremiumToken() != null
+                    && workoutList.size() >= Variables.MAX_WORKOUTS) {
+                ErrorDialog.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
+            } else {
+                // no errors so let user create new workout
+                ((WorkoutActivity) getActivity()).goToNewWorkout();
+            }
+        });
 
-        // set up the list view
+        // initializes the main list view
+        sortWorkouts();
         workoutsAdapter = new WorkoutsAdapter(getContext(), workoutList);
         workoutListView.setAdapter(workoutsAdapter);
         workoutListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -205,10 +216,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
+    /**
+     * Updates all UI with the newly changed current workout.
+     */
     private void updateUI() {
-        /*
-            Updates all the UI with the newly changed current workout
-         */
         workoutList.clear();
         workoutList.addAll(user.getUserWorkouts().values());
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
@@ -217,21 +228,33 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         updateStatisticsTV();
     }
 
+    /**
+     * Sorts workouts by date last accessed and ensures currently selected workout is at the top of the list.
+     */
     private void sortWorkouts() {
-        /*
-            Currently sorts by date last accessed
-         */
-        workoutList.remove(user.getUserWorkouts().get(currentWorkout.getWorkoutId()));
-        // todo this isn't actually going by dates...
-        Collections.sort(workoutList, (o1, o2) -> o2.getDateLast().compareTo(o1.getDateLast()));
-        workoutList.add(0, user.getUserWorkouts().get(currentWorkout.getWorkoutId())); // selected always on top
+        WorkoutMeta currentWorkoutMeta = user.getUserWorkouts().get(currentWorkout.getWorkoutId());
+        workoutList.remove(currentWorkoutMeta);
+        Collections.sort(workoutList, (r1, r2) -> {
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
+            dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            int retVal = 0;
+            try {
+                Date date1 = dateFormatter.parse(r1.getDateLast());
+                Date date2 = dateFormatter.parse(r2.getDateLast());
+                retVal = date1 != null ? date2.compareTo(date1) : 0;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return retVal;
+        });
+        workoutList.add(0, currentWorkoutMeta); // selected always on top
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
+    /**
+     * Fetches and displays statistics for the currently selected workout.
+     */
     private void updateStatisticsTV() {
-        /*
-            Displays statistics for the currently selected workout
-         */
         int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double average = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsHelper.getFormattedAverageCompleted(average);
@@ -242,10 +265,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         statisticsTV.setText(msg);
     }
 
+    /**
+     * Prompt the user if they actually want to reset the selected workout's statistics.
+     */
     private void promptResetStatistics() {
-        /*
-            Prompt the user if they actually want to reset the selected workout's statistics
-         */
         String message = "Are you sure you wish to reset the statistics for \"" +
                 currentWorkout.getWorkoutName() + "\"?\n\n" +
                 "Doing so will reset the times completed and the percentage of exercises completed.";
@@ -258,10 +281,30 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
+    private void resetWorkoutStatistics(final String workoutId) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Resetting...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<User> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    WorkoutMeta updatedWorkoutMeta = resultStatus.getData().getUserWorkouts().get(currentWorkout.getWorkoutId());
+                    user.getUserWorkouts().put(currentWorkout.getWorkoutId(), updatedWorkoutMeta);
+
+                    updateUI();
+                } else {
+                    ErrorDialog.showErrorDialog("Reset Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    /**
+     * Prompt the user if they want to rename the current workout.
+     */
     private void promptRename() {
-        /*
-            Prompt the user if they want to rename the current workout
-         */
         View popupView = getLayoutInflater().inflate(R.layout.popup_rename_workout, null);
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
@@ -291,6 +334,27 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             });
         });
         alertDialog.show();
+    }
+
+    private void renameWorkout(final String workoutId, final String newWorkoutName) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Renaming...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<User> resultStatus = this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    user.updateOwnedExercises(resultStatus.getData().getOwnedExercises());
+                    user.getUserWorkouts().get(currentWorkout.getWorkoutId()).setWorkoutName(newWorkoutName);
+                    currentWorkout.setWorkoutName(newWorkoutName);
+
+                    updateUI();
+                } else {
+                    ErrorDialog.showErrorDialog("Rename Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
     }
 
     private void promptCopy() {
@@ -326,10 +390,34 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void promptSend() {
-        /*
-            Prompt user to send workout to a friend or any other user
-         */
+    private void copyWorkout(final String workoutName) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Copying...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.copyWorkout(currentWorkout, workoutName);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
+                    currentWorkout = userWithWorkout.getWorkout();
+
+                    user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
+                    user.getUserWorkouts().put(currentWorkout.getWorkoutId(),
+                            resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
+
+                    updateUI();
+                } else {
+                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    /**
+     * Prompt user to send workout to a friend or any other user
+     */
+    private void promptShare() {
         final View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
         final EditText usernameInput = popupView.findViewById(R.id.username_input);
         final TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
@@ -341,7 +429,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             }
         }
         if (friendsUsernames.isEmpty()) {
-            // user has not friends, so hide the TV and listview that displays the friends
+            // user has no friends, so hide the TV and listview that displays the friends
             popupView.findViewById(R.id.friends_text_view).setVisibility(View.GONE);
             friendsListView.setVisibility(View.GONE);
         }
@@ -351,13 +439,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         // when user clicks on one of their friends, put that friend's username into the input
         friendsListView.setOnItemClickListener((adapterView, view, i, l) -> usernameInput.setText(friendsUsernames.get(i)));
 
-
         usernameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(usernameInputLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Send \"%s\" to another user", currentWorkout.getWorkoutName()))
+                .setTitle(String.format("Share \"%s\" to another user", currentWorkout.getWorkoutName()))
                 .setView(popupView)
-                .setPositiveButton("Send", null)
+                .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
@@ -370,17 +457,35 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
-                    sendWorkout(username, currentWorkout.getWorkoutId());
+                    shareWorkout(username, currentWorkout.getWorkoutId());
                 }
             });
         });
         alertDialog.show();
     }
 
+    private void shareWorkout(String recipientUsername, String workoutId) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Sharing...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
+                    user.setWorkoutsSent(user.getWorkoutsSent() + 1);
+                } else {
+                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    /**
+     * Prompt user if they actually want to delete the currently selected workout.
+     */
     private void promptDelete() {
-        /*
-            Prompt user if they actually want to delete the currently selected workout
-         */
         String message = "Are you sure you wish to permanently delete \"" + currentWorkout.getWorkoutName() + "\"?" +
                 "\n\nIf so, all statistics for it will also be deleted.";
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -399,24 +504,52 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
+    private void deleteWorkout(String workoutId, String nextWorkoutId) {
+        AndroidHelper.showLoadingDialog(loadingDialog, "Deleting...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId, nextWorkoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
+                    user.updateUserWorkouts(resultStatus.getData().getUser().getUserWorkouts());
+                    user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
+
+                    userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
+                    currentWorkout = userWithWorkout.getWorkout();
+                    if (currentWorkout == null) {
+                        userWithWorkout.setWorkoutPresent(false);
+                        // means there are no workouts left, so change view to tell user to create a workout
+                        resetFragment();
+                    } else {
+                        updateUI();
+                    }
+                } else {
+                    ErrorDialog.showErrorDialog("Delete Workout Error", resultStatus.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
     private void switchWorkout(final WorkoutMeta selectedWorkout) {
         if (selectedWorkout.getWorkoutId().equals(currentWorkout.getWorkoutId())) {
             // don't allow user to switch to current workout since they are already on it
             return;
         }
-        showLoadingDialog();
+        AndroidHelper.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
-                    // not sure if this does what i think it does? But would prevent potential memory leaks
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
                         // set new active workout and update user
-                        currentWorkout = resultStatus.getData().getWorkout();
-                        Globals.activeWorkout = currentWorkout;
+                        userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
+                        currentWorkout = userWithWorkout.getWorkout();
                         user.setCurrentWorkout(currentWorkout.getWorkoutId());
                         user.getUserWorkouts().put(currentWorkout.getWorkoutId(),
                                 resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
@@ -430,126 +563,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
     }
 
-    private void renameWorkout(final String workoutId, final String newWorkoutName) {
-        showLoadingDialog();
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<User> resultStatus = this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    user = resultStatus.getData();
-                    Globals.user = user;
-                    currentWorkout.setWorkoutName(newWorkoutName);
-
-                    updateUI();
-                } else {
-                    ErrorDialog.showErrorDialog("Rename Workout Error", resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-    }
-
-    private void copyWorkout(final String workoutName) {
-        showLoadingDialog();
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.copyWorkout(currentWorkout, workoutName);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    user = resultStatus.getData().getUser();
-                    Globals.user = user;
-
-                    currentWorkout = resultStatus.getData().getWorkout();
-                    Globals.activeWorkout = currentWorkout;
-
-                    updateUI();
-                } else {
-                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-    }
-
-    private void sendWorkout(final String recipientUsername, String workoutId) {
-        showLoadingDialog();
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
-                    user.setWorkoutsSent(user.getWorkoutsSent() + 1);
-
-                } else {
-                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-    }
-
-    private void deleteWorkout(final String workoutId, final String nextWorkoutId) {
-        showLoadingDialog();
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId, nextWorkoutId);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    user = resultStatus.getData().getUser();
-                    Globals.user = user;
-                    if (resultStatus.getData().getWorkout() == null) {
-                        Globals.activeWorkout = null;
-                        // means there are no workouts left, so change view to tell user to create a workout
-                        resetFragment();
-                    } else {
-                        currentWorkout = resultStatus.getData().getWorkout();
-                        Globals.activeWorkout = currentWorkout;
-                        updateUI();
-                    }
-                } else {
-                    ErrorDialog.showErrorDialog("Delete Workout Error", resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-
-    }
-
-    private void resetWorkoutStatistics(final String workoutId) {
-        showLoadingDialog();
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<User> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    user = resultStatus.getData();
-                    Globals.user = user;
-                    updateUI();
-                } else {
-                    ErrorDialog.showErrorDialog("Reset Workout Error", resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-
-    }
-
-    private void showLoadingDialog() {
-        loadingDialog.setMessage("Loading...");
-        loadingDialog.show();
-    }
-
+    /**
+     * Resets the current fragment. Used when all workouts are deleted
+     */
     private void resetFragment() {
-        /*
-            Resets the current fragment. Used after the workout is successfully created
-         */
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }

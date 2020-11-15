@@ -87,8 +87,8 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
 
         // todo add search bar for exercise?
-        for (String exerciseId : user.getUserExercises().keySet()) {
-            OwnedExercise ownedExercise = user.getUserExercises().get(exerciseId);
+        for (String exerciseId : user.getOwnedExercises().keySet()) {
+            OwnedExercise ownedExercise = user.getOwnedExercises().get(exerciseId);
             List<String> focusesOfExercise = new ArrayList<>(ownedExercise.getFocuses());
             for (String focus : focusesOfExercise) {
                 if (!focusList.contains(focus)) {
@@ -109,7 +109,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_btn);
         createBtn.setOnClickListener(v -> {
-            if (!(user.getUserExercises().size() > Variables.MAX_NUMBER_OF_FREE_EXERCISES)) {
+            if (!(user.getOwnedExercises().size() > Variables.MAX_NUMBER_OF_FREE_EXERCISES)) {
                 newExercisePopup();
             } else {
                 // TODO premium check
@@ -257,7 +257,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                             loadingDialog.dismiss();
                             if (resultStatus.isSuccess()) {
                                 OwnedExercise ownedExercise = resultStatus.getData();
-                                Globals.user.getUserExercises().put(ownedExercise.getExerciseId(), ownedExercise);
+                                Globals.user.getOwnedExercises().put(ownedExercise.getExerciseId(), ownedExercise);
                                 ((WorkoutActivity) getActivity()).goToExerciseDetails(ownedExercise.getExerciseId());
                             } else {
                                 ErrorDialog.showErrorDialog("Exercise Add Error", resultStatus.getErrorMessage(), getContext());

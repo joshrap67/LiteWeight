@@ -84,8 +84,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         user = Globals.user;
         metricUnits = user.getUserPreferences().isMetricUnits();
         exerciseNames = new ArrayList<>();
-        for (String exerciseId : user.getUserExercises().keySet()) {
-            exerciseNames.add(user.getUserExercises().get(exerciseId).getExerciseName());
+        for (String exerciseId : user.getOwnedExercises().keySet()) {
+            exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
         }
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
@@ -94,8 +94,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        List<String> workoutList = new ArrayList<>(user.getUserExercises().get(exerciseId).getWorkouts().values());
-        originalExercise = user.getUserExercises().get(exerciseId);
+        List<String> workoutList = new ArrayList<>(user.getOwnedExercises().get(exerciseId).getWorkouts().values());
+        originalExercise = user.getOwnedExercises().get(exerciseId);
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         exerciseNameInput = view.findViewById(R.id.exercise_name_input);
@@ -387,7 +387,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                         user = resultStatus.getData();
                         Globals.user = user;
 
-                        originalExercise = user.getUserExercises().get(exerciseId);
+                        originalExercise = user.getOwnedExercises().get(exerciseId);
                         initViews();
                     } else {
                         showErrorMessage("Exercise Update Error", resultStatus.getErrorMessage());
@@ -432,7 +432,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     // deleted successfully, so delete everything
-                    user.getUserExercises().remove(exerciseId);
+                    user.getOwnedExercises().remove(exerciseId);
                     if (Globals.activeWorkout != null) {
                         WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
                     }

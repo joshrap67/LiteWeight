@@ -11,7 +11,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.joshrap.liteweight.activities.NotificationActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
