@@ -9,6 +9,7 @@ public class Variables {
      */
     public static final int
             MAX_NUMBER_OF_FREE_EXERCISES = 100,
+            MAX_NUMBER_OF_EXERCISES = 200,
             WORKOUT_MAX_NUMBER_OF_DAYS = 7,
             MAX_NUMBER_OF_WEEKS = 10,
             MAX_WORKOUT_NAME = 40,

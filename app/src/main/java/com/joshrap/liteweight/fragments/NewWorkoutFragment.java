@@ -877,7 +877,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new FocusSpinnerListener());
-        // initially select first item from spinner, then always select the one the user last clicked
+        // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
         focusSpinner.setSelection((spinnerFocus == null) ? 0 : focusList.indexOf(spinnerFocus));
         // view is all set up, so now create the dialog with it
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
