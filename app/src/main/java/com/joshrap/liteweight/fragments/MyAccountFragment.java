@@ -23,12 +23,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.ImageHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.squareup.picasso.NetworkPolicy;
@@ -52,10 +52,10 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private static final int PICK_PHOTO_FOR_AVATAR = 1;
     private User user;
     private ImageView profilePicture;
-    private String url;
+    private String profilePicUrl;
+    private AlertDialog alertDialog;
     @Inject
     UserRepository userRepository;
-    private AlertDialog alertDialog;
 
 
     @Nullable
@@ -65,15 +65,14 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
-        user = Globals.user;
+
+        UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        user = userWithWorkout.getUser();
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        /*
-            Init all views and buttons when view is loaded onto screen
-         */
         final TextView usernameTV = view.findViewById(R.id.username_tv);
         final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
         final TextView friendsListTV = view.findViewById(R.id.friends_list_tv);
@@ -87,7 +86,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         changePictureTv.setVisibility(View.GONE);
         usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
-        profilePicture.setOnClickListener(v -> getImage());
+        profilePicture.setOnClickListener(v -> launchPhotoPicker());
         int requestUnseenCount = 0;
         for (String username : user.getFriendRequests().keySet()) {
             if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
@@ -98,29 +97,47 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
             friendsListTV.setText(R.string.friends_list_alert);
         }
 
-        url = ImageHelper.getIconUrl(user.getIcon());
+        profilePicUrl = ImageHelper.getIconUrl(user.getIcon());
         Picasso.get()
-                .load(url)
-                .error(R.drawable.app_icon_no_background)
+                .load(profilePicUrl)
+                .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        if (MyAccountFragment.this.isResumed()) {
+                            changePictureTv.setVisibility(View.VISIBLE);
+                        }
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        if (MyAccountFragment.this.isResumed()) {
+                            changePictureTv.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
         super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
+    public void onPause() {
+        hideAllDialogs();
+        super.onPause();
+    }
+
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
             if (data != null) {
+                // a picture was successfully picked, so no immediately send it to be cropped
                 try {
                     final Uri selectedUri = data.getData();
                     performCrop(selectedUri);
@@ -132,6 +149,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
             final Uri uri = UCrop.getOutput(data);
             if (uri != null) {
                 profilePicture.setImageURI(uri);
+                ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
                 try {
                     InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
                     updateIcon(ImageHelper.getImageByteArray(iStream));
@@ -140,7 +158,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Picasso.get().invalidate(url); // since upload was successful,
+                Picasso.get().invalidate(profilePicUrl); // since upload was successful,
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -149,24 +167,21 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private void updateIcon(byte[] imageData) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = null;
             try {
-                resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
+                final ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
+                Handler handler = new Handler(getMainLooper());
+                handler.post(() -> {
+                    if (!resultStatus.isSuccess()) {
+                        ErrorDialog.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
+                    }
+                });
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            Handler handler = new Handler(getMainLooper());
-            ResultStatus<String> finalResultStatus = resultStatus;
-            handler.post(() -> {
-                // todo send image data back to workout activity for the icon in the drawer menu
-                if (!finalResultStatus.isSuccess()) {
-                    ErrorDialog.showErrorDialog("Upload Profile Picture Error", finalResultStatus.getErrorMessage(), getContext());
-                }
-            });
         });
     }
 
-    private void getImage() {
+    private void launchPhotoPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);
@@ -192,9 +207,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptLogout() {
-        /*
-            Is called whenever the user has unfinished work in the create workout fragment.
-         */
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
@@ -202,12 +214,5 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
-    }
-
-    @Override
-    public void hideAllDialogs() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
     }
 }

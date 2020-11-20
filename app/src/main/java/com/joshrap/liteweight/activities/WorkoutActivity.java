@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -98,6 +99,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private Stopwatch stopwatch;
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
+    private ImageView profilePicture;
     @Getter
     private User user;
     @Getter
@@ -190,7 +192,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             drawer.closeDrawer(GravityCompat.START);
         });
         notificationTV = headerView.findViewById(R.id.notification_tv);
-        final ImageView profilePicture = headerView.findViewById(R.id.profile_picture);
+        profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
                 .error(R.drawable.app_icon_no_background)
@@ -808,6 +810,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Called by other fragments to change the string that the toolbar displays.
          */
         toolbarTitleTV.setText(aTitle);
+    }
+
+    public void updateUserIcon(Uri uri) {
+        profilePicture.setImageURI(uri);
+        // make image round
+        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+        imageDrawable.setCircular(true);
+        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+        profilePicture.setImageDrawable(imageDrawable);
     }
 
     public Timer getTimer() {
