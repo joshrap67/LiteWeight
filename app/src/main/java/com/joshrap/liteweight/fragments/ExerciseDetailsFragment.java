@@ -7,16 +7,13 @@ import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,18 +24,20 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.ExerciseHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.WeightHelper;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +51,6 @@ import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.os.Looper.getMainLooper;
 
 public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
-    private static final int weightHelpMode = 0, setsRepsHelpMode = 1, detailsHelpMode = 2;
 
     private AlertDialog alertDialog;
     private User user;
@@ -62,7 +60,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits;
     private ClipboardManager clipboard;
-    private List<String> exerciseNames;
+    private UserWithWorkout userWithWorkout;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -80,13 +78,14 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
-        } // todo error if none
-        user = Globals.user;
-        metricUnits = user.getUserPreferences().isMetricUnits();
-        exerciseNames = new ArrayList<>();
-        for (String exerciseId : user.getOwnedExercises().keySet()) {
-            exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+        } else {
+            return null;
         }
+
+        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        user = userWithWorkout.getUser();
+        metricUnits = user.getUserPreferences().isMetricUnits();
+
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
     }
@@ -97,141 +96,40 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         List<String> workoutList = new ArrayList<>(user.getOwnedExercises().get(exerciseId).getWorkouts().values());
         originalExercise = user.getOwnedExercises().get(exerciseId);
 
-        exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
-        exerciseNameInput = view.findViewById(R.id.exercise_name_input);
-        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-        exerciseNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (exerciseNameLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    exerciseNameLayout.setErrorEnabled(false);
-                    exerciseNameLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
         ImageButton deleteExercise = view.findViewById(R.id.delete_exercise);
         deleteExercise.setOnClickListener(v -> promptDelete());
 
+        exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
-        weightLayout.setHint("Default Weight (" + (metricUnits ? "kg)" : "lb)"));
+        weightLayout.setHint(String.format("Default Weight (%s", metricUnits ? "kg)" : "lb)"));
         setsLayout = view.findViewById(R.id.default_sets_input_layout);
         repsLayout = view.findViewById(R.id.default_reps_input_layout);
         detailsLayout = view.findViewById(R.id.default_details_input_layout);
         urlLayout = view.findViewById(R.id.url_input_layout);
 
+        exerciseNameInput = view.findViewById(R.id.exercise_name_input);
+        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
+        exerciseNameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(exerciseNameLayout));
+
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
-        weightInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (weightLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    weightLayout.setErrorEnabled(false);
-                    weightLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        weightInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(weightLayout));
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
-        setsInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (setsLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    setsLayout.setErrorEnabled(false);
-                    setsLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        setsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(setsLayout));
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
-        repsInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (repsLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    repsLayout.setErrorEnabled(false);
-                    repsLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        repsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(repsLayout));
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
-        detailsInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (detailsLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    detailsLayout.setErrorEnabled(false);
-                    detailsLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        detailsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(detailsLayout));
 
         urlInput = view.findViewById(R.id.url_input);
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
-        urlInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (urlLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    urlLayout.setErrorEnabled(false);
-                    urlLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        urlInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(urlLayout));
 
         final ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
         final ImageButton previewBtn = view.findViewById(R.id.preview_btn);
@@ -255,9 +153,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         });
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
-            workoutListTv.setText("Exercise is not apart of any workouts");
+            workoutListTv.setText("Exercise is not apart of any workouts.");
         } else {
-            Collections.sort(workoutList);
+            Collections.sort(workoutList, String::compareToIgnoreCase);
             StringBuilder workouts = new StringBuilder();
             int maxSize = 5; // only show 5 workouts
             if (maxSize >= workoutList.size()) {
@@ -271,7 +169,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     // don't have comma at last entry
                     workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
                 }
-                workouts.append("\n + " + (workoutList.size() - maxSize) + " more");
+                workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
             }
 
             workoutListTv.setText(workouts.toString());
@@ -289,32 +187,22 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         Button saveButton = view.findViewById(R.id.save_btn);
         saveButton.setOnClickListener(v -> saveExercise());
 
-        ImageView weightHelpButton = view.findViewById(R.id.default_weight_help);
-        weightHelpButton.setOnClickListener(v -> showHelpPopup(weightHelpMode));
-        ImageView repsSetsHelpButton = view.findViewById(R.id.default_sets_reps_help);
-        repsSetsHelpButton.setOnClickListener(v -> showHelpPopup(setsRepsHelpMode));
-        ImageView detailsHelpButton = view.findViewById(R.id.default_details_help);
-        detailsHelpButton.setOnClickListener(v -> showHelpPopup(detailsHelpMode));
-
         initViews();
     }
 
     @Override
     public void onPause() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
+        hideAllDialogs();
         super.onPause();
     }
 
     @Override
     public void hideAllDialogs() {
-        /*
-            Close any dialogs that might be showing. This is essential when clicking a notification that takes
-            the user to a new page.
-         */
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
+        }
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 
@@ -335,9 +223,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         String detailsError;
         String urlError = null;
 
-
         if (!exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
             // make sure that if the user doesn't change the name that they can still update other fields
+            List<String> exerciseNames = new ArrayList<>();
+            for (String exerciseId : user.getOwnedExercises().keySet()) {
+                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            }
             renameError = InputHelper.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(renameError);
         }
@@ -375,7 +266,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
 
             // no errors, so go ahead and save
-            showLoadingDialog("Saving...");
+            AndroidHelper.showLoadingDialog(loadingDialog, "Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
@@ -384,33 +275,22 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-                        user = resultStatus.getData();
-                        Globals.user = user;
+                        user.getOwnedExercises().put(exerciseId, resultStatus.getData().getOwnedExercises().get(exerciseId));
 
                         originalExercise = user.getOwnedExercises().get(exerciseId);
                         initViews();
                     } else {
-                        showErrorMessage("Exercise Update Error", resultStatus.getErrorMessage());
+                        ErrorDialog.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });
         }
-
     }
 
-    private void showErrorMessage(String title, String message) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Ok", null)
-                .create();
-        alertDialog.show();
-    }
-
+    /**
+     * Prompt user if they actually want to delete the currently selected workout
+     */
     private void promptDelete() {
-        /*
-            Prompt user if they actually want to delete the currently selected workout
-         */
         String message = "Are you sure you wish to permanently delete \"" + originalExercise.getExerciseName() + "\"?" +
                 "\n\nIf so, this exercise will be removed from ALL workouts that contain it.";
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -423,7 +303,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     private void deleteExercise() {
-        showLoadingDialog("Deleting...");
+        AndroidHelper.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
@@ -433,46 +313,15 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 if (resultStatus.isSuccess()) {
                     // deleted successfully, so delete everything
                     user.getOwnedExercises().remove(exerciseId);
-                    if (Globals.activeWorkout != null) {
-                        WorkoutHelper.deleteExerciseFromRoutine(exerciseId, Globals.activeWorkout.getRoutine());
+                    if (userWithWorkout.getWorkout() != null) {
+                        WorkoutHelper.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
                     }
                     ((WorkoutActivity) getActivity()).finishFragment();
-
                 } else {
-                    showErrorMessage("Delete Exercise Error", resultStatus.getErrorMessage());
+                    ErrorDialog.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
+
                 }
             });
         });
-    }
-
-    private void showLoadingDialog(String message) {
-        loadingDialog.setMessage(message);
-        loadingDialog.show();
-    }
-
-    private void showHelpPopup(int mode) {
-        String msg = "";
-        String title = "";
-        switch (mode) {
-            case weightHelpMode:
-                title = "Default Weight";
-                msg = getString(R.string.default_weight_help_msg);
-                break;
-            case setsRepsHelpMode:
-                title = "Sets and Reps";
-                msg = getString(R.string.default_sets_reps_help_msg);
-                break;
-            case detailsHelpMode:
-                title = "Details";
-                msg = getString(R.string.default_details_help_msg);
-                break;
-        }
-
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(title)
-                .setMessage(msg)
-                .setPositiveButton("Back", null)
-                .create();
-        alertDialog.show();
     }
 }

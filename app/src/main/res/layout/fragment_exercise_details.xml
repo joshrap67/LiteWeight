@@ -42,7 +42,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:imeOptions="actionDone"
-                        android:inputType="textCapSentences"
+                        android:inputType="textCapSentences|textNoSuggestions"
                         android:maxLines="1"
                         android:minWidth="75dp"
                         android:singleLine="true"
@@ -126,25 +126,49 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp">
 
-            <RelativeLayout
-                    android:id="@+id/default_weight_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/default_weight_input_layout"
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/default_weight_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    tools:hint="Default Weight (lb)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/default_weight_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:minWidth="75dp"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <LinearLayout
+                    android:id="@+id/sets_reps_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/default_weight_input_layout"
+                    android:layout_marginTop="15dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/default_sets_input_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:layout_toStartOf="@id/default_weight_help"
-                        tools:hint="Default Weight (lb)">
+                        android:layout_weight=".67"
+                        android:hint="@string/default_sets_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/default_weight_input"
+                            android:id="@+id/default_sets_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:imeOptions="actionDone"
-                            android:inputType="numberDecimal"
+                            android:inputType="number"
                             android:maxLines="1"
                             android:minWidth="75dp"
                             android:selectAllOnFocus="true"
@@ -152,195 +176,111 @@
                             app:autoSizeTextType="uniform" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <ImageView
-                        android:id="@+id/default_weight_help"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:srcCompat="@drawable/help_icon" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                    android:id="@+id/sets_reps_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/default_weight_container"
-                    android:layout_marginTop="15dp">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_toStartOf="@+id/default_sets_reps_help">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/default_sets_input_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight=".67"
-                            android:hint="@string/default_sets_hint">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/default_sets_input"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionDone"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:minWidth="75dp"
-                                android:selectAllOnFocus="true"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/default_reps_input_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight=".67"
-                            android:hint="@string/default_reps_hint">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/default_reps_input"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionDone"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:minWidth="75dp"
-                                android:selectAllOnFocus="true"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-
-                <ImageView
-                        android:id="@+id/default_sets_reps_help"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:srcCompat="@drawable/help_icon" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                    android:id="@+id/details_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/sets_reps_container"
-                    android:layout_marginTop="15dp">
-
                 <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/default_details_input_layout"
-                        android:layout_width="match_parent"
+                        android:id="@+id/default_reps_input_layout"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:layout_toStartOf="@+id/default_details_help"
-                        android:hint="@string/default_details_hint">
+                        android:layout_weight=".67"
+                        android:hint="@string/default_reps_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/default_details_input"
+                            android:id="@+id/default_reps_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:imeOptions="actionDone"
-                            android:inputType="textMultiLine"
-                            android:maxLines="5"
+                            android:inputType="number"
+                            android:maxLines="1"
                             android:minWidth="75dp"
-                            android:scrollHorizontally="false"
+                            android:selectAllOnFocus="true"
+                            android:singleLine="true"
                             app:autoSizeTextType="uniform" />
                 </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-                <ImageView
-                        android:id="@+id/default_details_help"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:srcCompat="@drawable/help_icon" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                    android:id="@+id/url_layout"
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/default_details_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/details_container"
+                    android:layout_below="@id/sets_reps_container"
+                    android:layout_marginBottom="8dp"
+                    android:hint="@string/default_details_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/default_details_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="textMultiLine"
+                        android:maxLines="5"
+                        android:minWidth="75dp"
+                        android:scrollHorizontally="false"
+                        app:autoSizeTextType="uniform" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/default_details_input_layout"
                     android:layout_marginTop="15dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/url_input_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/url_hint"
+                        app:autoSizeTextType="uniform"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/clipboard_btn"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/url_input_layout"
-                            android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/url_input"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/url_hint"
-                            app:autoSizeTextType="uniform"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/clipboard_btn"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
+                            android:ems="10"
+                            android:imeOptions="actionDone"
+                            android:inputType="textUri"
+                            android:lines="1"
+                            android:maxLines="1"
+                            android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/url_input"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ems="10"
-                                android:imeOptions="actionDone"
-                                android:inputType="textUri"
-                                android:lines="1"
-                                android:maxLines="1"
-                                android:singleLine="true" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                <ImageButton
+                        android:id="@+id/clipboard_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/copy_icon"
+                        android:tooltipText="Copy Url"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/preview_btn"
+                        app:layout_constraintStart_toEndOf="@+id/url_input_layout"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageButton
-                            android:id="@+id/clipboard_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:src="@drawable/copy_icon"
-                            android:tooltipText="Copy Url"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/preview_btn"
-                            app:layout_constraintStart_toEndOf="@+id/url_input_layout"
-                            app:layout_constraintTop_toTopOf="parent" />
+                <ImageButton
+                        android:id="@+id/preview_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/preview_icon"
+                        android:tooltipText="Preview Current URL"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/clipboard_btn"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageButton
-                            android:id="@+id/preview_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:src="@drawable/preview_icon"
-                            android:tooltipText="Preview Current URL"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/clipboard_btn"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </RelativeLayout>
-
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </RelativeLayout>
     </ScrollView>
 
