@@ -264,41 +264,36 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
             user.getFriends().get(usernameAccepted).setConfirmed(true);
 
-            Fragment visibleFragment = getVisibleFragment();
-            if (visibleFragment instanceof FriendsListFragment) {
-                ((FriendsListFragment) visibleFragment).updateFriendsList();
-            } else {
-                // not currently on the friends list fragment, so go there
-                closeAllOpenDialogs();
-                goToFriendsList(null);
-            }
+            closeAllOpenDialogs();
+            goToFriendsList(null);
+
         } else if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
             try {
                 // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
                 FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                 user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
 
-                Fragment visibleFragment = getVisibleFragment();
-                if (visibleFragment instanceof FriendsListFragment) {
-                    ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
-                } else {
-                    // not currently on the friends list fragment, so go there
-                    closeAllOpenDialogs();
-                    Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                    extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                    goToFriendsList(extras);
-                }
+                closeAllOpenDialogs();
+                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extras);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    /**
+     * This is called whenever user opens notification while app was terminated.
+     * No need to update any models since that would have been taken care of from the splash screen load
+     *
+     * @param action
+     */
     private void navigateToFragmentFromNotification(String action) {
         if (action == null) {
             return;
         }
-        // note that this is called whenever user opens notification while app was terminated. So no need to update any models
         switch (action) {
             case Variables.NEW_FRIEND_REQUEST_CLICK:
                 Bundle extras = new Bundle(); // to start the fragment on the friend request tab
@@ -492,16 +487,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     try {
                         FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                         user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
-
-                        Fragment visibleFragment = getVisibleFragment();
-                        if (visibleFragment instanceof FriendsListFragment) {
-                            ((FriendsListFragment) visibleFragment).addFriendRequestToList(friendRequest);
-                            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            if (mNotificationManager != null) {
-                                // user is on this page, so no need to show a push notification
-                                mNotificationManager.cancel(friendRequest.getUsername().hashCode());
-                            }
-                        }
                         updateAccountNotificationIndicator();
 
                         // send broadcast to any fragments waiting on this model update
@@ -518,10 +503,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 case Variables.CANCELED_FRIEND_REQUEST_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     user.getFriendRequests().remove(usernameToRemove);
-                    Fragment visibleFragment = getVisibleFragment();
-                    if (visibleFragment instanceof FriendsListFragment) {
-                        ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
-                    }
                     updateAccountNotificationIndicator();
 
                     // send broadcast to any fragments waiting on this model update
@@ -536,34 +517,36 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     user.getFriends().remove(usernameToRemove);
 
-                    Fragment visibleFragment = getVisibleFragment();
-                    if (visibleFragment instanceof FriendsListFragment) {
-                        ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
-                    }
+                    // send broadcast to any fragments waiting on this model update
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST);
+                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
                 case Variables.REMOVE_FRIEND_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     user.getFriends().remove(usernameToRemove);
-                    Fragment visibleFragment = getVisibleFragment();
-                    if (visibleFragment instanceof FriendsListFragment) {
-                        ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
-                    }
-                    System.out.println("hey");
+
+                    // send broadcast to any fragments waiting on this model update
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST);
+                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
                 case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {
                     String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     user.getFriends().get(usernameAccepted).setConfirmed(true);
-                    Fragment visibleFragment = getVisibleFragment();
-                    if (visibleFragment instanceof FriendsListFragment) {
-                        ((FriendsListFragment) visibleFragment).updateFriendsList();
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        if (mNotificationManager != null) {
-                            // user is on this page, so no need to show a push notification
-                            mNotificationManager.cancel(usernameAccepted.hashCode());
-                        }
-                    }
+
+                    // send broadcast to any fragments waiting on this model update
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST);
+                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
                 case Variables.RECEIVED_WORKOUT_BROADCAST:

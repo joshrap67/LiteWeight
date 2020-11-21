@@ -54,7 +54,7 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Send a workout" />
+            android:text="Share a workout" />
 
     <TextView
             android:id="@+id/remove_friend_tv"

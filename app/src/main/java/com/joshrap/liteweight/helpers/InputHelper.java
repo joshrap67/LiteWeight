@@ -214,13 +214,16 @@ public class InputHelper {
         return retVal;
     }
 
-    public static String validNewFriend(String activeUser, String username, List<String> friends) {
+    public static String validNewFriend(String activeUser, String username,
+                                        List<String> existingFriends, List<String> existingFriendRequests) {
         username = username.trim();
         String retVal = validUsername(username);
         if (retVal == null) {
             // means no issue with base username
-            if (friends.contains(username)) {
-                retVal = "Request already sent."; // todo check if friend vs request?
+            if (existingFriendRequests.contains(username)) {
+                retVal = "Request already sent.";
+            } else if (existingFriends.contains(username)) {
+                retVal = "Already friends with this user.";
             } else if (activeUser.equals(username)) {
                 retVal = "Can't be friends with yourself. Sorry.";
             }

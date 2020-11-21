@@ -458,7 +458,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
-                    shareWorkout(username, currentWorkout.getWorkoutId());
+                    if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
+                        ErrorDialog.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share for free. Upgrade to premium to send an unlimited amount.", getContext());
+                    } else {
+                        shareWorkout(username, currentWorkout.getWorkoutId());
+                    }
                 }
             });
         });

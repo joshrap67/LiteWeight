@@ -4,9 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Variables {
-    /*
-        Contains read only static variables
-     */
+
     public static final int
             MAX_NUMBER_OF_FREE_EXERCISES = 100,
             MAX_NUMBER_OF_EXERCISES = 200,
@@ -59,8 +57,6 @@ public class Variables {
             TIMER_ENABLED = "TimerEnabled",
             STOPWATCH_ENABLED = "StopwatchEnabled",
             DATABASE_NAME = "workout_db",
-            DB_EMPTY_KEY = "DB_EMPTY",
-            UNIT_KEY = "METRIC",
             DATE_PATTERN = "MM/dd/yyyy HH:mm:ss",
             ABOUT_TITLE = "About",
             CURRENT_WORKOUT_TITLE = "Current Workout",
@@ -112,9 +108,14 @@ public class Variables {
             DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
             RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
+
             RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast",
             NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST = "newFriendRequestModelUpdatedBroadcast",
-            CANCELED_REQUEST_MODEL_UPDATED_BROADCAST = "canceledRequestModelUpdatedBroadcast";
+            CANCELED_REQUEST_MODEL_UPDATED_BROADCAST = "canceledRequestModelUpdatedBroadcast",
+            DECLINED_REQUEST_MODEL_UPDATED_BROADCAST = "declinedFriendRequestModelUpdatedBroadcast",
+            REMOVE_FRIEND_MODEL_UPDATED_BROADCAST = "removeFriendModelUpdateBroadcast",
+            ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST = "acceptedFriendRequestModelUpdateBroadcast";
+
     public static final int BATCH_SIZE = 10;
 
     // request codes for pending intents. These values are arbitrary
