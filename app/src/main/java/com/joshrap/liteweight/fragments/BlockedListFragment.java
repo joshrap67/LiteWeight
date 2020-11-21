@@ -33,7 +33,6 @@ import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.ImageHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -71,30 +70,24 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_blocked_list, container, false);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.BLOCKED_LIST_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
-        user = Globals.user;
+        user = ((WorkoutActivity) getActivity()).getUserWithWorkout().getUser();
 
-        return view;
+        return inflater.inflate(R.layout.fragment_blocked_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        /*
-            Init all views and buttons when view is loaded onto screen
-         */
         blocked = new ArrayList<>();
-
         blocked.addAll(user.getBlocked().keySet());
         Collections.sort(blocked);
         blockedAdapter = new BlockedAdapter(blocked, user.getBlocked());
 
         emptyView = view.findViewById(R.id.empty_view);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
         RecyclerView recyclerView = view.findViewById(R.id.blocked_recycler_view);
-        recyclerView.setLayoutManager(llm);
+        recyclerView.setLayoutManager( new LinearLayoutManager(getContext()));
         blockedAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override
@@ -125,9 +118,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
-            loadingDialog.dismiss();
-        }
+        hideAllDialogs();
         super.onPause();
     }
 
@@ -144,10 +135,10 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         }
     }
 
+    /**
+     * Used to check if the user has any blocked. If not, show a textview alerting user
+     */
     private void checkEmptyList() {
-         /*
-            Used to check if the user has any blocked. If not, show a textview alerting user
-         */
         emptyView.setVisibility(blocked.isEmpty() ? View.VISIBLE : View.GONE);
         emptyView.setText(getString(R.string.empty_blocked_list_msg));
     }
@@ -182,25 +173,21 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.show();
     }
 
-    private void showLoadingDialog(String message) {
-        loadingDialog.setMessage(message);
-        loadingDialog.show();
-    }
-
     private void blockUser(String username) {
-        showLoadingDialog("Blocking user...");
+        AndroidHelper.showLoadingDialog(loadingDialog, "Blocking user...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
+            ResultStatus<String> resultStatus = userRepository.blockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
+                if (resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
                     user.getBlocked().put(username, resultStatus.getData());
-                    // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend a bit otherwise so oh well
+                    // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend return value so oh well
                     user.getFriendRequests().remove(username);
                     user.getFriends().remove(username);
+
                     blocked.add(username);
                     Collections.sort(blocked);
                     blockedAdapter.notifyDataSetChanged();
@@ -214,6 +201,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void unblockUser(String username) {
         // assume it always succeeds
+        final String icon = user.getBlocked().get(username); // preserve in case there was an error with unblocking
         user.getBlocked().remove(username);
         blocked.remove(username);
         blockedAdapter.notifyDataSetChanged();
@@ -221,11 +209,16 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.unblockUser(username);
+            ResultStatus<String> resultStatus = userRepository.unblockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 // not critical to show any type of loading dialog/handle errors for this action
-                if (!resultStatus.isSuccess()) {
+                if (!resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
+                    // if it failed add the blocked user back to the list/model
+                    user.getBlocked().put(username, icon);
+                    blocked.add(username);
+                    blockedAdapter.notifyDataSetChanged();
+                    checkEmptyList();
                     ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
@@ -233,12 +226,11 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void showBlownUpProfilePic(String username, String icon) {
-        // todo make this a util method
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageHelper.getIconUrl(icon))
-                .error(R.drawable.app_icon_no_background)
+                .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
@@ -251,7 +243,6 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     // region Adapters
-
     private class BlockedAdapter extends RecyclerView.Adapter<BlockedAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView usernameTV;
@@ -278,8 +269,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         public BlockedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View friendView = inflater.inflate(R.layout.row_blocked, parent, false);
-            return new BlockedAdapter.ViewHolder(friendView);
+            View blockedView = inflater.inflate(R.layout.row_blocked, parent, false);
+            return new BlockedAdapter.ViewHolder(blockedView);
         }
 
         @Override
@@ -292,15 +283,14 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             return position;
         }
 
-        // Involves populating data into the item through holder
         @Override
         public void onBindViewHolder(BlockedAdapter.ViewHolder holder, int position) {
-            // Get the data model based on position
             final String blockedUser = blockedList.get(position);
             final String icon = blockedMap.get(blockedUser);
 
             final RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
+                // sets up a bottom dialog that is shown whenever a user clicks on the row
                 bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_blocked_list, null);
                 final TextView unblockTV = sheetView.findViewById(R.id.unblock_tv);
@@ -316,11 +306,14 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 usernameTV.setText(blockedUser);
                 Picasso.get()
                         .load(ImageHelper.getIconUrl(icon))
-                        .error(R.drawable.app_icon_no_background)
+                        .error(R.drawable.picture_load_error)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                         .into(profilePicture, new com.squareup.picasso.Callback() {
                             @Override
                             public void onSuccess() {
+                                if (!BlockedListFragment.this.isResumed()) {
+                                    return;
+                                }
                                 Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
                                 RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
                                 imageDrawable.setCircular(true);
@@ -341,18 +334,19 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             usernameTV.setText(blockedUser);
             Picasso.get()
                     .load(ImageHelper.getIconUrl(icon))
-                    .error(R.drawable.app_icon_no_background)
+                    .error(R.drawable.picture_load_error)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {
                         @Override
                         public void onSuccess() {
-                            if (BlockedListFragment.this.isResumed()) {
-                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                                imageDrawable.setCircular(true);
-                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                                profilePicture.setImageDrawable(imageDrawable);
+                            if (!BlockedListFragment.this.isResumed()) {
+                                return;
                             }
+                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                            imageDrawable.setCircular(true);
+                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                            profilePicture.setImageDrawable(imageDrawable);
                         }
 
                         @Override
@@ -361,12 +355,10 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     });
         }
 
-        // Returns the total count of items in the list
         @Override
         public int getItemCount() {
             return blockedList.size();
         }
     }
-
     //endregion
 }

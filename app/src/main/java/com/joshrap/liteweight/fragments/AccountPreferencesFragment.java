@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -44,7 +43,8 @@ public class AccountPreferencesFragment extends Fragment {
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_account_preferences, container, false);
-        userPreferences = Globals.user.getUserPreferences();
+
+        userPreferences = ((WorkoutActivity) getActivity()).getUserWithWorkout().getUser().getUserPreferences();
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;
@@ -68,7 +68,7 @@ public class AccountPreferencesFragment extends Fragment {
                 (buttonView, isChecked) -> privateChanged = isChecked != userPreferences.isPrivateAccount());
 
         LinearLayout updateOnRestartLayout = view.findViewById(R.id.update_on_restart_layout);
-        updateOnRestartLayout.setOnClickListener(view1 -> updateOnRestartSwitch.performClick()); //todo change to get rid of the sound?
+        updateOnRestartLayout.setOnClickListener(view1 -> updateOnRestartSwitch.performClick());
         updateOnRestartSwitch.setChecked(userPreferences.isUpdateDefaultWeightOnRestart());
         updateOnRestartSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> restartChanged = isChecked != userPreferences.isUpdateDefaultWeightOnRestart());

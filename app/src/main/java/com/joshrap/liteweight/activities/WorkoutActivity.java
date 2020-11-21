@@ -95,8 +95,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private FragmentManager fragmentManager;
     private boolean showPopupFlag;
     private ArrayList<String> fragmentStack;
-    private Timer timer;
-    private Stopwatch stopwatch;
+
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
     private ImageView profilePicture;
@@ -104,6 +103,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private User user;
     @Getter
     private Workout currentWorkout;
+    @Getter
+    private Timer timer;
+    @Getter
+    private Stopwatch stopwatch;
     @Getter
     private UserWithWorkout userWithWorkout;
 
@@ -194,7 +197,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         notificationTV = headerView.findViewById(R.id.notification_tv);
         profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
-                .load(ImageHelper.getIconUrl(Globals.user.getIcon()))
+                .load(ImageHelper.getIconUrl(user.getIcon()))
                 .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
@@ -212,7 +215,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     }
                 });
         final TextView usernameTV = headerView.findViewById(R.id.username_tv);
-        usernameTV.setText(Globals.user.getUsername());
+        usernameTV.setText(user.getUsername());
 
         createNotificationChannel();
         updateEndpointToken();
@@ -314,12 +317,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onPause() {
-        if (Globals.activeWorkout != null) {
+        if (currentWorkout != null) {
             Intent intent = new Intent(this, SyncRoutineService.class);
             intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
             intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
             try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(Globals.activeWorkout.asMap()));
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentWorkout.asMap()));
                 startService(intent);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -353,12 +356,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
-        if (Globals.activeWorkout != null) {
+        if (currentWorkout != null) {
             Intent intent = new Intent(this, SyncRoutineService.class);
             intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
             intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
             try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(Globals.activeWorkout.asMap()));
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentWorkout.asMap()));
                 startService(intent);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -479,7 +482,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // todo move this instead to all the fragments that actually handle notifications
             String action = intent.getAction();
             if (action == null) {
                 return;
@@ -487,10 +489,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // the broadcasts should only be updating the base models (user/workout). Individual fragments handle UI changes on their own
             switch (action) {
                 case Variables.NEW_FRIEND_REQUEST_BROADCAST: {
-                    FriendRequest friendRequest;
                     try {
-                        friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        Globals.user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
+                        FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
 
                         Fragment visibleFragment = getVisibleFragment();
                         if (visibleFragment instanceof FriendsListFragment) {
@@ -502,6 +503,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                             }
                         }
                         updateAccountNotificationIndicator();
+
+                        // send broadcast to any fragments waiting on this model update
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
+                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                        localBroadcastManager.sendBroadcast(broadcastIntent);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -509,18 +517,25 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 case Variables.CANCELED_FRIEND_REQUEST_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    Globals.user.getFriendRequests().remove(usernameToRemove);
-                    updateAccountNotificationIndicator();
+                    user.getFriendRequests().remove(usernameToRemove);
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendRequestFromList(usernameToRemove);
                     }
+                    updateAccountNotificationIndicator();
+
+                    // send broadcast to any fragments waiting on this model update
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
+                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
                 case Variables.DECLINED_FRIEND_REQUEST_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    Globals.user.getFriends().remove(usernameToRemove);
-                    updateAccountNotificationIndicator();
+                    user.getFriends().remove(usernameToRemove);
+
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
@@ -529,16 +544,17 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 case Variables.REMOVE_FRIEND_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    Globals.user.getFriends().remove(usernameToRemove);
+                    user.getFriends().remove(usernameToRemove);
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).removeFriendFromList(usernameToRemove);
                     }
+                    System.out.println("hey");
                     break;
                 }
-                case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {// called when user has app open in foreground
+                case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {
                     String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    Globals.user.getFriends().get(usernameAccepted).setConfirmed(true);
+                    user.getFriends().get(usernameAccepted).setConfirmed(true);
                     Fragment visibleFragment = getVisibleFragment();
                     if (visibleFragment instanceof FriendsListFragment) {
                         ((FriendsListFragment) visibleFragment).updateFriendsList();
@@ -588,6 +604,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         Fragment currentFragment = getVisibleFragment();
         if (currentFragment instanceof FragmentWithDialog) {
             ((FragmentWithDialog) currentFragment).hideAllDialogs();
+        }
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
         timer.hideDialog();
     }
@@ -822,24 +841,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         profilePicture.setImageDrawable(imageDrawable);
     }
 
-    public Timer getTimer() {
-        /*
-            Returns the timer associated with this activity to any fragments needing it. Because the
-            timer is attached to this activity, it will continue to run in the background until the app is
-            terminated.
-         */
-        return timer;
-    }
-
-    public Stopwatch getStopwatch() {
-        /*
-            Returns the stopwatch associated with this activity to any fragments needing it. Because the
-            stopwatch is attached to this activity, it will continue to run in the background until the app is
-            terminated.
-         */
-        return stopwatch;
-    }
-
     private boolean isFragmentModified(Fragment aFragment) {
         /*
             Checks if passed in fragment has been modified
@@ -877,8 +878,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     public void updateAccountNotificationIndicator() {
         // check if there are any unseen notifications for friend requests
         boolean showAlert = false;
-        for (String username : Globals.user.getFriendRequests().keySet()) {
-            if (!Globals.user.getFriendRequests().get(username).isSeen()) {
+        for (String username : user.getFriendRequests().keySet()) {
+            if (!user.getFriendRequests().get(username).isSeen()) {
                 showAlert = true;
             }
         }

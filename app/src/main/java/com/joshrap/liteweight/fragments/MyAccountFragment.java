@@ -2,7 +2,10 @@ package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +40,6 @@ import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -54,28 +57,48 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private ImageView profilePicture;
     private String profilePicUrl;
     private AlertDialog alertDialog;
+    private TextView friendsListTV;
     @Inject
     UserRepository userRepository;
 
+    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+            if (action.equals(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST) ||
+                    action.equals(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST)) {
+                updateFriendsTvNotification();
+            }
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_my_account, container, false);
+        Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        Injector.getInjector(getContext()).inject(this);
+
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
 
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
-        return view;
+        return inflater.inflate(R.layout.fragment_my_account, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final TextView usernameTV = view.findViewById(R.id.username_tv);
+        usernameTV.setText(user.getUsername());
         final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
-        final TextView friendsListTV = view.findViewById(R.id.friends_list_tv);
+        changePictureTv.setVisibility(View.GONE);
+        friendsListTV = view.findViewById(R.id.friends_list_tv);
         friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
         final TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
         accountPrefsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToAccountPreferences());
@@ -83,19 +106,9 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         blockedListTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToBlockedList());
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
-        changePictureTv.setVisibility(View.GONE);
-        usernameTV.setText(user.getUsername());
         profilePicture = view.findViewById(R.id.profile_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
-        int requestUnseenCount = 0;
-        for (String username : user.getFriendRequests().keySet()) {
-            if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
-                requestUnseenCount++;
-            }
-        }
-        if (requestUnseenCount > 0) {
-            friendsListTV.setText(R.string.friends_list_alert);
-        }
+        updateFriendsTvNotification();
 
         profilePicUrl = ImageHelper.getIconUrl(user.getIcon());
         Picasso.get()
@@ -123,6 +136,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Override
     public void onPause() {
         hideAllDialogs();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
         super.onPause();
     }
 
@@ -153,8 +167,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 try {
                     InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
                     updateIcon(ImageHelper.getImageByteArray(iStream));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -162,6 +174,23 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Updates whether an indicator should be shown on the view that takes users to their friend's list.
+     */
+    private void updateFriendsTvNotification() {
+        int requestUnseenCount = 0;
+        for (String username : user.getFriendRequests().keySet()) {
+            if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
+                requestUnseenCount++;
+            }
+        }
+        if (requestUnseenCount > 0) {
+            friendsListTV.setText(R.string.friends_list_alert);
+        } else {
+            friendsListTV.setText(R.string.friends_list);
+        }
     }
 
     private void updateIcon(byte[] imageData) {

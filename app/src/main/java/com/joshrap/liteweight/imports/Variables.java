@@ -112,7 +112,9 @@ public class Variables {
             DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
             RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
-            RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
+            RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast",
+            NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST = "newFriendRequestModelUpdatedBroadcast",
+            CANCELED_REQUEST_MODEL_UPDATED_BROADCAST = "canceledRequestModelUpdatedBroadcast";
     public static final int BATCH_SIZE = 10;
 
     // request codes for pending intents. These values are arbitrary
