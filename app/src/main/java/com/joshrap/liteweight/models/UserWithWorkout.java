@@ -11,7 +11,7 @@ import lombok.Setter;
 @Data
 public class UserWithWorkout {
 
-//    @Setter(AccessLevel.PRIVATE)
+    //    @Setter(AccessLevel.PRIVATE)
     private User user;
     private Workout workout;
     private boolean workoutPresent;
@@ -30,6 +30,11 @@ public class UserWithWorkout {
 
     public UserWithWorkout(final User user, final Workout workout) {
         this.user = user;
+        this.workoutPresent = workout != null;
+        this.workout = workout;
+    }
+
+    public void setWorkout(Workout workout) {
         this.workoutPresent = workout != null;
         this.workout = workout;
     }

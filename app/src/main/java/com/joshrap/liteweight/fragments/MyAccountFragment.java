@@ -118,16 +118,12 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-                        if (MyAccountFragment.this.isResumed()) {
-                            changePictureTv.setVisibility(View.VISIBLE);
-                        }
+                        changePictureTv.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        if (MyAccountFragment.this.isResumed()) {
-                            changePictureTv.setVisibility(View.VISIBLE);
-                        }
+                        changePictureTv.setVisibility(View.VISIBLE);
                     }
                 });
         super.onViewCreated(view, savedInstanceState);

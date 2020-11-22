@@ -236,7 +236,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         WorkoutMeta currentWorkoutMeta = user.getUserWorkouts().get(currentWorkout.getWorkoutId());
         workoutList.remove(currentWorkoutMeta);
         Collections.sort(workoutList, (r1, r2) -> {
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {

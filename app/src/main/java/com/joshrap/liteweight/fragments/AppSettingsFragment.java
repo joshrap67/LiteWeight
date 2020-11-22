@@ -34,15 +34,15 @@ public class AppSettingsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
-        Injector.getInjector(getContext()).inject(this);
+
         View view = inflater.inflate(R.layout.fragment_app_settings, container, false);
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
         SwitchCompat workoutProgressSwitch = view.findViewById(R.id.workout_progress_switch);
-
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 
         LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_layout);

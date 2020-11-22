@@ -1,7 +1,12 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
@@ -19,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,8 +34,8 @@ import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.SentRoutineAdapter;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.helpers.WorkoutHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -39,9 +45,11 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.SentRoutine;
 import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.ErrorDialog;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -65,26 +73,60 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private AlertDialog alertDialog;
     private ConstraintLayout mainLayout;
     private String receivedWorkoutId;
+    private UserWithWorkout userWithWorkout;
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
     ProgressDialog loadingDialog;
 
+    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+            if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
+                try {
+                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    // if id matches the one on this page, get rid of push notification
+                    NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (notificationManager != null && receivedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
+                        notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                    }
+                    if (receivedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
+                        workoutUpdatedPopup(receivedWorkoutMeta);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         Injector.getInjector(getContext()).inject(this);
-        receivedWorkoutId = null;
-        if (this.getArguments() != null) {
-            receivedWorkoutId = this.getArguments().getString(SentWorkout.SENT_WORKOUT_ID);
-            workoutName = this.getArguments().getString(SentWorkout.WORKOUT_NAME);
-            // todo return if these aren't here?
-        }
         ((WorkoutActivity) getActivity()).updateToolbarTitle(workoutName);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        user = Globals.user;
-        final View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);
+        receivedWorkoutId = null;
+        if (getArguments() != null) {
+            receivedWorkoutId = getArguments().getString(SentWorkout.SENT_WORKOUT_ID);
+            workoutName = getArguments().getString(SentWorkout.WORKOUT_NAME);
+        } else {
+            return null;
+        }
+
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
+
+        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        user = userWithWorkout.getUser();
+        currentDayIndex = 0;
+        currentWeekIndex = 0;
+        View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);
 
         loadingIcon = view.findViewById(R.id.loading_icon);
         recyclerView = view.findViewById(R.id.recycler_view);
@@ -114,10 +156,40 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         return view;
     }
 
+    @Override
+    public void onPause() {
+        hideAllDialogs();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
+        super.onPause();
+    }
+
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+    }
+
+    private void workoutUpdatedPopup(ReceivedWorkoutMeta receivedWorkoutMeta) {
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Workout updated")
+                .setMessage(String.format("%s has sent a newer version of this workout. Would you like to refresh in order to see the changes?", receivedWorkoutMeta.getSender()))
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    currentDayIndex = 0;
+                    currentWeekIndex = 0;
+                    getReceivedWorkout(receivedWorkoutId);
+                })
+                .setNegativeButton("No", null)
+                .create();
+        alertDialog.show();
+    }
+
+    /**
+     * Prompt the user if they want to rename the current workout.
+     *
+     * @param receivedWorkout workout that is currently being browsed.
+     */
     private void workoutNameAlreadyExistsPopup(final SentWorkout receivedWorkout) {
-        /*
-            Prompt the user if they want to rename the current workout
-         */
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
@@ -163,7 +235,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                     if (user.getCurrentWorkout() == null) {
                         // this newly accepted workout is the only workout the user now owns, so make it the current one
                         user.setCurrentWorkout(response.getWorkoutId());
-                        Globals.activeWorkout = response.getWorkout();
+                        userWithWorkout.setWorkout(response.getWorkout());
                     }
                     user.getUserWorkouts().put(response.getWorkoutId(), response.getWorkoutMeta());
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
@@ -214,7 +286,6 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
-                    // not sure if this does what i think it does? But would prevent potential memory leaks
                     loadingIcon.setVisibility(View.GONE);
                     if (resultStatus.isSuccess()) {
                         mainLayout.setVisibility(View.VISIBLE);
@@ -230,10 +301,10 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         });
     }
 
+    /**
+     * Sets up listeners for the forward and backwards buttons.
+     */
     private void setupButtons() {
-        /*
-            Setup button listeners.
-         */
         dayTV.setOnClickListener(v -> jumpDaysPopup());
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
@@ -261,10 +332,10 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         });
     }
 
+    /**
+     * Updates the visibility and icon of the navigation buttons depending on the current day.
+     */
     private void updateButtonViews() {
-        /*
-            Updates the visibility and icon of the navigation buttons depending on the current day.
-         */
         if (currentDayIndex == 0 && currentWeekIndex == 0) {
             // means it's the first day in weeks, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
@@ -288,10 +359,10 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         }
     }
 
+    /**
+     * Updates the list of displayed exercises in the workout depending on the current day.
+     */
     private void updateRoutineListUI() {
-        /*
-            Updates the list of displayed exercises in the workout depending on the current day.
-         */
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
         SentRoutineAdapter routineAdapter = new SentRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits);
@@ -301,10 +372,10 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         updateButtonViews();
     }
 
+    /**
+     * Allow the user to scroll through the list of days to quickly jump around in workout.
+     */
     private void jumpDaysPopup() {
-        /*
-            Allow the user to scroll through the list of days to quickly jump around in workout
-         */
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
@@ -348,13 +419,6 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 })
                 .create();
         alertDialog.show();
-    }
-
-    @Override
-    public void hideAllDialogs() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
     }
 
 }
