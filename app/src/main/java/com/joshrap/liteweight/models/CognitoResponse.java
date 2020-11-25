@@ -25,7 +25,6 @@ public class CognitoResponse {
         this.idToken = idToken;
     }
 
-
     public static CognitoResponse deserializeInitiateAuth(String jsonString) {
         CognitoResponse retVal = null;
         try {
@@ -34,7 +33,7 @@ public class CognitoResponse {
             retVal = new CognitoResponse(authenticationResult.get("RefreshToken").toString(), authenticationResult.get("IdToken").toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -47,7 +46,7 @@ public class CognitoResponse {
             retVal = new CognitoResponse(authenticationResult.get(("IdToken")).toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -59,7 +58,7 @@ public class CognitoResponse {
             retVal = Boolean.parseBoolean(jsonMap.get("UserConfirmed").toString());
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -93,12 +92,10 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
-            String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -107,10 +104,8 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
-            String type = jsonMap.get("__type").toString();
             String msg;
-            if (jsonMap.get("Message") != null) {
+            if (jsonMap.containsKey("Message")) {
                 // .... for some reason cognito has this as capitalized on certain return values...
                 msg = (String) jsonMap.get("Message");
             } else {
@@ -119,7 +114,7 @@ public class CognitoResponse {
             retVal = msg;
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -128,7 +123,6 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
             String type = jsonMap.get("__type").toString();
             if (type.equals("ExpiredCodeException")) {
                 retVal = expiredCodeErrorMsg;
@@ -139,7 +133,7 @@ public class CognitoResponse {
             }
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -148,12 +142,10 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
-            String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -162,12 +154,10 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
-            String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }
@@ -176,12 +166,10 @@ public class CognitoResponse {
         String retVal = null;
         try {
             Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
-            // TODO only show specific error message types like incorrect username/pass. Otherwise just do generic failed?
-            String type = jsonMap.get("__type").toString();
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         return retVal;
     }

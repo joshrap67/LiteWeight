@@ -3,6 +3,8 @@ package com.joshrap.liteweight.helpers;
 import android.app.ProgressDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.TranslateAnimation;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -32,5 +34,12 @@ public class AndroidHelper {
     public static void showLoadingDialog(ProgressDialog loadingDialog, String message) {
         loadingDialog.setMessage(message);
         loadingDialog.show();
+    }
+
+    public static TranslateAnimation shakeError() {
+        TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
+        shake.setDuration(350);
+        shake.setInterpolator(new CycleInterpolator(2));
+        return shake;
     }
 }

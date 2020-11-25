@@ -97,7 +97,7 @@
     <string name="save_time">Save Time</string>
     <string name="add_exercises">ADD EXERCISES</string>
     <string name="about_overview_title">App Overview</string>
-    <string name="username_and_email_hint"><i>Username/Email</i></string>
+    <string name="username_and_email_hint"><i>Username or Email</i></string>
     <string name="username_hint"><i>Username</i></string>
     <string name="password_hint"><i>Password</i></string>
     <string name="password_confirm_hint"><i>Confirm Password</i></string>
@@ -158,7 +158,7 @@
     <string name="empty_friends_request_msg">You do not have any pending requests.</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
-    <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. An email with a code will be sent to the email associated with that account.</string>
+    <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. A code will be sent to the email associated with that account.</string>
     <string name="send_code">SEND CODE</string>
     <string name="reset_password_btn_msg">RESET PASSWORD</string>
     <string name="friends_list">Friends List</string>

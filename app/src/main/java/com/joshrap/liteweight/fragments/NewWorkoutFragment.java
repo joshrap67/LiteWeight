@@ -795,7 +795,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
-                    userWithWorkout.setWorkoutPresent(true);
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
                     ErrorDialog.showErrorDialog("Create Workout Error", resultStatus.getErrorMessage(), getContext());

@@ -525,7 +525,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
                     currentWorkout = userWithWorkout.getWorkout();
                     if (currentWorkout == null) {
-                        userWithWorkout.setWorkoutPresent(false);
                         // means there are no workouts left, so change view to tell user to create a workout
                         resetFragment();
                     } else {

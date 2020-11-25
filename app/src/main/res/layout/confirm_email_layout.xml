@@ -36,7 +36,7 @@
             android:layout_below="@id/app_logo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="Please enter the code sent to your email"
+            android:text="Please enter the code sent to your email."
             android:textColor="@android:color/white" />
 
     <com.google.android.material.textfield.TextInputLayout

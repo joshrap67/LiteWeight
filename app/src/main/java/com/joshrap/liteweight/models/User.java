@@ -180,6 +180,8 @@ public class User implements Model {
         retVal.put(FRIENDS_REQUESTS, this.getFriendRequestsMap());
         retVal.put(BLOCKED, this.blocked);
         retVal.put(UNSEEN_RECEIVED_WORKOUTS, this.unseenReceivedWorkouts);
+        retVal.put(TOTAL_RECEIVED_WORKOUTS, this.totalReceivedWorkouts);
+        retVal.put(RECEIVED_WORKOUTS, this.getReceivedWorkoutsMap());
         return retVal;
     }
 
@@ -192,6 +194,14 @@ public class User implements Model {
             retVal.put(workoutId, this.userWorkouts.get(workoutId).asMap());
         }
         return retVal;
+    }
+
+    private Map<String, Object> getReceivedWorkoutsMap() {
+        Map<String, Object> retMap = new HashMap<>();
+        for (String workoutId : receivedWorkouts.keySet()) {
+            retMap.put(workoutId, receivedWorkouts.get(workoutId).asMap());
+        }
+        return retMap;
     }
 
     private Map<String, Map<String, Object>> getUserExercisesMap() {

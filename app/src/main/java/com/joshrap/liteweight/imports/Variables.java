@@ -99,7 +99,8 @@ public class Variables {
             INTENT_NOTIFICATION_DATA = "Notification_Data",
             RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked",
             INTENT_ID_TOKEN = "idToken",
-            INTENT_REFRESH_TOKEN = "refreshToken";
+            INTENT_REFRESH_TOKEN = "refreshToken",
+            USER_WITH_WORKOUT_DATA = "userWithWorkoutData";
 
     public static final String
             CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest",

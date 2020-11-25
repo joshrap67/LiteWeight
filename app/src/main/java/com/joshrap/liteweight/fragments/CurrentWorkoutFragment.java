@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
+import android.animation.LayoutTransition;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
@@ -300,12 +302,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void updateRoutineListUI() {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
-                user.getOwnedExercises(), metricUnits, videosEnabled);
+                user.getOwnedExercises(), metricUnits, videosEnabled, linearLayoutManager);
 
         recyclerView.setAdapter(routineAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(linearLayoutManager);
         dayTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
@@ -486,9 +489,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             TextInputLayout setsInputLayout;
             TextInputLayout repsInputLayout;
             TextInputLayout detailsInputLayout;
+            LinearLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
+
+                rootLayout = itemView.findViewById(R.id.root_layout);
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_name);
                 weightButton = itemView.findViewById(R.id.weight_btn);
@@ -513,13 +519,17 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         private Map<String, OwnedExercise> exerciseUserMap;
         private boolean metricUnits;
         private boolean videosEnabled;
+        private LinearLayoutManager linearLayoutManager;
         private List<String> extrasShownMap;
 
-        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
+
+        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled,
+                       LinearLayoutManager linearLayoutManager) {
             this.exercises = routineExercises;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
             this.videosEnabled = videosEnabled;
+            this.linearLayoutManager = linearLayoutManager;
             this.extrasShownMap = new ArrayList<>();
         }
 
@@ -545,8 +555,29 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(RoutineAdapter.ViewHolder holder, int position) {
-            // Get the data model based on position
             final RoutineExercise exercise = exercises.get(position);
+            LinearLayout rootLayout = holder.rootLayout;
+            LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
+            layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
+
+                @Override
+                public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+                    RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(getContext()) {
+                        @Override
+                        protected int getVerticalSnapPreference() {
+                            return LinearSmoothScroller.SNAP_TO_START;
+                        }
+                    };
+                    if (transitionType == LayoutTransition.APPEARING) {
+                        smoothScroller.setTargetPosition(holder.getLayoutPosition());
+                        linearLayoutManager.startSmoothScroll(smoothScroller);
+                    }
+                }
+
+                @Override
+                public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+                }
+            });
 
             final String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
             final CheckBox exerciseCheckbox = holder.exerciseCheckbox;

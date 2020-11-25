@@ -52,7 +52,6 @@ import com.joshrap.liteweight.fragments.*;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.ImageHelper;
 import com.joshrap.liteweight.helpers.JsonParser;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -123,14 +122,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String action = null;
-        String jsonData = null;
+        String action;
+        String jsonData;
         activityFinishing = false;
         if (getIntent().getExtras() != null) {
             action = getIntent().getAction();
-            if (action.equals(Variables.NOTIFICATION_CLICKED)) {
+            if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
                 /*
-                    So freaking hacky. Essentially if user clicked a notification, we immediately finish this
+                    So freaking hacky. Essentially if user clicked a notification while app is terminated, we immediately finish this
                     activity and start the splash activity. This is due to android being awful and their flags
                     aren't working properly so this is the only way i can avoid this activity needlessly being destroyed twice.
                  */
@@ -141,9 +140,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 return;
             }
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
-            // todo deserialize user/workout
+            if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
+                try {
+                    userWithWorkout = new UserWithWorkout(JsonParser.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
+                } catch (IOException e) {
+                    return;
+                }
+            }
+        } else {
+            // should never happen, so return early
+            return;
         }
-
+        user = userWithWorkout.getUser();
+        currentWorkout = userWithWorkout.getWorkout();
         Injector.getInjector(this).inject(this);
 
         IntentFilter receiverActions = new IntentFilter();
@@ -166,10 +175,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         toolbarTitleTV = findViewById(R.id.toolbar_title);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
-        user = Globals.user; // todo instantiate this from intent from splash activity
-        currentWorkout = Globals.activeWorkout;
 
-        userWithWorkout = new UserWithWorkout(user, currentWorkout);
         nav.setNavigationItemSelectedListener(this);
         fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);
@@ -388,9 +394,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 timer.stopTimer();
                 stopwatch.stopStopwatch();
 
-
-                Globals.user = null;
-                Globals.activeWorkout = null;
                 // take user back to sign in activity
                 Intent intent = new Intent(this, SignInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

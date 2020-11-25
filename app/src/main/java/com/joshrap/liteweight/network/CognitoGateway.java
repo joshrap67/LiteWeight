@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.network;
 
-
 import com.joshrap.liteweight.helpers.JsonParser;
 import com.joshrap.liteweight.imports.ApiConfig;
 import com.joshrap.liteweight.models.CognitoResponse;

@@ -37,7 +37,6 @@ import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.injection.Injector;

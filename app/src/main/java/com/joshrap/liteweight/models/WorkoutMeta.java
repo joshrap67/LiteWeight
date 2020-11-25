@@ -41,6 +41,7 @@ public class WorkoutMeta implements Model {
         retVal.put(TIMES_COMPLETED, this.timesCompleted);
         retVal.put(AVERAGE_EXERCISES_COMPLETED, this.averageExercisesCompleted);
         retVal.put(TOTAL_EXERCISES_SUM, this.totalExercisesSum);
+        retVal.put(DATE_LAST, this.dateLast);
         return retVal;
     }
 

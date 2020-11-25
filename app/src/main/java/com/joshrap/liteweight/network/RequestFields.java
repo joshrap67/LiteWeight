@@ -11,4 +11,5 @@ public class RequestFields {
     public static final String BATCH_NUMBER = "batchNumber";
     public static final String WORKOUT_META = "workoutMeta";
     public static final String EXERCISES = "exercises";
+    public static final String WORKOUT_PRESENT = "workoutPresent";
 }
