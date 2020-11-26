@@ -134,8 +134,8 @@
     <string name="max_reached_msg">MAX REACHED</string>
     <string name="add_week_msg">ADD WEEK</string>
     <string name="add_day_msg">ADD DAY</string>
-    <string name="remove_day_msg">REMOVE DAY</string>
-    <string name="remove_week_msg">REMOVE WEEK</string>
+    <string name="remove_day_msg">DELETE DAY</string>
+    <string name="remove_week_msg">DELETE WEEK</string>
     <string name="done_msg">DONE</string>
     <string name="add_radio_msg">Add</string>
     <string name="delete_radio_msg">Delete</string>

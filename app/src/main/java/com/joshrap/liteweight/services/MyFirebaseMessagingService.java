@@ -129,7 +129,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
-        notificationIntent.setAction(Variables.REMOVE_FRIEND_BROADCAST);
+        notificationIntent.setAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             // if user still has notification saying this user accepted their request, hide it if user removes them

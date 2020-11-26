@@ -17,33 +17,17 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 android:elevation="4dp"
-                android:theme="@style/ToolbarStyle"
-                app:popupTheme="@style/Theme.AppCompat.Light">
+                android:theme="@style/ToolbarStyle">
 
-            <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center">
-
-                <TextView
-                        android:id="@+id/toolbar_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/workout_name_title"
-                        android:textSize="30sp"
-                        android:textStyle="bold"
-                        app:autoSizeTextType="uniform" />
-            </LinearLayout>
-
-            <ProgressBar
-                    android:id="@+id/progress_bar"
+            <TextView
+                    android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:indeterminate="true"
-                    android:visibility="gone" />
-
+                    android:layout_gravity="center"
+                    android:text="@string/workout_name_title"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    app:autoSizeTextType="uniform" />
         </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout
@@ -57,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
+            android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header"
             app:itemBackground="@drawable/nav_item_background"
             app:itemIconTint="@drawable/nav_item_icon"

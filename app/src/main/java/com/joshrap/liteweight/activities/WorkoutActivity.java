@@ -33,7 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
@@ -61,7 +60,6 @@ import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -89,25 +87,23 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
-    private TextView toolbarTitleTV, notificationTV;
+    private TextView toolbarTitleTV, accountNotificationTV;
     private NavigationView nav;
     private FragmentManager fragmentManager;
     private boolean showPopupFlag;
-    private ArrayList<String> fragmentStack;
-
+    private ArrayList<String> fragmentStack; // stack of fragment ids
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
     private ImageView profilePicture;
+
+    @Getter
+    private UserWithWorkout userWithWorkout;
     @Getter
     private User user;
-    @Getter
-    private Workout currentWorkout;
     @Getter
     private Timer timer;
     @Getter
     private Stopwatch stopwatch;
-    @Getter
-    private UserWithWorkout userWithWorkout;
 
     @Inject
     Tokens tokens;
@@ -117,365 +113,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     SharedPreferences sharedPreferences;
     @Inject
     ProgressDialog loadingDialog;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        String action;
-        String jsonData;
-        activityFinishing = false;
-        if (getIntent().getExtras() != null) {
-            action = getIntent().getAction();
-            if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
-                /*
-                    So freaking hacky. Essentially if user clicked a notification while app is terminated, we immediately finish this
-                    activity and start the splash activity. This is due to android being awful and their flags
-                    aren't working properly so this is the only way i can avoid this activity needlessly being destroyed twice.
-                 */
-                activityFinishing = true;
-                launchSplashActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
-                        getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION));
-                finish();
-                return;
-            }
-            jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
-            if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
-                try {
-                    userWithWorkout = new UserWithWorkout(JsonParser.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
-                } catch (IOException e) {
-                    return;
-                }
-            }
-        } else {
-            // should never happen, so return early
-            return;
-        }
-        user = userWithWorkout.getUser();
-        currentWorkout = userWithWorkout.getWorkout();
-        Injector.getInjector(this).inject(this);
-
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.REMOVE_FRIEND_BROADCAST);
-        receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
-        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
-
-        setContentView(R.layout.activity_workout);
-        timer = new Timer(this, sharedPreferences);
-        stopwatch = new Stopwatch(this, sharedPreferences);
-        fragmentStack = new ArrayList<>();
-        showPopupFlag = true;
-        fragmentSavedStatesMap = new HashMap<>();
-        drawerListenerIsRegistered = false;
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbarTitleTV = findViewById(R.id.toolbar_title);
-        drawer = findViewById(R.id.drawer);
-        nav = findViewById(R.id.nav_view);
-
-        nav.setNavigationItemSelectedListener(this);
-        fragmentManager = getSupportFragmentManager();
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
-        }
-
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.nav_draw_open, R.string.nav_draw_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        if (savedInstanceState == null) {
-            // default landing fragment is current workout one
-            fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
-            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
-            nav.setCheckedItem(R.id.nav_current_workout);
-        }
-        final View headerView = nav.getHeaderView(0);
-        ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
-        headerLayout.setOnClickListener(view -> {
-            goToAccountSettings();
-            drawer.closeDrawer(GravityCompat.START);
-        });
-        notificationTV = headerView.findViewById(R.id.notification_tv);
-        profilePicture = headerView.findViewById(R.id.profile_picture);
-        Picasso.get()
-                .load(ImageHelper.getIconUrl(user.getIcon()))
-                .error(R.drawable.app_icon_no_background)
-                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                .into(profilePicture, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        profilePicture.setImageDrawable(imageDrawable);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                });
-        final TextView usernameTV = headerView.findViewById(R.id.username_tv);
-        usernameTV.setText(user.getUsername());
-
-        createNotificationChannel();
-        updateEndpointToken();
-        updateAccountNotificationIndicator();
-        updateReceivedWorkoutNotificationIndicator();
-        if (action != null && jsonData != null) {
-            // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
-            navigateToFragmentFromNotification(action);
-        }
-    }
-
-    private void launchSplashActivity(String jsonData, String action) {
-        Intent intent = new Intent(this, SplashActivity.class);
-        intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setAction(action);
-        startActivity(intent);
-    }
-
-    /**
-     * Called whenever the user clicks on a notification while the app is running or paused.
-     *
-     * @param intent contains data about how to route and what data to consume.
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        // this has to be first since android is dum dum and shits the bed otherwise
-        super.onNewIntent(intent);
-
-        String action = intent.getExtras().getString(Variables.NOTIFICATION_ACTION);
-        if (action == null) {
-            return;
-        }
-        if ((action.equals(Variables.INTENT_TIMER_NOTIFICATION_CLICK)
-                || action.equals(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK))) {
-            // close any popup that might be showing
-            closeAllOpenDialogs();
-            goToCurrentWorkout();
-            nav.setCheckedItem(R.id.nav_current_workout);
-        } else if (action.equals(Variables.RECEIVED_WORKOUT_CLICK)) {
-            closeAllOpenDialogs();
-            nav.setCheckedItem(R.id.nav_received_workouts);
-            goToReceivedWorkouts();
-        } else if (action.equals(Variables.ACCEPTED_FRIEND_REQUEST_CLICK)) {
-            // sanity check update, this should always be taken care of when service broadcasts
-            String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-            user.getFriends().get(usernameAccepted).setConfirmed(true);
-
-            closeAllOpenDialogs();
-            goToFriendsList(null);
-
-        } else if (action.equals(Variables.NEW_FRIEND_REQUEST_CLICK)) {
-            try {
-                // sanity check update, this should always be taken care of in the broadcast but doing it again to be sure
-                FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
-
-                closeAllOpenDialogs();
-                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                goToFriendsList(extras);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * This is called whenever user opens notification while app was terminated.
-     * No need to update any models since that would have been taken care of from the splash screen load
-     *
-     * @param action
-     */
-    private void navigateToFragmentFromNotification(String action) {
-        if (action == null) {
-            return;
-        }
-        switch (action) {
-            case Variables.NEW_FRIEND_REQUEST_CLICK:
-                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-
-                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                goToFriendsList(extras);
-                break;
-            case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
-                goToFriendsList(null);
-                break;
-            case Variables.RECEIVED_WORKOUT_CLICK:
-                goToReceivedWorkouts();
-                break;
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        if (currentWorkout != null) {
-            Intent intent = new Intent(this, SyncRoutineService.class);
-            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-            try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentWorkout.asMap()));
-                startService(intent);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (!activityFinishing) {
-            // stop any timer/stopwatch services that may be running.
-            stopService(new Intent(this, TimerService.class));
-            stopService(new Intent(this, StopwatchService.class));
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
-                notificationManager.cancel(TimerService.timerFinishedId);
-            }
-            // update tokens just in case they changed in apps life cycle
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
-            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
-            editor.apply();
-        }
-        super.onDestroy();
-    }
-
-    public void logout() {
-        // stop any timer/stopwatch services that may be running.
-        stopService(new Intent(this, TimerService.class));
-        stopService(new Intent(this, StopwatchService.class));
-        if (currentWorkout != null) {
-            Intent intent = new Intent(this, SyncRoutineService.class);
-            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-            try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentWorkout.asMap()));
-                startService(intent);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        AndroidHelper.showLoadingDialog(loadingDialog, "Logging out...");
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            // blind send for now for removing notification endpoint id
-            userRepository.removeEndpointId();
-            // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make api call
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-                // clear all values in shared prefs
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
-                editor.apply();
-
-                // clear all notifications
-                NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                if (notificationManager != null) {
-                    notificationManager.cancelAll();
-                }
-                // since tokens are singleton, need to update tokens to null here
-                tokens.setRefreshToken(null);
-                tokens.setIdToken(null);
-                timer.stopTimer();
-                stopwatch.stopStopwatch();
-
-                // take user back to sign in activity
-                Intent intent = new Intent(this, SignInActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-            });
-        });
-    }
-
-    private void updateEndpointToken() {
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.w("WorkoutActivity", "getInstanceId failed", task.getException());
-                        return;
-                    }
-
-                    // Get new Instance ID token
-                    String token = task.getResult().getToken();
-                    Executor executor = Executors.newSingleThreadExecutor();
-                    executor.execute(() -> {
-                        // blind send for now for updating notification endpoint id
-                        userRepository.updateEndpointId(token);
-                    });
-                });
-    }
-
-    private void createNotificationChannel() {
-        /*
-            Sets up a notification channel for each channel in the app. Each channel is preset with
-            notification options but these can always be changed by the user.
-         */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // channel for when the timer is running but not finished
-            NotificationChannel timerRunningChannel = new NotificationChannel(
-                    Variables.TIMER_RUNNING_CHANNEL,
-                    "Timer", // todo change to "Timer Running"?
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            timerRunningChannel.setSound(null, null);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(timerRunningChannel);
-            // channel for when the timer finished
-            NotificationChannel timerFinishedChannel = new NotificationChannel(
-                    Variables.TIMER_FINISHED_CHANNEL,
-                    "Timer Finished",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(timerFinishedChannel);
-
-            // channel for when stopwatch is running
-            NotificationChannel stopwatchRunningChannel = new NotificationChannel(
-                    Variables.STOPWATCH_RUNNING_CHANNEL,
-                    "Stopwatch",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(stopwatchRunningChannel);
-
-            // channel for incoming friend requests
-            NotificationChannel friendRequestChannel = new NotificationChannel(
-                    Variables.FRIEND_REQUEST_CHANNEL,
-                    "Friend Requests",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(friendRequestChannel);
-
-            // channel for accepted friend requests
-            NotificationChannel acceptedRequestChannel = new NotificationChannel(
-                    Variables.ACCEPTED_FRIEND_CHANNEL,
-                    "Accepted Friends",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(acceptedRequestChannel);
-
-            // channel for accepted friend requests
-            NotificationChannel receivedWorkoutChannel = new NotificationChannel(
-                    Variables.RECEIVED_WORKOUT_CHANNEL,
-                    "Received Workouts",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(receivedWorkoutChannel);
-        }
-    }
 
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
@@ -528,7 +165,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
-                case Variables.REMOVE_FRIEND_BROADCAST: {
+                case Variables.REMOVED_AS_FRIEND_BROADCAST: {
                     String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
                     user.getFriends().remove(usernameToRemove);
 
@@ -561,7 +198,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                             user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
                         }
 
-                        // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update unseen
+                        // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
                         boolean updateUnseen =
                                 user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null ||
                                         user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()).isSeen();
@@ -586,46 +223,231 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     };
 
-    private void closeAllOpenDialogs() {
-        Fragment currentFragment = getVisibleFragment();
-        if (currentFragment instanceof FragmentWithDialog) {
-            ((FragmentWithDialog) currentFragment).hideAllDialogs();
-        }
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
-        timer.hideDialog();
-    }
-
-    public void toggleBackButton(boolean enable) {
-        /*
-            Found on SO. Shows the back button instead of the hamburger icon for the drawer menu
-         */
-        if (enable) {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            toggle.setDrawerIndicatorEnabled(false);
-            // Show back button
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            if (!drawerListenerIsRegistered) {
-                toggle.setToolbarNavigationClickListener(v -> onBackPressed());
-                drawerListenerIsRegistered = true;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String action;
+        String jsonData;
+        activityFinishing = false;
+        if (getIntent().getExtras() != null) {
+            action = getIntent().getAction();
+            if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
+                /*
+                    So freaking hacky. Essentially if user clicked a notification while app is terminated, we immediately finish this
+                    activity and start the splash activity. This is due to android being awful and their flags
+                    aren't working properly so this is the only way i can avoid this activity needlessly being destroyed twice.
+                 */
+                activityFinishing = true;
+                launchSplashActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
+                        getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION));
+                finish();
+                return;
+            }
+            jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
+            if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
+                try {
+                    userWithWorkout = new UserWithWorkout(JsonParser.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
+                } catch (IOException e) {
+                    return;
+                }
             }
         } else {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            // Remove back button
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            toggle.setDrawerIndicatorEnabled(true);
-            // Remove the/any drawer toggle listener
-            toggle.setToolbarNavigationClickListener(null);
-            drawerListenerIsRegistered = false;
+            // should never happen, so return early
+            return;
+        }
+        user = userWithWorkout.getUser();
+        Injector.getInjector(this).inject(this);
+
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
+        receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
+        receiverActions.addAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
+        receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
+
+        setContentView(R.layout.activity_workout);
+        timer = new Timer(this, sharedPreferences);
+        stopwatch = new Stopwatch(this, sharedPreferences);
+        fragmentStack = new ArrayList<>();
+        showPopupFlag = true;
+        fragmentSavedStatesMap = new HashMap<>();
+        drawerListenerIsRegistered = false;
+        fragmentManager = getSupportFragmentManager();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbarTitleTV = findViewById(R.id.toolbar_title);
+        drawer = findViewById(R.id.drawer);
+        nav = findViewById(R.id.nav_view);
+        nav.setNavigationItemSelectedListener(this);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
+        }
+
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.nav_draw_open, R.string.nav_draw_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        if (savedInstanceState == null) {
+            // default landing fragment is current workout one
+            fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
+            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
+            nav.setCheckedItem(R.id.nav_current_workout);
+        }
+        View headerView = nav.getHeaderView(0);
+        ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
+        headerLayout.setOnClickListener(view -> {
+            goToAccountSettings();
+            drawer.closeDrawer(GravityCompat.START);
+        });
+        TextView usernameTV = headerView.findViewById(R.id.username_tv);
+        usernameTV.setText(user.getUsername());
+        accountNotificationTV = headerView.findViewById(R.id.notification_tv);
+        profilePicture = headerView.findViewById(R.id.profile_picture);
+        Picasso.get()
+                .load(ImageHelper.getIconUrl(user.getIcon()))
+                .error(R.drawable.app_icon_no_background)
+                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                .into(profilePicture, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        profilePicture.setImageDrawable(imageDrawable);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
+
+        createNotificationChannel();
+        updateEndpointToken();
+        updateAccountNotificationIndicator();
+        updateReceivedWorkoutNotificationIndicator();
+        if (action != null && jsonData != null) {
+            // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
+            navigateToFragmentFromNotification(action);
+        }
+    }
+
+    private void launchSplashActivity(String jsonData, String action) {
+        Intent intent = new Intent(this, SplashActivity.class);
+        intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(action);
+        startActivity(intent);
+    }
+
+    /**
+     * Called whenever the user clicks on a notification while the app is running or paused.
+     *
+     * @param intent contains data about how to route and what data to consume.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String action = intent.getExtras().getString(Variables.NOTIFICATION_ACTION);
+        if (action == null) {
+            return;
+        }
+        switch (action) {
+            case Variables.INTENT_TIMER_NOTIFICATION_CLICK:
+            case Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK:
+                // close any popup that might be showing
+                closeAllOpenDialogs();
+                goToCurrentWorkout();
+                nav.setCheckedItem(R.id.nav_current_workout);
+                break;
+            case Variables.RECEIVED_WORKOUT_CLICK:
+                closeAllOpenDialogs();
+                nav.setCheckedItem(R.id.nav_received_workouts);
+                goToReceivedWorkouts();
+                break;
+            case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
+                closeAllOpenDialogs();
+                goToFriendsList(null);
+                break;
+            case Variables.NEW_FRIEND_REQUEST_CLICK:
+                closeAllOpenDialogs();
+                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extras);
+                break;
+        }
+    }
+
+    /**
+     * This is called whenever user opens notification while app was terminated.
+     * No need to update any models since that would have been taken care of from the splash screen load
+     *
+     * @param action informs which route to take.
+     */
+    private void navigateToFragmentFromNotification(String action) {
+        if (action == null) {
+            return;
+        }
+        switch (action) {
+            case Variables.NEW_FRIEND_REQUEST_CLICK:
+                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
+                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extras);
+                break;
+            case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
+                goToFriendsList(null);
+                break;
+            case Variables.RECEIVED_WORKOUT_CLICK:
+                goToReceivedWorkouts();
+                break;
         }
     }
 
     @Override
+    protected void onPause() {
+        if (userWithWorkout.isWorkoutPresent()) {
+            Intent intent = new Intent(this, SyncRoutineService.class);
+            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
+            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
+            try {
+                // todo only do this if model changed?
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
+                startService(intent);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (!activityFinishing) {
+            // stop any timer/stopwatch services that may be running.
+            stopService(new Intent(this, TimerService.class));
+            stopService(new Intent(this, StopwatchService.class));
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
+                notificationManager.cancel(TimerService.timerFinishedId);
+            }
+            // update tokens just in case they changed in apps life cycle
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
+            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
+            editor.apply();
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        /*
-            Called whenever an element in the nav menu is selected
-         */
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
                 if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
@@ -752,6 +574,169 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    public void logout() {
+        // stop any timer/stopwatch services that may be running.
+        stopService(new Intent(this, TimerService.class));
+        stopService(new Intent(this, StopwatchService.class));
+        if (userWithWorkout.isWorkoutPresent()) {
+            Intent intent = new Intent(this, SyncRoutineService.class);
+            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
+            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
+            try {
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
+                startService(intent);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        AndroidHelper.showLoadingDialog(loadingDialog, "Logging out...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // blind send for now for removing notification endpoint id
+            userRepository.removeEndpointId();
+            // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make api call
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
+                // clear all values in shared prefs (todo don't clear all?)
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                // clear all notifications
+                NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.cancelAll();
+                }
+                // since tokens are singleton, need to update tokens to null here
+                tokens.setRefreshToken(null);
+                tokens.setIdToken(null);
+                timer.stopTimer();
+                stopwatch.stopStopwatch();
+
+                // take user back to sign in activity
+                Intent intent = new Intent(this, SignInActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            });
+        });
+    }
+
+    /**
+     * Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
+     */
+    private void updateEndpointToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        return;
+                    }
+
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        // blind send for now for updating notification endpoint id
+                        userRepository.updateEndpointId(token);
+                    });
+                });
+    }
+
+    /**
+     * Sets up a notification channel for each channel in the app. Each channel is preset with
+     * notification options but these can always be changed by the user.
+     */
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // channel for when the timer is running but not finished
+            NotificationChannel timerRunningChannel = new NotificationChannel(
+                    Variables.TIMER_RUNNING_CHANNEL,
+                    "Timer Running",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            timerRunningChannel.setSound(null, null);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(timerRunningChannel);
+            // channel for when the timer finished
+            NotificationChannel timerFinishedChannel = new NotificationChannel(
+                    Variables.TIMER_FINISHED_CHANNEL,
+                    "Timer Finished",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(timerFinishedChannel);
+
+            // channel for when stopwatch is running
+            NotificationChannel stopwatchRunningChannel = new NotificationChannel(
+                    Variables.STOPWATCH_RUNNING_CHANNEL,
+                    "Stopwatch Running",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(stopwatchRunningChannel);
+
+            // channel for incoming friend requests
+            NotificationChannel friendRequestChannel = new NotificationChannel(
+                    Variables.FRIEND_REQUEST_CHANNEL,
+                    "New Friend Requests",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(friendRequestChannel);
+
+            // channel for accepted friend requests
+            NotificationChannel acceptedRequestChannel = new NotificationChannel(
+                    Variables.ACCEPTED_FRIEND_CHANNEL,
+                    "Accepted Friend Requests",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(acceptedRequestChannel);
+
+            // channel for accepted friend requests
+            NotificationChannel receivedWorkoutChannel = new NotificationChannel(
+                    Variables.RECEIVED_WORKOUT_CHANNEL,
+                    "Received Workouts",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(receivedWorkoutChannel);
+        }
+    }
+
+    private void closeAllOpenDialogs() {
+        Fragment currentFragment = getVisibleFragment();
+        if (currentFragment instanceof FragmentWithDialog) {
+            ((FragmentWithDialog) currentFragment).hideAllDialogs();
+        }
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+        timer.hideDialog();
+    }
+
+    /**
+     * Toggles whether a back button or hamburger icon should be shown for the drawer menu.
+     *
+     * @param enable if true, show the back button.
+     */
+    public void toggleBackButton(boolean enable) {
+        if (enable) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            toggle.setDrawerIndicatorEnabled(false);
+            // show back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (!drawerListenerIsRegistered) {
+                toggle.setToolbarNavigationClickListener(v -> onBackPressed());
+                drawerListenerIsRegistered = true;
+            }
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            // remove back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            toggle.setDrawerIndicatorEnabled(true);
+            toggle.setToolbarNavigationClickListener(null);
+            drawerListenerIsRegistered = false;
+        }
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         /*
@@ -788,10 +773,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return super.dispatchTouchEvent(event);
     }
 
+    /**
+     * Shows a popup whenever user has unfinished work in either the new workout fragment or edit workout one.
+     *
+     * @param fragmentTitle title of the fragment that is unfinished.
+     */
     private void showUnsavedChangesPopup(String fragmentTitle) {
-        /*
-            Is called whenever the user has unfinished work in the create workout fragment.
-         */
         String message = "";
         if (fragmentTitle.equals(Variables.EDIT_WORKOUT_TITLE)) {
             message = getString(R.string.popup_message_edit_workout);
@@ -810,10 +797,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         alertDialog.show();
     }
 
+    /**
+     * Called by other fragments to change the string that the toolbar displays.
+     *
+     * @param aTitle new title for the toolbar.
+     */
     public void updateToolbarTitle(String aTitle) {
-        /*
-            Called by other fragments to change the string that the toolbar displays.
-         */
         toolbarTitleTV.setText(aTitle);
     }
 
@@ -828,9 +817,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     private boolean isFragmentModified(Fragment aFragment) {
-        /*
-            Checks if passed in fragment has been modified
-         */
         boolean retVal = false;
         if (aFragment instanceof NewWorkoutFragment) {
             retVal = ((NewWorkoutFragment) aFragment).isModified();
@@ -841,9 +827,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     private Fragment getVisibleFragment() {
-        /*
-            Returns the current fragment in focus
-         */
         List<Fragment> fragments = fragmentManager.getFragments();
         for (Fragment fragment : fragments) {
             if (fragment != null && fragment.isVisible())
@@ -852,11 +835,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return null;
     }
 
+    /**
+     * Called by a fragment that wishes to end itself. It destroys that fragment and handles
+     * the back stack appropriately.
+     */
     public void finishFragment() {
-        /*
-            Called by a fragment that wishes to end itself. It destroys that fragment and handles
-            the back stack appropriately.
-         */
         showPopupFlag = false;
         onBackPressed();
     }
@@ -869,13 +852,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 showAlert = true;
             }
         }
-
-        notificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
+        accountNotificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
     }
 
     public void updateReceivedWorkoutNotificationIndicator() {
         // check if there are any unseen notifications for received workouts
-
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
         view.setText(user.getUnseenReceivedWorkouts() > 0 ? String.valueOf(user.getUnseenReceivedWorkouts()) : null);
     }
@@ -899,6 +880,37 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
+                .commit();
+    }
+
+    public void goToMyWorkouts() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
+
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
+                .commit();
+    }
+
+    public void goToNewWorkout() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
+                .commit();
+    }
+
+    public void goToEditWorkout() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
+
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                new EditWorkoutFragment(), Variables.EDIT_WORKOUT_TITLE)
                 .commit();
     }
 
@@ -930,44 +942,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
-    public void goToNewWorkout() {
+    public void goToAccountSettings() {
         saveCurrentFragmentState();
-        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-        fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+        fragmentStack.remove(Variables.ACCOUNT_TITLE);
+        fragmentStack.add(0, Variables.ACCOUNT_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
-                .commit();
-    }
-
-    public void goToEditWorkout() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
-        fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
-
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new EditWorkoutFragment(), Variables.EDIT_WORKOUT_TITLE)
-                .commit();
-    }
-
-    public void goToMyWorkouts() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.MY_WORKOUT_TITLE);
-        fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
-
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
-                .commit();
-    }
-
-    public void goToAppSettings() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.SETTINGS_TITLE);
-        fragmentStack.add(0, Variables.SETTINGS_TITLE);
-
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new AppSettingsFragment(), Variables.SETTINGS_TITLE)
+                .replace(R.id.fragment_container, new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
     }
 
@@ -979,16 +960,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
-                .commit();
-    }
-
-    public void goToAccountSettings() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.ACCOUNT_TITLE);
-        fragmentStack.add(0, Variables.ACCOUNT_TITLE);
-
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
     }
 
@@ -1044,6 +1015,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
+                .commit();
+    }
+
+    public void goToAppSettings() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.SETTINGS_TITLE);
+        fragmentStack.add(0, Variables.SETTINGS_TITLE);
+
+        fragmentManager.beginTransaction().replace(R.id.fragment_container,
+                new AppSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
     }
 

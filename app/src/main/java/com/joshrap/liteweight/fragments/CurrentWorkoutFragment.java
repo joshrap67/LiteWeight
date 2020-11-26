@@ -568,7 +568,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                             return LinearSmoothScroller.SNAP_TO_START;
                         }
                     };
-                    if (transitionType == LayoutTransition.APPEARING) {
+
+                    if (transitionType == LayoutTransition.APPEARING &&
+                            holder.itemView.getY() > recyclerView.getHeight() * .60) {
+                        // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
                         smoothScroller.setTargetPosition(holder.getLayoutPosition());
                         linearLayoutManager.startSmoothScroll(smoothScroller);
                     }

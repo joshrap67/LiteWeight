@@ -18,22 +18,20 @@
         <item
                 android:id="@+id/nav_received_workouts"
                 android:icon="@drawable/email_icon"
-                app:actionLayout="@layout/menu_counter"
-                android:title="@string/received_workouts" />
+                android:title="@string/received_workouts"
+                app:actionLayout="@layout/menu_counter" />
     </group>
-    <item android:title="@string/nav_divider_title">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                        android:id="@+id/nav_user_settings"
-                        android:icon="@drawable/user_settings_icon"
-                        android:title="@string/nav_user_settings" />
-                <item
-                        android:id="@+id/nav_about"
-                        android:icon="@drawable/about_icon"
-                        android:title="@string/nav_about" />
-            </group>
+    <group
+            android:id="@+id/unique-id-547653"
+            android:checkableBehavior="single">
+        <item
+                android:id="@+id/nav_user_settings"
+                android:icon="@drawable/user_settings_icon"
+                android:title="@string/nav_user_settings" />
+        <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/about_icon"
+                android:title="@string/nav_about" />
+    </group>
 
-        </menu>
-    </item>
 </menu>

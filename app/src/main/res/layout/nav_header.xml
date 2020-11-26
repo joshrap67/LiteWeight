@@ -56,6 +56,4 @@
                 android:textStyle="bold"
                 tools:text="Username" />
     </RelativeLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

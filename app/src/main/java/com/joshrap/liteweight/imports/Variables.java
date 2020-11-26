@@ -105,7 +105,7 @@ public class Variables {
     public static final String
             CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest",
             ACCEPTED_FRIEND_REQUEST_BROADCAST = "acceptedFriendRequestBroadcast",
-            REMOVE_FRIEND_BROADCAST = "removeFriendBroadcast",
+            REMOVED_AS_FRIEND_BROADCAST = "removeFriendBroadcast",
             DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest",
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
             RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
