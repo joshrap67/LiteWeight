@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.helpers;
 
+import com.joshrap.liteweight.imports.ApiConfig;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +21,6 @@ public class ImageHelper {
     }
 
     public static String getIconUrl(String fileName) {
-        return "https://liteweight-images.s3.us-east-1.amazonaws.com/" + fileName;
+        return ApiConfig.s3ImageUrl + fileName;
     }
 }

@@ -140,7 +140,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         mainRelativeLayout = view.findViewById(R.id.button_spinner_layout);
         saveButton = view.findViewById(R.id.save_button);
 
-        dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+        dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         setSpinnerListeners(view);
         setButtonListeners();
         updateButtonTexts();
@@ -266,7 +266,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 updateDaySpinnerValues();
                 weekAdapter.notifyDataSetChanged();
                 dayAdapter.notifyDataSetChanged();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
             } else if (mode == Variables.DELETE_MODE) {
@@ -300,7 +300,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 updateDaySpinnerValues();
                 daySpinner.setSelection(currentDayIndex);
                 dayAdapter.notifyDataSetChanged();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
             } else if (mode == Variables.DELETE_MODE) {
@@ -366,7 +366,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 daySpinner.setSelection(0);
                 updateDaySpinnerValues();
                 updateRoutineListUI();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateButtonTexts();
             }
 
@@ -385,7 +385,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentDayIndex = position;
                 updateRoutineListUI();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
             }
 
             @Override
@@ -448,7 +448,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         });
         routineRecyclerView.setAdapter(routineAdapter);
         routineRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTitleTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+        dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         checkEmpty();
     }
 
@@ -599,7 +599,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         List<String> days = new ArrayList<>();
         for (Integer week : pendingRoutine) {
             for (Integer day : pendingRoutine.getWeek(week)) {
-                String dayTitle = WorkoutHelper.generateDayTitleNew(week, day);
+                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -617,7 +617,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
         TextView copyToExistingTv = popupView.findViewById(R.id.copy_to_existing_tv);
         String copyToExistingMsg = String.format("Copy %s to one of the following days. Note that doing this will overwrite all the existing exercises in the target day.",
-                WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         copyToExistingTv.setText(copyToExistingMsg);
         Button copyToExistingButton = popupView.findViewById(R.id.copy_to_existing_btn);
         copyToExistingButton.setOnClickListener(v -> {
@@ -644,7 +644,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
         TextView copyAsNewTV = popupView.findViewById(R.id.copy_as_new_tv);
         String copyAsNewMsg = String.format("Copy %s as a new day at the end of the current week.",
-                WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+                WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         copyAsNewTV.setText(copyAsNewMsg);
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
@@ -665,7 +665,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Copy %s", WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex)))
+                .setTitle(String.format("Copy %s", WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Return", null)
                 .create();

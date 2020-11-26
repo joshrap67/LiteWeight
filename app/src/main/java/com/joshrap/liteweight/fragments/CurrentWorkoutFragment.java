@@ -307,7 +307,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+        dayTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
 
@@ -377,7 +377,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     // for highlighting what day the user is currently on
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutHelper.generateDayTitleNew(week, day);
+                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -627,7 +627,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             weightButton.setOnClickListener((v) -> {
                 // show all the extra details for this exercise so the user can edit/read them
                 extrasShownMap.add(exercise.getExerciseId());
-                weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+                weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
                 weightButton.setVisibility(View.INVISIBLE);
                 videoButton.setVisibility(View.GONE);
                 extraInfo.setVisibility(View.VISIBLE);
@@ -685,7 +685,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 setsInput.setText(Integer.toString(exercise.getSets()));
                 repsInput.setText(Integer.toString(exercise.getReps()));
                 detailsInput.setText(exercise.getDetails());
-                weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+                weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
 
                 notifyDataSetChanged(); // avoids animation on closing the extra info
             });

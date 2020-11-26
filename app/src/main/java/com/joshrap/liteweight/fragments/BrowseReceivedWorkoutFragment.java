@@ -368,7 +368,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
+        dayTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
 
@@ -384,7 +384,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 if (week == currentWeekIndex && day == currentDayIndex) {
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutHelper.generateDayTitleNew(week, day);
+                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }

@@ -182,7 +182,7 @@ public class PendingRoutineAdapter extends
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
             deleteButton.setVisibility(View.GONE);
-            weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
             weightButton.setVisibility(View.INVISIBLE);
             extraInfo.setVisibility(View.VISIBLE);
             saveButton.setVisibility(View.VISIBLE);
@@ -205,7 +205,7 @@ public class PendingRoutineAdapter extends
             setsInput.setText(Integer.toString(exercise.getSets()));
             repsInput.setText(Integer.toString(exercise.getReps()));
             detailsInput.setText(exercise.getDetails());
-            weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
 
             notifyDataSetChanged(); // avoids animation on closing the extra info
         };

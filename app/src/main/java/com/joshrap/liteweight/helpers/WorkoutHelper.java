@@ -7,17 +7,21 @@ public class WorkoutHelper {
         if (routine == null) {
             return;
         }
-        for (int week = 0; week < routine.getNumberOfWeeks(); week++) {
-            for (int day = 0; day < routine.getWeek(week).getNumberOfDays(); day++) {
+        for (int week : routine) {
+            for (int day : routine.getWeek(week)) {
                 routine.removeExercise(week, day, exerciseId);
             }
         }
     }
 
-    public static String generateDayTitleNew(int currentWeekIndex, int currentDayIndex) {
-        /*
-            Generates a day title for a workout.
-         */
+    /**
+     * Generates a day title in a standard format. E.g. W1:D2
+     *
+     * @param currentWeekIndex current week index of the routine.
+     * @param currentDayIndex  current day index of the routine.
+     * @return formatted day title.
+     */
+    public static String generateDayTitle(int currentWeekIndex, int currentDayIndex) {
         return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
     }
 }

@@ -107,8 +107,10 @@ public class SignInActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(view -> {
             passwordAttributesTV.setVisibility(View.GONE); // wish I could do this after pswd loses focus, but can't get it to work
 
-            attemptSignUp(usernameInputSignUp.getText().toString().trim(),
-                    passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim());
+            if (validSignUpInput()) {
+                attemptSignUp(usernameInputSignUp.getText().toString().trim(),
+                        passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim());
+            }
         });
 
         Button switchToSignUp = findViewById(R.id.sign_in_change_mode_btn);

@@ -157,7 +157,7 @@ public class SharedRoutineAdapter extends
 
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
-            weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
             weightButton.setVisibility(View.INVISIBLE);
             extraInfo.setVisibility(View.VISIBLE);
             doneButton.setVisibility(View.VISIBLE);

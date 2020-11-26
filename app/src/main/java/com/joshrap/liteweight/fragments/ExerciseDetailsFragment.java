@@ -208,7 +208,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private void initViews() {
         exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightHelper.getFormattedWeightForInput(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
+        weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
         detailsInput.setText(originalExercise.getDefaultDetails());

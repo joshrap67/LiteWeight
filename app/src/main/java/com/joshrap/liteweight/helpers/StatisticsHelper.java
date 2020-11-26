@@ -9,7 +9,7 @@ public class StatisticsHelper {
             // Percentage is a whole number. don't want to show any decimals
             retVal = String.format("%s%%", String.format("%.0f", averageCompleted));
         } else {
-            retVal = String.format("%s%%", String.format("%.3f", averageCompleted));
+            retVal = String.format("%s%%", String.format("%.2f", averageCompleted));
         }
         return retVal;
     }

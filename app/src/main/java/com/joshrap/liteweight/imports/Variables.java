@@ -21,7 +21,7 @@ public class Variables {
             MAX_DETAILS_LENGTH = 120,
             MAX_URL_LENGTH = 200,
             EMAIL_CODE_LENGTH = 6,
-            MAX_USERNAME_LENGTH = 40,
+            MAX_USERNAME_LENGTH = 50,
             MIN_PASSWORD_LENGTH = 8,
             MAX_STOPWATCH_TIME = 7200000,
             DEFAULT_TIMER_VALUE = 60000,
@@ -110,7 +110,7 @@ public class Variables {
             NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast",
             RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast",
 
-            RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast",
+    RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast",
             NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST = "newFriendRequestModelUpdatedBroadcast",
             CANCELED_REQUEST_MODEL_UPDATED_BROADCAST = "canceledRequestModelUpdatedBroadcast",
             DECLINED_REQUEST_MODEL_UPDATED_BROADCAST = "declinedFriendRequestModelUpdatedBroadcast",
@@ -127,4 +127,5 @@ public class Variables {
             FRIEND_REQUEST_CODE = 71,
             ACCEPTED_REQUEST_CODE = 72,
             RECEIVED_WORKOUT_REQUEST_CODE = 73;
+    public static final int MAX_PASSWORD_LENGTH = 99;
 }

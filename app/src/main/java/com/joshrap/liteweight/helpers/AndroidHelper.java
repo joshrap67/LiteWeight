@@ -10,6 +10,12 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class AndroidHelper {
 
+    /**
+     * Returns a TextWatcher that detects when error is present and hides it once user starts typing.
+     *
+     * @param layout layout that contains a given EditText
+     * @return TextWatcher that does the detection.
+     */
     public static TextWatcher hideErrorTextWatcher(TextInputLayout layout) {
         return new TextWatcher() {
             @Override
@@ -19,7 +25,6 @@ public class AndroidHelper {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (layout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
                     layout.setErrorEnabled(false);
                     layout.setError(null);
                 }
