@@ -32,9 +32,9 @@ public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
         }
         OwnedExercise currentExercise = exerciseList.get(position);
 
-        TextView release = listItem.findViewById(android.R.id.text1);
-        release.setText(currentExercise.getExerciseName());
+        TextView exerciseNameTV = listItem.findViewById(android.R.id.text1);
+        exerciseNameTV.setText(currentExercise.getExerciseName());
 
-        return release;
+        return exerciseNameTV;
     }
 }

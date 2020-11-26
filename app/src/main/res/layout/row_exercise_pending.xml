@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -115,11 +116,10 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <LinearLayout
             android:id="@+id/extra_info_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
@@ -165,7 +165,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/weight_input"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
@@ -218,5 +218,4 @@
                     app:autoSizeTextType="uniform" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
 </LinearLayout>

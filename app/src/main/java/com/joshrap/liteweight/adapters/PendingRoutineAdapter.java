@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.adapters;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -26,8 +28,6 @@ import java.util.Map;
 public class PendingRoutineAdapter extends
         RecyclerView.Adapter<PendingRoutineAdapter.ViewHolder> {
 
-    // Provide a direct reference to each of the views within a data item
-    // Used to cache the views within the item layout for fast access
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseTV;
         Button weightButton;
@@ -45,13 +45,12 @@ public class PendingRoutineAdapter extends
         TextInputLayout setsInputLayout;
         TextInputLayout repsInputLayout;
         TextInputLayout detailsInputLayout;
+        LinearLayout rootLayout;
 
-        // We also create a constructor that accepts the entire item row
-        // and does the view lookups to find each subview
         ViewHolder(View itemView) {
-            // Stores the itemView in a public final member variable that can be used
-            // to access the context from any ViewHolder instance.
             super(itemView);
+            rootLayout = itemView.findViewById(R.id.root_layout);
+
             deleteButton = itemView.findViewById(R.id.delete_exercise);
             exerciseTV = itemView.findViewById(R.id.exercise_name);
             weightButton = itemView.findViewById(R.id.weight_btn);
@@ -77,11 +76,13 @@ public class PendingRoutineAdapter extends
     private int currentWeek;
     private int currentDay;
     private int mode;
+    private RecyclerView recyclerView;
+    private Context context;
     private boolean metricUnits;
 
-    // Pass in the contact array into the constructor
     public PendingRoutineAdapter(List<RoutineExercise> routineExercises, Map<String,
-            String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits, int mode) {
+            String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits, int mode,
+                                 RecyclerView recyclerView, Context context) {
         this.exercises = routineExercises;
         this.exerciseIdToName = exerciseIdToName;
         this.pendingRoutine = routine;
@@ -89,18 +90,15 @@ public class PendingRoutineAdapter extends
         this.currentDay = currentDay;
         this.metricUnits = metricUnits;
         this.mode = mode;
+        this.recyclerView = recyclerView;
+        this.context = context;
     }
-
 
     @Override
     public PendingRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
-        // Inflate the custom layout
         View exerciseView = inflater.inflate(R.layout.row_exercise_pending, parent, false);
-
-        // Return a new holder instance
         return new ViewHolder(exerciseView);
     }
 
@@ -114,33 +112,58 @@ public class PendingRoutineAdapter extends
         return position;
     }
 
-    // Involves populating data into the item through holder
     @Override
     public void onBindViewHolder(PendingRoutineAdapter.ViewHolder holder, int position) {
-        // Get the data model based on position
-        RoutineExercise exercise = exercises.get(position);
+        final RoutineExercise exercise = exercises.get(position);
+
+        LinearLayout rootLayout = holder.rootLayout;
+        LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
+        layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
+            @Override
+            public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(context) {
+                    @Override
+                    protected int getVerticalSnapPreference() {
+                        return LinearSmoothScroller.SNAP_TO_START;
+                    }
+                };
+
+                if (transitionType == LayoutTransition.APPEARING &&
+                        holder.itemView.getY() > recyclerView.getHeight() * .60) {
+                    // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
+                    smoothScroller.setTargetPosition(holder.getLayoutPosition());
+                    recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+                    // if i don't have this notify then it sometimes has an empty space above the container... i hate android
+                    notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+            }
+        });
 
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
-        final TextView exerciseTV = holder.exerciseTV;
+        TextView exerciseTV = holder.exerciseTV;
         exerciseTV.setText(currentExercise);
 
-        final Button weightButton = holder.weightButton;
-        final EditText weightInput = holder.weightInput;
-        final EditText detailsInput = holder.detailsInput;
-        final EditText repsInput = holder.repsInput;
-        final EditText setsInput = holder.setsInput;
+        Button weightButton = holder.weightButton;
+        EditText weightInput = holder.weightInput;
+        EditText detailsInput = holder.detailsInput;
+        EditText repsInput = holder.repsInput;
+        EditText setsInput = holder.setsInput;
 
-        final TextInputLayout detailsInputLayout = holder.detailsInputLayout;
-        final TextInputLayout setsInputLayout = holder.setsInputLayout;
-        final TextInputLayout repsInputLayout = holder.repsInputLayout;
-        final TextInputLayout weightInputLayout = holder.weightInputLayout;
+        TextInputLayout detailsInputLayout = holder.detailsInputLayout;
+        TextInputLayout setsInputLayout = holder.setsInputLayout;
+        TextInputLayout repsInputLayout = holder.repsInputLayout;
+        TextInputLayout weightInputLayout = holder.weightInputLayout;
 
-        final ImageButton deleteButton = holder.deleteButton;
+        ImageButton deleteButton = holder.deleteButton;
         deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
 
-        final LinearLayout extraInfo = holder.extraInfo;
-        final ImageButton saveButton = holder.saveButton;
-        final ImageButton cancelButton = holder.cancelButton;
+        LinearLayout extraInfo = holder.extraInfo;
+        ImageButton saveButton = holder.saveButton;
+        ImageButton cancelButton = holder.cancelButton;
 
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
@@ -260,7 +283,6 @@ public class PendingRoutineAdapter extends
         return valid;
     }
 
-    // Returns the total count of items in the list
     @Override
     public int getItemCount() {
         return exercises.size();

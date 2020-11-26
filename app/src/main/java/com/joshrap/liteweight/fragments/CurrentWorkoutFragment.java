@@ -302,13 +302,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void updateRoutineListUI() {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
-                user.getOwnedExercises(), metricUnits, videosEnabled, linearLayoutManager);
+                user.getOwnedExercises(), metricUnits, videosEnabled);
 
         recyclerView.setAdapter(routineAdapter);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
@@ -519,17 +517,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         private Map<String, OwnedExercise> exerciseUserMap;
         private boolean metricUnits;
         private boolean videosEnabled;
-        private LinearLayoutManager linearLayoutManager;
         private List<String> extrasShownMap;
 
 
-        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled,
-                       LinearLayoutManager linearLayoutManager) {
+        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
             this.exercises = routineExercises;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
             this.videosEnabled = videosEnabled;
-            this.linearLayoutManager = linearLayoutManager;
             this.extrasShownMap = new ArrayList<>();
         }
 
@@ -559,7 +554,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             LinearLayout rootLayout = holder.rootLayout;
             LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
             layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-
                 @Override
                 public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
                     RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(getContext()) {
@@ -573,7 +567,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                             holder.itemView.getY() > recyclerView.getHeight() * .60) {
                         // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
                         smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                        linearLayoutManager.startSmoothScroll(smoothScroller);
+                        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
                     }
                 }
 

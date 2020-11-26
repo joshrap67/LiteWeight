@@ -425,7 +425,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         PendingRoutineAdapter routineAdapter = new PendingRoutineAdapter
                 (pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
                         exerciseIdToName, pendingRoutine, currentWeekIndex, currentDayIndex,
-                        false, mode);
+                        false, mode, routineRecyclerView, getContext());
         routineAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override

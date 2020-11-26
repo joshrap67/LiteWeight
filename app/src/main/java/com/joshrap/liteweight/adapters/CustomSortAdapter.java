@@ -62,7 +62,6 @@ public class CustomSortAdapter extends
         String formattedWeight = WeightHelper.getFormattedWeightWithUnits(weight, metricUnits);
         weightButton.setText(formattedWeight);
         weightButton.setEnabled(false);
-
     }
 
     @Override

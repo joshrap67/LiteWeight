@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.adapters.SentRoutineAdapter;
+import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
 import com.joshrap.liteweight.helpers.AndroidHelper;
 import com.joshrap.liteweight.helpers.InputHelper;
 import com.joshrap.liteweight.helpers.JsonParser;
@@ -365,7 +365,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private void updateRoutineListUI() {
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
-        SentRoutineAdapter routineAdapter = new SentRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits);
+        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayTV.setText(WorkoutHelper.generateDayTitleNew(currentWeekIndex, currentDayIndex));

@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.adapters;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -19,8 +21,8 @@ import com.joshrap.liteweight.models.SentExercise;
 
 import java.util.List;
 
-public class SentRoutineAdapter extends
-        RecyclerView.Adapter<SentRoutineAdapter.ViewHolder> {
+public class SharedRoutineAdapter extends
+        RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -28,6 +30,7 @@ public class SentRoutineAdapter extends
         Button weightButton;
         ImageButton doneButton;
         LinearLayout extraInfo;
+        LinearLayout rootLayout;
 
         EditText detailsInput;
         EditText weightInput;
@@ -41,6 +44,7 @@ public class SentRoutineAdapter extends
 
         ViewHolder(View itemView) {
             super(itemView);
+            rootLayout = itemView.findViewById(R.id.root_layout);
 
             exerciseName = itemView.findViewById(R.id.exercise_name);
             weightButton = itemView.findViewById(R.id.weight_btn);
@@ -61,16 +65,20 @@ public class SentRoutineAdapter extends
 
     private List<SentExercise> exercises;
     private boolean metricUnits;
+    private RecyclerView recyclerView;
+    private Context context;
 
-    // Pass in the contact array into the constructor
-    public SentRoutineAdapter(List<SentExercise> routineExercises, boolean metricUnits) {
+    public SharedRoutineAdapter(List<SentExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
+            Context context) {
         this.exercises = routineExercises;
         this.metricUnits = metricUnits;
+        this.recyclerView = recyclerView;
+        this.context = context;
     }
 
 
     @Override
-    public SentRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SharedRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View exerciseView = inflater.inflate(R.layout.row_exercise_read_only, parent, false);
@@ -87,10 +95,36 @@ public class SentRoutineAdapter extends
         return position;
     }
 
-    // Involves populating data into the item through holder
     @Override
-    public void onBindViewHolder(SentRoutineAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
         final SentExercise exercise = exercises.get(position);
+
+        LinearLayout rootLayout = holder.rootLayout;
+        LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
+        layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
+            @Override
+            public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(context) {
+                    @Override
+                    protected int getVerticalSnapPreference() {
+                        return LinearSmoothScroller.SNAP_TO_START;
+                    }
+                };
+
+                if (transitionType == LayoutTransition.APPEARING &&
+                        holder.itemView.getY() > recyclerView.getHeight() * .60) {
+                    // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
+                    smoothScroller.setTargetPosition(holder.getLayoutPosition());
+                    recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+                    // if i don't have this notify then it sometimes has an empty space above the container... i hate android
+                    notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+            }
+        });
 
         final String currentExercise = exercise.getExerciseName();
         final TextView exerciseName = holder.exerciseName;
