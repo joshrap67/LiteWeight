@@ -35,9 +35,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.ExerciseHelper;
-import com.joshrap.liteweight.helpers.WeightHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
@@ -47,11 +47,10 @@ import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
-import com.joshrap.liteweight.helpers.WorkoutHelper;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
@@ -307,7 +306,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
 
@@ -315,7 +314,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Reset all of the exercises to being incomplete and then write to the database with these changes.
      */
     private void restartWorkout() {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Restarting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.restartWorkout(currentWorkout);
@@ -337,7 +336,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     updateRoutineListUI();
                     updateWorkoutProgressBar();
                 } else {
-                    ErrorDialog.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -377,7 +376,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     // for highlighting what day the user is currently on
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -615,8 +614,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
             detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-            double weight = WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight());
-            String formattedWeight = WeightHelper.getFormattedWeightWithUnits(weight, metricUnits);
+            double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+            String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
             weightButton.setText(formattedWeight);
             weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
@@ -627,7 +626,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             weightButton.setOnClickListener((v) -> {
                 // show all the extra details for this exercise so the user can edit/read them
                 extrasShownMap.add(exercise.getExerciseId());
-                weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+                weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
                 weightButton.setVisibility(View.INVISIBLE);
                 videoButton.setVisibility(View.GONE);
                 extraInfo.setVisibility(View.VISIBLE);
@@ -644,11 +643,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     double newWeight = Double.parseDouble(weightInput.getText().toString());
                     if (metricUnits) {
                         // convert back to imperial if in metric since weight is stored in imperial on backend
-                        newWeight = WeightHelper.metricWeightToImperial(newWeight);
+                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
                     }
 
                     exercise.setWeight(newWeight);
-                    weightButton.setText(WeightHelper.getFormattedWeightWithUnits(newWeight, metricUnits));
+                    weightButton.setText(WeightUtils.getFormattedWeightWithUnits(newWeight, metricUnits));
 
                     extrasShownMap.remove(exercise.getExerciseId());
                     exercise.setDetails(detailsInput.getText().toString().trim());
@@ -685,12 +684,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 setsInput.setText(Integer.toString(exercise.getSets()));
                 repsInput.setText(Integer.toString(exercise.getReps()));
                 detailsInput.setText(exercise.getDetails());
-                weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+                weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
 
                 notifyDataSetChanged(); // avoids animation on closing the extra info
             });
             videoButton.setOnClickListener(v ->
-                    ExerciseHelper.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()));
+                    ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()));
         }
 
         private boolean inputValid(EditText weightInput, EditText detailsInput,

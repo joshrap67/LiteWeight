@@ -73,8 +73,7 @@ public class ApiGateway {
                     resultStatus.setData(jsonResponse.toString());
                     resultStatus.setSuccess(true);
                 } else {
-                    // TODO handle specific error codes?
-                    if (firstTry) {
+                    if (firstTry && responseCode == 401) {
                         if (refreshIdToken(this.tokens.getRefreshToken())) {
                             resultStatus = makeRequest(action, body, false);
                         }

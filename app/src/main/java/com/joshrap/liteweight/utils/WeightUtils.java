@@ -1,8 +1,8 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.imports.Variables;
 
-public class WeightHelper {
+public class WeightUtils {
     /**
      * Returns the converted weight of the exercise according to whether metric units was specified.
      * Note that in DB it is stored as imperial.

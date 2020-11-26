@@ -28,17 +28,15 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
-import com.joshrap.liteweight.helpers.AndroidHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
@@ -46,7 +44,6 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,10 +112,10 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
-                ErrorDialog.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of free exercises allowed. Upgrade to premium for more.", getContext());
+                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of free exercises allowed. Upgrade to premium for more.", getContext());
             } else if (user.getPremiumToken() != null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
-                ErrorDialog.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
+                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise
                 newExercisePopup();
@@ -196,7 +193,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         final TextInputLayout nameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
         final EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
         exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-        exerciseNameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(nameLayout));
+        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(nameLayout));
 
         RecyclerView focusRecyclerView = popupView.findViewById(R.id.pick_focuses_recycler_view);
         AddFocusAdapter addFocusAdapter = new AddFocusAdapter(focusList, selectedFocuses);
@@ -219,12 +216,12 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                         allExerciseNames.add(ownedExercise.getExerciseName());
                     }
                 }
-                String nameError = InputHelper.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
+                String nameError = ValidatorUtils.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
                 if (selectedFocuses.isEmpty()) {
                     Toast.makeText(getContext(), "Select at least one focus!", Toast.LENGTH_SHORT).show();
                 } else if (nameError == null) {
                     alertDialog.dismiss();
-                    AndroidHelper.showLoadingDialog(loadingDialog, "Creating exercise...");
+                    AndroidUtils.showLoadingDialog(loadingDialog, "Creating exercise...");
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
                         ResultStatus<OwnedExercise> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses);
@@ -236,7 +233,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                                 user.getOwnedExercises().put(ownedExercise.getExerciseId(), ownedExercise);
                                 ((WorkoutActivity) getActivity()).goToExerciseDetails(ownedExercise.getExerciseId());
                             } else {
-                                ErrorDialog.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
+                                AndroidUtils.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
                             }
                         });
                     });

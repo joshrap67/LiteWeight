@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.network.repos;
 
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -50,7 +50,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data and workout.");
@@ -76,7 +76,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new User(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
@@ -102,7 +102,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new OwnedExercise(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new OwnedExercise(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
@@ -201,7 +201,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new Friend(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new Friend(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (IOException ioe) {
                 resultStatus.setErrorMessage("Could not parse friend.");
@@ -344,7 +344,7 @@ public class UserRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(JsonParser.deserialize(apiResponse.getData()).get(User.ICON).toString());
+                resultStatus.setData(JsonUtils.deserialize(apiResponse.getData()).get(User.ICON).toString());
             } catch (IOException e) {
                 resultStatus.setErrorMessage("Could not parse blocked user icon.");
             }

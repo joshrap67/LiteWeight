@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.imports.Variables;
 
@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class InputHelper {
+public class ValidatorUtils {
 
     private static Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
 

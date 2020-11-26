@@ -32,9 +32,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -45,7 +45,6 @@ import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -93,7 +92,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             }
             if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
                 try {
-                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                     receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
                     sortReceivedWorkouts();
                     receivedWorkoutsAdapter.refresh(receivedWorkouts);
@@ -236,7 +235,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         receivedWorkoutsAdapter.refresh(receivedWorkouts);
                         updateAllSeenButton();
                     } else {
-                        ErrorDialog.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });
@@ -299,7 +298,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void blockUser(String username) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Blocking user...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Blocking user...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
@@ -311,14 +310,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.getFriendRequests().remove(username);
                     user.getFriends().remove(username);
                 } else {
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
     private void acceptWorkout(final ReceivedWorkoutMeta workoutToAccept, final String optionalName) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Accepting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Accepting...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -349,14 +348,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     updateAllSeenButton();
                     ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                 } else {
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
     private void declineWorkout(ReceivedWorkoutMeta receivedWorkoutMeta) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Declining...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Declining...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -376,7 +375,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
                     receivedWorkoutsAdapter.notifyDataSetChanged();
                 } else {
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -390,7 +389,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
-        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("\"" + receivedWorkoutMeta.getWorkoutName() + "\" already exists")
                 .setView(popupView)
@@ -405,7 +404,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 for (String workoutId : user.getUserWorkouts().keySet()) {
                     workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
                 }
-                String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
+                String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
                 if (errorMsg == null) {
                     acceptWorkout(receivedWorkoutMeta, newName);
                     alertDialog.dismiss();

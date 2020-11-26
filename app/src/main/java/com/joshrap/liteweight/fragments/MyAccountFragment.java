@@ -26,7 +26,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.ImageHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -34,7 +35,6 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
@@ -110,7 +110,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
         updateFriendsTvNotification();
 
-        profilePicUrl = ImageHelper.getIconUrl(user.getIcon());
+        profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
@@ -162,7 +162,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
                 try {
                     InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
-                    updateIcon(ImageHelper.getImageByteArray(iStream));
+                    updateIcon(ImageUtils.getImageByteArray(iStream));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -197,7 +197,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {
-                        ErrorDialog.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
                     }
                 });
             } catch (JsonProcessingException e) {

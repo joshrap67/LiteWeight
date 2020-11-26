@@ -32,9 +32,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.helpers.StatisticsHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.joshrap.liteweight.utils.StatisticsUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -44,7 +44,6 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -168,16 +167,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                             user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
                         promptShare();
                     } else {
-                        ErrorDialog.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!", getContext());
                     }
                     return true;
                 case copyIndex:
                     if (user.getPremiumToken() == null &&
                             workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of free workouts you can own. Delete some of your other ones if you wish to copy this workout. Or, you can upgrade to premium :)", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of free workouts you can own. Delete some of your other ones if you wish to copy this workout. Or, you can upgrade to premium :)", getContext());
                     } else if (user.getPremiumToken() != null
                             && workoutList.size() >= Variables.MAX_WORKOUTS) {
-                        ErrorDialog.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
                     } else {
                         promptCopy();
                     }
@@ -197,10 +196,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         createWorkoutBtn.setOnClickListener(v -> {
             if (user.getPremiumToken() == null
                     && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-                ErrorDialog.showErrorDialog("Too many workouts", "You have reached the maximum amount of free workouts allowed. Delete some of your other ones if you wish to create a new one, or upgrade to premium.", getContext());
+                AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of free workouts allowed. Delete some of your other ones if you wish to create a new one, or upgrade to premium.", getContext());
             } else if (user.getPremiumToken() != null
                     && workoutList.size() >= Variables.MAX_WORKOUTS) {
-                ErrorDialog.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
+                AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
             } else {
                 // no errors so let user create new workout
                 ((WorkoutActivity) getActivity()).goToNewWorkout();
@@ -258,7 +257,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void updateStatisticsTV() {
         int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double average = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
-        String formattedPercentage = StatisticsHelper.getFormattedAverageCompleted(average);
+        String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
                 "Total Number of Days in Workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
@@ -283,7 +282,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void resetWorkoutStatistics(final String workoutId) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Resetting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Resetting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<User> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
@@ -296,7 +295,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
                     updateUI();
                 } else {
-                    ErrorDialog.showErrorDialog("Reset Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Reset Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -310,7 +309,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
-        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Rename \"" + currentWorkout.getWorkoutName() + "\"")
                 .setView(popupView)
@@ -325,7 +324,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 for (WorkoutMeta workoutMeta : workoutList) {
                     workoutNames.add(workoutMeta.getWorkoutName());
                 }
-                String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
+                String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
                 if (errorMsg != null) {
                     workoutNameInputLayout.setError(errorMsg);
                 } else {
@@ -338,7 +337,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void renameWorkout(final String workoutId, final String newWorkoutName) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Renaming...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Renaming...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<User> resultStatus = this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
@@ -352,7 +351,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
                     updateUI();
                 } else {
-                    ErrorDialog.showErrorDialog("Rename Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Rename Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -362,7 +361,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
         final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
-        workoutNameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle(String.format("Copy \"%s\" as new workout", currentWorkout.getWorkoutName()))
@@ -378,7 +377,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 for (String workoutId : user.getUserWorkouts().keySet()) {
                     workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
                 }
-                String errorMsg = InputHelper.validWorkoutName(workoutName, workoutNames);
+                String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
                 if (errorMsg != null) {
                     workoutNameInputLayout.setError(errorMsg);
                 } else {
@@ -392,7 +391,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void copyWorkout(final String workoutName) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Copying...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Copying...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.copyWorkout(currentWorkout, workoutName);
@@ -409,7 +408,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
                     updateUI();
                 } else {
-                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -440,7 +439,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         // when user clicks on one of their friends, put that friend's username into the input
         friendsListView.setOnItemClickListener((adapterView, view, i, l) -> usernameInput.setText(friendsUsernames.get(i)));
 
-        usernameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(usernameInputLayout));
+        usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(usernameInputLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle(String.format("Share \"%s\" to another user", currentWorkout.getWorkoutName()))
@@ -452,14 +451,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             final Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
                 String username = usernameInput.getText().toString().trim();
-                String errorMsg = InputHelper.validUserToSendWorkout(user.getUsername(), username);
+                String errorMsg = ValidatorUtils.validUserToSendWorkout(user.getUsername(), username);
                 if (errorMsg != null) {
                     usernameInputLayout.setError(errorMsg);
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
                     if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        ErrorDialog.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share for free. Upgrade to premium to send an unlimited amount.", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share for free. Upgrade to premium to send an unlimited amount.", getContext());
                     } else {
                         shareWorkout(username, currentWorkout.getWorkoutId());
                     }
@@ -470,7 +469,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void shareWorkout(String recipientUsername, String workoutId) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Sharing...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
@@ -481,7 +480,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
                     user.setWorkoutsSent(user.getWorkoutsSent() + 1);
                 } else {
-                    ErrorDialog.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -510,7 +509,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void deleteWorkout(String workoutId, String nextWorkoutId) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Deleting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.popWorkout(workoutId, nextWorkoutId);
@@ -531,7 +530,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                         updateUI();
                     }
                 } else {
-                    ErrorDialog.showErrorDialog("Delete Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Delete Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -542,7 +541,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             // don't allow user to switch to current workout since they are already on it
             return;
         }
-        AndroidHelper.showLoadingDialog(loadingDialog, "Loading...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
@@ -559,7 +558,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                                 resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
                         updateUI();
                     } else {
-                        ErrorDialog.showErrorDialog("Switch Workout Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Switch Workout Error", resultStatus.getErrorMessage(), getContext());
                         workoutListView.setItemChecked(0, true);
                     }
                 }

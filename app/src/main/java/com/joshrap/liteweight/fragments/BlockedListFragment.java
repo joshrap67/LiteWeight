@@ -30,16 +30,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.ImageHelper;
-import com.joshrap.liteweight.helpers.InputHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -147,7 +146,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         final View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
         final TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
         final EditText usernameInput = popupView.findViewById(R.id.friend_name_input);
-        usernameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(friendNameLayout));
+        usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Block User")
@@ -160,7 +159,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             saveButton.setOnClickListener(view -> {
                 String username = usernameInput.getText().toString().trim();
                 List<String> blockedUsers = new ArrayList<>(blocked);
-                String errorMsg = InputHelper.validUserToBlock(user.getUsername(), username, blockedUsers);
+                String errorMsg = ValidatorUtils.validUserToBlock(user.getUsername(), username, blockedUsers);
                 if (errorMsg != null) {
                     friendNameLayout.setError(errorMsg);
                 } else {
@@ -174,7 +173,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void blockUser(String username) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Blocking user...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Blocking user...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -193,7 +192,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
                 } else {
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -219,7 +218,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -229,7 +228,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
         final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
-                .load(ImageHelper.getIconUrl(icon))
+                .load(ImageUtils.getIconUrl(icon))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
@@ -305,7 +304,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 final ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
                 usernameTV.setText(blockedUser);
                 Picasso.get()
-                        .load(ImageHelper.getIconUrl(icon))
+                        .load(ImageUtils.getIconUrl(icon))
                         .error(R.drawable.picture_load_error)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                         .into(profilePicture, new com.squareup.picasso.Callback() {
@@ -333,7 +332,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             final ImageView profilePicture = holder.profilePicture;
             usernameTV.setText(blockedUser);
             Picasso.get()
-                    .load(ImageHelper.getIconUrl(icon))
+                    .load(ImageUtils.getIconUrl(icon))
                     .error(R.drawable.picture_load_error)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                     .into(profilePicture, new com.squareup.picasso.Callback() {

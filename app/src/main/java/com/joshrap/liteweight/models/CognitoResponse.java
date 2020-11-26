@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.models;
 
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.network.repos.CognitoRepository;
 
 import java.util.Map;
@@ -28,7 +28,7 @@ public class CognitoResponse {
     public static CognitoResponse deserializeInitiateAuth(String jsonString) {
         CognitoResponse retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(jsonString);
             Map<String, Object> authenticationResult = (Map<String, Object>) jsonMap.get("AuthenticationResult");
             retVal = new CognitoResponse(authenticationResult.get("RefreshToken").toString(), authenticationResult.get("IdToken").toString());
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class CognitoResponse {
     public static CognitoResponse deserializeRefresh(String jsonString) {
         CognitoResponse retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(jsonString);
             Map<String, Object> authenticationResult = (Map<String, Object>) jsonMap.get("AuthenticationResult");
             retVal = new CognitoResponse(authenticationResult.get(("IdToken")).toString());
         } catch (Exception e) {
@@ -54,7 +54,7 @@ public class CognitoResponse {
     public static boolean deserializeSignUp(String jsonString) {
         boolean retVal = false;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(jsonString);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(jsonString);
             retVal = Boolean.parseBoolean(jsonMap.get("UserConfirmed").toString());
         } catch (Exception e) {
             // do nothing
@@ -91,7 +91,7 @@ public class CognitoResponse {
     private static String deserializeSignInError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
@@ -103,7 +103,7 @@ public class CognitoResponse {
     private static String deserializeSignUpError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             String msg;
             if (jsonMap.containsKey("Message")) {
                 // .... for some reason cognito has this as capitalized on certain return values...
@@ -122,7 +122,7 @@ public class CognitoResponse {
     private static String deserializeConfirmSignUpError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             String type = jsonMap.get("__type").toString();
             if (type.equals("ExpiredCodeException")) {
                 retVal = expiredCodeErrorMsg;
@@ -141,7 +141,7 @@ public class CognitoResponse {
     private static String deserializeResendCodeError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
@@ -153,7 +153,7 @@ public class CognitoResponse {
     private static String deserializeForgotPasswordError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing
@@ -165,7 +165,7 @@ public class CognitoResponse {
     private static String deserializeConfirmForgotPasswordError(String rawInput) {
         String retVal = null;
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(rawInput);
+            Map<String, Object> jsonMap = JsonUtils.deserialize(rawInput);
             retVal = jsonMap.get("message").toString();
         } catch (Exception e) {
             // do nothing

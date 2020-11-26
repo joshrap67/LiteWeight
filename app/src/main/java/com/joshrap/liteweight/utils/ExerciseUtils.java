@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
 
-public class ExerciseHelper {
+public class ExerciseUtils {
 
     /**
      * Attempts to launch a video of a given exercise with either the built in video app (like Youtube) or browser.
@@ -15,7 +15,7 @@ public class ExerciseHelper {
      * @param context current context of the calling component.
      */
     public static void launchVideo(String url, Context context) {
-        String errorMsg = InputHelper.validUrl(url);
+        String errorMsg = ValidatorUtils.validUrl(url);
         if (errorMsg == null) {
             Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

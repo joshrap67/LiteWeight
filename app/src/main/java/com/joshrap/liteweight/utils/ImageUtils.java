@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.imports.ApiConfig;
 
@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ImageHelper {
+public class ImageUtils {
 
     public static byte[] getImageByteArray(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();

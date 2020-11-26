@@ -24,11 +24,11 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.ExerciseHelper;
-import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.helpers.WeightHelper;
-import com.joshrap.liteweight.helpers.WorkoutHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.joshrap.liteweight.utils.WeightUtils;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -37,7 +37,6 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,31 +108,31 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         exerciseNameInput = view.findViewById(R.id.exercise_name_input);
         exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-        exerciseNameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(exerciseNameLayout));
+        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(exerciseNameLayout));
 
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
-        weightInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(weightLayout));
+        weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightLayout));
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
-        setsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(setsLayout));
+        setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsLayout));
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
-        repsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(repsLayout));
+        repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsLayout));
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
-        detailsInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(detailsLayout));
+        detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsLayout));
 
         urlInput = view.findViewById(R.id.url_input);
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
-        urlInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(urlLayout));
+        urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
 
         final ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
         final ImageButton previewBtn = view.findViewById(R.id.preview_btn);
-        previewBtn.setOnClickListener(v -> ExerciseHelper.launchVideo(urlInput.getText().toString().trim(), getContext()));
+        previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         if (originalExercise.getVideoUrl().isEmpty()) {
             clipboardBtn.setVisibility(View.GONE);
             previewBtn.setVisibility(View.GONE);
@@ -208,7 +207,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private void initViews() {
         exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
+        weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
         setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
         repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
         detailsInput.setText(originalExercise.getDefaultDetails());
@@ -229,25 +228,25 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             for (String exerciseId : user.getOwnedExercises().keySet()) {
                 exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
             }
-            renameError = InputHelper.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+            renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(renameError);
         }
 
-        weightError = InputHelper.validWeight(weightInput.getText().toString().trim());
+        weightError = ValidatorUtils.validWeight(weightInput.getText().toString().trim());
         weightLayout.setError(weightError);
 
-        setsError = InputHelper.validSets(setsInput.getText().toString().trim());
+        setsError = ValidatorUtils.validSets(setsInput.getText().toString().trim());
         setsLayout.setError(setsError);
 
-        repsError = InputHelper.validReps(repsInput.getText().toString().trim());
+        repsError = ValidatorUtils.validReps(repsInput.getText().toString().trim());
         repsLayout.setError(repsError);
 
-        detailsError = InputHelper.validDetails(detailsInput.getText().toString().trim());
+        detailsError = ValidatorUtils.validDetails(detailsInput.getText().toString().trim());
         detailsLayout.setError(detailsError);
 
         if (!urlInput.getText().toString().isEmpty()) {
             // try to validate the url if user has inputted something
-            urlError = InputHelper.validUrl(urlInput.getText().toString().trim());
+            urlError = ValidatorUtils.validUrl(urlInput.getText().toString().trim());
         }
         urlLayout.setError(urlError);
         if (renameError == null && weightError == null && setsError == null &&
@@ -255,7 +254,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             OwnedExercise updatedExercise = OwnedExercise.getExerciseForUpdate(originalExercise);
             double weight = Double.parseDouble(weightInput.getText().toString().trim());
             if (metricUnits) {
-                weight = WeightHelper.metricWeightToImperial(weight);
+                weight = WeightUtils.metricWeightToImperial(weight);
             }
 
             updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
@@ -266,7 +265,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
 
             // no errors, so go ahead and save
-            AndroidHelper.showLoadingDialog(loadingDialog, "Saving...");
+            AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
@@ -280,7 +279,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                         originalExercise = user.getOwnedExercises().get(exerciseId);
                         initViews();
                     } else {
-                        ErrorDialog.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });
@@ -303,7 +302,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     private void deleteExercise() {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Deleting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
@@ -314,11 +313,11 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     // deleted successfully, so delete everything
                     user.getOwnedExercises().remove(exerciseId);
                     if (userWithWorkout.getWorkout() != null) {
-                        WorkoutHelper.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
+                        WorkoutUtils.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
                     }
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
-                    ErrorDialog.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
 
                 }
             });

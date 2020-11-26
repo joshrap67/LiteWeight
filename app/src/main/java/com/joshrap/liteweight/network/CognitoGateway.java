@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.network;
 
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.ApiConfig;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -43,7 +43,7 @@ public class CognitoGateway {
 
             OutputStream os = httpURLConnection.getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-            osw.write(JsonParser.serializeMap(body));
+            osw.write(JsonUtils.serializeMap(body));
             osw.flush();
             osw.close();
             os.close();  //don't forget to close the OutputStream

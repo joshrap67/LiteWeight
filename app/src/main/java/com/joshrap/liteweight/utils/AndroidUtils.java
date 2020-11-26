@@ -1,14 +1,17 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.joshrap.liteweight.R;
 
-public class AndroidHelper {
+public class AndroidUtils {
 
     /**
      * Returns a TextWatcher that detects when error is present and hides it once user starts typing.
@@ -46,5 +49,17 @@ public class AndroidHelper {
         shake.setDuration(350);
         shake.setInterpolator(new CycleInterpolator(2));
         return shake;
+    }
+
+    public static void showErrorDialog(String title, String msg, Context context) {
+        if (context == null) {
+            return;
+        }
+        AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme)
+                .setTitle(title)
+                .setMessage(msg)
+                .setPositiveButton("Ok", null)
+                .create();
+        alertDialog.show();
     }
 }

@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.network.repos;
 
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
 import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -58,7 +58,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to create workout. 2");
@@ -82,7 +82,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
@@ -106,7 +106,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to switch workout. 2");
@@ -130,7 +130,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new User(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
@@ -154,7 +154,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to delete workout. 2");
@@ -177,7 +177,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new User(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
@@ -201,7 +201,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to edit workout. 2");
@@ -247,7 +247,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to restart workout. 2");
@@ -271,7 +271,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData((String) JsonParser.deserialize(apiResponse.getData()).get(SentWorkout.SENT_WORKOUT_ID));
+                resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SentWorkout.SENT_WORKOUT_ID));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to send workout. 2");
@@ -294,7 +294,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                Map<String, Object> receivedWorkoutsResponseRaw = JsonParser.deserialize(apiResponse.getData());
+                Map<String, Object> receivedWorkoutsResponseRaw = JsonUtils.deserialize(apiResponse.getData());
                 List<ReceivedWorkoutMeta> receivedWorkoutMetas = new ArrayList<>();
                 for (String workoutId : receivedWorkoutsResponseRaw.keySet()) {
                     receivedWorkoutMetas.add(new ReceivedWorkoutMeta((Map<String, Object>) receivedWorkoutsResponseRaw.get(workoutId)));
@@ -322,7 +322,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new SentWorkout(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new SentWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to receive workout. 2");
@@ -361,7 +361,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new AcceptWorkoutResponse(JsonParser.deserialize(apiResponse.getData())));
+                resultStatus.setData(new AcceptWorkoutResponse(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to accept workout. 2");

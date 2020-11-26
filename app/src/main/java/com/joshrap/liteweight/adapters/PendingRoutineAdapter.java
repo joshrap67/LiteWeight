@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.helpers.WeightHelper;
+import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.Routine;
@@ -170,8 +170,8 @@ public class PendingRoutineAdapter extends
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-        double weight = WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight());
-        String formattedWeight = WeightHelper.getFormattedWeightWithUnits(weight, metricUnits);
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         weightButton.setText(formattedWeight);
         weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
@@ -182,7 +182,7 @@ public class PendingRoutineAdapter extends
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
             deleteButton.setVisibility(View.GONE);
-            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
             weightButton.setVisibility(View.INVISIBLE);
             extraInfo.setVisibility(View.VISIBLE);
             saveButton.setVisibility(View.VISIBLE);
@@ -205,7 +205,7 @@ public class PendingRoutineAdapter extends
             setsInput.setText(Integer.toString(exercise.getSets()));
             repsInput.setText(Integer.toString(exercise.getReps()));
             detailsInput.setText(exercise.getDetails());
-            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
 
             notifyDataSetChanged(); // avoids animation on closing the extra info
         };
@@ -223,11 +223,11 @@ public class PendingRoutineAdapter extends
                 double newWeight = Double.parseDouble(weightInput.getText().toString());
                 if (metricUnits) {
                     // convert if in metric
-                    newWeight = WeightHelper.metricWeightToImperial(newWeight);
+                    newWeight = WeightUtils.metricWeightToImperial(newWeight);
                 }
 
                 exercise.setWeight(newWeight);
-                weightButton.setText(WeightHelper.getFormattedWeightWithUnits(newWeight, metricUnits));
+                weightButton.setText(WeightUtils.getFormattedWeightWithUnits(newWeight, metricUnits));
 
                 exercise.setDetails(detailsInput.getText().toString().trim());
                 exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));

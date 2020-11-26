@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.helpers.WeightHelper;
+import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.SentExercise;
 
 import java.util.List;
@@ -146,8 +146,8 @@ public class SharedRoutineAdapter extends
         repsInput.setEnabled(false);
         detailsInput.setEnabled(false);
 
-        double weight = WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight());
-        String formattedWeight = WeightHelper.getFormattedWeightWithUnits(weight, metricUnits);
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         weightButton.setText(formattedWeight);
         weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
@@ -157,7 +157,7 @@ public class SharedRoutineAdapter extends
 
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
-            weightInput.setText(WeightHelper.getFormattedWeightForEditText(WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight())));
+            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
             weightButton.setVisibility(View.INVISIBLE);
             extraInfo.setVisibility(View.VISIBLE);
             doneButton.setVisibility(View.VISIBLE);

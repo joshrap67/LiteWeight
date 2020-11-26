@@ -7,7 +7,7 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -79,7 +79,7 @@ public class SplashActivity extends AppCompatActivity {
             intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, notificationData);
         }
         if (userWithWorkout != null) {
-            intent.putExtra(Variables.USER_WITH_WORKOUT_DATA, JsonParser.serializeMap(userWithWorkout.asMap()));
+            intent.putExtra(Variables.USER_WITH_WORKOUT_DATA, JsonUtils.serializeMap(userWithWorkout.asMap()));
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();

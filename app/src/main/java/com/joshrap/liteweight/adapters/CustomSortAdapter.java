@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.helpers.WeightHelper;
+import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.RoutineExercise;
 
 import java.util.List;
@@ -58,8 +58,8 @@ public class CustomSortAdapter extends
         exerciseTV.setText(currentExercise);
 
         final Button weightButton = holder.weightButton;
-        double weight = WeightHelper.getConvertedWeight(metricUnits, exercise.getWeight());
-        String formattedWeight = WeightHelper.getFormattedWeightWithUnits(weight, metricUnits);
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         weightButton.setText(formattedWeight);
         weightButton.setEnabled(false);
     }

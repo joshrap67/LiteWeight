@@ -42,8 +42,8 @@ import android.widget.Toast;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.PendingRoutineAdapter;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.WorkoutHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -58,7 +58,6 @@ import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,7 +139,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         mainRelativeLayout = view.findViewById(R.id.button_spinner_layout);
         saveButton = view.findViewById(R.id.save_button);
 
-        dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         setSpinnerListeners(view);
         setButtonListeners();
         updateButtonTexts();
@@ -266,7 +265,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 updateDaySpinnerValues();
                 weekAdapter.notifyDataSetChanged();
                 dayAdapter.notifyDataSetChanged();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
             } else if (mode == Variables.DELETE_MODE) {
@@ -300,7 +299,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 updateDaySpinnerValues();
                 daySpinner.setSelection(currentDayIndex);
                 dayAdapter.notifyDataSetChanged();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
             } else if (mode == Variables.DELETE_MODE) {
@@ -366,7 +365,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 daySpinner.setSelection(0);
                 updateDaySpinnerValues();
                 updateRoutineListUI();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateButtonTexts();
             }
 
@@ -385,7 +384,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentDayIndex = position;
                 updateRoutineListUI();
-                dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
             }
 
             @Override
@@ -448,7 +447,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         });
         routineRecyclerView.setAdapter(routineAdapter);
         routineRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTitleTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         checkEmpty();
     }
 
@@ -599,7 +598,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         List<String> days = new ArrayList<>();
         for (Integer week : pendingRoutine) {
             for (Integer day : pendingRoutine.getWeek(week)) {
-                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -617,7 +616,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
         TextView copyToExistingTv = popupView.findViewById(R.id.copy_to_existing_tv);
         String copyToExistingMsg = String.format("Copy %s to one of the following days. Note that doing this will overwrite all the existing exercises in the target day.",
-                WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         copyToExistingTv.setText(copyToExistingMsg);
         Button copyToExistingButton = popupView.findViewById(R.id.copy_to_existing_btn);
         copyToExistingButton.setOnClickListener(v -> {
@@ -644,7 +643,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
         TextView copyAsNewTV = popupView.findViewById(R.id.copy_as_new_tv);
         String copyAsNewMsg = String.format("Copy %s as a new day at the end of the current week.",
-                WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+                WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         copyAsNewTV.setText(copyAsNewMsg);
         Button copyAsNewButton = popupView.findViewById(R.id.copy_as_new_btn);
         copyAsNewButton.setOnClickListener(v -> {
@@ -665,7 +664,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
 
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Copy %s", WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex)))
+                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Return", null)
                 .create();
@@ -742,7 +741,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void saveWorkout() {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Saving...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
@@ -758,7 +757,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                     updateRoutineListUI();
                     Toast.makeText(getContext(), "Workout successfully edited!", Toast.LENGTH_LONG).show();
                 } else {
-                    ErrorDialog.showErrorDialog("Save Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Save Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

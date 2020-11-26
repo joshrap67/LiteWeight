@@ -1,6 +1,6 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
-public class StatisticsHelper {
+public class StatisticsUtils {
 
     public static String getFormattedAverageCompleted(double averageCompleted) {
         String retVal;

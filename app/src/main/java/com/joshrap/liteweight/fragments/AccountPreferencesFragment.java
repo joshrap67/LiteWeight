@@ -19,7 +19,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.UserPreferences;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
+import com.joshrap.liteweight.utils.AndroidUtils;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -96,7 +96,7 @@ public class AccountPreferencesFragment extends Fragment {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {
-                        ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });

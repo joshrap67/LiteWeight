@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.models;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class PushNotification implements Model {
     private String action;
 
     public PushNotification(Map<String, Object> json) throws JsonProcessingException {
-        this.jsonPayload = JsonParser.serializeMap((Map<String, Object>) json.get(PAYLOAD));
+        this.jsonPayload = JsonUtils.serializeMap((Map<String, Object>) json.get(PAYLOAD));
         this.action = (String) json.get(ACTION);
     }
 

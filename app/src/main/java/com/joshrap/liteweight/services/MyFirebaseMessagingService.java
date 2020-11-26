@@ -14,7 +14,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.PushNotification;
@@ -35,7 +35,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
-            Map<String, Object> jsonMap = JsonParser.deserialize(remoteMessage.getData().get("metadata"));
+            Map<String, Object> jsonMap = JsonUtils.deserialize(remoteMessage.getData().get("metadata"));
             PushNotification pushNotification = new PushNotification(jsonMap);
             switch (pushNotification.getAction()) {
                 case friendRequestAction:
@@ -68,7 +68,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private void showNotificationFriendRequest(final String jsonData) throws IOException {
-        FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize(jsonData));
+        FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
@@ -98,7 +98,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void cancelFriendRequest(final String jsonData) throws IOException {
-        String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
         notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
@@ -112,7 +112,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void declinedFriendRequest(final String jsonData) throws IOException {
-        String declinedUser = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        String declinedUser = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, declinedUser);
         notificationIntent.setAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
@@ -126,7 +126,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void removedFriend(final String jsonData) throws IOException {
-        String userToRemove = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
         notificationIntent.setAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
@@ -141,7 +141,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
-        String userAccepted = (String) JsonParser.deserialize(jsonData).get(User.USERNAME);
+        String userAccepted = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
@@ -171,7 +171,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
-        final ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize(jsonData));
+        final ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);

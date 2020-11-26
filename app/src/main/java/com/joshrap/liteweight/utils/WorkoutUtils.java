@@ -1,8 +1,9 @@
-package com.joshrap.liteweight.helpers;
+package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.models.Routine;
 
-public class WorkoutHelper {
+public class WorkoutUtils {
+
     public static void deleteExerciseFromRoutine(final String exerciseId, final Routine routine) {
         if (routine == null) {
             return;

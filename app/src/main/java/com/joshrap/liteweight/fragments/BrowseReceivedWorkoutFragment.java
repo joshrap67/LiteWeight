@@ -32,10 +32,10 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.InputHelper;
-import com.joshrap.liteweight.helpers.JsonParser;
-import com.joshrap.liteweight.helpers.WorkoutHelper;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.joshrap.liteweight.utils.JsonUtils;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -47,7 +47,6 @@ import com.joshrap.liteweight.models.SentWorkout;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.widgets.ErrorDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             }
             if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
                 try {
-                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                     // if id matches the one on this page, get rid of push notification
                     NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                     if (notificationManager != null && receivedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
@@ -194,7 +193,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
-        renameInput.addTextChangedListener(AndroidHelper.hideErrorTextWatcher(workoutNameInputLayout));
+        renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("\"" + receivedWorkout.getWorkoutName() + "\" already exists")
                 .setView(popupView)
@@ -209,7 +208,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 for (String workoutId : user.getUserWorkouts().keySet()) {
                     workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
                 }
-                String errorMsg = InputHelper.validWorkoutName(newName, workoutNames);
+                String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
                 if (errorMsg == null) {
                     acceptWorkout(newName);
                     alertDialog.dismiss();
@@ -222,7 +221,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     }
 
     private void acceptWorkout(final String optionalName) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Accepting...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Accepting...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -248,14 +247,14 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                     ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
-                    ErrorDialog.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
     private void declineWorkout(String receivedWorkoutId) {
-        AndroidHelper.showLoadingDialog(loadingDialog, "Declining...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Declining...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(receivedWorkoutId);
@@ -294,7 +293,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                         setupButtons();
                         updateRoutineListUI();
                     } else {
-                        ErrorDialog.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });
@@ -368,7 +367,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dayTV.setText(WorkoutHelper.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         updateButtonViews();
     }
 
@@ -384,7 +383,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 if (week == currentWeekIndex && day == currentDayIndex) {
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutHelper.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
                 days.add(dayTitle);
                 totalDays++;
             }

@@ -48,9 +48,9 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
-import com.joshrap.liteweight.helpers.AndroidHelper;
-import com.joshrap.liteweight.helpers.ImageHelper;
-import com.joshrap.liteweight.helpers.JsonParser;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
+import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -125,7 +125,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             switch (action) {
                 case Variables.NEW_FRIEND_REQUEST_BROADCAST: {
                     try {
-                        FriendRequest friendRequest = new FriendRequest(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                         user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
                         updateAccountNotificationIndicator();
 
@@ -191,7 +191,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 case Variables.RECEIVED_WORKOUT_BROADCAST:
                     try {
-                        ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonParser.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                         boolean updateTotal = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null;
                         if (updateTotal) {
                             // workout wasn't here, so total needs to be increased
@@ -246,7 +246,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
             if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
                 try {
-                    userWithWorkout = new UserWithWorkout(JsonParser.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
+                    userWithWorkout = new UserWithWorkout(JsonUtils.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
                 } catch (IOException e) {
                     return;
                 }
@@ -308,7 +308,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         accountNotificationTV = headerView.findViewById(R.id.notification_tv);
         profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
-                .load(ImageHelper.getIconUrl(user.getIcon()))
+                .load(ImageUtils.getIconUrl(user.getIcon()))
                 .error(R.drawable.app_icon_no_background)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
@@ -590,7 +590,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
         }
 
-        AndroidHelper.showLoadingDialog(loadingDialog, "Logging out...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
