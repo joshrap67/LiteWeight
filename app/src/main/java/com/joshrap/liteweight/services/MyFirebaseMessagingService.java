@@ -28,7 +28,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String friendRequestAction = "friendRequest";
     private static final String canceledFriendRequestAction = "canceledFriendRequest";
     private static final String acceptedFriendRequestAction = "acceptedFriendRequest";
-    private static final String removedAsFriendAction = "removeFriend"; // todo change this...
+    private static final String removedAsFriendAction = "removedAsFriend";
     private static final String declinedFriendRequestAction = "declinedFriendRequest";
     private static final String receivedNotificationAction = "receivedWorkout";
 
@@ -78,7 +78,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.FRIEND_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.FRIEND_REQUEST_CHANNEL)
-                .setContentTitle("New Friend Request")
+                .setContentTitle("New Friend Request!")
                 .setContentText(String.format("%s wants to be your friend! Click to respond.", friendRequest.getUsername()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
@@ -181,7 +181,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.RECEIVED_WORKOUT_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
-                .setContentTitle("Received workout")
+                .setContentTitle("Workout Received!")
                 .setContentText(String.format("%s sent you a workout: \"%s\"! Click to respond.",
                         sharedWorkoutMeta.getSender(), sharedWorkoutMeta.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)

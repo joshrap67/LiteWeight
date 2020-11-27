@@ -6,7 +6,6 @@ import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -30,7 +29,6 @@ public class CognitoGateway {
         body.put("ClientId", ApiConfig.cognitoClientId);
 
         try {
-
             URL url = new URL(baseURL);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
 
@@ -74,12 +72,10 @@ public class CognitoGateway {
                 resultStatus.setSuccess(false);
             }
             httpURLConnection.disconnect();
-
         } catch (Exception e) {
             resultStatus.setSuccess(false);
             resultStatus.setErrorMessage(e.toString());
         }
         return resultStatus;
-
     }
 }

@@ -61,10 +61,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to create workout. 2");
+                resultStatus.setErrorMessage("Unable to create workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to create workout. 3");
+            resultStatus.setErrorMessage("Unable to create workout.");
         }
         return resultStatus;
     }
@@ -83,10 +83,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout. 2");
+                resultStatus.setErrorMessage("Unable to copy workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout. 3");
+            resultStatus.setErrorMessage("Unable to copy workout.");
         }
         return resultStatus;
     }
@@ -105,10 +105,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to switch workout. 2");
+                resultStatus.setErrorMessage("Unable to switch workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to switch workout. 3");
+            resultStatus.setErrorMessage("Unable to switch workout.");
         }
         return resultStatus;
     }
@@ -127,15 +127,15 @@ public class WorkoutRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout. 2");
+                resultStatus.setErrorMessage("Unable to copy workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout. 3");
+            resultStatus.setErrorMessage("Unable to copy workout.");
         }
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> popWorkout(String workoutId, String nextWorkoutId) {
+    public ResultStatus<UserWithWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
         ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -149,10 +149,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to delete workout. 2");
+                resultStatus.setErrorMessage("Unable to delete workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to delete workout. 3");
+            resultStatus.setErrorMessage("Unable to delete workout.");
         }
         return resultStatus;
     }
@@ -170,10 +170,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout. 2");
+                resultStatus.setErrorMessage("Unable to copy workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout. 3");
+            resultStatus.setErrorMessage("Unable to copy workout.");
         }
         return resultStatus;
     }
@@ -192,10 +192,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to edit workout. 2");
+                resultStatus.setErrorMessage("Unable to edit workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to edit workout. 3");
+            resultStatus.setErrorMessage("Unable to edit workout.");
         }
         return resultStatus;
     }
@@ -213,10 +213,10 @@ public class WorkoutRepository {
                 resultStatus.setData(apiResponse.getData());
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to sync workout. 2");
+                resultStatus.setErrorMessage("Unable to sync workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to sync workout. 3");
+            resultStatus.setErrorMessage("Unable to sync workout.");
         }
         return resultStatus;
     }
@@ -234,10 +234,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to restart workout. 2");
+                resultStatus.setErrorMessage("Unable to restart workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to restart workout. 3");
+            resultStatus.setErrorMessage("Unable to restart workout.");
         }
         return resultStatus;
     }
@@ -256,10 +256,10 @@ public class WorkoutRepository {
                 resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SharedWorkout.SENT_WORKOUT_ID));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to send workout. 2");
+                resultStatus.setErrorMessage("Unable to send workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to send workout. 3");
+            resultStatus.setErrorMessage("Unable to send workout.");
         }
         return resultStatus;
     }
@@ -282,10 +282,10 @@ public class WorkoutRepository {
                 resultStatus.setData(sharedWorkoutMetas);
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to receive workouts. 2");
+                resultStatus.setErrorMessage("Unable to receive workouts.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to receive workouts. 3");
+            resultStatus.setErrorMessage("Unable to receive workouts.");
         }
         return resultStatus;
     }
@@ -303,25 +303,50 @@ public class WorkoutRepository {
                 resultStatus.setData(new SharedWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to receive workout. 2");
+                resultStatus.setErrorMessage("Unable to receive workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to receive workout. 3");
+            resultStatus.setErrorMessage("Unable to receive workout.");
         }
         return resultStatus;
     }
 
-    public void setReceivedWorkoutSeen(String sentWorkoutId) {
+    public ResultStatus<String> setReceivedWorkoutSeen(String sentWorkoutId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
-        // todo maybe this shouldn't be a blind send?
-        this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(apiResponse.getData());
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to set received workout as seen.");
+            }
+        } else {
+            resultStatus.setErrorMessage("Unable to set received workout as seen.");
+        }
+        return resultStatus;
     }
 
-    public void setAllReceivedWorkoutsSeen() {
+    public ResultStatus<String> setAllReceivedWorkoutsSeen() {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
         Map<String, Object> requestBody = new HashMap<>();
-        // todo maybe this shouldn't be a blind send?
-        this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            try {
+                resultStatus.setData(apiResponse.getData());
+                resultStatus.setSuccess(true);
+            } catch (Exception e) {
+                resultStatus.setErrorMessage("Unable to set all received workouts as seen.");
+            }
+        } else {
+            resultStatus.setErrorMessage("Unable to set all received workouts as seen.");
+        }
+        return resultStatus;
     }
 
     public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sentWorkoutId, final String optionalName) {
@@ -340,11 +365,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new AcceptWorkoutResponse(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to accept workout. 2");
+                resultStatus.setErrorMessage("Unable to accept workout.");
             }
         } else {
-            // todo actually use the error messages
-            resultStatus.setErrorMessage("Unable to accept workout. 3");
+            resultStatus.setErrorMessage(apiResponse.getData());
         }
         return resultStatus;
     }
@@ -362,11 +386,10 @@ public class WorkoutRepository {
                 resultStatus.setData("Workout successfully declined.");
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to decline workout. 2");
+                resultStatus.setErrorMessage("Unable to decline workout.");
             }
         } else {
-            // todo actually use the error messages
-            resultStatus.setErrorMessage("Unable to decline workout. 3");
+            resultStatus.setErrorMessage(apiResponse.getData());
         }
         return resultStatus;
     }

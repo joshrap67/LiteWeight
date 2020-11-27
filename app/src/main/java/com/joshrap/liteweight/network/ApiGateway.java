@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -92,7 +91,6 @@ public class ApiGateway {
                     }
                 }
                 httpURLConnection.disconnect();
-
             } catch (Exception e) {
                 resultStatus.setSuccess(false);
                 resultStatus.setErrorMessage(e.toString());

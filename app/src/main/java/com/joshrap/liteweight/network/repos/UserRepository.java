@@ -77,7 +77,7 @@ public class UserRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse user data.");
+                resultStatus.setErrorMessage("Unable to parse response.");
             }
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
@@ -101,7 +101,7 @@ public class UserRepository {
                 resultStatus.setData(new OwnedExercise(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse user data.");
+                resultStatus.setErrorMessage("Unable to parse response.");
             }
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
@@ -122,7 +122,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to update exercise.");
+            resultStatus.setErrorMessage("Unable to delete exercise.");
         }
         return resultStatus;
     }
@@ -190,11 +190,10 @@ public class UserRepository {
                 resultStatus.setData(new Friend(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (IOException ioe) {
-                resultStatus.setErrorMessage("Could not parse friend.");
+                resultStatus.setErrorMessage("Could not parse response.");
             }
         } else {
-            // todo probably want to actually use backend messages here...
-            resultStatus.setErrorMessage("Unable to send friend request.");
+            resultStatus.setErrorMessage(apiResponse.getData());
         }
         return resultStatus;
     }
@@ -263,8 +262,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            // todo probably want to actually use backend messages here...
-            resultStatus.setErrorMessage("Unable to accept friend request.");
+            resultStatus.setErrorMessage(apiResponse.getData());
         }
         return resultStatus;
     }

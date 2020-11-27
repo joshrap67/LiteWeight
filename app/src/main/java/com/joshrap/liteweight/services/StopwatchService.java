@@ -20,7 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * This service once created only is there for showing the stopwatch progress. It currently does not
+ * This service, once created, is only used for showing the stopwatch progress. It currently does not
  * need to constantly communicate to any activities listening. In the future buttons could be provided in the
  * notification to stop/reset the stopwatch.
  */
