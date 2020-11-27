@@ -626,9 +626,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         final RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
-        for (String workoutId : user.getUserWorkouts().keySet()) {
-            workoutNameToId.put(user.getUserWorkouts().get(workoutId).getWorkoutName(), workoutId);
-            workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+        for (String workoutId : user.getWorkoutMetas().keySet()) {
+            workoutNameToId.put(user.getWorkoutMetas().get(workoutId).getWorkoutName(), workoutId);
+            workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
         }
         int id = 0;
         for (String workoutName : workoutNames) {

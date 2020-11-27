@@ -29,9 +29,7 @@ public class RoutineExercise implements Model, Cloneable {
     }
 
     public RoutineExercise(RoutineExercise toBeCopied) {
-        /*
-            Copy constructor used for deep copies
-         */
+        // Copy constructor used for deep copies
         this.completed = toBeCopied.completed;
         this.exerciseId = toBeCopied.exerciseId;
         this.weight = toBeCopied.weight;
@@ -58,9 +56,8 @@ public class RoutineExercise implements Model, Cloneable {
         this.details = ownedExercise.getDefaultDetails();
     }
 
-    public static boolean exercisesIdentical(RoutineExercise exercise1, RoutineExercise exercise2) {
+    static boolean exercisesIdentical(RoutineExercise exercise1, RoutineExercise exercise2) {
         boolean retVal = true;
-        System.out.println("wtf");
         if (exercise1.isCompleted() != exercise2.isCompleted()) {
             retVal = false;
         }

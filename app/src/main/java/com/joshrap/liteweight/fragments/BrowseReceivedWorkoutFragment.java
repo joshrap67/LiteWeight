@@ -40,10 +40,10 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
-import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
+import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.SentRoutine;
-import com.joshrap.liteweight.models.SentWorkout;
+import com.joshrap.liteweight.models.SharedRoutine;
+import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
@@ -62,8 +62,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private User user;
     private ProgressBar loadingIcon;
     private RecyclerView recyclerView;
-    private SentWorkout sentWorkout;
-    private SentRoutine sentRoutine;
+    private SharedWorkout sharedWorkout;
+    private SharedRoutine sharedRoutine;
     private TextView dayTV;
     private String workoutName;
     private ImageButton forwardButton, backButton;
@@ -87,14 +87,14 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             }
             if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
                 try {
-                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                     // if id matches the one on this page, get rid of push notification
                     NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (notificationManager != null && receivedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
-                        notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                    if (notificationManager != null && sharedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
+                        notificationManager.cancel(sharedWorkoutMeta.getWorkoutId().hashCode());
                     }
-                    if (receivedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
-                        workoutUpdatedPopup(receivedWorkoutMeta);
+                    if (sharedWorkoutMeta.getWorkoutId().equals(receivedWorkoutId)) {
+                        workoutUpdatedPopup(sharedWorkoutMeta);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -111,8 +111,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         receivedWorkoutId = null;
         if (getArguments() != null) {
-            receivedWorkoutId = getArguments().getString(SentWorkout.SENT_WORKOUT_ID);
-            workoutName = getArguments().getString(SentWorkout.WORKOUT_NAME);
+            receivedWorkoutId = getArguments().getString(SharedWorkout.SENT_WORKOUT_ID);
+            workoutName = getArguments().getString(SharedWorkout.WORKOUT_NAME);
         } else {
             return null;
         }
@@ -136,14 +136,14 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         Button acceptWorkoutButton = view.findViewById(R.id.accept_workout_btn);
         acceptWorkoutButton.setOnClickListener(view1 -> {
             boolean workoutNameExists = false;
-            for (String workoutId : user.getUserWorkouts().keySet()) {
-                if (user.getUserWorkouts().get(workoutId).getWorkoutName().equals(workoutName)) {
+            for (String workoutId : user.getWorkoutMetas().keySet()) {
+                if (user.getWorkoutMetas().get(workoutId).getWorkoutName().equals(workoutName)) {
                     workoutNameExists = true;
                     break;
                 }
             }
             if (workoutNameExists) {
-                workoutNameAlreadyExistsPopup(sentWorkout);
+                workoutNameAlreadyExistsPopup(sharedWorkout);
             } else {
                 acceptWorkout(null);
             }
@@ -169,10 +169,10 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         }
     }
 
-    private void workoutUpdatedPopup(ReceivedWorkoutMeta receivedWorkoutMeta) {
+    private void workoutUpdatedPopup(SharedWorkoutMeta sharedWorkoutMeta) {
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Workout updated")
-                .setMessage(String.format("%s has sent a newer version of this workout. Would you like to refresh in order to see the changes?", receivedWorkoutMeta.getSender()))
+                .setMessage(String.format("%s has sent a newer version of this workout. Would you like to refresh in order to see the changes?", sharedWorkoutMeta.getSender()))
                 .setPositiveButton("Yes", (dialogInterface, i) -> {
                     currentDayIndex = 0;
                     currentWeekIndex = 0;
@@ -188,7 +188,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      *
      * @param receivedWorkout workout that is currently being browsed.
      */
-    private void workoutNameAlreadyExistsPopup(final SentWorkout receivedWorkout) {
+    private void workoutNameAlreadyExistsPopup(final SharedWorkout receivedWorkout) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
         final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
@@ -205,8 +205,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             saveButton.setOnClickListener(view -> {
                 String newName = renameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (String workoutId : user.getUserWorkouts().keySet()) {
-                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                for (String workoutId : user.getWorkoutMetas().keySet()) {
+                    workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
                 if (errorMsg == null) {
@@ -236,7 +236,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                         user.setCurrentWorkout(response.getWorkoutId());
                         userWithWorkout.setWorkout(response.getWorkout());
                     }
-                    user.getUserWorkouts().put(response.getWorkoutId(), response.getWorkoutMeta());
+                    user.getWorkoutMetas().put(response.getWorkoutId(), response.getWorkoutMeta());
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
                     user.addNewExercises(response.getExercises());
                     if (!user.getReceivedWorkouts().get(receivedWorkoutId).isSeen()) {
@@ -262,9 +262,9 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    ReceivedWorkoutMeta receivedWorkoutMeta = user.getReceivedWorkouts().get(receivedWorkoutId);
+                    SharedWorkoutMeta sharedWorkoutMeta = user.getReceivedWorkouts().get(receivedWorkoutId);
                     user.getReceivedWorkouts().remove(receivedWorkoutId);
-                    if (!receivedWorkoutMeta.isSeen()) {
+                    if (!sharedWorkoutMeta.isSeen()) {
                         // if it was unread, then we need to make sure to decrease unseen count
                         user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
                         ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
@@ -281,15 +281,15 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         loadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<SentWorkout> resultStatus = this.workoutRepository.getReceivedWorkout(sentWorkoutId);
+            ResultStatus<SharedWorkout> resultStatus = this.workoutRepository.getReceivedWorkout(sentWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     loadingIcon.setVisibility(View.GONE);
                     if (resultStatus.isSuccess()) {
                         mainLayout.setVisibility(View.VISIBLE);
-                        sentWorkout = resultStatus.getData();
-                        sentRoutine = sentWorkout.getRoutine();
+                        sharedWorkout = resultStatus.getData();
+                        sharedRoutine = sharedWorkout.getRoutine();
                         setupButtons();
                         updateRoutineListUI();
                     } else {
@@ -313,16 +313,16 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
-                currentDayIndex = sentRoutine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
+                currentDayIndex = sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
                 updateRoutineListUI();
             }
         });
         forwardButton.setOnClickListener(v -> {
-            if (currentDayIndex + 1 < sentRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
+            if (currentDayIndex + 1 < sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
                 updateRoutineListUI();
-            } else if (currentWeekIndex + 1 < sentRoutine.getNumberOfWeeks()) {
+            } else if (currentWeekIndex + 1 < sharedRoutine.getNumberOfWeeks()) {
                 // there are more weeks
                 currentDayIndex = 0;
                 currentWeekIndex++;
@@ -340,17 +340,17 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             forwardButton.setImageResource(R.drawable.next_icon);
-            if (currentWeekIndex + 1 == sentRoutine.getNumberOfWeeks() && sentRoutine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
+            if (currentWeekIndex + 1 == sharedRoutine.getNumberOfWeeks() && sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout
                 forwardButton.setVisibility(View.INVISIBLE);
             }
-        } else if (currentWeekIndex + 1 == sentRoutine.getNumberOfWeeks()
-                && currentDayIndex + 1 == sentRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
+        } else if (currentWeekIndex + 1 == sharedRoutine.getNumberOfWeeks()
+                && currentDayIndex + 1 == sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so hide forward button
             backButton.setVisibility(View.VISIBLE);
             // lil hacky, but don't want the ripple showing when the icons switch
             forwardButton.setVisibility(View.INVISIBLE);
-        } else if (currentWeekIndex < sentRoutine.getNumberOfWeeks()) {
+        } else if (currentWeekIndex < sharedRoutine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -364,7 +364,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private void updateRoutineListUI() {
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
-        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sentRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
+        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
@@ -378,8 +378,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (Integer week : sentRoutine) {
-            for (Integer day : sentRoutine.getWeek(week)) {
+        for (Integer week : sharedRoutine) {
+            for (Integer day : sharedRoutine.getWeek(week)) {
                 if (week == currentWeekIndex && day == currentDayIndex) {
                     selectedVal = totalDays;
                 }
@@ -405,8 +405,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (Integer week : sentRoutine) {
-                        for (Integer day : sentRoutine.getWeek(week)) {
+                    for (Integer week : sharedRoutine) {
+                        for (Integer day : sharedRoutine.getWeek(week)) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = week;
                                 currentDayIndex = day;

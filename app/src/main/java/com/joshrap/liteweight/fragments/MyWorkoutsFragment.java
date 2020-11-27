@@ -105,7 +105,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
             return;
         }
-        workoutList = new ArrayList<>(user.getUserWorkouts().values());
+        workoutList = new ArrayList<>(user.getWorkoutMetas().values());
         initViews(view);
     }
 
@@ -221,7 +221,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void updateUI() {
         workoutList.clear();
-        workoutList.addAll(user.getUserWorkouts().values());
+        workoutList.addAll(user.getWorkoutMetas().values());
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         sortWorkouts();
         workoutsAdapter.notifyDataSetChanged();
@@ -232,7 +232,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Sorts workouts by date last accessed and ensures currently selected workout is at the top of the list.
      */
     private void sortWorkouts() {
-        WorkoutMeta currentWorkoutMeta = user.getUserWorkouts().get(currentWorkout.getWorkoutId());
+        WorkoutMeta currentWorkoutMeta = user.getWorkoutMetas().get(currentWorkout.getWorkoutId());
         workoutList.remove(currentWorkoutMeta);
         Collections.sort(workoutList, (r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
@@ -255,8 +255,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Fetches and displays statistics for the currently selected workout.
      */
     private void updateStatisticsTV() {
-        int timesCompleted = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getTimesCompleted();
-        double average = user.getUserWorkouts().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
+        int timesCompleted = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getTimesCompleted();
+        double average = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
@@ -290,8 +290,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    WorkoutMeta updatedWorkoutMeta = resultStatus.getData().getUserWorkouts().get(currentWorkout.getWorkoutId());
-                    user.getUserWorkouts().put(currentWorkout.getWorkoutId(), updatedWorkoutMeta);
+                    WorkoutMeta updatedWorkoutMeta = resultStatus.getData().getWorkoutMetas().get(currentWorkout.getWorkoutId());
+                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(), updatedWorkoutMeta);
 
                     updateUI();
                 } else {
@@ -346,7 +346,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     user.updateOwnedExercises(resultStatus.getData().getOwnedExercises());
-                    user.getUserWorkouts().get(currentWorkout.getWorkoutId()).setWorkoutName(newWorkoutName);
+                    user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).setWorkoutName(newWorkoutName);
                     currentWorkout.setWorkoutName(newWorkoutName);
 
                     updateUI();
@@ -374,8 +374,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             saveButton.setOnClickListener(view -> {
                 String workoutName = workoutNameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (String workoutId : user.getUserWorkouts().keySet()) {
-                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                for (String workoutId : user.getWorkoutMetas().keySet()) {
+                    workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
                 if (errorMsg != null) {
@@ -403,8 +403,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     currentWorkout = userWithWorkout.getWorkout();
 
                     user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
-                    user.getUserWorkouts().put(currentWorkout.getWorkoutId(),
-                            resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
+                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(),
+                            resultStatus.getData().getUser().getWorkoutMetas().get(currentWorkout.getWorkoutId()));
 
                     updateUI();
                 } else {
@@ -518,7 +518,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
-                    user.updateUserWorkouts(resultStatus.getData().getUser().getUserWorkouts());
+                    user.updateUserWorkouts(resultStatus.getData().getUser().getWorkoutMetas());
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
@@ -554,8 +554,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                         userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
                         currentWorkout = userWithWorkout.getWorkout();
                         user.setCurrentWorkout(currentWorkout.getWorkoutId());
-                        user.getUserWorkouts().put(currentWorkout.getWorkoutId(),
-                                resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
+                        user.getWorkoutMetas().put(currentWorkout.getWorkoutId(),
+                                resultStatus.getData().getUser().getWorkoutMetas().get(currentWorkout.getWorkoutId()));
                         updateUI();
                     } else {
                         AndroidUtils.showErrorDialog("Switch Workout Error", resultStatus.getErrorMessage(), getContext());

@@ -60,7 +60,7 @@ public class Workout implements Model {
         if (!workout1.getCurrentDay().equals(workout2.getCurrentDay())) {
             retVal = false;
         }
-        if (!Routine.routinesIdentical(workout1.getRoutine(), workout2.getRoutine())) {
+        if (Routine.routinesDifferent(workout1.getRoutine(), workout2.getRoutine())) {
             retVal = false;
         }
         return retVal;

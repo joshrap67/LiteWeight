@@ -69,11 +69,4 @@ public class SyncRoutineService extends Service {
         });
         return START_STICKY;
     }
-
-    @Override
-    public void onDestroy() {
-        // get rid of the stopwatch running notification whenever the service is killed
-
-        super.onDestroy();
-    }
 }

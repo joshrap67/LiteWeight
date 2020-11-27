@@ -859,7 +859,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     }
 
     public boolean isModified() {
-        return !Routine.routinesIdentical(pendingRoutine, userWithWorkout.getWorkout().getRoutine());
+        return Routine.routinesDifferent(pendingRoutine, userWithWorkout.getWorkout().getRoutine());
     }
 
     private class FocusSpinnerListener implements AdapterView.OnItemSelectedListener {

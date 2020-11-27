@@ -2,10 +2,10 @@ package com.joshrap.liteweight.network.repos;
 
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
-import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
+import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.SentWorkout;
+import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
@@ -63,8 +63,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to create workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to create workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to create workout. 3");
         }
@@ -87,8 +85,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
@@ -111,8 +107,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to switch workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to switch workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to switch workout. 3");
         }
@@ -135,8 +129,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
@@ -159,8 +151,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to delete workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to delete workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to delete workout. 3");
         }
@@ -182,8 +172,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to copy workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to copy workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to copy workout. 3");
         }
@@ -206,8 +194,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to edit workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to edit workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to edit workout. 3");
         }
@@ -229,8 +215,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to sync workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to sync workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to sync workout. 3");
         }
@@ -252,8 +236,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to restart workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to restart workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to restart workout. 3");
         }
@@ -271,21 +253,19 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SentWorkout.SENT_WORKOUT_ID));
+                resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SharedWorkout.SENT_WORKOUT_ID));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to send workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to send workout. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to send workout. 3");
         }
         return resultStatus;
     }
 
-    public ResultStatus<List<ReceivedWorkoutMeta>> getReceivedWorkouts(final int batchNumber) {
-        ResultStatus<List<ReceivedWorkoutMeta>> resultStatus = new ResultStatus<>();
+    public ResultStatus<List<SharedWorkoutMeta>> getReceivedWorkouts(final int batchNumber) {
+        ResultStatus<List<SharedWorkoutMeta>> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(RequestFields.BATCH_NUMBER, batchNumber);
@@ -295,40 +275,36 @@ public class WorkoutRepository {
         if (apiResponse.isSuccess()) {
             try {
                 Map<String, Object> receivedWorkoutsResponseRaw = JsonUtils.deserialize(apiResponse.getData());
-                List<ReceivedWorkoutMeta> receivedWorkoutMetas = new ArrayList<>();
+                List<SharedWorkoutMeta> sharedWorkoutMetas = new ArrayList<>();
                 for (String workoutId : receivedWorkoutsResponseRaw.keySet()) {
-                    receivedWorkoutMetas.add(new ReceivedWorkoutMeta((Map<String, Object>) receivedWorkoutsResponseRaw.get(workoutId)));
+                    sharedWorkoutMetas.add(new SharedWorkoutMeta((Map<String, Object>) receivedWorkoutsResponseRaw.get(workoutId)));
                 }
-                resultStatus.setData(receivedWorkoutMetas);
+                resultStatus.setData(sharedWorkoutMetas);
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to receive workouts. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to receive workouts. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to receive workouts. 3");
         }
         return resultStatus;
     }
 
-    public ResultStatus<SentWorkout> getReceivedWorkout(final String sentWorkoutId) {
-        ResultStatus<SentWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<SharedWorkout> getReceivedWorkout(final String sentWorkoutId) {
+        ResultStatus<SharedWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getReceivedWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new SentWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new SharedWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to receive workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to receive workouts. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to receive workout. 3");
         }
@@ -337,7 +313,7 @@ public class WorkoutRepository {
 
     public void setReceivedWorkoutSeen(String sentWorkoutId) {
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
         // todo maybe this shouldn't be a blind send?
         this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
     }
@@ -352,7 +328,7 @@ public class WorkoutRepository {
         ResultStatus<AcceptWorkoutResponse> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SentWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
         if (optionalName != null) {
             requestBody.put(Workout.WORKOUT_NAME, optionalName);
         }
@@ -366,8 +342,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to accept workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to accept workout. Check internet connection.");
         } else {
             // todo actually use the error messages
             resultStatus.setErrorMessage("Unable to accept workout. 3");
@@ -379,7 +353,7 @@ public class WorkoutRepository {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SentWorkout.SENT_WORKOUT_ID, receivedWorkoutId);
+        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, receivedWorkoutId);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineReceivedWorkoutAction, requestBody, true);
 
@@ -390,8 +364,6 @@ public class WorkoutRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to decline workout. 2");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to decline workout. Check internet connection.");
         } else {
             // todo actually use the error messages
             resultStatus.setErrorMessage("Unable to decline workout. 3");

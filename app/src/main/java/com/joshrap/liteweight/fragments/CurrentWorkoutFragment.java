@@ -323,8 +323,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     // update the statistics for this workout
-                    user.getUserWorkouts().put(currentWorkout.getWorkoutId(),
-                            resultStatus.getData().getUser().getUserWorkouts().get(currentWorkout.getWorkoutId()));
+                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(),
+                            resultStatus.getData().getUser().getWorkoutMetas().get(currentWorkout.getWorkoutId()));
 
                     currentWorkout.setRoutine(resultStatus.getData().getWorkout().getRoutine());
                     routine = currentWorkout.getRoutine();

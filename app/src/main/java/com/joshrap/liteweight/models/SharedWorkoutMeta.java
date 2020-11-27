@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ReceivedWorkoutMeta implements Model {
+public class SharedWorkoutMeta implements Model {
 
     public static final String WORKOUT_NAME = "workoutName";
     public static final String DATE_SENT = "dateSent";
@@ -27,7 +27,7 @@ public class ReceivedWorkoutMeta implements Model {
     private Integer totalDays;
     private String mostFrequentFocus;
 
-    public ReceivedWorkoutMeta(Map<String, Object> json) {
+    public SharedWorkoutMeta(Map<String, Object> json) {
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.workoutId = (String) json.get(WORKOUT_ID);
         this.dateSent = (String) json.get(DATE_SENT);
@@ -37,7 +37,7 @@ public class ReceivedWorkoutMeta implements Model {
         this.totalDays = (Integer) json.get(TOTAL_DAYS);
     }
 
-    ReceivedWorkoutMeta(Map<String, Object> json, String workoutId) {
+    SharedWorkoutMeta(Map<String, Object> json, String workoutId) {
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.workoutId = workoutId;
         this.dateSent = (String) json.get(DATE_SENT);

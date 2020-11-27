@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.models.SentExercise;
+import com.joshrap.liteweight.models.SharedExercise;
 
 import java.util.List;
 
@@ -63,13 +63,13 @@ public class SharedRoutineAdapter extends
         }
     }
 
-    private List<SentExercise> exercises;
+    private List<SharedExercise> exercises;
     private boolean metricUnits;
     private RecyclerView recyclerView;
     private Context context;
 
-    public SharedRoutineAdapter(List<SentExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
-            Context context) {
+    public SharedRoutineAdapter(List<SharedExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
+                                Context context) {
         this.exercises = routineExercises;
         this.metricUnits = metricUnits;
         this.recyclerView = recyclerView;
@@ -97,7 +97,7 @@ public class SharedRoutineAdapter extends
 
     @Override
     public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
-        final SentExercise exercise = exercises.get(position);
+        final SharedExercise exercise = exercises.get(position);
 
         LinearLayout rootLayout = holder.rootLayout;
         LayoutTransition layoutTransition = rootLayout.getLayoutTransition();

@@ -55,8 +55,6 @@ public class UserRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data and workout.");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to load user data. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to load user data and workout.");
         }
@@ -81,8 +79,6 @@ public class UserRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
         }
@@ -107,8 +103,6 @@ public class UserRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to parse user data.");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
         }
@@ -127,8 +121,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update exercise. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update exercise.");
         }
@@ -147,8 +139,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update icon. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update icon.");
         }
@@ -166,8 +156,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update endpoint id. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to update endpoint id.");
         }
@@ -182,8 +170,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to remove endpoint id. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to remove endpoint id.");
         }
@@ -206,8 +192,6 @@ public class UserRepository {
             } catch (IOException ioe) {
                 resultStatus.setErrorMessage("Could not parse friend.");
             }
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to send friend request. Check internet connection.");
         } else {
             // todo probably want to actually use backend messages here...
             resultStatus.setErrorMessage("Unable to send friend request.");
@@ -227,8 +211,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to cancel friend request. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to cancel friend request.");
         }
@@ -244,8 +226,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to set all requests seen. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to set all requests seen.");
         }
@@ -264,8 +244,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to update preferences. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to set update preferences.");
         }
@@ -284,8 +262,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to accept friend request. Check internet connection.");
         } else {
             // todo probably want to actually use backend messages here...
             resultStatus.setErrorMessage("Unable to accept friend request.");
@@ -305,8 +281,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to remove friend. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to remove friend.");
         }
@@ -325,8 +299,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to decline friend request. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to decline friend request.");
         }
@@ -349,8 +321,6 @@ public class UserRepository {
                 resultStatus.setErrorMessage("Could not parse blocked user icon.");
             }
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to block user. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to block user.");
         }
@@ -369,8 +339,6 @@ public class UserRepository {
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
-        } else if (apiResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Network error. Unable to unblock user. Check internet connection.");
         } else {
             resultStatus.setErrorMessage("Unable to unblock user.");
         }

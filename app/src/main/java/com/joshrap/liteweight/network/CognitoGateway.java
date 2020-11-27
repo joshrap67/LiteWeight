@@ -46,7 +46,7 @@ public class CognitoGateway {
             osw.write(JsonUtils.serializeMap(body));
             osw.flush();
             osw.close();
-            os.close();  //don't forget to close the OutputStream
+            os.close();
 
             httpURLConnection.connect();
 
@@ -75,12 +75,7 @@ public class CognitoGateway {
             }
             httpURLConnection.disconnect();
 
-        } catch (IOException io) {
-            resultStatus.setSuccess(false);
-            resultStatus.setNetworkError(true);
-            resultStatus.setErrorMessage(io.toString());
         } catch (Exception e) {
-            // do nothing
             resultStatus.setSuccess(false);
             resultStatus.setErrorMessage(e.toString());
         }

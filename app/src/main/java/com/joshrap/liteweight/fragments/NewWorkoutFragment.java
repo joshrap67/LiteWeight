@@ -762,8 +762,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             createButton.setOnClickListener(view -> {
                 String workoutName = workoutNameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (String workoutId : user.getUserWorkouts().keySet()) {
-                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                for (String workoutId : user.getWorkoutMetas().keySet()) {
+                    workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
                 if (errorMsg != null) {
@@ -789,8 +789,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                 if (resultStatus.isSuccess()) {
                     String newWorkoutId = resultStatus.getData().getWorkout().getWorkoutId();
                     user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
-                    user.getUserWorkouts().put(newWorkoutId,
-                            resultStatus.getData().getUser().getUserWorkouts().get(newWorkoutId));
+                    user.getWorkoutMetas().put(newWorkoutId,
+                            resultStatus.getData().getUser().getWorkoutMetas().get(newWorkoutId));
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());

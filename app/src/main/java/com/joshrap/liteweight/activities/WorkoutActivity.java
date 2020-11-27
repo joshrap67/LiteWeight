@@ -55,8 +55,8 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.FriendRequest;
-import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
-import com.joshrap.liteweight.models.SentWorkout;
+import com.joshrap.liteweight.models.SharedWorkoutMeta;
+import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
@@ -191,8 +191,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 case Variables.RECEIVED_WORKOUT_BROADCAST:
                     try {
-                        ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        boolean updateTotal = user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null;
+                        SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                        boolean updateTotal = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null;
                         if (updateTotal) {
                             // workout wasn't here, so total needs to be increased
                             user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
@@ -200,15 +200,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
                         // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
                         boolean updateUnseen =
-                                user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()) == null ||
-                                        user.getReceivedWorkouts().get(receivedWorkoutMeta.getWorkoutId()).isSeen();
+                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
+                                        user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
                         // no npe since Java will see the first part is true and then immediately return true
                         if (updateUnseen) {
                             // workout has not been seen yet so increase the unseen count
                             user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
                         }
                         updateReceivedWorkoutNotificationIndicator();
-                        user.getReceivedWorkouts().put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
+                        user.getReceivedWorkouts().put(sharedWorkoutMeta.getWorkoutId(), sharedWorkoutMeta);
                         // send broadcast to any fragments waiting on this model update
                         Intent broadcastIntent = new Intent();
                         broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
@@ -1007,8 +1007,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
 
         Bundle arguments = new Bundle();
-        arguments.putString(SentWorkout.SENT_WORKOUT_ID, workoutId);
-        arguments.putString(SentWorkout.WORKOUT_NAME, workoutName);
+        arguments.putString(SharedWorkout.SENT_WORKOUT_ID, workoutId);
+        arguments.putString(SharedWorkout.WORKOUT_NAME, workoutName);
         Fragment fragment = new BrowseReceivedWorkoutFragment();
         fragment.setArguments(arguments);
 

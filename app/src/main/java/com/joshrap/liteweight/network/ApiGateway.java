@@ -55,7 +55,7 @@ public class ApiGateway {
                 osw.write(new ObjectMapper().writeValueAsString(body));
                 osw.flush();
                 osw.close();
-                os.close();  //don't forget to close the OutputStream
+                os.close();
 
                 httpURLConnection.connect();
 
@@ -93,13 +93,7 @@ public class ApiGateway {
                 }
                 httpURLConnection.disconnect();
 
-            } catch (SocketException se) {
-                // TODO don't think this works, need to accurately find out if internet issue or not
-                resultStatus.setSuccess(false);
-                resultStatus.setNetworkError(true);
-                resultStatus.setErrorMessage(se.toString());
             } catch (Exception e) {
-                // do nothing
                 resultStatus.setSuccess(false);
                 resultStatus.setErrorMessage(e.toString());
             }

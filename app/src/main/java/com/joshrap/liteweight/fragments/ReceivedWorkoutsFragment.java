@@ -39,7 +39,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
-import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
+import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
@@ -65,7 +65,7 @@ import static android.os.Looper.getMainLooper;
 
 public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private User user;
-    private List<ReceivedWorkoutMeta> receivedWorkouts;
+    private List<SharedWorkoutMeta> receivedWorkouts;
     private ProgressBar listLoadingIcon;
     private RecyclerView receivedWorkoutsRecyclerView;
     private ImageButton markAllReceivedWorkoutsSeen;
@@ -92,17 +92,17 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             }
             if (action.equals(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST)) {
                 try {
-                    ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
+                    SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
                     receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
                     sortReceivedWorkouts();
                     receivedWorkoutsAdapter.refresh(receivedWorkouts);
                     // get rid of push notification since user is currently on this page
                     NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                     if (notificationManager != null) {
-                        notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                        notificationManager.cancel(sharedWorkoutMeta.getWorkoutId().hashCode());
                     }
                     updateAllSeenButton();
-                    Toast.makeText(getContext(), "New workout: " + receivedWorkoutMeta.getWorkoutName(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "New workout: " + sharedWorkoutMeta.getWorkoutName(), Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -203,12 +203,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
     private void removeReceivedWorkoutNotification() {
         // get rid of any push notification that might be in the status bar
-        for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
-            if (!receivedWorkoutMeta.isSeen()) {
+        for (SharedWorkoutMeta sharedWorkoutMeta : receivedWorkouts) {
+            if (!sharedWorkoutMeta.isSeen()) {
                 // get rid of any push notification that might be there
                 NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
-                    notificationManager.cancel(receivedWorkoutMeta.getWorkoutId().hashCode());
+                    notificationManager.cancel(sharedWorkoutMeta.getWorkoutId().hashCode());
                 }
             }
         }
@@ -219,15 +219,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             int batchNumber = receivedWorkouts.size() / Variables.BATCH_SIZE;
-            ResultStatus<List<ReceivedWorkoutMeta>> resultStatus = this.workoutRepository.getReceivedWorkouts(batchNumber);
+            ResultStatus<List<SharedWorkoutMeta>> resultStatus = this.workoutRepository.getReceivedWorkouts(batchNumber);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     listLoadingIcon.setVisibility(View.INVISIBLE);
                     isGettingNextBatch = false;
                     if (resultStatus.isSuccess()) {
-                        for (ReceivedWorkoutMeta receivedWorkoutMeta : resultStatus.getData()) {
-                            user.getReceivedWorkouts().put(receivedWorkoutMeta.getWorkoutId(), receivedWorkoutMeta);
+                        for (SharedWorkoutMeta sharedWorkoutMeta : resultStatus.getData()) {
+                            user.getReceivedWorkouts().put(sharedWorkoutMeta.getWorkoutId(), sharedWorkoutMeta);
                         }
                         // this is honestly unapologetically hacky but i don't care anymore
                         receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
@@ -316,7 +316,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
-    private void acceptWorkout(final ReceivedWorkoutMeta workoutToAccept, final String optionalName) {
+    private void acceptWorkout(final SharedWorkoutMeta workoutToAccept, final String optionalName) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Accepting...");
 
         Executor executor = Executors.newSingleThreadExecutor();
@@ -332,7 +332,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         user.setCurrentWorkout(response.getWorkoutId());
                         userWithWorkout.setWorkout(response.getWorkout());
                     }
-                    user.getUserWorkouts().put(response.getWorkoutId(), response.getWorkoutMeta());
+                    user.getWorkoutMetas().put(response.getWorkoutId(), response.getWorkoutMeta());
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
                     user.addNewExercises(response.getExercises());
                     if (!workoutToAccept.isSeen()) {
@@ -354,19 +354,19 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
-    private void declineWorkout(ReceivedWorkoutMeta receivedWorkoutMeta) {
+    private void declineWorkout(SharedWorkoutMeta sharedWorkoutMeta) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Declining...");
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(receivedWorkoutMeta.getWorkoutId());
+            ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(sharedWorkoutMeta.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && ReceivedWorkoutsFragment.this.isResumed()) {
-                    receivedWorkouts.remove(receivedWorkoutMeta);
-                    user.getReceivedWorkouts().remove(receivedWorkoutMeta.getWorkoutId());
-                    if (!receivedWorkoutMeta.isSeen()) {
+                    receivedWorkouts.remove(sharedWorkoutMeta);
+                    user.getReceivedWorkouts().remove(sharedWorkoutMeta.getWorkoutId());
+                    if (!sharedWorkoutMeta.isSeen()) {
                         // if it was unread, then we need to make sure to decrease unseen count
                         user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
                         ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
@@ -381,7 +381,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
-    private void workoutNameAlreadyExistsPopup(final ReceivedWorkoutMeta receivedWorkoutMeta) {
+    private void workoutNameAlreadyExistsPopup(final SharedWorkoutMeta sharedWorkoutMeta) {
         /*
             Prompt the user if they want to rename the current workout
          */
@@ -391,7 +391,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("\"" + receivedWorkoutMeta.getWorkoutName() + "\" already exists")
+                .setTitle("\"" + sharedWorkoutMeta.getWorkoutName() + "\" already exists")
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
                 .setNegativeButton("Cancel", null)
@@ -401,12 +401,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             saveButton.setOnClickListener(view -> {
                 String newName = renameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (String workoutId : user.getUserWorkouts().keySet()) {
-                    workoutNames.add(user.getUserWorkouts().get(workoutId).getWorkoutName());
+                for (String workoutId : user.getWorkoutMetas().keySet()) {
+                    workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
                 if (errorMsg == null) {
-                    acceptWorkout(receivedWorkoutMeta, newName);
+                    acceptWorkout(sharedWorkoutMeta, newName);
                     alertDialog.dismiss();
                 } else {
                     workoutNameInputLayout.setError(errorMsg);
@@ -429,8 +429,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private void setAllReceivedWorkoutsSeen() {
         // blind send for marking all workout read for now
         user.setUnseenReceivedWorkouts(0);
-        for (ReceivedWorkoutMeta receivedWorkoutMeta : receivedWorkouts) {
-            receivedWorkoutMeta.setSeen(true);
+        for (SharedWorkoutMeta sharedWorkoutMeta : receivedWorkouts) {
+            sharedWorkoutMeta.setSeen(true);
         }
         ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
         displayReceivedWorkouts(); // to remove any unseen indicators
@@ -466,9 +466,9 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             }
         }
 
-        private List<ReceivedWorkoutMeta> receivedWorkouts;
+        private List<SharedWorkoutMeta> receivedWorkouts;
 
-        ReceivedWorkoutsAdapter(List<ReceivedWorkoutMeta> receivedWorkouts) {
+        ReceivedWorkoutsAdapter(List<SharedWorkoutMeta> receivedWorkouts) {
             this.receivedWorkouts = receivedWorkouts;
         }
 
@@ -485,7 +485,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         @Override
         public void onBindViewHolder(ReceivedWorkoutsAdapter.ViewHolder holder, int position) {
             // Get the data model based on position
-            final ReceivedWorkoutMeta receivedWorkout = receivedWorkouts.get(position);
+            final SharedWorkoutMeta receivedWorkout = receivedWorkouts.get(position);
 
             final TextView workoutNameTV = holder.workoutNameTV;
             final TextView senderTV = holder.senderTV;
@@ -497,8 +497,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
             acceptButton.setOnClickListener(view -> {
                 boolean workoutNameExists = false;
-                for (String workoutId : user.getUserWorkouts().keySet()) {
-                    if (user.getUserWorkouts().get(workoutId).getWorkoutName().equals(receivedWorkout.getWorkoutName())) {
+                for (String workoutId : user.getWorkoutMetas().keySet()) {
+                    if (user.getWorkoutMetas().get(workoutId).getWorkoutName().equals(receivedWorkout.getWorkoutName())) {
                         workoutNameExists = true;
                         break;
                     }
@@ -561,7 +561,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             });
         }
 
-        void refresh(List<ReceivedWorkoutMeta> receivedWorkouts) {
+        void refresh(List<SharedWorkoutMeta> receivedWorkouts) {
             this.receivedWorkouts = receivedWorkouts;
             notifyDataSetChanged();
         }

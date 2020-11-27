@@ -40,8 +40,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(CognitoResponse.deserializeInitiateAuth(cognitoResponse.getData()));
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -67,8 +65,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(CognitoResponse.deserializeSignUp(cognitoResponse.getData()));
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -87,8 +83,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(new CognitoResponse(cognitoResponse.getData()));
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -109,8 +103,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(CognitoResponse.deserializeRefresh(cognitoResponse.getData()));
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -128,8 +120,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(true);
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -147,8 +137,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(true);
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }
@@ -168,8 +156,6 @@ public class CognitoRepository {
         if (cognitoResponse.isSuccess()) {
             resultStatus.setSuccess(true);
             resultStatus.setData(true);
-        } else if (cognitoResponse.isNetworkError()) {
-            resultStatus.setErrorMessage("Check your internet connection.");
         } else {
             resultStatus.setErrorMessage(cognitoResponse.getErrorMessage());
         }

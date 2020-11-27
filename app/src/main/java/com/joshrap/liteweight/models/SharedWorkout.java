@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SentWorkout implements Model {
+public class SharedWorkout implements Model {
 
     public static final String SENT_WORKOUT_ID = "sentWorkoutId";
     public static final String WORKOUT_NAME = "workoutName";
@@ -20,15 +20,14 @@ public class SentWorkout implements Model {
     private String sentWorkoutId;
     private String workoutName;
     private String creator;
-    private SentRoutine routine;
+    private SharedRoutine routine;
 
-    public SentWorkout(Map<String, Object> json) {
+    public SharedWorkout(Map<String, Object> json) {
         this.sentWorkoutId = (String) json.get(SENT_WORKOUT_ID);
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.creator = (String) json.get(CREATOR);
-        this.routine = new SentRoutine((Map<String, Object>) json.get(ROUTINE));
+        this.routine = new SharedRoutine((Map<String, Object>) json.get(ROUTINE));
     }
-
 
     @Override
     public Map<String, Object> asMap() {

@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class SentExercise implements Model {
+public class SharedExercise implements Model {
 
     public static final String EXERCISE_NAME = "exerciseName";
     public static final String WEIGHT = "weight";
@@ -22,7 +22,7 @@ public class SentExercise implements Model {
     private Integer reps;
     private String details;
 
-    SentExercise(final Map<String, Object> json) {
+    SharedExercise(final Map<String, Object> json) {
         this.exerciseName = (String) json.get(EXERCISE_NAME);
         this.weight = (Double) json.get(WEIGHT);
         this.sets = (Integer) json.get(SETS);

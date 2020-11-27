@@ -18,7 +18,7 @@ import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.PushNotification;
-import com.joshrap.liteweight.models.ReceivedWorkoutMeta;
+import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.User;
 
 import java.io.IOException;
@@ -171,7 +171,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
-        final ReceivedWorkoutMeta receivedWorkoutMeta = new ReceivedWorkoutMeta(JsonUtils.deserialize(jsonData));
+        final SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
@@ -183,7 +183,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
                 .setContentTitle("Received workout")
                 .setContentText(String.format("%s sent you a workout: \"%s\"! Click to respond.",
-                        receivedWorkoutMeta.getSender(), receivedWorkoutMeta.getWorkoutName()))
+                        sharedWorkoutMeta.getSender(), sharedWorkoutMeta.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -191,7 +191,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(receivedWorkoutMeta.getWorkoutId().hashCode(), notification);
+            mNotificationManager.notify(sharedWorkoutMeta.getWorkoutId().hashCode(), notification);
         }
         Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
         broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);

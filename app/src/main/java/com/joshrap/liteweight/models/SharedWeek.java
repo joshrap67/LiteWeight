@@ -12,19 +12,19 @@ import lombok.Data;
 
 @Data
 @SuppressLint("UseSparseArrays")
-public class SentWeek implements Iterable<Integer>, Model {
+public class SharedWeek implements Iterable<Integer>, Model {
 
-    private Map<Integer, SentDay> days;
+    private Map<Integer, SharedDay> days;
 
-    public SentWeek() {
+    public SharedWeek() {
         this.days = new HashMap<>();
     }
 
-    public SentWeek(Map<String, Object> daysForWeek) {
+    public SharedWeek(Map<String, Object> daysForWeek) {
         this.days = new HashMap<>();
         for (String day : daysForWeek.keySet()) {
-            SentDay sentDay = new SentDay((Map<String, Object>) daysForWeek.get(day));
-            this.days.put(Integer.parseInt(day), sentDay);
+            SharedDay sharedDay = new SharedDay((Map<String, Object>) daysForWeek.get(day));
+            this.days.put(Integer.parseInt(day), sharedDay);
         }
     }
 
@@ -32,12 +32,12 @@ public class SentWeek implements Iterable<Integer>, Model {
         return this.days.size();
     }
 
-    public SentDay getDay(int day) {
+    public SharedDay getDay(int day) {
         return this.days.get(day);
     }
 
-    public void put(int dayIndex, SentDay sentDay) {
-        this.days.put(dayIndex, sentDay);
+    public void put(int dayIndex, SharedDay sharedDay) {
+        this.days.put(dayIndex, sharedDay);
     }
 
     @Override
