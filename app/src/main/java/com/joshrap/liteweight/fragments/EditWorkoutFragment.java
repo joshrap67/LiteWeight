@@ -72,6 +72,10 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class EditWorkoutFragment extends Fragment implements FragmentWithDialog {
+    public static final int ADD_MODE = 0;
+    public static final int DELETE_MODE = 1;
+    public static final int COPY_MODE = 2;
+
     private RecyclerView routineRecyclerView, pickExerciseRecyclerView;
     private AlertDialog alertDialog;
     private TextView dayTitleTV, exerciseNotFoundTV, emptyDayView;
@@ -116,7 +120,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         weekSpinnerValues = new ArrayList<>();
         allOwnedExercises = new HashMap<>();
         daySpinnerValues = new ArrayList<>();
-        mode = Variables.ADD_MODE;
+        mode = ADD_MODE;
 
         exerciseIdToName = new HashMap<>();
         for (String id : user.getOwnedExercises().keySet()) {
@@ -158,9 +162,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         // set up mode options
         RadioButton addRadioButton = view.findViewById(R.id.add_radio_btn);
         addRadioButton.setOnClickListener(v -> {
-            if (mode != Variables.ADD_MODE) {
+            if (mode != ADD_MODE) {
                 // prevent useless function call if already in this mode
-                mode = Variables.ADD_MODE;
+                mode = ADD_MODE;
                 addExercisesButton.setVisibility(View.VISIBLE);
                 setButtonListeners();
                 updateButtonTexts();
@@ -169,9 +173,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         });
         RadioButton deleteRadioButton = view.findViewById(R.id.delete_radio_btn);
         deleteRadioButton.setOnClickListener(v -> {
-            if (mode != Variables.DELETE_MODE) {
+            if (mode != DELETE_MODE) {
                 // prevent useless function call if already in this mode
-                mode = Variables.DELETE_MODE;
+                mode = DELETE_MODE;
                 addExercisesButton.setVisibility(View.INVISIBLE);
                 setButtonListeners();
                 updateButtonTexts();
@@ -180,9 +184,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
         });
         RadioButton copyRadioButton = view.findViewById(R.id.copy_radio_btn);
         copyRadioButton.setOnClickListener(v -> {
-            if (mode != Variables.COPY_MODE) {
+            if (mode != COPY_MODE) {
                 // prevent useless function call if already in this mode
-                mode = Variables.COPY_MODE;
+                mode = COPY_MODE;
                 addExercisesButton.setVisibility(View.VISIBLE);
                 setButtonListeners();
                 updateButtonTexts();
@@ -254,7 +258,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
      */
     private void setButtonListeners() {
         weekButton.setOnClickListener((v -> {
-            if (mode == Variables.ADD_MODE) {
+            if (mode == ADD_MODE) {
                 currentDayIndex = 0;
                 // for now only allow for weeks to be appended not inserted
                 currentWeekIndex = pendingRoutine.getNumberOfWeeks();
@@ -268,9 +272,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
-            } else if (mode == Variables.DELETE_MODE) {
+            } else if (mode == DELETE_MODE) {
                 promptDeleteWeek();
-            } else if (mode == Variables.COPY_MODE) {
+            } else if (mode == COPY_MODE) {
                 promptCopyWeek();
             }
 
@@ -291,7 +295,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
             }
         });
         dayButton.setOnClickListener((v -> {
-            if (mode == Variables.ADD_MODE) {
+            if (mode == ADD_MODE) {
                 // for now only allow for weeks to be appended not insert
                 currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
                 pendingRoutine.appendNewDay(currentWeekIndex, currentDayIndex);
@@ -302,9 +306,9 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 dayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
                 updateRoutineListUI();
                 updateButtonTexts();
-            } else if (mode == Variables.DELETE_MODE) {
+            } else if (mode == DELETE_MODE) {
                 promptDeleteDay();
-            } else if (mode == Variables.COPY_MODE) {
+            } else if (mode == COPY_MODE) {
                 if (pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()) {
                     Toast.makeText(getContext(), "Must have at least one exercise in this day to copy it.", Toast.LENGTH_LONG).show();
                 } else {
@@ -318,7 +322,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
      * Updates the button texts of the week/day buttons depending on the current mode.
      */
     private void updateButtonTexts() {
-        if (mode == Variables.ADD_MODE) {
+        if (mode == ADD_MODE) {
             if (this.pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                 weekButton.setText(getString(R.string.max_reached_msg));
                 weekButton.setEnabled(false);
@@ -333,12 +337,12 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 dayButton.setText(getString(R.string.add_day_msg));
                 dayButton.setEnabled(true);
             }
-        } else if (mode == Variables.DELETE_MODE) {
+        } else if (mode == DELETE_MODE) {
             dayButton.setEnabled(true);
             weekButton.setEnabled(true);
             dayButton.setText(getString(R.string.remove_day_msg));
             weekButton.setText(getString(R.string.remove_week_msg));
-        } else if (mode == Variables.COPY_MODE) {
+        } else if (mode == COPY_MODE) {
             dayButton.setEnabled(true);
             weekButton.setEnabled(true);
             dayButton.setText(getString(R.string.copy_day_msg));
@@ -457,7 +461,7 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
     private void checkEmpty() {
         emptyDayView.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
                 ? View.VISIBLE : View.GONE);
-        if (mode == Variables.DELETE_MODE) {
+        if (mode == DELETE_MODE) {
             emptyDayView.setText(getString(R.string.empty_workout_day_delete_mode));
         } else {
             emptyDayView.setText(getString(R.string.empty_workout_day));

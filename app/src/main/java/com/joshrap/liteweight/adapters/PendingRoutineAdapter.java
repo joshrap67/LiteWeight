@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.fragments.EditWorkoutFragment;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.RoutineExercise;
@@ -159,7 +160,7 @@ public class PendingRoutineAdapter extends
         TextInputLayout weightInputLayout = holder.weightInputLayout;
 
         ImageButton deleteButton = holder.deleteButton;
-        deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
+        deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
 
         LinearLayout extraInfo = holder.extraInfo;
         ImageButton saveButton = holder.saveButton;
@@ -195,7 +196,7 @@ public class PendingRoutineAdapter extends
             extraInfo.setVisibility(View.GONE);
             saveButton.setVisibility(View.GONE);
             cancelButton.setVisibility(View.GONE);
-            deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
+            deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
             // remove any errors
             weightInputLayout.setError(null);
             setsInputLayout.setError(null);
@@ -242,7 +243,7 @@ public class PendingRoutineAdapter extends
                 extraInfo.setVisibility(View.GONE);
                 saveButton.setVisibility(View.GONE);
                 cancelButton.setVisibility(View.GONE);
-                deleteButton.setVisibility((mode == Variables.DELETE_MODE) ? View.VISIBLE : View.GONE);
+                deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
                 exerciseTV.setVisibility(View.VISIBLE);
                 notifyDataSetChanged(); // avoids animation on closing the extra info
 
