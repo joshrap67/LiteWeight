@@ -562,6 +562,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 goToReceivedWorkouts();
                 nav.setCheckedItem(R.id.nav_received_workouts);
                 break;
+            case Variables.FAQ_TITLE:
+                goToFaq();
+                break;
             default:
                 /*
                     If the fragment now currently on the backstack is a fragment that I don't want the user to get back to,
@@ -1035,6 +1038,17 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), Variables.ABOUT_TITLE)
+                .commit();
+    }
+
+    public void goToFaq() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.FAQ_TITLE);
+        fragmentStack.add(0, Variables.FAQ_TITLE);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, new FaqFragment(), Variables.FAQ_TITLE)
                 .commit();
     }
     //endregion

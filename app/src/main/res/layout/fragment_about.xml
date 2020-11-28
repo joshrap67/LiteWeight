@@ -22,12 +22,14 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
             <ImageView
                     android:id="@+id/app_logo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="185dp"
+                    android:layout_height="140dp"
+                    android:layout_gravity="center"
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
@@ -52,22 +54,84 @@
                     android:textStyle="bold" />
 
             <TextView
-                    android:id="@+id/overview_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingTop="8sp"
-                    android:paddingBottom="8sp"
-                    android:text="@string/about_overview_title"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            <TextView
-                    android:id="@+id/app_overview"
+                    android:id="@+id/feedback_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/about_overview"
-                    android:textSize="15sp" />
+                    android:layout_marginTop="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/feedback_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Feedback/Report Problem"
+                    android:textSize="20sp" />
+
+            <TextView
+                    android:id="@+id/faq_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/faq_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Frequently Asked Questions (FAQ)"
+                    android:textSize="20sp" />
+
+            <TextView
+                    android:id="@+id/privacy_policy_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/privacy_policy_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Privacy Policy"
+                    android:textSize="20sp" />
+
+            <TextView
+                    android:id="@+id/terms_conditions_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/terms_conditions_icon"
+                    android:elevation="2dp"
+                    android:focusable="true"
+                    android:text="Terms and Conditions"
+                    android:textSize="20sp" />
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/acknowledgements_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:drawableEnd="@drawable/down_icon"
+                        android:focusable="true"
+                        android:text="@string/acknowledgements_title"
+                        android:textSize="20sp" />
+
+                <TextView
+                        android:id="@+id/acknowledgements"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:linksClickable="true"
+                        android:text="@string/acknowledgements"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

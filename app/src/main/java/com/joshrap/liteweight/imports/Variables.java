@@ -28,6 +28,7 @@ public class Variables {
     public static final int MAX_FREE_WORKOUTS_SENT = 1500; // todo change after dev work is done
     public static final int MAX_FREE_WORKOUTS = 10;
     public static final int MAX_WORKOUTS = 20;
+    public static final int MAX_FEEDBACK = 2000;
     public static final int BATCH_SIZE = 10; // todo change to match backend
 
     public static final List<String> FOCUS_LIST = Arrays.asList(
@@ -56,20 +57,21 @@ public class Variables {
     public static final String DATABASE_NAME = "workout_db";
     public static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
 
-    public static final String ABOUT_TITLE = "About";
     public static final String CURRENT_WORKOUT_TITLE = "Current Workout";
-    public static final String MY_EXERCISES_TITLE = "My Exercises";
     public static final String MY_WORKOUT_TITLE = "My Workouts";
     public static final String NEW_WORKOUT_TITLE = "Create Workout";
+    public static final String EDIT_WORKOUT_TITLE = "Edit Workout";
+    public static final String MY_EXERCISES_TITLE = "My Exercises";
+    public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
     public static final String ACCOUNT_TITLE = "My Account";
     public static final String ACCOUNT_PREFS_TITLE = "Account Preferences";
-    public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String FRIENDS_LIST_TITLE = "Friends List";
     public static final String BLOCKED_LIST_TITLE = "Blocked List";
+    public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";
     public static final String SETTINGS_TITLE = "Settings";
-    public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
-    public static final String EDIT_WORKOUT_TITLE = "Edit Workout";
+    public static final String ABOUT_TITLE = "About";
+    public static final String FAQ_TITLE = "FAQ";
 
     public static final String TIMER_RUNNING_CHANNEL = "timer_running_channel";
     public static final String TIMER_FINISHED_CHANNEL = "timer_finished_channel";

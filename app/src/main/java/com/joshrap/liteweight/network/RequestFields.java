@@ -12,4 +12,6 @@ public class RequestFields {
     public static final String WORKOUT_META = "workoutMeta";
     public static final String EXERCISES = "exercises";
     public static final String WORKOUT_PRESENT = "workoutPresent";
+    public static final String FEEDBACK = "feedback";
+    public static final String FEEDBACK_TIME = "feedbackTime";
 }

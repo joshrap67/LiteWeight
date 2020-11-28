@@ -35,6 +35,7 @@ public class UserRepository {
     private static final String declineFriendRequestAction = "declineFriendRequest";
     private static final String blockUserAction = "blockUser";
     private static final String unblockUserAction = "unblockUser";
+    private static final String sendFeedbackAction = "sendFeedback";
 
     private final ApiGateway apiGateway;
 
@@ -339,6 +340,23 @@ public class UserRepository {
             resultStatus.setSuccess(true);
         } else {
             resultStatus.setErrorMessage("Unable to unblock user.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> sendFeedback(String feedback, String feedbackTime) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(RequestFields.FEEDBACK, feedback);
+        requestBody.put(RequestFields.FEEDBACK_TIME, feedbackTime);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(sendFeedbackAction, requestBody, true);
+
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else {
+            resultStatus.setErrorMessage("Unable to send feedback.");
         }
         return resultStatus;
     }

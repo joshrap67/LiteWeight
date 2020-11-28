@@ -300,4 +300,15 @@ public class ValidatorUtils {
         }
         return retVal;
     }
+
+    public static String validFeedback(String feedback) {
+        feedback = feedback.trim();
+        String retVal = null;
+        if (feedback.isEmpty()) {
+            retVal = "Feedback cannot be empty.";
+        } else if (feedback.length() > Variables.MAX_FEEDBACK) {
+            retVal = "Feedback is too large.";
+        }
+        return retVal;
+    }
 }

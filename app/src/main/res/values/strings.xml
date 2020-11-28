@@ -127,8 +127,8 @@
         \n\n<u><b>Settings:</b></u> This section allows for any user settings to be enabled or disabled. These changes will persist upon the closing of the app.
     </string>
     <string name="acknowledgements_title">Acknowledgements</string>
-    <string name="acknowledgements">App graphic was created using a vector made by <a href="https://www.flaticon.com/free-icon/gym_755336?term=weight&amp;page=1&amp;position=3">Monkik</a>.
-        \n\nMy Exercises Icon was created by <a href="https://thenounproject.com/demograph/uploads/?i=149086">Demograph</a>.
+    <string name="acknowledgements">App Logo uses free SVG found <a href="https://uxwing.com/feather-icon/">here</a>.
+        \n\nDefault Profile Picture was created by <a href="https://www.flaticon.com/free-icon/user_149071">Smashicons</a>.
     </string>
     <string name="nav_account_settings">My Account</string>
     <string name="max_reached_msg">MAX REACHED</string>
@@ -171,4 +171,12 @@
     <string name="create">Create</string>
     <string name="received_workouts_alert">Received Workouts (!)</string>
     <string name="workout_progress_description">Displays a progress bar in your current workout page showing the percentage of exercises completed in the workout.</string>
+    <string name="app_purpose">
+        LiteWeight is used for creating and tracking custom workouts. The “Current Workout” tab is the tab that contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed and what weight you used, and then whenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! After you create a workout you can then share it to any other LiteWeight user.
+    </string>
+    <string name="restart_workout_explanation">At this time, you are not able to see specifics of workouts that have already been restarted. The only information you can get would be from your statistics of that workout to see what your average completion percentage is of the workout.</string>
+    <string name="share_workout_explanation">When you share a workout to another user, it makes a copy of the workout at the time of you sharing it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
+    <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will take the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. weight, sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your user settings, this default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_msg">Use this form to send any feedback you have about the app. Be it concerns, bugs, or success stories!</string>
 </resources>
