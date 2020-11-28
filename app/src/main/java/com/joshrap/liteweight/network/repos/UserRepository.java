@@ -28,7 +28,7 @@ public class UserRepository {
     private static final String removeEndpointIdAction = "removeEndpointId";
     private static final String sendFriendRequestAction = "sendFriendRequest";
     private static final String cancelFriendRequestAction = "cancelFriendRequest";
-    private static final String setAllRequestsSeenAction = "setAllRequestsSeen";
+    private static final String setAllFriendRequestsSeenAction = "setAllFriendRequestsSeen";
     private static final String updateUserPreferencesAction = "updateUserPreferences";
     private static final String acceptFriendRequestAction = "acceptFriendRequest";
     private static final String removeFriendAction = "removeFriend";
@@ -221,7 +221,7 @@ public class UserRepository {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllRequestsSeenAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllFriendRequestsSeenAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             resultStatus.setData(apiResponse.getData());

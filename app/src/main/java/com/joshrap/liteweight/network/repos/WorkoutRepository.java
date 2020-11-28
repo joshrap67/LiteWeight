@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.network.repos;
 
+import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
 import com.joshrap.liteweight.models.SharedWorkoutMeta;
@@ -34,7 +35,7 @@ public class WorkoutRepository {
     private static final String restartWorkoutAction = "restartWorkout";
     private static final String getReceivedWorkoutsAction = "getReceivedWorkouts";
     private static final String sendWorkoutAction = "sendWorkout";
-    private static final String getReceivedWorkoutAction = "getSentWorkout";
+    private static final String getSharedWorkoutAction = "getSharedWorkout";
     private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
     private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
     private static final String acceptReceivedWorkoutAction = "acceptReceivedWorkout";
@@ -157,8 +158,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<User> resetWorkoutStatistics(@NonNull String workoutId) {
-        ResultStatus<User> resultStatus = new ResultStatus<>();
+    public ResultStatus<WorkoutMeta> resetWorkoutStatistics(@NonNull String workoutId) {
+        ResultStatus<WorkoutMeta> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
@@ -167,13 +168,13 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new WorkoutMeta(JsonUtils.deserialize(apiResponse.getData()), workoutId));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout.");
+                resultStatus.setErrorMessage("Unable to reset workout statistics.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.");
+            resultStatus.setErrorMessage("Unable to reset workout statistics.");
         }
         return resultStatus;
     }
@@ -296,7 +297,7 @@ public class WorkoutRepository {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
 
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getReceivedWorkoutAction, requestBody, true);
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getSharedWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
             try {

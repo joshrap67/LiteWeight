@@ -285,13 +285,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Resetting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<User> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
+            ResultStatus<WorkoutMeta> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    WorkoutMeta updatedWorkoutMeta = resultStatus.getData().getWorkoutMetas().get(currentWorkout.getWorkoutId());
-                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(), updatedWorkoutMeta);
+                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(), resultStatus.getData());
 
                     updateUI();
                 } else {

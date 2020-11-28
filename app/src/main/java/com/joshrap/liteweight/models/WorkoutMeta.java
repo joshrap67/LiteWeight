@@ -25,7 +25,7 @@ public class WorkoutMeta implements Model {
     private Integer totalExercisesSum;
     private String workoutId;
 
-    WorkoutMeta(Map<String, Object> json, String workoutId) {
+    public WorkoutMeta(Map<String, Object> json, String workoutId) {
         this.workoutId = workoutId;
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.dateLast = (String) json.get(DATE_LAST);
