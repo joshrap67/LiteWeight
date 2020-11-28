@@ -32,10 +32,10 @@
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
+            android:background="@drawable/timer_background"
             android:clickable="true"
             android:focusable="true"
             android:text="00:00"
-            android:background="@drawable/timer_background"
             android:textSize="36sp"
             app:layout_constraintBottom_toTopOf="@+id/timer_layout"
             app:layout_constraintEnd_toEndOf="parent"
@@ -83,5 +83,4 @@
                 android:text="@string/show_stopwatch"
                 tools:visibility="visible" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

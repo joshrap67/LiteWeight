@@ -84,7 +84,7 @@
             android:layout_below="@id/sign_in_password_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="Forgot password? Click here to reset." />
+            android:text="@string/forgot_pssword_link" />
     <Button
             android:id="@+id/sign_in_primary_btn"
             android:layout_width="300dp"
@@ -115,5 +115,4 @@
             android:background="#50000000"
             android:foreground="?android:selectableItemBackground"
             android:text="@string/sign_up" />
-
 </RelativeLayout>

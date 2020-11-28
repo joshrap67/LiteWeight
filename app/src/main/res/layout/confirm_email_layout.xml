@@ -36,7 +36,7 @@
             android:layout_below="@id/app_logo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="Please enter the code sent to your email."
+            android:text="@string/confirm_msg"
             android:textColor="@android:color/white" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -47,7 +47,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:backgroundTint="@android:color/white"
-            android:hint="Email Verification Code"
+            android:hint="@string/email_verification_code_hint"
             android:textColor="@color/notification_color"
             android:textColorHint="@android:color/white">
 
@@ -70,7 +70,7 @@
             android:layout_marginTop="20dp"
             android:background="#50000000"
             android:foreground="?android:selectableItemBackground"
-            android:text="CONFIRM" />
+            android:text="@string/confirm" />
 
     <View
             android:id="@+id/divider"
@@ -90,5 +90,5 @@
             android:layout_marginTop="20dp"
             android:background="#50000000"
             android:foreground="?android:selectableItemBackground"
-            android:text="RESEND CODE" />
+            android:text="@string/resend_code" />
 </RelativeLayout>

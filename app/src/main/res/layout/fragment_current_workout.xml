@@ -64,8 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:paddingBottom="8dp"
-                    android:text="Workout Progress - 0%"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:text="Workout Progress - 0%" />
 
             <RelativeLayout
                     android:id="@+id/linear_layout"

@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +26,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +38,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -45,6 +51,8 @@ import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -381,13 +389,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
+    /**
+     * Prompts user to rename a workout before accepting it since a workout already exists with the current name.
+     *
+     * @param sharedWorkoutMeta workout that is about to be accepted.
+     */
     private void workoutNameAlreadyExistsPopup(final SharedWorkoutMeta sharedWorkoutMeta) {
-        /*
-            Prompt the user if they want to rename the current workout
-         */
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
-        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
-        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
+        EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -446,6 +456,23 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         });
     }
 
+    private void showBlownUpProfilePic(String username, String iconUrl) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        Picasso.get()
+                .load(ImageUtils.getIconUrl(iconUrl))
+                .error(R.drawable.picture_load_error)
+                .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                .into(profilePicture);
+
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle(username)
+                .setView(popupView)
+                .setPositiveButton("Done", null)
+                .create();
+        alertDialog.show();
+    }
+
     private class ReceivedWorkoutsAdapter extends RecyclerView.Adapter<ReceivedWorkoutsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView workoutNameTV;
@@ -481,17 +508,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             return new ViewHolder(exerciseView);
         }
 
-        // Involves populating data into the item through holder
         @Override
         public void onBindViewHolder(ReceivedWorkoutsAdapter.ViewHolder holder, int position) {
-            // Get the data model based on position
             final SharedWorkoutMeta receivedWorkout = receivedWorkouts.get(position);
 
-            final TextView workoutNameTV = holder.workoutNameTV;
-            final TextView senderTV = holder.senderTV;
-            final TextView dateSentTv = holder.dateSentTV;
-            final Button acceptButton = holder.acceptButton;
-            final Button declineButton = holder.declineButton;
+            TextView workoutNameTV = holder.workoutNameTV;
+            TextView senderTV = holder.senderTV;
+            TextView dateSentTv = holder.dateSentTV;
+            Button acceptButton = holder.acceptButton;
+            Button declineButton = holder.declineButton;
 
             declineButton.setOnClickListener(view -> declineWorkout(receivedWorkout));
 
@@ -529,7 +554,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 workoutName += "  (!)";
             }
             workoutNameTV.setText(workoutName);
-            final RelativeLayout rootLayout = holder.rootLayout;
+            RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
                 if (!receivedWorkout.isSeen()) {
                     // when user clicks on the workout, mark it as seen
@@ -540,21 +565,51 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
                 bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_received_workout, null);
-                final TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
-                final TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);
+                TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
+                TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);
                 workoutNameBottomSheetTV.setText(receivedWorkout.getWorkoutName());
-                final TextView workoutMetaTV = sheetView.findViewById(R.id.workout_meta_tv);
+
+                TextView workoutMetaTV = sheetView.findViewById(R.id.workout_meta_tv);
                 workoutMetaTV.setText(String.format("Most frequent focus: %s\nNumber of days: %d",
                         receivedWorkout.getMostFrequentFocus().replaceAll(",", ", "), receivedWorkout.getTotalDays()));
                 browseWorkout.setOnClickListener(v1 -> {
                     ((WorkoutActivity) getActivity()).goToBrowseReceivedWorkout(receivedWorkout.getWorkoutId(), receivedWorkout.getWorkoutName());
                     bottomSheetDialog.dismiss();
                 });
-                final TextView blockUser = sheetView.findViewById(R.id.block_user_tv);
+
+                TextView blockUser = sheetView.findViewById(R.id.block_user_tv);
                 blockUser.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
                     blockUserPopup(receivedWorkout.getSender());
                 });
+
+                RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
+                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(receivedWorkout.getSender(), receivedWorkout.getSenderIcon()));
+                TextView usernameTV = sheetView.findViewById(R.id.username_tv);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                usernameTV.setText(receivedWorkout.getSender());
+
+                Picasso.get()
+                        .load(ImageUtils.getIconUrl(receivedWorkout.getSenderIcon()))
+                        .error(R.drawable.picture_load_error)
+                        .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                        .into(profilePicture, new com.squareup.picasso.Callback() {
+                            @Override
+                            public void onSuccess() {
+                                if (!ReceivedWorkoutsFragment.this.isResumed()) {
+                                    return;
+                                }
+                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                                imageDrawable.setCircular(true);
+                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                                profilePicture.setImageDrawable(imageDrawable);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                            }
+                        });
 
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();

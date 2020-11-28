@@ -54,5 +54,5 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Unblock user" />
+            android:text="@string/unblock_user" />
 </LinearLayout>

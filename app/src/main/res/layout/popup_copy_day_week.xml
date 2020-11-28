@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="COPY TO SELECTED" />
+            android:text="@string/copy_to_selected" />
 
     <TextView
             android:id="@+id/copy_as_new_tv"
@@ -43,5 +43,5 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="COPY AS NEW" />
+            android:text="@string/copy_as_new" />
 </LinearLayout>

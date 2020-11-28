@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:background="?android:selectableItemBackground"
-                    android:text="@string/default_workout_marker"
+                    tools:text="W1:D1"
                     android:textSize="36sp" />
 
             <ImageButton
@@ -92,14 +92,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:text="Accept" />
+                    android:text="@string/accept" />
 
             <Button
                     android:id="@+id/decline_workout_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:text="Decline"
+                    android:text="@string/decline"
                     app:backgroundTint="@android:color/holo_red_light" />
 
         </RelativeLayout>

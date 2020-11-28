@@ -54,7 +54,7 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Share a workout" />
+            android:text="@string/share_a_workout" />
 
     <TextView
             android:id="@+id/remove_friend_tv"
@@ -67,7 +67,7 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Remove Friend" />
+            android:text="@string/remove_friend" />
 
     <TextView
             android:id="@+id/block_friend_tv"
@@ -80,7 +80,7 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Block Friend" />
+            android:text="@string/block_friend" />
 
     <TextView
             android:id="@+id/cancel_friend_request_tv"
@@ -93,5 +93,5 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="Cancel Friend Request" />
+            android:text="@string/cancel_friend_request" />
 </LinearLayout>

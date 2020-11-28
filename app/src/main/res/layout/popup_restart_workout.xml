@@ -56,7 +56,8 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    tools:progress="60" />
 
             <TextView
                     android:id="@+id/progress_percentage_TV"
@@ -66,9 +67,9 @@
                     android:layout_toEndOf="@+id/progress_bar"
                     android:paddingStart="16dp"
                     android:paddingEnd="8dp"
-                    android:text="TextView"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="100%" />
         </RelativeLayout>
 
     </RelativeLayout>

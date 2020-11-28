@@ -36,7 +36,7 @@
                         android:clickable="true"
                         android:drawableEnd="@drawable/down_icon"
                         android:focusable="true"
-                        android:text="What is the purpose of this app?"
+                        android:text="@string/purpose_title"
                         android:textSize="20sp" />
 
                 <TextView
@@ -63,7 +63,7 @@
                         android:clickable="true"
                         android:drawableEnd="@drawable/down_icon"
                         android:focusable="true"
-                        android:text="Can I see previous progress of already restarted workouts?"
+                        android:text="@string/faq_progress_title"
                         android:textSize="20sp" />
 
                 <TextView
@@ -90,7 +90,7 @@
                         android:clickable="true"
                         android:drawableEnd="@drawable/down_icon"
                         android:focusable="true"
-                        android:text="I’m getting a new phone; do I need to transfer my data over to it?"
+                        android:text="@string/faq_transfer_title"
                         android:textSize="20sp" />
 
                 <TextView
@@ -98,7 +98,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Nope, all data is stored in the cloud!"
+                        android:text="@string/faq_transfer"
                         android:visibility="gone"
                         tools:visibility="visible" />
             </LinearLayout>
@@ -117,7 +117,7 @@
                         android:clickable="true"
                         android:drawableEnd="@drawable/down_icon"
                         android:focusable="true"
-                        android:text="I shared a workout to my friend and then changed it and they didn’t get the changes. What gives?"
+                        android:text="@string/faq_shared_workout_tv"
                         android:textSize="20sp" />
 
                 <TextView

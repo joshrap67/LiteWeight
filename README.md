@@ -12,7 +12,7 @@ Refer to the Wiki for details on the application logic.
 
 This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 16. The targeted SDK for this application is: 28.
 
-No internet connection is needed for this application at this time as all data is stored locally in a SQLite database.
+An internet connection is required to run this application.
 
 If pulling from this repository, Android Studio is required in order to run the application.
 
@@ -37,9 +37,9 @@ If pulling from this repository, open the project in Android Studio and run it. 
 
 Tutorial that got me started [Coding in flow](https://codinginflow.com/tutorials/android)
 
-App Logo crated using asset made by [Monkik](https://www.flaticon.com/authors/monkik)
+App Logo uses free SVG found [here](https://uxwing.com/feather-icon/)
 
-MyExericses Nav Icon made by [Demograph](https://thenounproject.com/demograph/uploads/?i=149086)
+Default Profile Picture made by [Smashicons](https://www.flaticon.com/free-icon/user_149071)
 
 Numerous YouTube videos are used for the exercise videos in this non-profit application. I do not own any of these videos and take no responsibility for any actions of the owners
 

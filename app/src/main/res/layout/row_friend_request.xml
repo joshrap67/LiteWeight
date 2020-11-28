@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:text="ACCEPT" />
+                    android:text="@string/accept" />
 
             <Button
                     android:id="@+id/decline_request_btn"
@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/accept_request_btn"
-                    android:text="DECLINE"
+                    android:text="@string/decline"
                     app:backgroundTint="@android:color/holo_red_light" />
 
             <Button
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/decline_request_btn"
-                    android:text="BLOCK"
+                    android:text="@string/block"
                     app:backgroundTint="#463B3B" />
         </RelativeLayout>
 
@@ -63,7 +63,7 @@
                 android:id="@+id/unseen_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="(NEW)"
+                android:text="@string/new_indicator"
                 android:textSize="20sp"
                 tools:text="(New)" />
     </LinearLayout>

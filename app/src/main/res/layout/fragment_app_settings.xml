@@ -113,7 +113,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
-                        android:text="Workout Progress Indicator"
+                        android:text="@string/workout_progress_indicator"
                         android:textSize="16sp"
                         tools:checked="true" />
 

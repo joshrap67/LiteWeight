@@ -699,7 +699,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void showBlownUpProfilePic(String username, String iconUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
-        final ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(iconUrl))
                 .error(R.drawable.picture_load_error)
@@ -763,11 +763,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             rootLayout.setOnClickListener(v -> {
                 bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friends_list, null);
-                final TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
-                final TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
+                TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
+                TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
 
-                final TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
-                final TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
+                TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
+                TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
                 sendWorkout.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 sendWorkout.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
@@ -792,10 +792,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     notifyDataSetChanged();
                 });
 
-                final RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
+                RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend.getUsername(), friend.getIcon()));
-                final TextView usernameTV = sheetView.findViewById(R.id.username_tv);
-                final ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                TextView usernameTV = sheetView.findViewById(R.id.username_tv);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
                 usernameTV.setText(friend.getUsername());
 
                 Picasso.get()
@@ -823,11 +823,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();
             });
-            final TextView exerciseTV = holder.usernameTV;
-            final TextView pendingTV = holder.pendingTV;
+            TextView usernameTV = holder.usernameTV;
+            TextView pendingTV = holder.pendingTV;
             pendingTV.setVisibility(friend.isConfirmed() ? View.GONE : View.VISIBLE);
-            final ImageView profilePicture = holder.profilePicture;
-            exerciseTV.setText(friend.getUsername());
+            ImageView profilePicture = holder.profilePicture;
+            usernameTV.setText(friend.getUsername());
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friend.getIcon()))
                     .error(R.drawable.picture_load_error)
@@ -904,18 +904,19 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         @Override
         public void onBindViewHolder(FriendRequestsAdapter.ViewHolder holder, int position) {
             final FriendRequest friendRequest = friendRequests.get(position);
-            final TextView exerciseTV = holder.usernameTV;
-            final ImageView profilePicture = holder.profilePicture;
-            final TextView unseenTV = holder.unseenTV;
-            final Button acceptRequestButton = holder.acceptRequestButton;
-            final Button declineRequestButton = holder.declineRequestButton;
-            final Button blockButton = holder.blockButton;
+            TextView usernameTV = holder.usernameTV;
+            ImageView profilePicture = holder.profilePicture;
+            TextView unseenTV = holder.unseenTV;
+            Button acceptRequestButton = holder.acceptRequestButton;
+            Button declineRequestButton = holder.declineRequestButton;
+            Button blockButton = holder.blockButton;
+
             acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friendRequest.getUsername()));
             declineRequestButton.setOnClickListener(view -> declineFriendRequest(friendRequest.getUsername()));
             blockButton.setOnClickListener(view -> blockUserPopup(friendRequest.getUsername()));
             unseenTV.setVisibility(friendRequest.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
-            exerciseTV.setText(friendRequest.getUsername());
+            usernameTV.setText(friendRequest.getUsername());
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friendRequest.getIcon()))
                     .error(R.drawable.picture_load_error)

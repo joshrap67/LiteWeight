@@ -35,7 +35,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
-                        android:text="Metric"
+                        android:text="@string/metric"
                         android:textSize="16sp"
                         tools:checked="true" />
 
@@ -61,14 +61,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
-                        android:text="Private Account"
+                        android:text="@string/private_account"
                         android:textSize="16sp"
                         tools:checked="true" />
 
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Prevents users not on your friend's list from sending you friend requests or workouts." />
+                        android:text="@string/private_account_description" />
             </LinearLayout>
 
             <LinearLayout
@@ -87,14 +87,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
-                        android:text="Update Default Weight on Restart"
+                        android:text="@string/update_default_weight_on_restart"
                         android:textSize="16sp"
                         tools:checked="true" />
 
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Upon restarting a workout, completed exercises will have their default weights updated if the weight of the completed exercise is higher than its current default." />
+                        android:text="@string/update_default_weight_on_restart_description" />
             </LinearLayout>
 
             <LinearLayout
@@ -113,14 +113,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
-                        android:text="Update Default Weight on Save"
+                        android:text="@string/update_default_weight_on_save"
                         android:textSize="16sp"
                         tools:checked="true" />
 
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Upon creating or editing a workout, exercises will have their default weights updated if the weight of the exercise is higher than its current default." />
+                        android:text="@string/update_default_weight_on_save_description" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

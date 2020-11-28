@@ -33,7 +33,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
-            android:text="Click for more details..."
+            android:text="@string/click_for_more_details"
             android:textSize="14sp" />
 
     <TextView
@@ -52,7 +52,7 @@
             android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
             android:layout_toStartOf="@id/decline_workout_btn"
-            android:text="Accept" />
+            android:text="@string/accept" />
 
     <Button
             android:id="@+id/decline_workout_btn"
@@ -62,6 +62,6 @@
             android:layout_alignParentBottom="true"
             android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
-            android:text="Decline"
+            android:text="@string/decline"
             app:backgroundTint="@android:color/holo_red_light" />
 </RelativeLayout>

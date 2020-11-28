@@ -150,7 +150,7 @@
                     android:id="@+id/custom_sort_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Press and hold an exercise to drag it to the position you want. When you are finished, hit the button below."
+                    android:text="@string/custom_sort_msg"
                     android:textSize="16sp" />
 
             <Button
