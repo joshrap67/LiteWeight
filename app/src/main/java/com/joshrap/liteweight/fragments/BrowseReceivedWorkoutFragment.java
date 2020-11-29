@@ -111,7 +111,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         receivedWorkoutId = null;
         if (getArguments() != null) {
-            receivedWorkoutId = getArguments().getString(SharedWorkout.SENT_WORKOUT_ID);
+            receivedWorkoutId = getArguments().getString(SharedWorkout.SHARED_WORKOUT_ID);
             workoutName = getArguments().getString(SharedWorkout.WORKOUT_NAME);
         } else {
             return null;
@@ -276,12 +276,12 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         });
     }
 
-    private void getReceivedWorkout(String sentWorkoutId) {
+    private void getReceivedWorkout(String sharedWorkoutId) {
         mainLayout.setVisibility(View.GONE);
         loadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<SharedWorkout> resultStatus = this.workoutRepository.getReceivedWorkout(sentWorkoutId);
+            ResultStatus<SharedWorkout> resultStatus = this.workoutRepository.getReceivedWorkout(sharedWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {

@@ -12,18 +12,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SharedWorkout implements Model {
 
-    public static final String SENT_WORKOUT_ID = "sentWorkoutId";
+    public static final String SHARED_WORKOUT_ID = "sharedWorkoutId";
     public static final String WORKOUT_NAME = "workoutName";
     public static final String CREATOR = "creator";
     public static final String ROUTINE = "routine";
 
-    private String sentWorkoutId;
+    private String sharedWorkoutId;
     private String workoutName;
     private String creator;
     private SharedRoutine routine;
 
     public SharedWorkout(Map<String, Object> json) {
-        this.sentWorkoutId = (String) json.get(SENT_WORKOUT_ID);
+        this.sharedWorkoutId = (String) json.get(SHARED_WORKOUT_ID);
         this.workoutName = (String) json.get(WORKOUT_NAME);
         this.creator = (String) json.get(CREATOR);
         this.routine = new SharedRoutine((Map<String, Object>) json.get(ROUTINE));
@@ -33,7 +33,7 @@ public class SharedWorkout implements Model {
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
         retVal.put(WORKOUT_NAME, this.workoutName);
-        retVal.put(SENT_WORKOUT_ID, this.sentWorkoutId);
+        retVal.put(SHARED_WORKOUT_ID, this.sharedWorkoutId);
         retVal.put(CREATOR, this.creator);
         retVal.put(ROUTINE, this.routine.asMap());
         return retVal;

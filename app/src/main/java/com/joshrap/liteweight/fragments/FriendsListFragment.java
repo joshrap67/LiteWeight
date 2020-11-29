@@ -396,11 +396,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 friendRequest.setSeen(true);
             }
         }
+        if (getActivity() != null) {
+            ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
+        }
         if (unseenCount > 0) {
             // prevents useless api calls to update unseen friend requests - only make this call if there is indeed at least one to mark as seen
-            if (getActivity() != null) {
-                ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
-            }
             deleteFriendRequestNotifications();
             // marking all requests seen is not critical at all, so if it fails no need to alarm user
             Executor executor = Executors.newSingleThreadExecutor();
@@ -409,9 +409,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void sendFriendRequestPopup() {
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
-        final TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
-        final EditText friendInput = popupView.findViewById(R.id.friend_name_input);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
+        TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
+        EditText friendInput = popupView.findViewById(R.id.friend_name_input);
         friendInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -622,8 +622,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void promptShareWorkout(String friendUsername) {
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
-        final RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
+        RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
         for (String workoutId : user.getWorkoutMetas().keySet()) {

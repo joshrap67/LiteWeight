@@ -1010,7 +1010,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
 
         Bundle arguments = new Bundle();
-        arguments.putString(SharedWorkout.SENT_WORKOUT_ID, workoutId);
+        arguments.putString(SharedWorkout.SHARED_WORKOUT_ID, workoutId);
         arguments.putString(SharedWorkout.WORKOUT_NAME, workoutName);
         Fragment fragment = new BrowseReceivedWorkoutFragment();
         fragment.setArguments(arguments);

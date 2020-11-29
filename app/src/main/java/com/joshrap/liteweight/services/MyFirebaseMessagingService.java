@@ -30,7 +30,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String acceptedFriendRequestAction = "acceptedFriendRequest";
     private static final String removedAsFriendAction = "removedAsFriend";
     private static final String declinedFriendRequestAction = "declinedFriendRequest";
-    private static final String receivedNotificationAction = "receivedWorkout";
+    private static final String receivedWorkoutNotificationAction = "receivedWorkout";
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -56,7 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     // silent notification
                     declinedFriendRequest(pushNotification.getJsonPayload());
                     break;
-                case receivedNotificationAction:
+                case receivedWorkoutNotificationAction:
                     showNotificationReceivedWorkout(pushNotification.getJsonPayload());
                     break;
             }

@@ -254,7 +254,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SharedWorkout.SENT_WORKOUT_ID));
+                resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SharedWorkout.SHARED_WORKOUT_ID));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("Unable to send workout.");
@@ -291,11 +291,11 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<SharedWorkout> getReceivedWorkout(final String sentWorkoutId) {
+    public ResultStatus<SharedWorkout> getReceivedWorkout(final String sharedWorkoutId) {
         ResultStatus<SharedWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, sharedWorkoutId);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getSharedWorkoutAction, requestBody, true);
 
@@ -312,11 +312,11 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<String> setReceivedWorkoutSeen(String sentWorkoutId) {
+    public ResultStatus<String> setReceivedWorkoutSeen(String sharedWorkoutId) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, sharedWorkoutId);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
         if (apiResponse.isSuccess()) {
@@ -350,11 +350,11 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sentWorkoutId, final String optionalName) {
+    public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sharedWorkoutId, final String optionalName) {
         ResultStatus<AcceptWorkoutResponse> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, sentWorkoutId);
+        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, sharedWorkoutId);
         if (optionalName != null) {
             requestBody.put(Workout.WORKOUT_NAME, optionalName);
         }
@@ -378,7 +378,7 @@ public class WorkoutRepository {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SharedWorkout.SENT_WORKOUT_ID, receivedWorkoutId);
+        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, receivedWorkoutId);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineReceivedWorkoutAction, requestBody, true);
 
