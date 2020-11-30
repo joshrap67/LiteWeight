@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.joshrap.liteweight.imports.ApiConfig;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
@@ -41,7 +41,7 @@ public class ApiGateway {
 
         if (this.tokens != null) {
             try {
-                URL url = new URL(ApiConfig.apiUrl + ApiConfig.deploymentStage + action);
+                URL url = new URL(BackendConfig.apiUrl + BackendConfig.deploymentStage + action);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Authorization", "Bearer " + this.tokens.getIdToken());

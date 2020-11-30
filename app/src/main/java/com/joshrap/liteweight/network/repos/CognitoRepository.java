@@ -3,6 +3,7 @@ package com.joshrap.liteweight.network.repos;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.network.CognitoGateway;
+import com.joshrap.liteweight.network.RequestFields;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,17 +48,28 @@ public class CognitoRepository {
         return resultStatus;
     }
 
-    public ResultStatus<Boolean> signUp(String username, String password, String email) {
+    public ResultStatus<Boolean> signUp(String username, String password, String email, String optionalIdToken) {
         ResultStatus<Boolean> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("Username", username);
         requestBody.put("Password", password);
         List<Map<String, String>> userAttributesList = new ArrayList<>();
-        Map<String, String> userAttributes = new HashMap<>();
-        userAttributes.put("Name", "email");
-        userAttributes.put("Value", email);
-        userAttributesList.add(userAttributes);
+        Map<String, String> emailAttributes = new HashMap<>();
+
+        emailAttributes.put("Name", "email");
+        emailAttributes.put("Value", email);
+
+        if (optionalIdToken != null) {
+            Map<String, String> tokenAttributes = new HashMap<>();
+            List<Map<String, String>> validationAttributesList = new ArrayList<>();
+            tokenAttributes.put("Name", RequestFields.ID_TOKEN_GOOGLE);
+            tokenAttributes.put("Value", optionalIdToken);
+            validationAttributesList.add(tokenAttributes);
+            requestBody.put("ValidationData", validationAttributesList);
+        }
+
+        userAttributesList.add(emailAttributes);
         requestBody.put("UserAttributes", userAttributesList);
         requestBody.put("AuthFlow", "USER_PASSWORD_AUTH");
 

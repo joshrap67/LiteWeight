@@ -162,4 +162,6 @@
     <string name="block">BLOCK</string>
     <string name="click_for_more_details">Click for more details…</string>
     <string name="forgot_pssword_link">Forgot password? Click here to reset.</string>
+    <string name="gmail_detected_msg">A Google email was detected for signing up. Click the \"Sign In\" button below to sign into your Google account to verify your new LiteWeight account.\n\nNote that the account MUST match the email you are using for your new LiteWeight account.</string>
+    <string name="google_alt_msg">Or, if you do not wish to verify your email here, click the \"Send Code\" button to have a verification code sent to your inbox.</string>
 </resources>

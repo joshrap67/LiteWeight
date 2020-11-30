@@ -309,7 +309,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         profilePicture = headerView.findViewById(R.id.profile_picture);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(user.getIcon()))
-                .error(R.drawable.app_icon_no_background)
+                .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override

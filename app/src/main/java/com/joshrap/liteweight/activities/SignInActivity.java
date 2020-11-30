@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,13 @@ import android.graphics.Rect;
 import android.os.Bundle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +37,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -52,6 +61,7 @@ public class SignInActivity extends AppCompatActivity {
     private static final int CONFIRM_EMAIL_VIEW = 2;
     private static final int RESET_PASSWORD_VIEW = 3;
     private static final String passwordNotMatchingMsg = "Passwords do not match.";
+    private static final int RC_SIGN_IN = 69;
 
     private EditText usernameInputSignIn, passwordInputSignIn, emailInputSignUp, passwordConfirmInputSignUp,
             usernameInputSignUp, passwordInputSignUp;
@@ -59,6 +69,8 @@ public class SignInActivity extends AppCompatActivity {
             usernameLayoutSignIn, passwordLayoutSignIn;
     private ViewFlipper viewFlipper;
     private TextView passwordAttributesTV;
+    private GoogleSignInClient googleSignInClient;
+    private AlertDialog alertDialog;
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -70,10 +82,16 @@ public class SignInActivity extends AppCompatActivity {
     @Inject
     CognitoRepository cognitoRepository;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(BackendConfig.googleSignInClientId)
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         setContentView(R.layout.activity_login_page);
         viewFlipper = findViewById(R.id.view_flipper);
@@ -107,8 +125,12 @@ public class SignInActivity extends AppCompatActivity {
             passwordAttributesTV.setVisibility(View.GONE); // wish I could do this after pswd loses focus, but can't get it to work
 
             if (validSignUpInput()) {
-                attemptSignUp(usernameInputSignUp.getText().toString().trim(),
-                        passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim());
+                if (emailInputSignUp.getText().toString().trim().contains("@gmail.com")) {
+                    showGmailDetectedPopup();
+                } else {
+                    attemptSignUp(usernameInputSignUp.getText().toString().trim(),
+                            passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), null);
+                }
             }
         });
 
@@ -147,6 +169,66 @@ public class SignInActivity extends AppCompatActivity {
             resetPassword();
         });
         initEditTexts();
+    }
+
+    private void showGmailDetectedPopup() {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_gmail_detected, null);
+        SignInButton signInButton = popupView.findViewById(R.id.google_sign_in_button);
+        signInButton.setOnClickListener(view -> {
+            alertDialog.dismiss();
+            googleSignIn();
+        });
+        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                .setTitle("Gmail Detected")
+                .setView(popupView)
+                .setPositiveButton("Send Code", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button sendCodeButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            sendCodeButton.setOnClickListener(view -> {
+                alertDialog.dismiss();
+                attemptSignUp(usernameInputSignUp.getText().toString().trim(),
+                        passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), null);
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void googleSignIn() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleGoogleSignInResult(task);
+        }
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            if (account.getEmail().equals(emailInputSignUp.getText().toString().trim())) {
+                attemptSignUp(usernameInputSignUp.getText().toString().trim(),
+                        passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), account.getIdToken());
+            } else {
+                Toast.makeText(this, "The email you signed in with did not match the email you put for your new LiteWeight account.", Toast.LENGTH_LONG).show();
+            }
+            googleSignOut();
+        } catch (ApiException e) {
+            AndroidUtils.showErrorDialog("Error", "There was an error verifying your email.", this);
+        }
+    }
+
+    private void googleSignOut() {
+        // only using google sign in for sending data to cognito, so sign out after we get the user's id token
+        googleSignInClient.revokeAccess()
+                .addOnCompleteListener(this, task -> googleSignInClient.signOut());
     }
 
     @Override
@@ -334,8 +416,12 @@ public class SignInActivity extends AppCompatActivity {
                 // if all valid input, try to sign up after user hits enter button
                 if (validSignUpInput()) {
                     hideKeyboard(getCurrentFocus());
-                    attemptSignUp(usernameInputSignUp.getText().toString().trim(),
-                            passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim());
+                    if (emailInputSignUp.getText().toString().trim().contains("@gmail.com")) {
+                        showGmailDetectedPopup();
+                    } else {
+                        attemptSignUp(usernameInputSignUp.getText().toString().trim(),
+                                passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), null);
+                    }
                 }
                 return true;
             }
@@ -439,17 +525,17 @@ public class SignInActivity extends AppCompatActivity {
         finish();
     }
 
-    private void attemptSignUp(String username, String password, String email) {
+    private void attemptSignUp(String username, String password, String email, String optionalIdToken) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Signing up...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<Boolean> resultStatus = this.cognitoRepository.signUp(username, password, email);
+            ResultStatus<Boolean> resultStatus = this.cognitoRepository.signUp(username, password, email, optionalIdToken);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && !resultStatus.getData()) {
                     // user is not confirmed, so take them to the confirm email stage
-                    confirmEmailAddress();
+                    promptConfirmEmailAddress();
                 } else if (resultStatus.isSuccess() && resultStatus.getData()) {
                     // user was confirmed, so no need to ask for a confirmation code
                     attemptSignIn(usernameInputSignUp.getText().toString().trim(),
@@ -500,7 +586,7 @@ public class SignInActivity extends AppCompatActivity {
         return validInput;
     }
 
-    private void confirmEmailAddress() {
+    private void promptConfirmEmailAddress() {
         viewFlipper.setInAnimation(this, R.anim.slide_in_right);
         viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
         viewFlipper.setDisplayedChild(CONFIRM_EMAIL_VIEW);
@@ -523,35 +609,26 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
         codeInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(codeLayout));
+        codeInput.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
+            if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                // if all valid input, try to confirm after user hits enter button
+                if (codeInput.getText().toString().length() == Variables.EMAIL_CODE_LENGTH) {
+                    confirmEmailAddress(codeInput.getText().toString().trim());
+                } else {
+                    codeLayout.setError("Please enter valid code.");
+                    codeLayout.startAnimation(AndroidUtils.shakeError());
+                }
+                return true;
+            }
+            return false;
+        });
         codeInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.EMAIL_CODE_LENGTH)});
         codeInput.requestFocus();
 
         final Button confirmButton = findViewById(R.id.confirm_email_btn);
         confirmButton.setOnClickListener(view -> {
             if (codeInput.getText().toString().length() == Variables.EMAIL_CODE_LENGTH) {
-                AndroidUtils.showLoadingDialog(loadingDialog, "Confirming...");
-                Executor executor = Executors.newSingleThreadExecutor();
-                executor.execute(() -> {
-                    ResultStatus<CognitoResponse> resultStatus = this.cognitoRepository.confirmSignUp(usernameInputSignUp.getText().toString(),
-                            codeInput.getText().toString().trim());
-                    Handler handler = new Handler(getMainLooper());
-                    handler.post(() -> {
-                        loadingDialog.dismiss();
-                        if (resultStatus.isSuccess()) {
-                            attemptSignIn(usernameInputSignUp.getText().toString().trim(),
-                                    passwordInputSignUp.getText().toString().trim());
-                        } else {
-                            if (resultStatus.getErrorMessage().equals(CognitoResponse.expiredCodeErrorMsg) ||
-                                    resultStatus.getErrorMessage().equals(CognitoResponse.incorrectCodeErrorMsg)) {
-                                // don't kick user off this view if these errors occur
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
-                            } else {
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
-                                viewFlipper.showPrevious();
-                            }
-                        }
-                    });
-                });
+                confirmEmailAddress(codeInput.getText().toString().trim());
             } else {
                 codeLayout.setError("Please enter valid code.");
                 codeLayout.startAnimation(AndroidUtils.shakeError());
@@ -571,6 +648,31 @@ public class SignInActivity extends AppCompatActivity {
                         AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
                     }
                 });
+            });
+        });
+    }
+
+    private void confirmEmailAddress(String code) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Confirming...");
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<CognitoResponse> resultStatus = this.cognitoRepository.confirmSignUp(usernameInputSignUp.getText().toString(), code);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (resultStatus.isSuccess()) {
+                    attemptSignIn(usernameInputSignUp.getText().toString().trim(),
+                            passwordInputSignUp.getText().toString().trim());
+                } else {
+                    if (resultStatus.getErrorMessage().equals(CognitoResponse.expiredCodeErrorMsg) ||
+                            resultStatus.getErrorMessage().equals(CognitoResponse.incorrectCodeErrorMsg)) {
+                        // don't kick user off this view if these errors occur
+                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    } else {
+                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        viewFlipper.showPrevious();
+                    }
+                }
             });
         });
     }

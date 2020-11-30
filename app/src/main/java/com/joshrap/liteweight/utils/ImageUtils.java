@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.utils;
 
-import com.joshrap.liteweight.imports.ApiConfig;
+import com.joshrap.liteweight.imports.BackendConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +21,6 @@ public class ImageUtils {
     }
 
     public static String getIconUrl(String fileName) {
-        return ApiConfig.s3ImageUrl + fileName;
+        return BackendConfig.s3ImageUrl + fileName;
     }
 }

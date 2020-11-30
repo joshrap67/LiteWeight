@@ -8,7 +8,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.joshrap.liteweightdev"
+        applicationId "com.joshrap.liteweight"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 6
@@ -51,4 +51,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation "androidx.preference:preference:1.1.1"
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
 }

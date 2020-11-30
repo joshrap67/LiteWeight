@@ -132,8 +132,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void initViews(View view) {
         ImageButton workoutOptionsButton = view.findViewById(R.id.workout_options_btn);
-        final PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
-        final Menu menu = dropDownMenu.getMenu();
+        PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
+        Menu menu = dropDownMenu.getMenu();
         final int editIndex = 0;
         final int sendIndex = 1;
         final int copyIndex = 2;
@@ -305,8 +305,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void promptRename() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_rename_workout, null);
-        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
-        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
+        EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -357,9 +357,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptCopy() {
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
-        final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
-        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_copy_workout, null);
+        EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
+        TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
         workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -417,10 +417,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Prompt user to send workout to a friend or any other user
      */
     private void promptShare() {
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
-        final EditText usernameInput = popupView.findViewById(R.id.username_input);
-        final TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
-        final ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
+        EditText usernameInput = popupView.findViewById(R.id.username_input);
+        TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
+        ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
         List<String> friendsUsernames = new ArrayList<>();
         for (String username : user.getFriends().keySet()) {
             if (user.getFriends().get(username).isConfirmed()) {

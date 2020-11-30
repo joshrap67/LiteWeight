@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.network;
 
 import com.joshrap.liteweight.utils.JsonUtils;
-import com.joshrap.liteweight.imports.ApiConfig;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 
@@ -26,7 +26,7 @@ public class CognitoGateway {
 
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
-        body.put("ClientId", ApiConfig.cognitoClientId);
+        body.put("ClientId", BackendConfig.cognitoClientId);
 
         try {
             URL url = new URL(baseURL);
