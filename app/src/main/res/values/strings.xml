@@ -31,7 +31,7 @@
     <string name="search_exercise_hint">Search exercise…</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
-    <string name="workout_list_title">Workout List</string>
+    <string name="workout_list_title">Select from below to switch</string>
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_list_icon_title">My Workouts</string>
     <string name="nav_user_settings">App Settings</string>
@@ -164,4 +164,5 @@
     <string name="forgot_pssword_link">Forgot password? Click here to reset.</string>
     <string name="gmail_detected_msg">A Google email was detected for signing up. Click the \"Sign In\" button below to sign into your Google account to verify your new LiteWeight account.\n\nNote that the account MUST match the email you are using for your new LiteWeight account.</string>
     <string name="google_alt_msg">Or, if you do not wish to verify your email here, click the \"Send Code\" button to have a verification code sent to your inbox.</string>
+    <string name="my_workouts">My Workouts</string>
 </resources>

@@ -105,7 +105,6 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
                     String feedback = feedbackInput.getText().toString().trim();
                     String errorMsg = ValidatorUtils.validFeedback(feedback);
                     if (errorMsg != null) {
-                        System.out.println(errorMsg);
                         feedbackInputLayout.setError(errorMsg);
                     } else {
                         // no problems so go ahead and send

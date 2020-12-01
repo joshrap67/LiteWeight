@@ -404,6 +404,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.RECEIVED_WORKOUT_CLICK:
                 goToReceivedWorkouts();
+                nav.setCheckedItem(R.id.nav_received_workouts);
                 break;
         }
     }

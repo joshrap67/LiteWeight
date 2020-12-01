@@ -575,8 +575,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 }
             });
 
-            final String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
-            final CheckBox exerciseCheckbox = holder.exerciseCheckbox;
+            String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
+            CheckBox exerciseCheckbox = holder.exerciseCheckbox;
             exerciseCheckbox.setText(currentExerciseName);
             exerciseCheckbox.setChecked(exercise.isCompleted());
             exerciseCheckbox.setOnClickListener(v -> {
@@ -588,21 +588,21 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 updateWorkoutProgressBar();
             });
 
-            final Button weightButton = holder.weightButton;
-            final EditText weightInput = holder.weightInput;
-            final EditText detailsInput = holder.detailsInput;
-            final EditText repsInput = holder.repsInput;
-            final EditText setsInput = holder.setsInput;
+            Button weightButton = holder.weightButton;
+            EditText weightInput = holder.weightInput;
+            EditText detailsInput = holder.detailsInput;
+            EditText repsInput = holder.repsInput;
+            EditText setsInput = holder.setsInput;
 
-            final TextInputLayout detailsInputLayout = holder.detailsInputLayout;
-            final TextInputLayout setsInputLayout = holder.setsInputLayout;
-            final TextInputLayout repsInputLayout = holder.repsInputLayout;
-            final TextInputLayout weightInputLayout = holder.weightInputLayout;
+            TextInputLayout detailsInputLayout = holder.detailsInputLayout;
+            TextInputLayout setsInputLayout = holder.setsInputLayout;
+            TextInputLayout repsInputLayout = holder.repsInputLayout;
+            TextInputLayout weightInputLayout = holder.weightInputLayout;
 
-            final LinearLayout extraInfo = holder.extraInfo;
-            final ImageButton saveButton = holder.saveButton;
-            final ImageButton cancelButton = holder.cancelButton;
-            final ImageButton videoButton = holder.videoButton;
+            LinearLayout extraInfo = holder.extraInfo;
+            ImageButton saveButton = holder.saveButton;
+            ImageButton cancelButton = holder.cancelButton;
+            ImageButton videoButton = holder.videoButton;
             videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
             if (extrasShownMap.contains(exercise.getExerciseId())) {
                 // since closing another row builds entire list again, need to make sure button stays hidden if supposed to be

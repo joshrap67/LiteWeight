@@ -34,8 +34,11 @@ public class WeightUtils {
      */
     public static String getFormattedWeightForEditText(double weight) {
         String retVal;
-        String[] fractionalPoints = Double.toString(weight).split("\\.");
-        if ((weight == Math.floor(weight)) && !Double.isInfinite(weight)) {
+        String roundedWeight = String.format("%.2f", weight);
+        double roundedWeightDouble = Double.parseDouble(roundedWeight);
+
+        String[] fractionalPoints = Double.toString(roundedWeightDouble).split("\\.");
+        if ((roundedWeightDouble == Math.floor(roundedWeightDouble)) && !Double.isInfinite(roundedWeightDouble)) {
             // Weight is a whole number. don't want to show any decimals
             retVal = String.format("%.0f", weight);
         } else if (fractionalPoints[1].length() == 1) {
@@ -44,13 +47,7 @@ public class WeightUtils {
         } else {
             retVal = String.format("%.2f", weight);
         }
-        if (retVal.contains("\\.00")) {
-            /*
-                Explanation on this ball of spaghetti. If the weight is 10.000000005, it will be formatted
-                as 10.00. Can't be bothered to try and fix it otherwise.
-             */
-            retVal = retVal.substring(0, retVal.indexOf("\\."));
-        }
+
         return retVal;
     }
 

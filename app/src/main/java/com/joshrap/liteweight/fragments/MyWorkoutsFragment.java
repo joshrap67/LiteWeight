@@ -479,7 +479,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
                     user.setWorkoutsSent(user.getWorkoutsSent() + 1);
                 } else {
-                    AndroidUtils.showErrorDialog("Copy Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog("Share Workout Error", resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

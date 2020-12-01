@@ -369,7 +369,7 @@ public class WorkoutRepository {
                 resultStatus.setErrorMessage("Unable to accept workout.");
             }
         } else {
-            resultStatus.setErrorMessage(apiResponse.getData());
+            resultStatus.setErrorMessage(apiResponse.getErrorMessage());
         }
         return resultStatus;
     }
@@ -390,7 +390,7 @@ public class WorkoutRepository {
                 resultStatus.setErrorMessage("Unable to decline workout.");
             }
         } else {
-            resultStatus.setErrorMessage(apiResponse.getData());
+            resultStatus.setErrorMessage(apiResponse.getErrorMessage());
         }
         return resultStatus;
     }

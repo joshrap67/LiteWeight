@@ -194,7 +194,7 @@ public class UserRepository {
                 resultStatus.setErrorMessage("Could not parse response.");
             }
         } else {
-            resultStatus.setErrorMessage(apiResponse.getData());
+            resultStatus.setErrorMessage(apiResponse.getErrorMessage());
         }
         return resultStatus;
     }
@@ -263,7 +263,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage(apiResponse.getData());
+            resultStatus.setErrorMessage(apiResponse.getErrorMessage());
         }
         return resultStatus;
     }
