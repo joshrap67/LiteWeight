@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class SyncRoutineService extends Service {
+public class SyncWorkoutService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -46,7 +46,7 @@ public class SyncRoutineService extends Service {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        // todo use injection???
+
         ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()));
         WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();

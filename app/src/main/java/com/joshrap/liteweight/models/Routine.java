@@ -70,7 +70,7 @@ public class Routine implements Model, Iterable<Integer> {
                     return true;
                 }
                 for (int i = 0; i < exercises1.size(); i++) {
-                    if (!RoutineExercise.exercisesIdentical(exercises1.get(i), exercises2.get(i))) {
+                    if (RoutineExercise.exercisesDifferent(exercises1.get(i), exercises2.get(i))) {
                         return true;
                     }
                 }

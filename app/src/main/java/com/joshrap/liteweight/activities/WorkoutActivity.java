@@ -48,6 +48,7 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -63,7 +64,7 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
-import com.joshrap.liteweight.services.SyncRoutineService;
+import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
@@ -95,6 +96,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
     private ImageView profilePicture;
+    private Workout lastSyncedWorkout;
 
     @Getter
     private UserWithWorkout userWithWorkout;
@@ -256,6 +258,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             return;
         }
         user = userWithWorkout.getUser();
+        if (userWithWorkout.isWorkoutPresent()) {
+            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
+        } else {
+            lastSyncedWorkout = null;
+        }
+
         Injector.getInjector(this).inject(this);
 
         IntentFilter receiverActions = new IntentFilter();
@@ -411,18 +419,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onPause() {
-        if (userWithWorkout.isWorkoutPresent()) {
-            Intent intent = new Intent(this, SyncRoutineService.class);
-            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-            try {
-                // todo only do this if model changed?
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
-                startService(intent);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+        syncCurrentWorkout();
         super.onPause();
     }
 
@@ -515,6 +512,23 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    private void syncCurrentWorkout() {
+        if (userWithWorkout.isWorkoutPresent()
+                && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
+            // we assume it always succeeds
+            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
+            Intent intent = new Intent(this, SyncWorkoutService.class);
+            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
+            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
+            try {
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
+                startService(intent);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void popFragStack() {
         /*
             Utilizes a custom stack to handle navigation of fragments. Always pops the top and then goes to
@@ -582,17 +596,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
-        if (userWithWorkout.isWorkoutPresent()) {
-            Intent intent = new Intent(this, SyncRoutineService.class);
-            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-            try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
-                startService(intent);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+        syncCurrentWorkout();
 
         AndroidUtils.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();

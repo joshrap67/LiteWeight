@@ -52,16 +52,19 @@ public class Workout implements Model {
         this.routine = new Routine(toBeCopied.getRoutine());
     }
 
-    public static boolean workoutsIdentical(Workout workout1, Workout workout2) {
-        boolean retVal = true;
+    public static boolean workoutsDifferent(Workout workout1, Workout workout2) {
+        boolean retVal = false;
+        if (workout1 == null || workout2 == null) {
+            return true;
+        }
         if (!workout1.getCurrentWeek().equals(workout2.getCurrentWeek())) {
-            retVal = false;
+            retVal = true;
         }
         if (!workout1.getCurrentDay().equals(workout2.getCurrentDay())) {
-            retVal = false;
+            retVal = true;
         }
         if (Routine.routinesDifferent(workout1.getRoutine(), workout2.getRoutine())) {
-            retVal = false;
+            retVal = true;
         }
         return retVal;
     }

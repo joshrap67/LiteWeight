@@ -213,7 +213,7 @@ public class SignInActivity extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            if (account.getEmail().equals(emailInputSignUp.getText().toString().trim())) {
+            if (account.getEmail().toLowerCase().equals(emailInputSignUp.getText().toString().toLowerCase().trim())) {
                 attemptSignUp(usernameInputSignUp.getText().toString().trim(),
                         passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), account.getIdToken());
             } else {
@@ -613,7 +613,7 @@ public class SignInActivity extends AppCompatActivity {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 // if all valid input, try to confirm after user hits enter button
                 if (codeInput.getText().toString().length() == Variables.EMAIL_CODE_LENGTH) {
-                    confirmEmailAddress(codeInput.getText().toString().trim());
+                    confirmEmailAddress(codeInput.getText().toString().trim(), codeInput);
                 } else {
                     codeLayout.setError("Please enter valid code.");
                     codeLayout.startAnimation(AndroidUtils.shakeError());
@@ -628,7 +628,7 @@ public class SignInActivity extends AppCompatActivity {
         final Button confirmButton = findViewById(R.id.confirm_email_btn);
         confirmButton.setOnClickListener(view -> {
             if (codeInput.getText().toString().length() == Variables.EMAIL_CODE_LENGTH) {
-                confirmEmailAddress(codeInput.getText().toString().trim());
+                confirmEmailAddress(codeInput.getText().toString().trim(), codeInput);
             } else {
                 codeLayout.setError("Please enter valid code.");
                 codeLayout.startAnimation(AndroidUtils.shakeError());
@@ -652,7 +652,7 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    private void confirmEmailAddress(String code) {
+    private void confirmEmailAddress(String code, EditText codeInput) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Confirming...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -670,6 +670,7 @@ public class SignInActivity extends AppCompatActivity {
                         AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
                     } else {
                         AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        codeInput.setText(null);
                         viewFlipper.showPrevious();
                     }
                 }

@@ -40,12 +40,12 @@ public class WeightUtils {
         String[] fractionalPoints = Double.toString(roundedWeightDouble).split("\\.");
         if ((roundedWeightDouble == Math.floor(roundedWeightDouble)) && !Double.isInfinite(roundedWeightDouble)) {
             // Weight is a whole number. don't want to show any decimals
-            retVal = String.format("%.0f", weight);
+            retVal = String.format("%.0f", roundedWeightDouble);
         } else if (fractionalPoints[1].length() == 1) {
             // lil hacky, but prevents trailing zeros if user only enters one value after decimal point
-            retVal = String.format("%.1f", weight);
+            retVal = String.format("%.1f", roundedWeightDouble);
         } else {
-            retVal = String.format("%.2f", weight);
+            retVal = roundedWeight;
         }
 
         return retVal;

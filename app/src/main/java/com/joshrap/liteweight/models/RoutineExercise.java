@@ -56,25 +56,25 @@ public class RoutineExercise implements Model, Cloneable {
         this.details = ownedExercise.getDefaultDetails();
     }
 
-    static boolean exercisesIdentical(RoutineExercise exercise1, RoutineExercise exercise2) {
-        boolean retVal = true;
+    static boolean exercisesDifferent(RoutineExercise exercise1, RoutineExercise exercise2) {
+        boolean retVal = false;
         if (exercise1.isCompleted() != exercise2.isCompleted()) {
-            retVal = false;
+            retVal = true;
         }
         if (!exercise1.getExerciseId().equals(exercise2.getExerciseId())) {
-            retVal = false;
+            retVal = true;
         }
         if (exercise1.getWeight() != exercise2.getWeight()) {
-            retVal = false;
+            retVal = true;
         }
         if (exercise1.getSets() != exercise2.getSets()) {
-            retVal = false;
+            retVal = true;
         }
         if (exercise1.getReps() != exercise2.getReps()) {
-            retVal = false;
+            retVal = true;
         }
         if (!exercise1.getDetails().equals(exercise2.getDetails())) {
-            retVal = false;
+            retVal = true;
         }
         return retVal;
     }
