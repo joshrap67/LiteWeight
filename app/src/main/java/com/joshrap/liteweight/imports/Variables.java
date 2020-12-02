@@ -47,13 +47,6 @@ public class Variables {
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
     public static final String SHARED_PREF_SETTINGS = "userSettings";
-    public static final String VIDEO_KEY = "Videos";
-    public static final String STOPWATCH = "Stopwatch";
-    public static final String TIMER = "Timer";
-    public static final String TIMER_DURATION = "TimerValue";
-    public static final String LAST_CLOCK_MODE = "DefaultClock";
-    public static final String TIMER_ENABLED = "TimerEnabled";
-    public static final String STOPWATCH_ENABLED = "StopwatchEnabled";
     public static final String DATABASE_NAME = "workout_db";
     public static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
 
@@ -81,12 +74,20 @@ public class Variables {
     public static final String STOPWATCH_RUNNING_CHANNEL = "stopwatch_running";
 
     public static final String FRIEND_LIST_POSITION = "friendsListPosition";
-    public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
     public static final String NOTIFICATION_CLICKED = "NotificationClicked";
     public static final String NOTIFICATION_ACTION = "NotificationAction";
     public static final String EXERCISE_ID = "exerciseId";
+
     public static final String ID_TOKEN_KEY = "IdToken";
     public static final String REFRESH_TOKEN_KEY = "RefreshToken";
+    public static final String TIMER_ENABLED = "TimerEnabled";
+    public static final String STOPWATCH_ENABLED = "StopwatchEnabled";
+    public static final String LAST_CLOCK_MODE = "DefaultClock";
+    public static final String VIDEO_KEY = "Videos";
+    public static final String STOPWATCH = "Stopwatch";
+    public static final String TIMER = "Timer";
+    public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
+    public static final String TIMER_DURATION = "TimerValue";
 
     // intent keys
     public static final String INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time";

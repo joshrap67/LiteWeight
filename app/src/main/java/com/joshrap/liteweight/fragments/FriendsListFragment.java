@@ -656,7 +656,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
-            final Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (workoutNames.isEmpty()) {
                 sendButton.setVisibility(View.GONE);
             }
@@ -759,7 +759,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         public void onBindViewHolder(FriendsAdapter.ViewHolder holder, int position) {
             final Friend friend = friends.get(position);
 
-            final ConstraintLayout rootLayout = holder.rootLayout;
+            ConstraintLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
                 bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friends_list, null);

@@ -130,8 +130,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
 
-        final ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        final ImageButton previewBtn = view.findViewById(R.id.preview_btn);
+        ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
+        ImageButton previewBtn = view.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         if (originalExercise.getVideoUrl().isEmpty()) {
             clipboardBtn.setVisibility(View.GONE);

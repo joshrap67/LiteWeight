@@ -608,9 +608,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             handler.post(() -> {
                 loadingDialog.dismiss();
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-                // clear all values in shared prefs (todo don't clear all?)
+                // clear appropriate values in shared prefs
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
+                editor.remove(Variables.ID_TOKEN_KEY);
+                editor.remove(Variables.REFRESH_TOKEN_KEY);
                 editor.apply();
 
                 // clear all notifications

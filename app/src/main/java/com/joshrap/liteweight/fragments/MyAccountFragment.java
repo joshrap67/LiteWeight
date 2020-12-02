@@ -94,16 +94,18 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        final TextView usernameTV = view.findViewById(R.id.username_tv);
+        TextView usernameTV = view.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
-        final TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
+        TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
         changePictureTv.setVisibility(View.GONE);
+
         friendsListTV = view.findViewById(R.id.friends_list_tv);
         friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
-        final TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
+        TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
         accountPrefsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToAccountPreferences());
-        final TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
+        TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
         blockedListTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToBlockedList());
+
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
         profilePicture = view.findViewById(R.id.profile_image);
@@ -193,7 +195,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                final ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
+                ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {

@@ -151,7 +151,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void populateFocusListView() {
-        final ListView listView = getView().findViewById(R.id.focus_list);
+        ListView listView = getView().findViewById(R.id.focus_list);
         ArrayAdapter arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -171,7 +171,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
      * Populates the exercise list view based on the selected focus
      */
     private void populateExercisesListView() {
-        final ListView listView = getView().findViewById(R.id.exercise_list);
+        ListView listView = getView().findViewById(R.id.exercise_list);
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }
@@ -188,10 +188,10 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void newExercisePopup() {
-        final ArrayList<String> selectedFocuses = new ArrayList<>();
+        ArrayList<String> selectedFocuses = new ArrayList<>();
         View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
-        final TextInputLayout nameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
-        final EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
+        TextInputLayout nameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
+        EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
         exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
         exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(nameLayout));
 
@@ -218,7 +218,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                 }
                 String nameError = ValidatorUtils.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
                 if (selectedFocuses.isEmpty()) {
-                    Toast.makeText(getContext(), "Select at least one focus!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Select at least one focus.", Toast.LENGTH_SHORT).show();
                 } else if (nameError == null) {
                     alertDialog.dismiss();
                     AndroidUtils.showLoadingDialog(loadingDialog, "Creating exercise...");
@@ -275,8 +275,8 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
         @Override
         public void onBindViewHolder(AddFocusAdapter.ViewHolder holder, int position) {
-            final String focus = focuses.get(position);
-            final CheckBox focusCheckbox = holder.focusCheckbox;
+            String focus = focuses.get(position);
+            CheckBox focusCheckbox = holder.focusCheckbox;
             focusCheckbox.setText(focus);
             focusCheckbox.setOnClickListener(v -> {
                 if (!focusCheckbox.isChecked()) {

@@ -281,7 +281,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void resetWorkoutStatistics(final String workoutId) {
+    private void resetWorkoutStatistics(String workoutId) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Resetting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -335,7 +335,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void renameWorkout(final String workoutId, final String newWorkoutName) {
+    private void renameWorkout(String workoutId, String newWorkoutName) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Renaming...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -389,7 +389,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void copyWorkout(final String workoutName) {
+    private void copyWorkout(String workoutName) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Copying...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -447,7 +447,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
-            final Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
                 String username = usernameInput.getText().toString().trim();
                 String errorMsg = ValidatorUtils.validUserToSendWorkout(user.getUsername(), username);

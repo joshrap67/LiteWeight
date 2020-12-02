@@ -190,10 +190,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      */
     private void workoutNameAlreadyExistsPopup(final SharedWorkout receivedWorkout) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
-        final EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
-        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
+        EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
+        TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("\"" + receivedWorkout.getWorkoutName() + "\" already exists")
                 .setView(popupView)
@@ -220,7 +221,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         alertDialog.show();
     }
 
-    private void acceptWorkout(final String optionalName) {
+    private void acceptWorkout(String optionalName) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Accepting...");
 
         Executor executor = Executors.newSingleThreadExecutor();
@@ -393,7 +394,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             daysAsArray[i] = days.get(i);
         }
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
-        final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
         dayPicker.setMaxValue(totalDays - 1);
         dayPicker.setValue(selectedVal);

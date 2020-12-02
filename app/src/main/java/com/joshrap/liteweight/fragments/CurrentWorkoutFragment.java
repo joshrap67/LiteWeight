@@ -325,6 +325,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     // update the statistics for this workout
                     user.getWorkoutMetas().put(currentWorkout.getWorkoutId(),
                             resultStatus.getData().getUser().getWorkoutMetas().get(currentWorkout.getWorkoutId()));
+                    // in case any default weights were updated
+                    user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     currentWorkout.setRoutine(resultStatus.getData().getWorkout().getRoutine());
                     routine = currentWorkout.getRoutine();

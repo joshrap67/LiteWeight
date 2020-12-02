@@ -100,7 +100,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
                     .setNegativeButton("Cancel", null)
                     .create();
             alertDialog.setOnShowListener(dialogInterface -> {
-                final Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 sendButton.setOnClickListener(view2 -> {
                     String feedback = feedbackInput.getText().toString().trim();
                     String errorMsg = ValidatorUtils.validFeedback(feedback);

@@ -202,7 +202,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         // set up sorting options
         sortButton = view.findViewById(R.id.sort_button);
         final PopupMenu dropDownMenu = new PopupMenu(getContext(), sortButton);
-        final Menu menu = dropDownMenu.getMenu();
+        Menu menu = dropDownMenu.getMenu();
         menu.add(0, RoutineDay.alphabeticalSortAscending, 0, "Alphabetical (A-Z)");
         menu.add(0, RoutineDay.alphabeticalSortDescending, 0, "Alphabetical (Z-A)");
         menu.add(0, RoutineDay.weightSortAscending, 0, "Weight (Ascending)");
@@ -586,22 +586,20 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private void promptCopyDay() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_week, null);
-        int totalDays = 0;
         List<String> days = new ArrayList<>();
         for (Integer week : pendingRoutine) {
             for (Integer day : pendingRoutine.getWeek(week)) {
                 String dayTitle = WorkoutUtils.generateDayTitle(week, day);
                 days.add(dayTitle);
-                totalDays++;
             }
         }
-        String[] daysAsArray = new String[totalDays];
-        for (int i = 0; i < totalDays; i++) {
+        String[] daysAsArray = new String[pendingRoutine.getTotalNumberOfDays()];
+        for (int i = 0; i < pendingRoutine.getTotalNumberOfDays(); i++) {
             daysAsArray[i] = days.get(i);
         }
-        final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
-        dayPicker.setMaxValue(totalDays - 1);
+        dayPicker.setMaxValue(pendingRoutine.getTotalNumberOfDays() - 1);
         dayPicker.setValue(0);
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
@@ -619,7 +617,6 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     if (count == dayPicker.getValue()) {
                         currentWeekIndex = week;
                         currentDayIndex = day;
-                        break;
                     }
                     count++;
                 }
@@ -664,14 +661,14 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptCopyWeek() {
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_week, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_week, null);
         int totalWeeks = pendingRoutine.getNumberOfWeeks();
 
         String[] daysAsArray = new String[totalWeeks];
         for (int i = 0; i < totalWeeks; i++) {
             daysAsArray[i] = String.format("Week %d", i + 1);
         }
-        final NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
+        NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
         dayPicker.setMaxValue(totalWeeks - 1);
         dayPicker.setValue(0);
@@ -733,8 +730,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private void promptCreate() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_save_workout, null);
-        final EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
-        final TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
+        EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
+        TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
         workoutNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -814,7 +811,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
-        final Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
+        Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
         allOwnedExercises = new HashMap<>();
         List<String> focusList = Variables.FOCUS_LIST;
         for (String focus : focusList) {
@@ -955,8 +952,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         @Override
         public void onBindViewHolder(AddExerciseAdapter.ViewHolder holder, int position) {
             final OwnedExercise ownedExercise = displayList.get(position);
-            final CheckBox exercise = holder.exercise;
-            exercise.setText(ownedExercise.getExerciseName());
+            CheckBox exerciseCheckbox = holder.exercise;
+            exerciseCheckbox.setText(ownedExercise.getExerciseName());
             // check if the exercise is already in this specific day
             boolean isChecked = false;
             for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
@@ -965,10 +962,10 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
                     break;
                 }
             }
-            exercise.setChecked(isChecked);
+            exerciseCheckbox.setChecked(isChecked);
 
-            exercise.setOnClickListener(v -> {
-                if (exercise.isChecked()) {
+            exerciseCheckbox.setOnClickListener(v -> {
+                if (exerciseCheckbox.isChecked()) {
                     pendingRoutine.addExercise(currentWeekIndex, currentDayIndex,
                             new RoutineExercise(ownedExercise, ownedExercise.getExerciseId()));
                 } else {
