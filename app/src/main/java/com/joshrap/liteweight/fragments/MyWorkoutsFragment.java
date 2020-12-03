@@ -167,13 +167,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                             user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
                         promptShare();
                     } else {
-                        AndroidUtils.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send for free. Upgrade to premium to have unlimited sending access!", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts sent", "You have reached the maximum number of workouts that you can send.", getContext());
                     }
                     return true;
                 case copyIndex:
                     if (user.getPremiumToken() == null &&
                             workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-                        AndroidUtils.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of free workouts you can own. Delete some of your other ones if you wish to copy this workout. Or, you can upgrade to premium :)", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
                     } else if (user.getPremiumToken() != null
                             && workoutList.size() >= Variables.MAX_WORKOUTS) {
                         AndroidUtils.showErrorDialog("Too many workouts", "Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
@@ -196,7 +196,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         createWorkoutBtn.setOnClickListener(v -> {
             if (user.getPremiumToken() == null
                     && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-                AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of free workouts allowed. Delete some of your other ones if you wish to create a new one, or upgrade to premium.", getContext());
+                AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
             } else if (user.getPremiumToken() != null
                     && workoutList.size() >= Variables.MAX_WORKOUTS) {
                 AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
@@ -421,6 +421,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         EditText usernameInput = popupView.findViewById(R.id.username_input);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
         ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
+        TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
+        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
+        if (remainingAmount < 0) {
+            remainingAmount = 0; // lol. Just to cover my ass in case
+        }
+        remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
         List<String> friendsUsernames = new ArrayList<>();
         for (String username : user.getFriends().keySet()) {
             if (user.getFriends().get(username).isConfirmed()) {
@@ -447,8 +453,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
-            Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            saveButton.setOnClickListener(view -> {
+            Button shareButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            shareButton.setOnClickListener(view -> {
                 String username = usernameInput.getText().toString().trim();
                 String errorMsg = ValidatorUtils.validUserToSendWorkout(user.getUsername(), username);
                 if (errorMsg != null) {

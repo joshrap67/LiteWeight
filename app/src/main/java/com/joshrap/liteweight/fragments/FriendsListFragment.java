@@ -624,6 +624,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private void promptShareWorkout(String friendUsername) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
         RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
+        TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
+        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
+        if (remainingAmount < 0) {
+            remainingAmount = 0; // lol. Just to cover my ass in case
+        }
+        remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
+
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
         for (String workoutId : user.getWorkoutMetas().keySet()) {
@@ -667,7 +674,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     Toast.makeText(getContext(), "Please select a workout to share.", Toast.LENGTH_LONG).show();
                 } else {
                     if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        AndroidUtils.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share for free. Upgrade to premium to send an unlimited amount.", getContext());
+                        AndroidUtils.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share.", getContext());
                     } else {
                         RadioButton radioButtonSelected = popupView.findViewById(selectedId);
                         shareWorkout(friendUsername, workoutNameToId.get(radioButtonSelected.getText().toString()));

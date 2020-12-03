@@ -294,7 +294,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                         setupButtons();
                         updateRoutineListUI();
                     } else {
-                        AndroidUtils.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Load Workout Error", resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });

@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -203,7 +204,7 @@ public class SignInActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_OK) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleGoogleSignInResult(task);
         }
@@ -590,8 +591,8 @@ public class SignInActivity extends AppCompatActivity {
         viewFlipper.setInAnimation(this, R.anim.slide_in_right);
         viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
         viewFlipper.setDisplayedChild(CONFIRM_EMAIL_VIEW);
-        final EditText codeInput = findViewById(R.id.code_input);
-        final TextInputLayout codeLayout = findViewById(R.id.code_input_layout);
+        EditText codeInput = findViewById(R.id.code_input);
+        TextInputLayout codeLayout = findViewById(R.id.code_input_layout);
         viewFlipper.getOutAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -625,7 +626,7 @@ public class SignInActivity extends AppCompatActivity {
         codeInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.EMAIL_CODE_LENGTH)});
         codeInput.requestFocus();
 
-        final Button confirmButton = findViewById(R.id.confirm_email_btn);
+        Button confirmButton = findViewById(R.id.confirm_email_btn);
         confirmButton.setOnClickListener(view -> {
             if (codeInput.getText().toString().length() == Variables.EMAIL_CODE_LENGTH) {
                 confirmEmailAddress(codeInput.getText().toString().trim(), codeInput);
@@ -634,7 +635,7 @@ public class SignInActivity extends AppCompatActivity {
                 codeLayout.startAnimation(AndroidUtils.shakeError());
             }
         });
-        final Button resendCodeButton = findViewById(R.id.resend_code_btn);
+        Button resendCodeButton = findViewById(R.id.resend_code_btn);
         resendCodeButton.setOnClickListener(view -> {
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
@@ -684,24 +685,24 @@ public class SignInActivity extends AppCompatActivity {
         viewFlipper.setDisplayedChild(RESET_PASSWORD_VIEW);
 
         final boolean[] codeSent = {false};
-        final RelativeLayout forgotContainer = findViewById(R.id.reset_password_username_layout);
-        final RelativeLayout resetContainer = findViewById(R.id.reset_password_layout);
-        final TextInputLayout forgotLayout = findViewById(R.id.forgot_password_input_layout);
-        final EditText forgotInput = findViewById(R.id.forgot_password_input);
+        RelativeLayout forgotContainer = findViewById(R.id.reset_password_username_layout);
+        RelativeLayout resetContainer = findViewById(R.id.reset_password_layout);
+        TextInputLayout forgotLayout = findViewById(R.id.forgot_password_input_layout);
+        EditText forgotInput = findViewById(R.id.forgot_password_input);
         forgotInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(forgotLayout));
-        final Button primaryButton = findViewById(R.id.reset_password_primary_btn);
-        final Button backButton = findViewById(R.id.reset_password_back_btn);
+        Button primaryButton = findViewById(R.id.reset_password_primary_btn);
+        Button backButton = findViewById(R.id.reset_password_back_btn);
 
-        final TextView resetPasswordAttributesTV = findViewById(R.id.reset_password_password_attributes_tv);
-        final TextInputLayout resetCodeLayout = findViewById(R.id.reset_password_code_input_layout);
-        final EditText resetCode = findViewById(R.id.reset_password_code_input);
+        TextView resetPasswordAttributesTV = findViewById(R.id.reset_password_password_attributes_tv);
+        TextInputLayout resetCodeLayout = findViewById(R.id.reset_password_code_input_layout);
+        EditText resetCode = findViewById(R.id.reset_password_code_input);
         resetCode.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(resetCodeLayout));
         resetCode.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.EMAIL_CODE_LENGTH)});
 
-        final TextInputLayout newPasswordLayout = findViewById(R.id.reset_password_password_input_layout);
-        final EditText newPasswordInput = findViewById(R.id.reset_password_password_input);
-        final TextInputLayout confirmNewPasswordLayout = findViewById(R.id.reset_password_confirm_password_input_layout);
-        final EditText confirmNewPasswordInput = findViewById(R.id.reset_password_confirm_password_input);
+        TextInputLayout newPasswordLayout = findViewById(R.id.reset_password_password_input_layout);
+        EditText newPasswordInput = findViewById(R.id.reset_password_password_input);
+        TextInputLayout confirmNewPasswordLayout = findViewById(R.id.reset_password_confirm_password_input_layout);
+        EditText confirmNewPasswordInput = findViewById(R.id.reset_password_confirm_password_input);
         newPasswordInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
