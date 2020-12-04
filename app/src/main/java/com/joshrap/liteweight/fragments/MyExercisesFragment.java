@@ -112,7 +112,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
-                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of free exercises allowed. Upgrade to premium for more.", getContext());
+                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
             } else if (user.getPremiumToken() != null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
                 AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());

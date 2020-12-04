@@ -2,6 +2,8 @@ package com.joshrap.liteweight.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -71,7 +74,17 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         }
         TextView faqTV = view.findViewById(R.id.faq_tv);
         faqTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToFaq());
-        //todo do terms/privacy policy
+
+        TextView termsConditionsTV = view.findViewById(R.id.terms_conditions_tv);
+        termsConditionsTV.setOnClickListener(view1 -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BackendConfig.termsConditionsUrl));
+            startActivity(browserIntent);
+        });
+        TextView privacyPolicyTV = view.findViewById(R.id.privacy_policy_tv);
+        privacyPolicyTV.setOnClickListener(view1 -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BackendConfig.privacyPolicyUrl));
+            startActivity(browserIntent);
+        });
 
         TextView acknowledgementsTV = view.findViewById(R.id.acknowledgements_tv);
         TextView acknowledgements = view.findViewById(R.id.acknowledgements);

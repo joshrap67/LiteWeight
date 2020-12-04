@@ -38,7 +38,7 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="8dp"
                 app:cardUseCompatPadding="true"
-                app:layout_constraintBottom_toTopOf="@id/upgrade_btn"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/username_tv">
@@ -65,16 +65,6 @@
                     android:textStyle="bold" />
 
         </androidx.cardview.widget.CardView>
-
-        <Button
-                android:id="@+id/upgrade_btn"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:text="UPGRADE TO PREMIUM"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
