@@ -1,24 +1,23 @@
 package com.joshrap.liteweight.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.joshrap.liteweight.database.entities.ExerciseEntity;
+import com.joshrap.liteweight.models.OwnedExercise;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseAdapter extends ArrayAdapter<ExerciseEntity> {
+public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
     private Context context;
-    private List<ExerciseEntity> exerciseList;
+    private List<OwnedExercise> exerciseList;
 
-    public ExerciseAdapter(@NonNull Context context, ArrayList<ExerciseEntity> list) {
+    public ExerciseAdapter(@NonNull Context context, List<OwnedExercise> list) {
         super(context, 0, list);
         this.context = context;
         this.exerciseList = list;
@@ -31,11 +30,11 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseEntity> {
         if (listItem == null) {
             listItem = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
         }
-        ExerciseEntity currentExercise = exerciseList.get(position);
+        OwnedExercise currentExercise = exerciseList.get(position);
 
-        TextView release = listItem.findViewById(android.R.id.text1);
-        release.setText(currentExercise.getExerciseName());
+        TextView exerciseNameTV = listItem.findViewById(android.R.id.text1);
+        exerciseNameTV.setText(currentExercise.getExerciseName());
 
-        return release;
+        return exerciseNameTV;
     }
 }

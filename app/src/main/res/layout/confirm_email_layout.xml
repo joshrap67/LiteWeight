@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        tools:background="@drawable/login_gradient">
+
+    <TextView
+            android:id="@+id/app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/roboto"
+            android:text="@string/app_name"
+            android:textColor="@color/notification_color"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+    <ImageView
+            android:id="@+id/app_logo"
+            android:layout_width="185dp"
+            android:layout_height="140dp"
+            android:layout_below="@+id/app_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:contentDescription="App Logo"
+            app:srcCompat="@mipmap/app_logo_round" />
+
+    <TextView
+            android:id="@+id/confirm_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/app_logo"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/confirm_msg"
+            android:textColor="@android:color/white" />
+
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/code_input_layout"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/confirm_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@android:color/white"
+            android:hint="@string/email_verification_code_hint"
+            android:textColor="@color/notification_color"
+            android:textColorHint="@android:color/white">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/code_input"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:drawablePadding="5dp"
+                android:inputType="number"
+                android:textCursorDrawable="@null" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+            android:id="@+id/confirm_email_btn"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/code_input_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="#50000000"
+            android:foreground="?android:selectableItemBackground"
+            android:text="@string/confirm" />
+
+    <View
+            android:id="@+id/divider"
+            android:layout_width="300dp"
+            android:layout_height="2dp"
+            android:layout_below="@id/confirm_email_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="#c0c0c0" />
+
+    <Button
+            android:id="@+id/resend_code_btn"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="#50000000"
+            android:foreground="?android:selectableItemBackground"
+            android:text="@string/resend_code" />
+</RelativeLayout>

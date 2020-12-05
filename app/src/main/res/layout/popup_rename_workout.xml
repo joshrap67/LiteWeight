@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <EditText
-            android:id="@+id/rename_workout_input"
-            android:layout_width="0dp"
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rename_workout_name_input_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:ems="10"
-            android:hint="New Workout Name"
-            android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-</android.support.constraint.ConstraintLayout>
+            android:layout_marginTop="5dp"
+            android:hint="New Workout name"
+            android:paddingStart="20dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/rename_workout_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:minWidth="75dp"
+                android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

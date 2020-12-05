@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/friend_name_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:hint="@string/username_hint"
+            android:paddingStart="20dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/friend_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:minWidth="75dp"
+                android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

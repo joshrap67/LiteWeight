@@ -7,23 +7,25 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.R;
 
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * This service, once created, is only used for showing the stopwatch progress. It currently does not
+ * need to constantly communicate to any activities listening. In the future buttons could be provided in the
+ * notification to stop/reset the stopwatch.
+ */
 public class StopwatchService extends Service {
-    /*
-        This service once created only is there for showing the stopwatch progress. It currently does not
-        need to constantly communicate to any activities listening. In the future buttons could be provided in the
-        notification to stop/reset the stopwatch.
-     */
+
     public static final int stopwatchRunningId = 3;
 
     private long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
@@ -65,19 +67,23 @@ public class StopwatchService extends Service {
         return START_REDELIVER_INTENT;
     }
 
+    /**
+     * Get rid of the stopwatch running notification whenever the service is killed
+     */
     @Override
     public void onDestroy() {
-        // get rid of the stopwatch running notification whenever the service is killed
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(stopwatchRunningId);
         stopwatch.cancel();
         super.onDestroy();
     }
 
+    /**
+     * Is called by the stopwatch. Formats a long to a string to then display it in a notification
+     *
+     * @param aTime time to be displayed on the notification
+     */
     private void updateStopwatchRunningNotificationMessage(long aTime) {
-        /*
-            Is called by the stopwatch. Formats a long to a string and then displays it in a notification
-         */
         int minutes = (int) (aTime / 60000);
         int seconds = (int) (aTime / 1000) % 60;
         String timeRemaining = String.format(Locale.getDefault(),
@@ -89,15 +95,21 @@ public class StopwatchService extends Service {
         mNotificationManager.notify(stopwatchRunningId, notification);
     }
 
+    /**
+     * As long as the stopwatch is running in the background, show a notification
+     *
+     * @param content formatted time to be displayed.
+     * @return Notification to be displayed on the status bar.
+     */
     private Notification stopwatchRunningNotification(String content) {
-        /*
-            As long as the stopwatch is running in the background, show a notification
-         */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.STOPWATCH_RUNNING_REQUEST_CODE, notificationIntent, 0);
         return new NotificationCompat.Builder(this, Variables.STOPWATCH_RUNNING_CHANNEL)
                 .setContentTitle("Stopwatch")
                 .setContentText(content)
@@ -108,15 +120,18 @@ public class StopwatchService extends Service {
                 .build();
     }
 
+    /**
+     * This shouldn't ever really happen, but if the stopwatch max limit is reached then show a notification
+     */
     private void showStopwatchFinishedNotification() {
-        /*
-            This shouldn't ever really happen, but if the stopwatch max limit is reached then show a notification
-         */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
+        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.STOPWATCH_FINISHED_REQUEST_CODE, notificationIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, Variables.STOPWATCH_RUNNING_CHANNEL)
                 .setContentTitle("Stopwatch")
                 .setContentText("Stopwatch limit reached.")

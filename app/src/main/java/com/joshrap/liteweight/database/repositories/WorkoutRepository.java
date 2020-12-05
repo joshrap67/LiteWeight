@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.database.repositories;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 import android.os.AsyncTask;
 
 import com.joshrap.liteweight.database.daos.*;
@@ -119,7 +119,7 @@ public class WorkoutRepository {
     }
 
     // endregion
-    // region Private classes used to execute the WORKOUT queries using the DAOs
+    // region Private classes used to makeRequest the WORKOUT queries using the DAOs
     private static class InsertWorkoutAsyncTask extends AsyncTask<WorkoutEntity, Void, Void> {
         private WorkoutDao workoutDao;
 
@@ -250,7 +250,7 @@ public class WorkoutRepository {
     }
 
     // endregion
-    // region Private classes used to execute the METADATA queries using the DAOs
+    // region Private classes used to makeRequest the METADATA queries using the DAOs
     private static class InsertMetaAsyncTask extends AsyncTask<MetaEntity, Void, Void> {
         private MetaDao metaDao;
 
@@ -310,7 +310,7 @@ public class WorkoutRepository {
     }
 
     // endregion
-    // region Private classes used to execute the EXERCISE queries using the DAOs
+    // region Private classes used to makeRequest the EXERCISE queries using the DAOs
 
     private static class UpdateExerciseAsyncTask extends AsyncTask<ExerciseEntity, Void, Void> {
         private ExerciseDao exerciseDao;

@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "990471046455",
+    "firebase_url": "https://liteweight-faa1a.firebaseio.com",
+    "project_id": "liteweight-faa1a",
+    "storage_bucket": "liteweight-faa1a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990471046455:android:9b65266b14af27c7c706b2",
+        "android_client_info": {
+          "package_name": "com.joshrap.liteweight"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990471046455-c0c2pbnqg2fohrrskslemuqr4iq1lgbv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.joshrap.liteweight",
+            "certificate_hash": "5b0934f45f12fe05c4461c2dd9b9214c644fd2df"
+          }
+        },
+        {
+          "client_id": "990471046455-fui30jiai6m1mi0lfir0pupoleichc9g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.joshrap.liteweight",
+            "certificate_hash": "ccfa291f1148a4fb8810c58e484df457cac0d90b"
+          }
+        },
+        {
+          "client_id": "990471046455-g5s0mqhm6sm3b66ki7fle6n2ud0msim1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1gqHc2EUKs_VvsEKLP0v4RXi_P1i2HUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "990471046455-g5s0mqhm6sm3b66ki7fle6n2ud0msim1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -45,13 +45,25 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="foregroundClipArt">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="000000" />
+                                                <entry key="trimmed" value="true" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="foregroundImage">
                                         <value>
                                           <PersistentState>
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="scalingPercent" value="102" />
+                                                <entry key="scalingPercent" value="110" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -63,8 +75,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="a63f44" />
-                                      <entry key="foregroundImage" value="C:\Users\Josh\Downloads\gym.png" />
+                                      <entry key="foregroundImage" value="C:\Users\Josh\Documents\rect890.png" />
+                                      <entry key="outputName" value="app_logo" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -107,11 +119,34 @@
                                           </PersistentState>
                                         </value>
                                       </entry>
+                                      <entry key="image">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="000000" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="C:\Users\Josh\Downloads\imageedit_1_8911856766.png" />
+                                      <entry key="outputName" value="notification_icon" />
                                     </map>
                                   </option>
                                 </PersistentState>
                               </value>
                             </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="NOTIFICATION" />
                           </map>
                         </option>
                       </PersistentState>
@@ -137,7 +172,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_help_outline_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/hardware/ic_keyboard_arrow_up_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -147,8 +182,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="7e0817" />
-                            <entry key="outputName" value="ic_help_outline_black_24dp" />
+                            <entry key="color" value="7e1a00" />
+                            <entry key="outputName" value="up_icon" />
                             <entry key="sourceFile" value="C:\Users\Josh\Downloads\noun_Shoulder Press_149086.svg" />
                           </map>
                         </option>

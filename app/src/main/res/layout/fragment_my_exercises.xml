@@ -1,38 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <android.support.v7.widget.SwitchCompat
-            android:id="@+id/filter_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:text="@string/filter_default"
-            android:textSize="12sp"
-            android:theme="@style/switch_style"
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout2"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/new_exercise_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/filter_switch">
+            app:layout_constraintTop_toTopOf="parent">
 
         <ListView
                 android:id="@+id/focus_list"
@@ -71,9 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="60dp"
-                android:layout_marginRight="60dp"
                 android:text="@string/focus_label"
-                android:textColor="@android:color/black"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/focus_list"
@@ -92,7 +75,6 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:text="@string/exercise_label"
-                android:textColor="@android:color/black"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/exercise_list"
@@ -100,9 +82,9 @@
                 app:layout_constraintStart_toEndOf="@+id/focus_text_view"
                 app:layout_constraintTop_toTopOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/new_exercise_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -115,4 +97,4 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

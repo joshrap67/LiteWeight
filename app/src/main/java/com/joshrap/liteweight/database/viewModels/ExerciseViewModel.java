@@ -1,8 +1,8 @@
 package com.joshrap.liteweight.database.viewModels;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.annotation.NonNull;
 
 import com.joshrap.liteweight.database.entities.*;
 import com.joshrap.liteweight.database.repositories.*;

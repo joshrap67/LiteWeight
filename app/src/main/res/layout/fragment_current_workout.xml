@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.MainActivity">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
 
     <RelativeLayout
             android:id="@+id/relative_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/scroll_view"
+            app:layout_constraintBottom_toTopOf="@+id/middle_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -35,9 +30,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:background="?android:selectableItemBackground"
-                android:text="@string/default_workout_marker"
-                android:textColor="@android:color/black"
-                android:textSize="36sp" />
+                android:textSize="36sp"
+                tools:text="W1:D1" />
 
         <ImageButton
                 android:id="@+id/next_day_button"
@@ -49,60 +43,91 @@
                 android:src="@drawable/next_icon" />
     </RelativeLayout>
 
-    <ScrollView
-            android:id="@+id/scroll_view"
-            android:layout_width="0dp"
+    <LinearLayout
+            android:id="@+id/middle_container"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginRight="12dp"
-            android:fadeScrollbars="true"
-            app:layout_constraintBottom_toTopOf="@+id/timer_container"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout">
 
-        <TableLayout
-                android:id="@+id/main_table"
+        <RelativeLayout
+                android:id="@+id/relative_layout_progress"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="0" />
-    </ScrollView>
+                android:layout_height="wrap_content">
 
-    <include
-            android:id="@+id/timer_container"
-            layout="@layout/timer"
+            <TextView
+                    android:id="@+id/progress_bar_TV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:paddingBottom="8dp"
+                    android:textSize="14sp"
+                    tools:text="Workout Progress - 0%" />
+
+            <RelativeLayout
+                    android:id="@+id/linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/progress_bar_TV"
+                    android:orientation="horizontal">
+
+                <ProgressBar
+                        android:id="@+id/progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:gravity="center" />
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/timer_container"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/bottom_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scroll_view" />
-
-    <include
-            android:id="@+id/stopwatch_container"
-            layout="@layout/stopwatch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+            app:layout_constraintTop_toBottomOf="@+id/middle_container">
 
+        <include
+                android:id="@+id/timer_container"
+                layout="@layout/timer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/middle_container" />
 
-</android.support.constraint.ConstraintLayout>
+        <include
+                android:id="@+id/stopwatch_container"
+                layout="@layout/stopwatch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

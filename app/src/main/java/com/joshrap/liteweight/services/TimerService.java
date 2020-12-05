@@ -7,23 +7,25 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.R;
 
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * This service, once created, is only used for showing the timer progress. It currently does not
+ * need to constantly communicate to any activities listening. In the future buttons could be provided in the
+ * notification to stop/reset the timer.
+ */
 public class TimerService extends Service {
-    /*
-        This service once created only is there for showing the timer progress. It currently does not
-        need to constantly communicate to any activities listening. In the future buttons could be provided in the
-        notification to stop/reset the timer.
-     */
+
     public static final int timerRunningId = 1;
     public static final int timerFinishedId = 2;
 
@@ -75,10 +77,12 @@ public class TimerService extends Service {
         super.onDestroy();
     }
 
+    /**
+     * Is called by the timer. Formats a long to a string and then displays it in a notification
+     *
+     * @param aTime time that is going to be formatted and then sent to notification
+     */
     private void updateTimerRunningNotificationMessage(long aTime) {
-        /*
-            Is called by the timer. Formats a long to a string and then displays it in a notification
-         */
         int minutes = (int) (aTime / 60000);
         int seconds = (int) (aTime / 1000) % 60;
         String timeRemaining = String.format(Locale.getDefault(),
@@ -90,15 +94,21 @@ public class TimerService extends Service {
         mNotificationManager.notify(timerRunningId, notification);
     }
 
+    /**
+     * As long as the timer is running in the background, show a notification
+     *
+     * @param content formatted string to be displayed on the push notification
+     * @return Push Notification to display on status bar.
+     */
     private Notification timerRunningNotification(String content) {
-        /*
-            As long as the timer is running in the background, show a notification
-         */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, 0);
         return new NotificationCompat.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText(content)
@@ -109,15 +119,18 @@ public class TimerService extends Service {
                 .build();
     }
 
+    /**
+     * Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
+     */
     private void showTimerFinishedNotification() {
-        /*
-            Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
-         */
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
+        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
+        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, Variables.TIMER_FINISHED_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText("Timer finished!")
