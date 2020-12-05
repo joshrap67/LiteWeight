@@ -577,8 +577,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     bottomSheetDialog.dismiss();
                 });
 
-                TextView blockUser = sheetView.findViewById(R.id.block_user_tv);
-                blockUser.setOnClickListener(view -> {
+
+                TextView blockUserTV = sheetView.findViewById(R.id.block_user_tv);
+                if (user.getBlocked().containsKey(receivedWorkout.getSender())) {
+                    blockUserTV.setVisibility(View.GONE);
+                }
+                blockUserTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
                     blockUserPopup(receivedWorkout.getSender());
                 });

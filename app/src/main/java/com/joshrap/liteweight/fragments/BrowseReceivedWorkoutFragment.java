@@ -107,8 +107,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(workoutName);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+
         receivedWorkoutId = null;
         if (getArguments() != null) {
             receivedWorkoutId = getArguments().getString(SharedWorkout.SHARED_WORKOUT_ID);
@@ -116,6 +115,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         } else {
             return null;
         }
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(workoutName);
+        ((WorkoutActivity) getActivity()).toggleBackButton(true);
 
         IntentFilter receiverActions = new IntentFilter();
         receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
