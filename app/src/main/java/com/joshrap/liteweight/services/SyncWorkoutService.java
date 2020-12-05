@@ -56,11 +56,6 @@ public class SyncWorkoutService extends Service {
                 ResultStatus<String> resultStatus = repository.syncWorkout(finalWorkout);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
-                    if (resultStatus.isSuccess()) {
-                        System.out.println("**************** SYNC SUCCEEDED *****************");
-                    } else {
-                        System.out.println("**************** SYNC FAILED *****************");
-                    }
                     stopSelf();
                 });
             } else {
