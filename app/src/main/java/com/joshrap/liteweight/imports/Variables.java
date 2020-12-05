@@ -25,11 +25,11 @@ public class Variables {
     public static final int MAX_PASSWORD_LENGTH = 99;
     public static final int MAX_STOPWATCH_TIME = 7200000;
     public static final int DEFAULT_TIMER_VALUE = 60000;
-    public static final int MAX_FREE_WORKOUTS_SENT = 1500; // todo change after dev work is done
+    public static final int MAX_FREE_WORKOUTS_SENT = 50;
     public static final int MAX_FREE_WORKOUTS = 10;
     public static final int MAX_WORKOUTS = 20;
     public static final int MAX_FEEDBACK = 2000;
-    public static final int BATCH_SIZE = 10; // todo change to match backend
+    public static final int BATCH_SIZE = 25;
 
     public static final List<String> FOCUS_LIST = Arrays.asList(
             "Back",
