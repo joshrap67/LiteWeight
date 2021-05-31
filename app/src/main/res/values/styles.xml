@@ -6,7 +6,6 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:popupBackground">@color/window_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:itemBackground">@color/options_background</item>
 
@@ -36,6 +35,7 @@
     <style name="SignInTheme" parent="AppTheme">
         <item name="android:windowActivityTransitions">true</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="android:textCursorDrawable">@android:color/transparent</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
