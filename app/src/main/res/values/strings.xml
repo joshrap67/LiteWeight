@@ -23,6 +23,7 @@
     <string name="video_switch">Videos</string>
     <string name="stopwatch_switch">Stopwatch</string>
     <string name="timer_switch">Timer</string>
+    <string name="set_timer">Set Duration</string>
     <string name="focus_label">Focus</string>
     <string name="focuses">Focuses</string>
     <string name="workouts">Workouts</string>

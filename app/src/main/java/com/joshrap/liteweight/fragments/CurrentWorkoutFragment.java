@@ -124,9 +124,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         currentWeekIndex = currentWorkout.getCurrentWeek();
         currentDayIndex = currentWorkout.getCurrentDay();
 
-        recyclerView = view.findViewById(R.id.recycler_view);
         timer = ((WorkoutActivity) getActivity()).getTimer();
         stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+
+        recyclerView = view.findViewById(R.id.recycler_view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
         dayTV = view.findViewById(R.id.day_text_view);
@@ -187,8 +188,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * @param view fragment view.
      */
     private void setupChronometer(View view) {
-        ConstraintLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
-        ConstraintLayout timerContainer = view.findViewById(R.id.timer_container);
+        RelativeLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
+        RelativeLayout timerContainer = view.findViewById(R.id.timer_container);
 
         boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
         boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);

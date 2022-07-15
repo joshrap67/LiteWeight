@@ -8,11 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,10 +26,10 @@ public class Timer {
     private boolean timerRunning, showStopwatch;
     private static final long timeUnit = 1000; // in SI units of milliseconds
     private long startTimeAbsolute, initialTimeOnClock, timerDuration, displayTime; // in SI units of milliseconds
-    private TextView timerDisplay;
-    private ConstraintLayout timerContainer, stopwatchContainer;
+    private TextView timerDisplay, setTimeTV;
+    private RelativeLayout timerContainer, stopwatchContainer;
     private Activity activity;
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
     private AlertDialog alertDialog;
     private SharedPreferences.Editor editor;
     private final Handler timerHandler = new Handler();
@@ -78,6 +77,7 @@ public class Timer {
         showStopwatchButton = timerView.findViewById(R.id.show_stopwatch);
         timerDisplay = timerView.findViewById(R.id.timer);
         timerContainer = timerView.findViewById(R.id.timer_container);
+        setTimeTV = timerView.findViewById(R.id.set_time_tv);
         stopwatchContainer = timerView.findViewById(R.id.stopwatch_container);
         showStopwatch = stopwatchVisible;
         cancelService();
@@ -97,16 +97,23 @@ public class Timer {
             timerRunningVisibility();
             startTimer();
         });
+
         stopTimer.setOnClickListener(v -> {
             timerFinishedVisibility();
             stopTimer();
         });
         resetTimer.setOnClickListener(v -> resetTimer());
         showStopwatchButton.setOnClickListener(v -> showStopwatch());
-        timerDisplay.setOnClickListener(v -> {
-            // allow the timer to be clickable in order for the user to input the time they want
+
+        // allow the timer/text view to be clickable in order for the user to input the time they want
+        setTimeTV.setOnClickListener(v -> {
             if (!timerRunning) {
-                showTimerPopup();
+                showSetTimerDurationPopup();
+            }
+        });
+        timerDisplay.setOnClickListener(v -> {
+            if (!timerRunning) {
+                showSetTimerDurationPopup();
             }
         });
         updateTimerDisplay(displayTime);
@@ -115,7 +122,7 @@ public class Timer {
     /**
      * Allows the user to choose the time they wish the timer to have.
      */
-    private void showTimerPopup() {
+    private void showSetTimerDurationPopup() {
         View popupView = activity.getLayoutInflater().inflate(R.layout.popup_pick_time, null);
         final NumberPicker minutePicker = popupView.findViewById(R.id.minutes_picker);
         minutePicker.setMaxValue(59);
@@ -129,8 +136,8 @@ public class Timer {
         // now that the widgets are all initialized from the view, create the dialog and insert the view into it
         alertDialog = new AlertDialog.Builder(activity, R.style.AlertDialogTheme)
                 .setView(popupView)
-                .setTitle("Pick Time")
-                .setPositiveButton("Save Time", null)
+                .setTitle("Set Timer Duration")
+                .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
@@ -166,7 +173,6 @@ public class Timer {
 
     private void startTimer() {
         if (!timerRunning) {
-            timerDisplay.setBackgroundResource(0);
             if (initialTimeOnClock == timerDuration) {
                 // want the timer to start counting from timer duration, not duration - 1
                 startTimeAbsolute = System.currentTimeMillis() + timeUnit - 1; // -1 so when resetting it doesn't momentarily start above actual time
@@ -181,7 +187,6 @@ public class Timer {
 
     public void stopTimer() {
         if (timerRunning) {
-            timerDisplay.setBackgroundResource(R.drawable.timer_background);
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             initialTimeOnClock -= elapsedTime;
             startTimeAbsolute = System.currentTimeMillis();
@@ -212,14 +217,14 @@ public class Timer {
     }
 
     private void timerFinishedVisibility() {
-        timerDisplay.setBackgroundResource(R.drawable.timer_background);
+        setTimeTV.setVisibility(View.VISIBLE);
         stopTimer.setVisibility(View.GONE);
         startTimer.setVisibility(View.VISIBLE);
         showStopwatchButton.setVisibility((showStopwatch) ? View.VISIBLE : View.GONE);
     }
 
     private void timerRunningVisibility() {
-        timerDisplay.setBackgroundResource(0);
+        setTimeTV.setVisibility(View.INVISIBLE);
         stopTimer.setVisibility(View.VISIBLE);
         startTimer.setVisibility(View.GONE);
         showStopwatchButton.setVisibility(View.GONE);
