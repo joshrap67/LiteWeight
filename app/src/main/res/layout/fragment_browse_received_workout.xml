@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:text="@string/decline"
-                    app:backgroundTint="@android:color/holo_red_light" />
+                    app:backgroundTint="@color/deny_color" />
 
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -95,7 +95,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         List<String> workoutList = new ArrayList<>(user.getOwnedExercises().get(exerciseId).getWorkouts().values());
         originalExercise = user.getOwnedExercises().get(exerciseId);
 
-        ImageButton deleteExercise = view.findViewById(R.id.delete_exercise);
+        Button deleteExercise = view.findViewById(R.id.delete_exercise);
         deleteExercise.setOnClickListener(v -> promptDelete());
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);

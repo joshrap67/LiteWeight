@@ -48,7 +48,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/accept_request_btn"
                     android:text="@string/decline"
-                    app:backgroundTint="@android:color/holo_red_light" />
+                    app:backgroundTint="@color/deny_color" />
 
             <Button
                     android:id="@+id/block_btn"

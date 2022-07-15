@@ -63,5 +63,5 @@
             android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
             android:text="@string/decline"
-            app:backgroundTint="@android:color/holo_red_light" />
+            app:backgroundTint="@color/deny_color" />
 </RelativeLayout>
