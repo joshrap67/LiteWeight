@@ -513,12 +513,11 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setPositiveButton("Yes", (dialog, which) -> {
                     if (pendingRoutine.getNumberOfWeeks() > 1) {
                         deleteWeek();
-                        alertDialog.dismiss();
                     } else {
                         // don't allow for week to be deleted if it is the only one
                         Toast.makeText(getContext(), "Cannot delete only week from workout.", Toast.LENGTH_LONG).show();
-                        alertDialog.dismiss();
                     }
+                    alertDialog.dismiss();
 
                 })
                 .setNegativeButton("No", null)
@@ -561,12 +560,11 @@ public class EditWorkoutFragment extends Fragment implements FragmentWithDialog 
                 .setPositiveButton("Yes", (dialog, which) -> {
                     if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() > 1) {
                         deleteDay();
-                        alertDialog.dismiss();
                     } else {
                         // don't allow for week to be deleted if it is the only one
                         Toast.makeText(getContext(), "Cannot delete only day from week.", Toast.LENGTH_LONG).show();
-                        alertDialog.dismiss();
                     }
+                    alertDialog.dismiss();
 
                 })
                 .setNegativeButton("No", null)

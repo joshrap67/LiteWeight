@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <color name="colorPrimary">#70a9a1</color>
+    <color name="colorPrimary">#FF70a9a1</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#fff</color>
     <color name="defaultTextColor">#fff</color>
@@ -26,7 +26,7 @@
     <color name="workout_very_high_percentage">#2d8744</color>
 
     <color name="login_gradient_start">@color/colorPrimary</color>
-    <color name="login_gradient_center">#16384B</color>
+    <color name="login_gradient_center">#FF16384B</color>
     <color name="login_gradient_end">@color/colorPrimary</color>
 
     <color name="password_constraint_unsuccessful_match">#ff0303</color>

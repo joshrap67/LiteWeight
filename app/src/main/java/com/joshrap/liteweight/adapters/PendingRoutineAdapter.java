@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,15 +27,13 @@ import com.joshrap.liteweight.models.Routine;
 import java.util.List;
 import java.util.Map;
 
-public class PendingRoutineAdapter extends
-        RecyclerView.Adapter<PendingRoutineAdapter.ViewHolder> {
+public class PendingRoutineAdapter extends RecyclerView.Adapter<PendingRoutineAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseTV;
         Button weightButton;
         ImageButton deleteButton;
         ImageButton saveButton;
-        ImageButton cancelButton;
         LinearLayout extraInfo;
 
         EditText detailsInput;
@@ -57,7 +56,6 @@ public class PendingRoutineAdapter extends
             weightButton = itemView.findViewById(R.id.weight_btn);
             extraInfo = itemView.findViewById(R.id.extra_info_layout);
             saveButton = itemView.findViewById(R.id.save_button);
-            cancelButton = itemView.findViewById(R.id.cancel_button);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -71,15 +69,15 @@ public class PendingRoutineAdapter extends
         }
     }
 
-    private List<RoutineExercise> exercises;
-    private Map<String, String> exerciseIdToName;
-    private Routine pendingRoutine;
-    private int currentWeek;
-    private int currentDay;
-    private int mode;
-    private RecyclerView recyclerView;
-    private Context context;
-    private boolean metricUnits;
+    private final List<RoutineExercise> exercises;
+    private final Map<String, String> exerciseIdToName;
+    private final Routine pendingRoutine;
+    private final int currentWeek;
+    private final int currentDay;
+    private final int mode;
+    private final RecyclerView recyclerView;
+    private final Context context;
+    private final boolean metricUnits;
 
     public PendingRoutineAdapter(List<RoutineExercise> routineExercises, Map<String,
             String> exerciseIdToName, Routine routine, int currentWeek, int currentDay, boolean metricUnits, int mode,
@@ -95,6 +93,7 @@ public class PendingRoutineAdapter extends
         this.context = context;
     }
 
+    @NonNull
     @Override
     public PendingRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -114,6 +113,30 @@ public class PendingRoutineAdapter extends
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            // this exercise has been updated, clear errors, set values, and animate back to single row
+            final RoutineExercise exercise = exercises.get(position);
+
+            // remove any errors
+            holder.weightInputLayout.setError(null);
+            holder.setsInputLayout.setError(null);
+            holder.repsInputLayout.setError(null);
+            holder.detailsInput.setError(null);
+            // hide extra layout
+            holder.weightButton.setVisibility(View.VISIBLE);
+            holder.extraInfo.setVisibility(View.GONE);
+            holder.saveButton.setVisibility(View.GONE);
+            holder.deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
+            holder.exerciseTV.setVisibility(View.VISIBLE);
+
+            setInputs(holder, exercise);
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
+    }
+
+    @Override
     public void onBindViewHolder(PendingRoutineAdapter.ViewHolder holder, int position) {
         final RoutineExercise exercise = exercises.get(position);
 
@@ -129,13 +152,12 @@ public class PendingRoutineAdapter extends
                     }
                 };
 
-                if (transitionType == LayoutTransition.APPEARING &&
+                if (transitionType == LayoutTransition.CHANGE_APPEARING &&
                         holder.itemView.getY() > recyclerView.getHeight() * .60) {
+                    // todo idk why this is being called twice according to console logs...
                     // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
                     smoothScroller.setTargetPosition(holder.getLayoutPosition());
                     recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                    // if i don't have this notify then it sometimes has an empty space above the container... i hate android
-                    notifyDataSetChanged();
                 }
             }
 
@@ -164,57 +186,30 @@ public class PendingRoutineAdapter extends
 
         LinearLayout extraInfo = holder.extraInfo;
         ImageButton saveButton = holder.saveButton;
-        ImageButton cancelButton = holder.cancelButton;
 
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
-        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-        weightButton.setText(formattedWeight);
-        weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
-
-        setsInput.setText(Integer.toString(exercise.getSets()));
-        repsInput.setText(Integer.toString(exercise.getReps()));
-        detailsInput.setText(exercise.getDetails());
+        setInputs(holder, exercise);
 
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
-            deleteButton.setVisibility(View.GONE);
-            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
             weightButton.setVisibility(View.INVISIBLE);
+            deleteButton.setVisibility(View.GONE);
             extraInfo.setVisibility(View.VISIBLE);
             saveButton.setVisibility(View.VISIBLE);
-            cancelButton.setVisibility(View.VISIBLE);
         });
 
-        View.OnClickListener collapseExtraInfo = v -> {
-            // hide the extra details
-            weightButton.setVisibility(View.VISIBLE);
-            extraInfo.setVisibility(View.GONE);
-            saveButton.setVisibility(View.GONE);
-            cancelButton.setVisibility(View.GONE);
-            deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
-            // remove any errors
-            weightInputLayout.setError(null);
-            setsInputLayout.setError(null);
-            repsInput.setError(null);
-            detailsInput.setError(null);
-            // ensure the text in each field is the same
-            setsInput.setText(Integer.toString(exercise.getSets()));
-            repsInput.setText(Integer.toString(exercise.getReps()));
-            detailsInput.setText(exercise.getDetails());
-            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
 
-            notifyDataSetChanged(); // avoids animation on closing the extra info
-        };
         deleteButton.setOnClickListener(v -> {
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
             exercises.remove(exercise);
-            notifyDataSetChanged();
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
         });
+
         saveButton.setOnClickListener(view -> {
             // first check if input on all fields is valid
             boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
@@ -228,28 +223,25 @@ public class PendingRoutineAdapter extends
                 }
 
                 exercise.setWeight(newWeight);
-                weightButton.setText(WeightUtils.getFormattedWeightWithUnits(newWeight, metricUnits));
-
                 exercise.setDetails(detailsInput.getText().toString().trim());
                 exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
                 exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
-                // remove any errors
-                weightInputLayout.setError(null);
-                setsInputLayout.setError(null);
-                repsInputLayout.setError(null);
-                detailsInput.setError(null);
-                // hide extra layout
-                weightButton.setVisibility(View.VISIBLE);
-                extraInfo.setVisibility(View.GONE);
-                saveButton.setVisibility(View.GONE);
-                cancelButton.setVisibility(View.GONE);
-                deleteButton.setVisibility((mode == EditWorkoutFragment.DELETE_MODE) ? View.VISIBLE : View.GONE);
-                exerciseTV.setVisibility(View.VISIBLE);
-                notifyDataSetChanged(); // avoids animation on closing the extra info
 
+                notifyItemChanged(position, true);
             }
         });
-        cancelButton.setOnClickListener(collapseExtraInfo);
+    }
+
+    private void setInputs(ViewHolder holder, RoutineExercise exercise) {
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
+        holder.weightButton.setText(formattedWeight);
+        holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
+
+        holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
+        holder.setsInput.setText(Integer.toString(exercise.getSets()));
+        holder.repsInput.setText(Integer.toString(exercise.getReps()));
+        holder.detailsInput.setText(exercise.getDetails());
     }
 
     private boolean inputValid(EditText weightInput, EditText detailsInput,

@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,8 +22,7 @@ import com.joshrap.liteweight.models.SharedExercise;
 
 import java.util.List;
 
-public class SharedRoutineAdapter extends
-        RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
+public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -63,10 +63,10 @@ public class SharedRoutineAdapter extends
         }
     }
 
-    private List<SharedExercise> exercises;
-    private boolean metricUnits;
-    private RecyclerView recyclerView;
-    private Context context;
+    private final List<SharedExercise> exercises;
+    private final boolean metricUnits;
+    private final RecyclerView recyclerView;
+    private final Context context;
 
     public SharedRoutineAdapter(List<SharedExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
                                 Context context) {
@@ -77,6 +77,7 @@ public class SharedRoutineAdapter extends
     }
 
 
+    @NonNull
     @Override
     public SharedRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -96,6 +97,18 @@ public class SharedRoutineAdapter extends
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            // hide extra layout
+            holder.weightButton.setVisibility(View.VISIBLE);
+            holder.extraInfo.setVisibility(View.GONE);
+            holder.doneButton.setVisibility(View.GONE);
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
+    }
+
+    @Override
     public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
         final SharedExercise exercise = exercises.get(position);
 
@@ -111,13 +124,11 @@ public class SharedRoutineAdapter extends
                     }
                 };
 
-                if (transitionType == LayoutTransition.APPEARING &&
+                if (transitionType == LayoutTransition.CHANGE_APPEARING &&
                         holder.itemView.getY() > recyclerView.getHeight() * .60) {
                     // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
                     smoothScroller.setTargetPosition(holder.getLayoutPosition());
                     recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                    // if i don't have this notify then it sometimes has an empty space above the container... i hate android
-                    notifyDataSetChanged();
                 }
             }
 
@@ -163,11 +174,7 @@ public class SharedRoutineAdapter extends
             doneButton.setVisibility(View.VISIBLE);
         });
         doneButton.setOnClickListener(v -> {
-            // hide the extra details
-            weightButton.setVisibility(View.VISIBLE);
-            extraInfo.setVisibility(View.GONE);
-            doneButton.setVisibility(View.GONE);
-            notifyDataSetChanged(); // avoids animation on closing the extra info
+            notifyItemChanged(position, true);
         });
     }
 
