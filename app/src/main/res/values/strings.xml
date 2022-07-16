@@ -78,7 +78,6 @@
     <string name="copy_msg">Copy</string>
     <string name="copy_day_msg">COPY DAY</string>
     <string name="copy_week_msg">COPY WEEK</string>
-    <string name="empty_workout_day_delete_mode">No exercises for this day. Switch modes to add some.</string>
     <string name="default_weight_help_msg">The default weight of this exercise is the weight that will be defaulted to whenever you add this exercise to a new workout or existing one.
         \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
         \n\nIf enabled in your user settings, this default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.
