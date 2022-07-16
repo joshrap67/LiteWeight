@@ -5,9 +5,13 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,11 +299,17 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
      * Prompt user if they actually want to delete the currently selected workout
      */
     private void promptDelete() {
-        String message = "Are you sure you wish to permanently delete \"" + originalExercise.getExerciseName() + "\"?" +
-                "\n\nIf so, this exercise will be removed from ALL workouts that contain it.";
+
+        // exercise name is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
+        SpannableString span2 = new SpannableString(originalExercise.getExerciseName());
+        SpannableString span3 = new SpannableString("?\n\nIf so, this exercise will be removed from ALL workouts that contain it.");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Exercise")
-                .setMessage(message)
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> deleteExercise())
                 .setNegativeButton("No", null)
                 .create();

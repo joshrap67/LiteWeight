@@ -56,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/decline_request_btn"
                     android:text="@string/block"
-                    app:backgroundTint="#463B3B" />
+                    app:backgroundTint="@color/deny_color" />
         </RelativeLayout>
 
         <TextView

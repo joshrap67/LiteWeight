@@ -182,7 +182,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Variables.RECEIVED_WORKOUT_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
                 .setContentTitle("Workout Received!")
-                .setContentText(String.format("%s sent you a workout: \"%s\"! Click to respond.",
+                .setContentText(String.format("%s sent you a workout: %s. Click to respond.",
                         sharedWorkoutMeta.getSender(), sharedWorkoutMeta.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)

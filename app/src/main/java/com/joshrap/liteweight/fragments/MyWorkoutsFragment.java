@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 
@@ -19,6 +20,9 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -283,12 +287,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Prompt the user if they actually want to reset the selected workout's statistics.
      */
     private void promptResetStatistics() {
-        String message = "Are you sure you wish to reset the statistics for \"" +
-                currentWorkout.getWorkoutName() + "\"?\n\n" +
-                "Doing so will reset the times completed and the percentage of exercises completed.";
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to reset the statistics for ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString("?\n\nDoing so will reset the times completed and the percentage of exercises completed.");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Reset Statistics")
-                .setMessage(message)
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
                 .setNegativeButton("No", null)
                 .create();
@@ -323,8 +331,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Rename ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Rename \"" + currentWorkout.getWorkoutName() + "\"")
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", null)
@@ -376,8 +391,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
         workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Copy ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString(" as new workout");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Copy \"%s\" as new workout", currentWorkout.getWorkoutName()))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Copy", null)
                 .setNegativeButton("Cancel", null)
@@ -462,8 +485,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(usernameInputLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Share ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Share \"%s\"", currentWorkout.getWorkoutName()))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
@@ -511,11 +541,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Prompt user if they actually want to delete the currently selected workout.
      */
     private void promptDelete() {
-        String message = "Are you sure you wish to permanently delete \"" + currentWorkout.getWorkoutName() + "\"?" +
-                "\n\nIf so, all statistics for it will also be deleted.";
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString("?\n\nIf so, all statistics for it will also be deleted.");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Workout")
-                .setMessage(message)
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> {
                     String nextWorkoutId = null;
                     if (workoutList.size() >= 2) {

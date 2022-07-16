@@ -8,10 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -466,9 +470,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void blockUserPopup(String username) {
+        // username is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to block ");
+        SpannableString span2 = new SpannableString(username);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Block User")
-                .setMessage(String.format("Are you sure you wish to block \"%s\"? They will no longer be able to add you as a friend or send you any workouts.", username))
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
                 .setNegativeButton("No", null)
                 .create();
@@ -659,8 +670,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         }
         Collections.sort(workoutNames, String::compareToIgnoreCase);
 
+        // username is italicized
+        SpannableString span1 = new SpannableString("Share a workout with ");
+        SpannableString span2 = new SpannableString(friendUsername);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Share a workout with \"%s\"", friendUsername))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
