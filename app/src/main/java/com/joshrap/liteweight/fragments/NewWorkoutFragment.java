@@ -295,7 +295,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             if (validRoutine) {
                 promptCreate();
             } else {
-                Toast.makeText(getContext(), "Each day must have at least one exercise!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Each day must have at least one exercise.", Toast.LENGTH_LONG).show();
             }
         });
         dayButton.setOnClickListener((v -> {
@@ -510,7 +510,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private void promptDeleteWeek() {
         String message = "Are you sure you wish to delete week " + (currentWeekIndex + 1) + "?\n\n" +
-                "Doing so will delete ALL days associated with this week, and this action cannot be reversed!";
+                "Doing so will delete ALL days associated with this week, and this action cannot be reversed.";
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Week " + (currentWeekIndex + 1))
                 .setMessage(message)
@@ -549,7 +549,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private void promptDeleteDay() {
         String message = "Are you sure you wish to delete day " + (currentDayIndex + 1) + "?\n\n" +
-                "Doing so will delete ALL exercises associated with this day, and this action cannot be reversed!";
+                "Doing so will delete ALL exercises associated with this day, and this action cannot be reversed.";
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Day " + (currentDayIndex + 1))
                 .setMessage(message)

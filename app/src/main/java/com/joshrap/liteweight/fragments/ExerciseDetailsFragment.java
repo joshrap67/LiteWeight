@@ -139,7 +139,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         clipboardBtn.setOnClickListener(v -> {
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", originalExercise.getVideoUrl())));
-            Toast.makeText(getContext(), "Link copied to clipboard!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
         if (originalExercise.getVideoUrl().isEmpty()) {
