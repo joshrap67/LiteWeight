@@ -194,73 +194,64 @@
                         android:inputType="textMultiLine"
                         android:maxLines="5"
                         android:minWidth="75dp"
+                        android:scrollbars="vertical"
                         android:scrollHorizontally="false"
                         app:autoSizeTextType="uniform" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/url_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/default_details_input_layout"
-                    android:layout_marginTop="15dp">
+                    android:layout_marginTop="15dp"
+                    android:hint="@string/url_hint"
+                    app:autoSizeTextType="uniform">
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/url_input_layout"
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/url_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:imeOptions="actionDone"
+                        android:inputType="textUri"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                    android:id="@+id/test"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/url_input_layout"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                <Button
+                        android:id="@+id/clipboard_btn"
+                        style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:hint="@string/url_hint"
-                        app:autoSizeTextType="uniform"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/clipboard_btn"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:drawableStart="@drawable/copy_icon"
+                        android:text="Copy Url"
+                        android:textColor="@color/colorAccent"
+                        app:backgroundTint="@color/deny_color" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/url_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:imeOptions="actionDone"
-                            android:inputType="textUri"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <ImageButton
-                        android:id="@+id/clipboard_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/copy_icon"
-                        android:tooltipText="Copy Url"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/preview_btn"
-                        app:layout_constraintStart_toEndOf="@+id/url_input_layout"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageButton
+                <Button
                         android:id="@+id/preview_btn"
-                        android:layout_width="wrap_content"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/preview_icon"
-                        android:tooltipText="Preview Current URL"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/clipboard_btn"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:layout_weight="1"
+                        android:drawableStart="@drawable/preview_icon"
+                        android:text="Preview URL"
+                        android:textColor="@color/colorAccent"
+                        app:backgroundTint="@color/colorPrimary" />
+            </LinearLayout>
         </RelativeLayout>
     </ScrollView>
 

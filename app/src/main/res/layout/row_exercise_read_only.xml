@@ -191,6 +191,7 @@
                     android:enabled="false"
                     android:inputType="textMultiLine"
                     android:maxLines="3"
+                    android:scrollbars="vertical"
                     app:autoSizeTextType="uniform"
                     tools:text="Example Details" />
         </com.google.android.material.textfield.TextInputLayout>

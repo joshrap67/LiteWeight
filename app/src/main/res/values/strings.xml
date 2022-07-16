@@ -166,4 +166,5 @@
     <string name="gmail_detected_msg">A Google email was detected for signing up. Click the \"Sign In\" button below to sign into your Google account to verify your new LiteWeight account.\n\nNote that the account MUST match the email you are using for your new LiteWeight account.</string>
     <string name="google_alt_msg">Or, if you do not wish to verify your email here, click the \"Send Code\" button to have a verification code sent to your inbox.</string>
     <string name="my_workouts">My Workouts</string>
+    <string name="exercise_not_apart_of_workouts">Exercise is not apart of any workouts.</string>
 </resources>

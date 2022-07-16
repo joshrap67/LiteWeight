@@ -130,34 +130,38 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
 
-        ImageButton clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        ImageButton previewBtn = view.findViewById(R.id.preview_btn);
+        Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
+        Button previewBtn = view.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
-        if (originalExercise.getVideoUrl().isEmpty()) {
-            clipboardBtn.setVisibility(View.GONE);
-            previewBtn.setVisibility(View.GONE);
-        }
         clipboardBtn.setOnClickListener(v -> {
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", originalExercise.getVideoUrl())));
             Toast.makeText(getContext(), "Link copied to clipboard!", Toast.LENGTH_SHORT).show();
         });
+
+        if (originalExercise.getVideoUrl().isEmpty()) {
+            clipboardBtn.setVisibility(View.GONE);
+            previewBtn.setVisibility(View.GONE);
+        }
+
         urlInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (v.hasFocus()) {
                 clipboardBtn.setVisibility(View.GONE);
                 previewBtn.setVisibility(View.GONE);
             } else {
-                clipboardBtn.setVisibility(View.VISIBLE);
-                previewBtn.setVisibility(View.VISIBLE);
+                if (urlInput.getText().length() > 0) {
+                    clipboardBtn.setVisibility(View.VISIBLE);
+                    previewBtn.setVisibility(View.VISIBLE);
+                }
             }
         });
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
-            workoutListTv.setText("Exercise is not apart of any workouts.");
+            workoutListTv.setText(R.string.exercise_not_apart_of_workouts);
         } else {
             Collections.sort(workoutList, String::compareToIgnoreCase);
             StringBuilder workouts = new StringBuilder();
             int maxSize = 5; // only show 5 workouts
-            if (maxSize >= workoutList.size()) {
+            if (workoutList.size() <= maxSize) {
                 // don't append the "+ x more"
                 for (int i = 0; i < workoutList.size(); i++) {
                     // don't have comma at last entry
@@ -249,6 +253,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             urlError = ValidatorUtils.validUrl(urlInput.getText().toString().trim());
         }
         urlLayout.setError(urlError);
+
         if (renameError == null && weightError == null && setsError == null &&
                 repsError == null && detailsError == null && urlError == null) {
             OwnedExercise updatedExercise = OwnedExercise.getExerciseForUpdate(originalExercise);
