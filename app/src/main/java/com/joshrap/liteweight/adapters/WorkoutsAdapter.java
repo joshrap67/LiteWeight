@@ -15,8 +15,8 @@ import com.joshrap.liteweight.models.WorkoutMeta;
 import java.util.List;
 
 public class WorkoutsAdapter extends ArrayAdapter<WorkoutMeta> {
-    private Context context;
-    private List<WorkoutMeta> workoutList;
+    private final Context context;
+    private final List<WorkoutMeta> workoutList;
 
     public WorkoutsAdapter(@NonNull Context context, List<WorkoutMeta> list) {
         super(context, 0, list);

@@ -648,11 +648,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             workoutsRadioGroup.addView(radioButton);
             id++;
         }
+        TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
         if (workoutNames.isEmpty()) {
             // user has no workouts to send
-            TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
-            workoutTV.setText("You have no workouts to send.");
+            workoutTV.setText(R.string.no_workouts_to_send);
+            remainingToSendTv.setVisibility(View.GONE);
             workoutsRadioGroup.setVisibility(View.GONE);
+        } else {
+            workoutTV.setVisibility(View.GONE);
         }
         Collections.sort(workoutNames, String::compareToIgnoreCase);
 

@@ -921,8 +921,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         }
     }
 
-    private class AddExerciseAdapter extends
-            RecyclerView.Adapter<AddExerciseAdapter.ViewHolder> implements Filterable {
+    private class AddExerciseAdapter extends RecyclerView.Adapter<AddExerciseAdapter.ViewHolder> implements Filterable {
         class ViewHolder extends RecyclerView.ViewHolder {
             CheckBox exercise;
 
@@ -932,8 +931,8 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             }
         }
 
-        private List<OwnedExercise> exercises;
-        private List<OwnedExercise> displayList;
+        private final List<OwnedExercise> exercises;
+        private final List<OwnedExercise> displayList;
 
         AddExerciseAdapter(List<OwnedExercise> exerciseRoutines) {
             this.exercises = exerciseRoutines;
@@ -941,6 +940,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
         }
 
 
+        @NonNull
         @Override
         public AddExerciseAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
@@ -985,7 +985,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             return exerciseSearchFilter;
         }
 
-        private Filter exerciseSearchFilter = new Filter() {
+        private final Filter exerciseSearchFilter = new Filter() {
             // responsible for filtering the search of the user in the add user popup (by exercise name)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {

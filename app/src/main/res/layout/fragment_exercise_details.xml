@@ -237,7 +237,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_weight="1"
                         android:drawableStart="@drawable/copy_icon"
-                        android:text="Copy Url"
+                        android:text="@string/copy_url"
                         android:textColor="@color/colorAccent"
                         app:backgroundTint="@color/deny_color" />
 
@@ -248,7 +248,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:drawableStart="@drawable/preview_icon"
-                        android:text="Preview URL"
+                        android:text="@string/preview_url"
                         android:textColor="@color/colorAccent"
                         app:backgroundTint="@color/colorPrimary" />
             </LinearLayout>

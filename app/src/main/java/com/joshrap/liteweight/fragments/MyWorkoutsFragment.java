@@ -3,6 +3,9 @@ package com.joshrap.liteweight.fragments;
 import android.app.AlertDialog;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +13,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -20,9 +25,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -32,7 +40,10 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
+import com.joshrap.liteweight.models.Friend;
+import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.StatisticsUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -44,6 +55,8 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -53,6 +66,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -418,36 +432,38 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void promptShare() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
-        EditText usernameInput = popupView.findViewById(R.id.username_input);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
-        ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
         int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
         if (remainingAmount < 0) {
             remainingAmount = 0; // lol. Just to cover my ass in case
         }
         remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
-        List<String> friendsUsernames = new ArrayList<>();
+
+        List<Friend> friends = new ArrayList<>();
         for (String username : user.getFriends().keySet()) {
-            if (user.getFriends().get(username).isConfirmed()) {
-                friendsUsernames.add(username);
+            Friend friend = user.getFriends().get(username);
+            if (friend.isConfirmed()) {
+                friends.add(friend);
             }
         }
-        if (friendsUsernames.isEmpty()) {
-            // user has no friends, so hide the TV and listview that displays the friends
-            popupView.findViewById(R.id.friends_text_view).setVisibility(View.GONE);
-            friendsListView.setVisibility(View.GONE);
-        }
-        Collections.sort(friendsUsernames, String::compareToIgnoreCase);
-        ArrayAdapter<String> friendsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, friendsUsernames);
-        friendsListView.setAdapter(friendsAdapter);
-        // when user clicks on one of their friends, put that friend's username into the input
-        friendsListView.setOnItemClickListener((adapterView, view, i, l) -> usernameInput.setText(friendsUsernames.get(i)));
+
+        AutoCompleteTextView usernameInput = popupView.findViewById(R.id.username_input);
+        SearchFriendArrayAdapter adapter = new SearchFriendArrayAdapter(getContext(), friends);
+        usernameInput.setAdapter(adapter);
+        usernameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (v.hasFocus()) {
+                // show suggestions when user clicks input for first time
+                if (friends.size() > 0) {
+                    usernameInput.showDropDown();
+                }
+            }
+        });
 
         usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(usernameInputLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Share \"%s\" to another user", currentWorkout.getWorkoutName()))
+                .setTitle(String.format("Share \"%s\"", currentWorkout.getWorkoutName()))
                 .setView(popupView)
                 .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
@@ -546,6 +562,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             // don't allow user to switch to current workout since they are already on it
             return;
         }
+
         AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -577,5 +594,103 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void resetFragment() {
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
+    }
+
+    public class SearchFriendArrayAdapter extends ArrayAdapter<Friend> {
+        private final Context context;
+        private final List<Friend> allFriends;
+
+        public SearchFriendArrayAdapter(Context context, List<Friend> friends) {
+            super(context, 0, friends);
+            this.context = context;
+            this.allFriends = new ArrayList<>(friends);
+        }
+
+        @Override
+        public Friend getItem(int position) {
+            return this.allFriends.get(position);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            View listItem = convertView;
+            if (listItem == null) {
+                listItem = LayoutInflater.from(context).inflate(R.layout.row_search_friend, parent, false);
+            }
+
+            Friend friend = getItem(position);
+            TextView usernameTV = (TextView) listItem.findViewById(R.id.username_tv);
+            usernameTV.setText(friend.getUsername());
+
+            ImageView profilePicture = (ImageView) listItem.findViewById(R.id.profile_picture);
+            Picasso.get()
+                    .load(ImageUtils.getIconUrl(friend.getIcon()))
+                    .error(R.drawable.picture_load_error)
+                    .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                    .into(profilePicture, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            if (!MyWorkoutsFragment.this.isResumed()) {
+                                return;
+                            }
+                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                            imageDrawable.setCircular(true);
+                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                            profilePicture.setImageDrawable(imageDrawable);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    });
+
+
+            return listItem;
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return friendFilter;
+        }
+
+        private final Filter friendFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<Friend> filteredFriends = new ArrayList<>();
+
+                if (constraint == null || constraint.length() == 0) {
+                    filteredFriends.addAll(allFriends);
+                } else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for (Friend item : allFriends) {
+                        if (item.getUsername().toLowerCase().contains(filterPattern)) {
+                            filteredFriends.add(item);
+                        }
+                    }
+                }
+
+                results.values = filteredFriends;
+                results.count = filteredFriends.size();
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                clear();
+                addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public CharSequence convertResultToString(Object resultValue) {
+                return ((Friend) resultValue).getUsername();
+            }
+        };
     }
 }
