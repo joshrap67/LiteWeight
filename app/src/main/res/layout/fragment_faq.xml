@@ -27,17 +27,19 @@
                     android:padding="16dp">
 
                 <RelativeLayout
+                        android:id="@+id/faq_0_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                     <TextView
-                            android:id="@+id/faq_0_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_0_icon"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="@string/purpose_title"
                             android:textSize="20sp" />
 
@@ -69,17 +71,19 @@
                     android:padding="16dp">
 
                 <RelativeLayout
+                        android:id="@+id/faq_1_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                     <TextView
-                            android:id="@+id/faq_1_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_1_icon"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="@string/faq_progress_title"
                             android:textSize="20sp" />
 
@@ -111,17 +115,19 @@
                     android:padding="16dp">
 
                 <RelativeLayout
+                        android:id="@+id/faq_2_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp">
 
                     <TextView
-                            android:id="@+id/faq_2_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_2_icon"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
                             android:text="@string/faq_transfer_title"
                             android:textSize="20sp" />
 
@@ -153,17 +159,19 @@
                     android:padding="16dp">
 
                 <RelativeLayout
+                        android:id="@+id/faq_3_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                     <TextView
-                            android:id="@+id/faq_3_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_3_icon"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="@string/faq_shared_workout_tv"
                             android:textSize="20sp" />
 
@@ -195,17 +203,19 @@
                     android:padding="16dp">
 
                 <RelativeLayout
+                        android:id="@+id/faq_4_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                     <TextView
-                            android:id="@+id/faq_4_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_4_icon"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="@string/faq_default_values_tv"
                             android:textSize="20sp" />
 

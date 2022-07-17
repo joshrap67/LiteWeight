@@ -27,6 +27,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -172,7 +174,11 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             rotationAngle = rotationAngle == 0 ? 180 : 0;
-            focusRowIcon.animate().rotation(rotationAngle).setDuration(500).start();
+            focusRowIcon.animate().rotation(rotationAngle).setDuration(400).start();
+            if (visible) {
+                // provide smooth animation when closing
+                TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), new AutoTransition());
+            }
         };
         focusRelativeLayout.setOnClickListener(focusLayoutClicked);
         focusRowIcon.setOnClickListener(focusLayoutClicked);

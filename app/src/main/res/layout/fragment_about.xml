@@ -10,9 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,10 +41,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/version_number"
                     android:textSize="24sp"
@@ -60,8 +56,9 @@
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:drawableEnd="@drawable/feedback_icon"
-                    android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/feedback_report_problem"
                     android:textSize="20sp" />
 
@@ -75,6 +72,8 @@
                     android:drawableEnd="@drawable/faq_icon"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/frequently_asked_questions_faq"
                     android:textSize="20sp" />
 
@@ -88,6 +87,8 @@
                     android:drawableEnd="@drawable/privacy_policy_icon"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/privacy_policy"
                     android:textSize="20sp" />
 
@@ -101,6 +102,8 @@
                     android:drawableEnd="@drawable/terms_conditions_icon"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/terms_and_conditions"
                     android:textSize="20sp" />
 
@@ -111,16 +114,18 @@
                     android:orientation="vertical">
 
                 <RelativeLayout
+                        android:id="@+id/acknowledgements_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                     <TextView
-                            android:id="@+id/acknowledgements_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?android:selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="@string/acknowledgements_title"
                             android:textSize="20sp" />
 
@@ -132,6 +137,8 @@
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 

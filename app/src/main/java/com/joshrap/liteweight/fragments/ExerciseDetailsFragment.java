@@ -27,6 +27,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -65,7 +67,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
-    private boolean metricUnits, focusesVisible;
+    private boolean metricUnits;
     private ClipboardManager clipboard;
     private UserWithWorkout userWithWorkout;
     private List<String> focusList, selectedFocuses;
@@ -97,7 +99,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         user = userWithWorkout.getUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = Variables.FOCUS_LIST;
-        focusesVisible = false;
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
     }
@@ -208,10 +209,14 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusRelativeLayout = view.findViewById(R.id.focus_relative_layout);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            focusRecyclerView.setVisibility(focusesVisible ? View.GONE : View.VISIBLE);
-            focusesVisible = !focusesVisible;
+            boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
+            focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             rotationAngle = rotationAngle == 0 ? 180 : 0;
-            focusRowIcon.animate().rotation(rotationAngle).setDuration(500).start();
+            focusRowIcon.animate().rotation(rotationAngle).setDuration(400).start();
+            if (visible) {
+                // provide smooth animation when closing
+                TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), new AutoTransition());
+            }
         };
         focusRelativeLayout.setOnClickListener(focusLayoutClicked);
         focusRowIcon.setOnClickListener(focusLayoutClicked);

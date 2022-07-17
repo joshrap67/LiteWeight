@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import android.os.Handler;
 import android.text.InputFilter;
@@ -19,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,7 +91,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             startActivity(browserIntent);
         });
 
-        TextView acknowledgementsTV = view.findViewById(R.id.acknowledgements_tv);
+        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_layout);
         TextView acknowledgements = view.findViewById(R.id.acknowledgements);
         ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon);
         acknowledgements.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
@@ -97,10 +100,11 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             boolean visible = acknowledgements.getVisibility() == View.VISIBLE;
             acknowledgements.setVisibility(visible ? View.GONE : View.VISIBLE);
             rotationAngle = rotationAngle == 0 ? 180 : 0;
-            acknowledgementIcon.animate().rotation(rotationAngle).setDuration(500).start();
+            acknowledgementIcon.animate().rotation(rotationAngle).setDuration(400).start();
+            TransitionManager.beginDelayedTransition(container, new AutoTransition());
         };
 
-        acknowledgementsTV.setOnClickListener(acknowledgementLayoutClicked);
+        acknowledgementsLayout.setOnClickListener(acknowledgementLayoutClicked);
         acknowledgementIcon.setOnClickListener(acknowledgementLayoutClicked);
 
         TextView feedbackTV = view.findViewById(R.id.feedback_tv);

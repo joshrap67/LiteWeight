@@ -71,27 +71,22 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bottom_border_selectable">
 
-                    <LinearLayout
+                    <TextView
+                            android:id="@+id/focus_list_tv"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/focus_image_btn"
-                            android:background="@drawable/bottom_border_selectable"
-                            android:orientation="vertical">
+                            android:text="@string/focus_label"
+                            android:textSize="18sp"
+                            tools:text="Back, Cardio" />
 
-                        <TextView
-                                android:id="@+id/focus_list_tv"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/focus_label"
-                                android:textSize="18sp"
-                                tools:text="Back, Cardio" />
-
-                        <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/focuses"
-                                android:textSize="12sp" />
-                    </LinearLayout>
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/focus_list_tv"
+                            android:layout_toStartOf="@id/focus_image_btn"
+                            android:text="@string/focuses"
+                            android:textSize="12sp" />
 
                     <ImageButton
                             android:id="@+id/focus_image_btn"
