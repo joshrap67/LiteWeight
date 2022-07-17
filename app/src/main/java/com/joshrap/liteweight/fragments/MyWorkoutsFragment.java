@@ -59,6 +59,7 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -279,7 +280,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
                 "Total Number of Days in Workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
-                "Most Worked Focus: " + currentWorkout.getMostFrequentFocus().replaceAll(",", ", ");
+                "Most Worked Focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
         statisticsTV.setText(msg);
     }
 

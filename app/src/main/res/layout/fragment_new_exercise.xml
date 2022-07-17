@@ -15,7 +15,7 @@
             android:id="@+id/scroll_view_main"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@id/bottom_container"
+            app:layout_constraintBottom_toTopOf="@id/save_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -53,6 +53,7 @@
                             android:singleLine="true"
                             app:autoSizeTextType="uniform" />
                 </com.google.android.material.textfield.TextInputLayout>
+
             </LinearLayout>
 
             <RelativeLayout
@@ -63,91 +64,60 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
-                    android:animateLayoutChanges="true">
+                    android:background="@drawable/bottom_border_selectable">
 
-                <RelativeLayout
-                        android:id="@+id/focus_relative_layout"
+                <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/bottom_border_selectable">
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/focus_image_btn">
 
-                    <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_toStartOf="@id/focus_image_btn"
-                            android:background="@drawable/bottom_border_selectable"
-                            android:orientation="vertical">
-
-                        <TextView
-                                android:id="@+id/focus_list_tv"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/focus_label"
-                                android:textSize="18sp"
-                                tools:text="Back, Cardio" />
-
-                        <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/focuses"
-                                android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <ImageButton
-                            android:id="@+id/focus_image_btn"
+                    <TextView
+                            android:id="@+id/focus_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:text="@string/select_focus_title"
+                            android:textSize="20sp" />
 
-                </RelativeLayout>
+                    <TextView
+                            android:id="@+id/focus_count_text_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/focus_selected_count"
+                            android:textSize="12sp" />
+                </LinearLayout>
 
 
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/pick_focuses_recycler_view"
-                        android:layout_width="match_parent"
+                <ImageButton
+                        android:id="@+id/focus_image_btn"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/focus_relative_layout"
-                        android:visibility="gone"
-                        tools:itemCount="1"
-                        tools:listitem="@android:layout/simple_selectable_list_item"
-                        tools:visibility="visible" />
+                        android:layout_alignParentEnd="true"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@drawable/down_icon" />
             </RelativeLayout>
 
-            <LinearLayout
-                    android:id="@+id/workout_container"
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pick_focuses_recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_below="@id/focus_container"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
-                    android:background="@drawable/bottom_border_selectable"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:id="@+id/workout_list_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/workout_name"
-                        android:textSize="18sp"
-                        tools:text="Josh's Workout, Strength Workout, High Intensity Workout, +5 more" />
-
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/associated_workouts"
-                        android:textSize="12sp" />
-            </LinearLayout>
+                    android:visibility="gone"
+                    tools:itemCount="1"
+                    tools:listitem="@android:layout/simple_selectable_list_item"
+                    tools:visibility="visible" />
 
             <RelativeLayout
                     android:id="@+id/input_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/workout_container"
+                    android:layout_below="@+id/pick_focuses_recycler_view"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
@@ -300,36 +270,17 @@
         </RelativeLayout>
     </ScrollView>
 
-    <LinearLayout
-            android:id="@+id/bottom_container"
-            android:layout_width="match_parent"
+
+    <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/save_btn"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
-            android:weightSum="2"
+            android:layout_weight="1"
+            android:text="@string/save"
+            android:textColor="@color/colorAccent"
+            app:backgroundTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_main">
-
-        <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/delete_exercise"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:text="@string/delete"
-                android:textColor="@color/colorAccent"
-                app:backgroundTint="@color/deny_color" />
-
-        <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/save_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/save"
-                android:textColor="@color/colorAccent"
-                app:backgroundTint="@color/colorPrimary" />
-    </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_main" />
 </androidx.constraintlayout.widget.ConstraintLayout>

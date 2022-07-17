@@ -1,16 +1,16 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.os.Looper.getMainLooper;
+
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +32,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
-import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.ExerciseUtils;
-import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -45,33 +40,29 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.os.Looper.getMainLooper;
+public class NewExerciseFragment extends Fragment implements FragmentWithDialog {
 
-public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
-
-    private AlertDialog alertDialog;
     private User user;
-    private OwnedExercise originalExercise;
-    private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits, focusesVisible;
     private ClipboardManager clipboard;
-    private UserWithWorkout userWithWorkout;
     private List<String> focusList, selectedFocuses;
     private int rotationAngle;
     private RelativeLayout focusRelativeLayout;
-    private TextView focusesTv;
+    private TextView focusCountTV;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
@@ -84,37 +75,28 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_EXERCISE_TITLE);
 
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-        if (this.getArguments() != null) {
-            exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
-        } else {
-            return null;
-        }
 
-        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
+        UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = Variables.FOCUS_LIST;
+        selectedFocuses = new ArrayList<>();
         focusesVisible = false;
 
-        return inflater.inflate(R.layout.fragment_exercise_details, container, false);
+
+        return inflater.inflate(R.layout.fragment_new_exercise, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        List<String> workoutList = new ArrayList<>(user.getOwnedExercises().get(exerciseId).getWorkouts().values());
-        originalExercise = user.getOwnedExercises().get(exerciseId);
-        selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
 
-        focusesTv = view.findViewById(R.id.focus_list_tv);
+        focusCountTV = view.findViewById(R.id.focus_count_text_view);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
-
-        Button deleteExercise = view.findViewById(R.id.delete_exercise);
-        deleteExercise.setOnClickListener(v -> promptDelete());
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
@@ -127,26 +109,32 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         exerciseNameInput = view.findViewById(R.id.exercise_name_input);
         exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
         exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(exerciseNameLayout));
+        exerciseNameInput.setText("");
 
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightLayout));
+        weightInput.setText("0");
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsLayout));
+        setsInput.setText("3");
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsLayout));
+        repsInput.setText("15");
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
         detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsLayout));
+        detailsInput.setText("");
 
         urlInput = view.findViewById(R.id.url_input);
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
+        urlInput.setText("");
 
         Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
         Button previewBtn = view.findViewById(R.id.preview_btn);
@@ -156,10 +144,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
-        if (originalExercise.getVideoUrl().isEmpty()) {
-            clipboardBtn.setVisibility(View.GONE);
-            previewBtn.setVisibility(View.GONE);
-        }
+        clipboardBtn.setVisibility(View.GONE);
+        previewBtn.setVisibility(View.GONE);
 
         urlInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (v.hasFocus()) {
@@ -172,40 +158,17 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 }
             }
         });
-        TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
-        if (workoutList.isEmpty()) {
-            workoutListTv.setText(R.string.none);
-        } else {
-            Collections.sort(workoutList, String::compareToIgnoreCase);
-            StringBuilder workouts = new StringBuilder();
-            int maxSize = 5; // only show 5 workouts
-            if (workoutList.size() <= maxSize) {
-                // don't append the "+ x more"
-                for (int i = 0; i < workoutList.size(); i++) {
-                    // don't have comma at last entry
-                    workouts.append(workoutList.get(i)).append((i < workoutList.size() - 1) ? ", " : "");
-                }
-            } else {
-                for (int i = 0; i < maxSize; i++) {
-                    // don't have comma at last entry
-                    workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
-                }
-                workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
-            }
-
-            workoutListTv.setText(workouts.toString());
-        }
 
         Button saveButton = view.findViewById(R.id.save_btn);
-        saveButton.setOnClickListener(v -> saveExercise());
+        saveButton.setOnClickListener(v -> createExercise());
+
 
         RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
-
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         ImageButton focusRowIcon = view.findViewById(R.id.focus_image_btn);
-        focusRelativeLayout = view.findViewById(R.id.focus_relative_layout);
+        focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
             focusRecyclerView.setVisibility(focusesVisible ? View.GONE : View.VISIBLE);
@@ -215,16 +178,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         };
         focusRelativeLayout.setOnClickListener(focusLayoutClicked);
         focusRowIcon.setOnClickListener(focusLayoutClicked);
-
-        initViews();
-    }
-
-    private void setFocusTextView(String title) {
-        if (title == null) {
-            focusesTv.setText(R.string.none);
-        } else {
-            focusesTv.setText(title);
-        }
     }
 
     @Override
@@ -235,41 +188,31 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     @Override
     public void hideAllDialogs() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
     }
 
-    private void initViews() {
-        exerciseNameInput.setText(originalExercise.getExerciseName());
-        weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
-        setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
-        repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
-        detailsInput.setText(originalExercise.getDefaultDetails());
-        urlInput.setText(originalExercise.getVideoUrl());
+    private void setFocusTextView(String title) {
+        int focusCount = 0;
+        if (title != null) {
+            focusCount = title.split(ExerciseUtils.FOCUS_DELIMITER).length;
+        }
+        Resources res = getResources();
+        focusCountTV.setText(res.getString(R.string.focus_selected_count, focusCount));
+        focusCountTV.setTypeface(focusCountTV.getTypeface(), Typeface.ITALIC);
     }
 
-    private void saveExercise() {
-        String renameError = null;
-        String weightError;
-        String setsError;
-        String repsError;
-        String detailsError;
-        String urlError = null;
+    private void createExercise() {
+        String nameError, weightError, setsError, repsError, detailsError, urlError = null;
         boolean focusError = false;
 
-        if (!exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
-            // make sure that if the user doesn't change the name that they can still update other fields
-            List<String> exerciseNames = new ArrayList<>();
-            for (String exerciseId : user.getOwnedExercises().keySet()) {
-                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
-            }
-            renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
-            exerciseNameLayout.setError(renameError);
+        List<String> exerciseNames = new ArrayList<>();
+        for (String exerciseId : user.getOwnedExercises().keySet()) {
+            exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
         }
+        nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+        exerciseNameLayout.setError(nameError);
 
         weightError = ValidatorUtils.validWeight(weightInput.getText().toString().trim());
         weightLayout.setError(weightError);
@@ -284,7 +227,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         detailsLayout.setError(detailsError);
 
         if (!urlInput.getText().toString().isEmpty()) {
-            // try to validate the url if user has inputted something
+            // only validate the url if user has inputted something
             urlError = ValidatorUtils.validUrl(urlInput.getText().toString().trim());
         }
         urlLayout.setError(urlError);
@@ -295,85 +238,37 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
         }
 
-        if (renameError == null && weightError == null && setsError == null &&
+        if (nameError == null && weightError == null && setsError == null &&
                 repsError == null && detailsError == null && urlError == null && !focusError) {
-            OwnedExercise updatedExercise = OwnedExercise.getExerciseForUpdate(originalExercise);
             double weight = Double.parseDouble(weightInput.getText().toString().trim());
             if (metricUnits) {
                 weight = WeightUtils.metricWeightToImperial(weight);
             }
 
-            updatedExercise.setExerciseName(exerciseNameInput.getText().toString().trim());
-            updatedExercise.setDefaultWeight(weight);
-            updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
-            updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
-            updatedExercise.setDefaultDetails(detailsInput.getText().toString().trim());
-            updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
-            updatedExercise.setFocuses(selectedFocuses);
+            String exerciseName = exerciseNameInput.getText().toString().trim();
+            int sets = Integer.parseInt(setsInput.getText().toString().trim());
+            int reps = Integer.parseInt(repsInput.getText().toString().trim());
+            String details = detailsInput.getText().toString().trim();
+            String videoURL = urlInput.getText().toString().trim();
 
             // no errors, so go ahead and save
-            AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
+            AndroidUtils.showLoadingDialog(loadingDialog, "Creating exercise...");
             Executor executor = Executors.newSingleThreadExecutor();
+            double finalWeight = weight; // java weirdness
             executor.execute(() -> {
-                ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
+                ResultStatus<OwnedExercise> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
-                        Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-                        user.getOwnedExercises().put(exerciseId, resultStatus.getData().getOwnedExercises().get(exerciseId));
-
-                        originalExercise = user.getOwnedExercises().get(exerciseId);
-                        initViews();
+                        OwnedExercise newExercise = resultStatus.getData();
+                        user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
+                        ((WorkoutActivity) getActivity()).finishFragment();
                     } else {
-                        AndroidUtils.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });
         }
-    }
-
-    /**
-     * Prompt user if they actually want to delete the currently selected workout
-     */
-    private void promptDelete() {
-
-        // exercise name is italicized
-        SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
-        SpannableString span2 = new SpannableString(originalExercise.getExerciseName());
-        SpannableString span3 = new SpannableString("?\n\nIf so, this exercise will be removed from ALL workouts that contain it.");
-        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
-        CharSequence title = TextUtils.concat(span1, span2, span3);
-
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Delete Exercise")
-                .setMessage(title)
-                .setPositiveButton("Yes", (dialog, which) -> deleteExercise())
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
-    }
-
-    private void deleteExercise() {
-        AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    // deleted successfully, so delete everything
-                    user.getOwnedExercises().remove(exerciseId);
-                    if (userWithWorkout.getWorkout() != null) {
-                        WorkoutUtils.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
-                    }
-                    ((WorkoutActivity) getActivity()).finishFragment();
-                } else {
-                    AndroidUtils.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
-
-                }
-            });
-        });
     }
 }

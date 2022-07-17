@@ -86,14 +86,17 @@ public class UserRepository {
         return resultStatus;
     }
 
-    public ResultStatus<OwnedExercise> newExercise(String exerciseName, List<String> focuses) {
+    public ResultStatus<OwnedExercise> newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String details, String videoURL) {
         ResultStatus<OwnedExercise> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
-        if (exerciseName != null) {
-            requestBody.put(OwnedExercise.EXERCISE_NAME, exerciseName);
-        }
+        requestBody.put(OwnedExercise.EXERCISE_NAME, exerciseName);
         requestBody.put(OwnedExercise.FOCUSES, focuses);
+        requestBody.put(OwnedExercise.DEFAULT_WEIGHT, weight);
+        requestBody.put(OwnedExercise.DEFAULT_SETS, sets);
+        requestBody.put(OwnedExercise.DEFAULT_REPS, reps);
+        requestBody.put(OwnedExercise.DEFAULT_DETAILS, details);
+        requestBody.put(OwnedExercise.VIDEO_URL, videoURL);
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(newExerciseAction, requestBody, true);
 
@@ -105,7 +108,7 @@ public class UserRepository {
                 resultStatus.setErrorMessage("Unable to parse response.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to update exercise.");
+            resultStatus.setErrorMessage("Unable to create exercise.");
         }
         return resultStatus;
     }

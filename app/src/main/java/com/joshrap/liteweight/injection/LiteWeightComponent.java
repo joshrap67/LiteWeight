@@ -15,6 +15,7 @@ import com.joshrap.liteweight.fragments.FriendsListFragment;
 import com.joshrap.liteweight.fragments.MyAccountFragment;
 import com.joshrap.liteweight.fragments.MyExercisesFragment;
 import com.joshrap.liteweight.fragments.MyWorkoutsFragment;
+import com.joshrap.liteweight.fragments.NewExerciseFragment;
 import com.joshrap.liteweight.fragments.NewWorkoutFragment;
 import com.joshrap.liteweight.fragments.ReceivedWorkoutsFragment;
 
@@ -35,6 +36,8 @@ public interface LiteWeightComponent {
     void inject(SignInActivity signInActivity);
 
     void inject(ExerciseDetailsFragment exerciseDetailsFragment);
+
+    void inject(NewExerciseFragment exerciseDetailsFragment);
 
     void inject(EditWorkoutFragment editWorkoutFragment);
 

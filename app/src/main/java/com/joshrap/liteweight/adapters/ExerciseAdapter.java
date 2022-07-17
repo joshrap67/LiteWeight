@@ -1,8 +1,10 @@
 package com.joshrap.liteweight.adapters;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +16,8 @@ import com.joshrap.liteweight.models.OwnedExercise;
 import java.util.List;
 
 public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
-    private Context context;
-    private List<OwnedExercise> exerciseList;
+    private final Context context;
+    private final List<OwnedExercise> exerciseList;
 
     public ExerciseAdapter(@NonNull Context context, List<OwnedExercise> list) {
         super(context, 0, list);

@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class PendingRoutineAdapter extends RecyclerView.Adapter<PendingRoutineAdapter.ViewHolder> {
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseTV;
         Button weightButton;
         ImageButton deleteButton;

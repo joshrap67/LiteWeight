@@ -23,9 +23,7 @@ import com.joshrap.liteweight.models.SharedExercise;
 import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
-
-    class ViewHolder extends RecyclerView.ViewHolder {
-
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseName;
         Button weightButton;
         ImageButton doneButton;

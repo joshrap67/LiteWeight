@@ -15,7 +15,7 @@ import dagger.Provides;
 
 @Module
 class LiteWeightModule {
-    private Context context;
+    private final Context context;
 
     LiteWeightModule(final Context context) {
         this.context = context;

@@ -951,6 +951,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
+    public void goToNewExercise() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.NEW_EXERCISE_TITLE);
+        fragmentStack.add(0, Variables.NEW_EXERCISE_TITLE);
+
+
+        Fragment fragment = new NewExerciseFragment();
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
+                .commit();
+    }
+
     public void goToAccountSettings() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_TITLE);

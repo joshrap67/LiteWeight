@@ -32,7 +32,6 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
     private String exerciseId; // NOT EVER SENT BACK TO BACKEND, IS A VAR TO MAKE THINGS EASIER
     private String defaultDetails;
     private String videoUrl;
-    @Setter(AccessLevel.NONE)
     private List<String> focuses;
     @Setter(AccessLevel.NONE)
     private Map<String, String> workouts; // id to workout name that this exercise is apart of
@@ -67,7 +66,7 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
     public static OwnedExercise getExerciseForUpdate(OwnedExercise toBeCopied) {
         /*
             Used when updating an exercise to the backend. Persists data that can't be changed by
-            editing an exercise (such as workouts and focuses). Fragment's responsibility is updating
+            editing an exercise (such as workouts). Fragment's responsibility is updating
             the fields that have changed from an edit.
          */
         OwnedExercise ownedExercise = new OwnedExercise();
@@ -78,7 +77,7 @@ public class OwnedExercise implements Model, Comparable<OwnedExercise> {
         ownedExercise.defaultDetails = toBeCopied.getDefaultDetails();
         ownedExercise.videoUrl = toBeCopied.getVideoUrl();
         ownedExercise.workouts = new HashMap<>(toBeCopied.getWorkouts());
-        ownedExercise.focuses = new ArrayList<>(toBeCopied.getFocuses());
+        ownedExercise.focuses = toBeCopied.getFocuses();
 
         return ownedExercise;
     }

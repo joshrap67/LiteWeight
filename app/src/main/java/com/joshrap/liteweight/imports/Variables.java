@@ -56,6 +56,7 @@ public class Variables {
     public static final String EDIT_WORKOUT_TITLE = "Edit Workout";
     public static final String MY_EXERCISES_TITLE = "My Exercises";
     public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
+    public static final String NEW_EXERCISE_TITLE = "New Exercise";
     public static final String ACCOUNT_TITLE = "My Account";
     public static final String ACCOUNT_PREFS_TITLE = "Account Preferences";
     public static final String FRIENDS_LIST_TITLE = "Friends List";
