@@ -3,8 +3,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:layout_height="match_parent">
 
     <ScrollView
             android:id="@+id/scrollView"
@@ -19,7 +18,6 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
             <LinearLayout
@@ -28,16 +26,31 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <TextView
-                        android:id="@+id/faq_0_tv"
+                <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="@string/purpose_title"
-                        android:textSize="20sp" />
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:id="@+id/faq_0_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/faq_0_icon"
+                            android:background="?android:selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/purpose_title"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/faq_0_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
 
                 <TextView
                         android:id="@+id/faq_0"
@@ -55,16 +68,31 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <TextView
-                        android:id="@+id/faq_1_tv"
+                <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="@string/faq_progress_title"
-                        android:textSize="20sp" />
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:id="@+id/faq_1_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/faq_1_icon"
+                            android:background="?android:selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/faq_progress_title"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/faq_1_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
 
                 <TextView
                         android:id="@+id/faq_1"
@@ -82,16 +110,31 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <TextView
-                        android:id="@+id/faq_2_tv"
+                <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="@string/faq_transfer_title"
-                        android:textSize="20sp" />
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:id="@+id/faq_2_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/faq_2_icon"
+                            android:background="?android:selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/faq_transfer_title"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/faq_2_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
 
                 <TextView
                         android:id="@+id/faq_2"
@@ -109,16 +152,31 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <TextView
-                        android:id="@+id/faq_3_tv"
+                <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="@string/faq_shared_workout_tv"
-                        android:textSize="20sp" />
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:id="@+id/faq_3_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/faq_3_icon"
+                            android:background="?android:selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/faq_shared_workout_tv"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/faq_3_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
 
                 <TextView
                         android:id="@+id/faq_3"
@@ -136,16 +194,31 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <TextView
-                        android:id="@+id/faq_4_tv"
+                <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="What are these “default” values in the details page of one of my exercises?"
-                        android:textSize="20sp" />
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:id="@+id/faq_4_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/faq_4_icon"
+                            android:background="?android:selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/faq_default_values_tv"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/faq_4_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
 
                 <TextView
                         android:id="@+id/faq_4"

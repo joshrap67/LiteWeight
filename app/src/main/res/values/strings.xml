@@ -171,5 +171,10 @@
     <string name="preview_url">Preview URL</string>
     <string name="no_workouts_to_send">You have no workouts to send.</string>
     <string name="associated_workouts">Associated Workouts</string>
-    <string name="focus_selected_count"><i>%1$d selected</i></string>
+    <string name="focus_selected_count"><i>%1$d selected </i></string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="frequently_asked_questions_faq">Frequently Asked Questions (FAQ)</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="feedback_report_problem">Feedback/Report Problem</string>
+    <string name="faq_default_values_tv">What are these “default” values in the details page of one of my exercises?</string> <!-- Extra space is needed at the end bc android dumb and cuts off last letter -->
 </resources>

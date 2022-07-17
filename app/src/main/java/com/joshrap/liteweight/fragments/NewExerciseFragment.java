@@ -57,7 +57,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private User user;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
-    private boolean metricUnits, focusesVisible;
+    private boolean metricUnits;
     private ClipboardManager clipboard;
     private List<String> focusList, selectedFocuses;
     private int rotationAngle;
@@ -84,8 +84,6 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = Variables.FOCUS_LIST;
         selectedFocuses = new ArrayList<>();
-        focusesVisible = false;
-
 
         return inflater.inflate(R.layout.fragment_new_exercise, container, false);
     }
@@ -171,8 +169,8 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            focusRecyclerView.setVisibility(focusesVisible ? View.GONE : View.VISIBLE);
-            focusesVisible = !focusesVisible;
+            boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
+            focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             rotationAngle = rotationAngle == 0 ? 180 : 0;
             focusRowIcon.animate().rotation(rotationAngle).setDuration(500).start();
         };

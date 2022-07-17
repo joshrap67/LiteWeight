@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ import static android.os.Looper.getMainLooper;
 public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
+    private int rotationAngle;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -88,16 +90,19 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
         TextView acknowledgementsTV = view.findViewById(R.id.acknowledgements_tv);
         TextView acknowledgements = view.findViewById(R.id.acknowledgements);
+        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon);
         acknowledgements.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
-        acknowledgementsTV.setOnClickListener(view1 -> {
-            if (acknowledgements.getVisibility() == View.GONE) {
-                acknowledgementsTV.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.up_icon, 0);
-                acknowledgements.setVisibility(View.VISIBLE);
-            } else {
-                acknowledgementsTV.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.down_icon, 0);
-                acknowledgements.setVisibility(View.GONE);
-            }
-        });
+
+        View.OnClickListener acknowledgementLayoutClicked = v -> {
+            boolean visible = acknowledgements.getVisibility() == View.VISIBLE;
+            acknowledgements.setVisibility(visible ? View.GONE : View.VISIBLE);
+            rotationAngle = rotationAngle == 0 ? 180 : 0;
+            acknowledgementIcon.animate().rotation(rotationAngle).setDuration(500).start();
+        };
+
+        acknowledgementsTV.setOnClickListener(acknowledgementLayoutClicked);
+        acknowledgementIcon.setOnClickListener(acknowledgementLayoutClicked);
+
         TextView feedbackTV = view.findViewById(R.id.feedback_tv);
         feedbackTV.setOnClickListener(view1 -> {
             View popupView = getLayoutInflater().inflate(R.layout.popup_send_feedback, null);
