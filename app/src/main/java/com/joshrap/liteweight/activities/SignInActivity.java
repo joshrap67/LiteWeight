@@ -39,6 +39,7 @@ import android.widget.ViewFlipper;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.BackendConfig;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -502,6 +503,7 @@ public class SignInActivity extends AppCompatActivity {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     try {
+                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
                         launchWorkoutActivity(resultStatus.getData());
                     } catch (JsonProcessingException e) {
                         AndroidUtils.showErrorDialog("Error", "Error loading data.", this);
@@ -517,7 +519,6 @@ public class SignInActivity extends AppCompatActivity {
         Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         if (userWithWorkout != null) {
-            intent.putExtra(Variables.USER_WITH_WORKOUT_DATA, JsonUtils.serializeMap(userWithWorkout.asMap()));
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
