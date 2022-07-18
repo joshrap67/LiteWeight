@@ -48,6 +48,7 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -228,10 +229,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String action;
-        String jsonData;
+        String action = null;
+        String jsonNotificationData = null;
         activityFinishing = false;
         if (getIntent().getExtras() != null) {
+            // there is notification data
             action = getIntent().getAction();
             if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
                 /*
@@ -245,18 +247,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 finish();
                 return;
             }
-            jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
-            if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
-                try {
-                    userWithWorkout = new UserWithWorkout(JsonUtils.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
-                } catch (IOException e) {
-                    return;
-                }
-            }
-        } else {
-            // should never happen, so return early
-            return;
+            jsonNotificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
+
+        if (userWithWorkout == null) {
+            userWithWorkout = Globals.userWithWorkout;
+            Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
+        }
+
         user = userWithWorkout.getUser();
         if (userWithWorkout.isWorkoutPresent()) {
             lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
@@ -338,7 +336,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         updateEndpointToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
-        if (action != null && jsonData != null) {
+        if (action != null && jsonNotificationData != null) {
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
         }

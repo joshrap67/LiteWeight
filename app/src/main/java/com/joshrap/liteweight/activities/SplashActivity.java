@@ -7,6 +7,7 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -54,6 +55,7 @@ public class SplashActivity extends AppCompatActivity {
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
                     try {
+                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
                         launchWorkoutActivity(resultStatus.getData());
                     } catch (JsonProcessingException e) {
                         launchSignInActivity();
@@ -79,7 +81,6 @@ public class SplashActivity extends AppCompatActivity {
             intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, notificationData);
         }
         if (userWithWorkout != null) {
-            intent.putExtra(Variables.USER_WITH_WORKOUT_DATA, JsonUtils.serializeMap(userWithWorkout.asMap()));
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
