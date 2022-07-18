@@ -480,7 +480,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 break;
         }
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -884,6 +883,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     // region Navigation Methods
+
+    private void closeDrawerFromNavigation() {
+        new Handler().postDelayed(() -> drawer.closeDrawer(GravityCompat.START), 100);
+    }
+
     public void goToCurrentWorkout() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
@@ -892,6 +896,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToMyWorkouts() {
@@ -902,6 +907,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToNewWorkout() {
@@ -935,6 +941,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 myExercisesFragment, Variables.MY_EXERCISES_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToExerciseDetails(String exerciseId) {
@@ -974,6 +981,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToAccountPreferences() {
@@ -1023,6 +1031,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, receivedWorkoutsFragment, Variables.RECEIVED_WORKOUTS_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToBrowseReceivedWorkout(String workoutId, String workoutName) {
@@ -1050,6 +1059,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AppSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToAbout() {
@@ -1060,6 +1070,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), Variables.ABOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToFaq() {
