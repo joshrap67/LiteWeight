@@ -46,7 +46,6 @@ import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
 import com.joshrap.liteweight.models.Friend;
-import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -72,9 +71,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -255,7 +252,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void sortWorkouts() {
         WorkoutMeta currentWorkoutMeta = user.getWorkoutMetas().get(currentWorkout.getWorkoutId());
         workoutList.remove(currentWorkoutMeta);
-        Collections.sort(workoutList, (r1, r2) -> {
+        workoutList.sort((r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;

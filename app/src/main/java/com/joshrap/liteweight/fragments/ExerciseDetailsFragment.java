@@ -177,7 +177,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (workoutList.isEmpty()) {
             workoutListTv.setText(R.string.none);
         } else {
-            Collections.sort(workoutList, String::compareToIgnoreCase);
+            workoutList.sort(String::compareToIgnoreCase);
             StringBuilder workouts = new StringBuilder();
             int maxSize = 5; // only show 5 workouts
             if (workoutList.size() <= maxSize) {

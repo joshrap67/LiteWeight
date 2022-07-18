@@ -48,6 +48,7 @@ public class ValidatorUtils {
             for (String workout : workoutNamesList) {
                 if (workout.equals(workoutName)) {
                     retVal = "Workout name already exists.";
+                    break;
                 }
             }
         } else {
@@ -75,6 +76,7 @@ public class ValidatorUtils {
             for (String exercise : totalExercises) {
                 if (exercise.equals(exerciseName)) {
                     retVal = "Exercise already exists.";
+                    break;
                 }
             }
         }

@@ -53,11 +53,9 @@ public class SyncWorkoutService extends Service {
         Workout finalWorkout = workout;
         executor.execute(() -> {
             if (finalWorkout != null) {
-                ResultStatus<String> resultStatus = repository.syncWorkout(finalWorkout);
+                repository.syncWorkout(finalWorkout);
                 Handler handler = new Handler(getMainLooper());
-                handler.post(() -> {
-                    stopSelf();
-                });
+                handler.post(() -> stopSelf());
             } else {
                 stopSelf();
             }

@@ -31,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -66,6 +67,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -292,12 +294,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void sortFriendsList() {
-        Collections.sort(friends, (friend, t1) -> friend.getUsername().toLowerCase().compareTo(t1.getUsername().toLowerCase()));
+        friends.sort(Comparator.comparing(friend -> friend.getUsername().toLowerCase()));
     }
 
     private void sortFriendRequestList() {
         // newest at the top
-        Collections.sort(friendRequests, (friendRequest, t1) -> {
+        friendRequests.sort((friendRequest, t1) -> {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             int retVal = 0;
             try {
@@ -653,7 +655,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             RadioButton radioButton = new RadioButton(getContext());
             radioButton.setId(id);
             radioButton.setLayoutParams(new RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT));
-            radioButton.setTextColor(getResources().getColor(R.color.defaultTextColor)); // hate this but don't know another way
+            radioButton.setTextColor(ContextCompat.getColor(getContext(), R.color.defaultTextColor)); // hate this but don't know another way
             radioButton.setText(workoutName);
             radioButton.setTextSize(16);
             workoutsRadioGroup.addView(radioButton);
@@ -668,7 +670,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         } else {
             workoutTV.setVisibility(View.GONE);
         }
-        Collections.sort(workoutNames, String::compareToIgnoreCase);
+        workoutNames.sort(String::compareToIgnoreCase);
 
         // username is italicized
         SpannableString span1 = new SpannableString("Share a workout with ");
@@ -758,7 +760,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<Friend> friends;
+        private final List<Friend> friends;
 
         FriendsAdapter(List<Friend> friends) {
             this.friends = friends;
@@ -904,7 +906,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<FriendRequest> friendRequests;
+        private final List<FriendRequest> friendRequests;
 
         FriendRequestsAdapter(List<FriendRequest> friends) {
             this.friendRequests = friends;

@@ -115,7 +115,6 @@
                     tools:visibility="visible" />
 
             <RelativeLayout
-                    android:id="@+id/input_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/pick_focuses_recycler_view"
@@ -157,7 +156,6 @@
                             android:id="@+id/default_sets_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
                             android:hint="@string/default_sets_hint">
 
@@ -178,7 +176,6 @@
                             android:id="@+id/default_reps_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
                             android:hint="@string/default_reps_hint">
 

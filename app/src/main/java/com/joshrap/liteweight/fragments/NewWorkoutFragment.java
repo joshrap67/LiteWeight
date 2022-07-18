@@ -135,7 +135,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             exerciseIdToName.put(id, user.getOwnedExercises().get(id).getExerciseName());
         }
 
-        return inflater.inflate(R.layout.fragment_new_workout, container, false);
+        return inflater.inflate(R.layout.fragment_pending_workout, container, false);
     }
 
     @Override
@@ -858,7 +858,7 @@ public class NewWorkoutFragment extends Fragment implements FragmentWithDialog {
             }
         });
 
-        Collections.sort(focusList, String.CASE_INSENSITIVE_ORDER);
+        focusList.sort(String.CASE_INSENSITIVE_ORDER);
         ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);

@@ -256,8 +256,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<String> blockedList;
-        private Map<String, String> blockedMap;
+        private final List<String> blockedList;
+        private final Map<String, String> blockedMap;
 
         BlockedAdapter(List<String> blockedList, Map<String, String> blockedMap) {
             this.blockedMap = blockedMap;

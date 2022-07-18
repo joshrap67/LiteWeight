@@ -10,7 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -21,8 +21,6 @@ import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -456,8 +454,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         } else {
             color = R.color.workout_very_high_percentage;
         }
+        ;
         progressBar.setProgressTintList(ColorStateList.valueOf(getResources().getColor(color)));
-        progressTV.setTextColor(getResources().getColor(color));
+        progressTV.setTextColor(ContextCompat.getColor(getContext(), color));
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Restart Workout")

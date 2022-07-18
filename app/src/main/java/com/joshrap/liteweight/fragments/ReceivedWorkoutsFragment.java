@@ -197,7 +197,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void sortReceivedWorkouts() {
-        Collections.sort(receivedWorkouts, (r1, r2) -> {
+        receivedWorkouts.sort((r1, r2) -> {
             // sort based on received workout sent time (newest at top)
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));

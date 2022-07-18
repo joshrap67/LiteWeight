@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
@@ -98,7 +97,6 @@
                 tools:visibility="gone">
 
             <TextView
-                    android:id="@+id/custom_sort_TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/custom_sort_msg"
@@ -119,7 +117,6 @@
                 android:orientation="vertical">
 
             <LinearLayout
-                    android:id="@+id/mode_spinner_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -127,7 +124,9 @@
                         android:id="@+id/mode_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        android:dropDownVerticalOffset="30dp"
+                        android:spinnerMode="dropdown" />
 
                 <Button
                         android:id="@+id/add_exercises"
@@ -138,7 +137,6 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:id="@+id/spinner_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -156,7 +154,6 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:id="@+id/button_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 

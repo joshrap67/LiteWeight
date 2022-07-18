@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -222,15 +223,16 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         UCrop.Options options = new UCrop.Options();
         options.setHideBottomControls(true);
-        options.setToolbarColor(getResources().getColor(R.color.colorPrimary));
-        options.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-        options.setToolbarWidgetColor(getResources().getColor(R.color.notification_color));
+
+        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setCompressionQuality(100);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);
-        cropper.start(getActivity().getApplicationContext(), getFragmentManager().findFragmentByTag(Variables.ACCOUNT_TITLE));
+        cropper.start(getActivity().getApplicationContext(), getActivity().getSupportFragmentManager().findFragmentByTag(Variables.ACCOUNT_TITLE));
     }
 
     private void promptLogout() {
