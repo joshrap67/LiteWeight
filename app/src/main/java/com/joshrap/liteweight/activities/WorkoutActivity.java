@@ -359,7 +359,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        String action = intent.getExtras().getString(Variables.NOTIFICATION_ACTION);
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return;
+        }
+        String action = extras.getString(Variables.NOTIFICATION_ACTION);
         if (action == null) {
             return;
         }
@@ -382,9 +386,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.NEW_FRIEND_REQUEST_CLICK:
                 closeAllOpenDialogs();
-                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                goToFriendsList(extras);
+                Bundle extrasFriendRequest = new Bundle(); // to start the fragment on the friend request tab
+                extrasFriendRequest.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extrasFriendRequest);
                 break;
         }
     }
