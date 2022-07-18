@@ -30,7 +30,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="8dp"
                     android:orientation="vertical">
@@ -63,6 +63,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="8dp"
                     android:animateLayoutChanges="true">
 
                 <RelativeLayout
@@ -71,22 +72,25 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bottom_border_selectable">
 
+
+                    <TextView
+                            android:id="@+id/focus_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/focus_image_btn"
+                            android:text="@string/focuses"
+                            android:textColor="@color/hintColor"
+                            android:textSize="12sp" />
+
                     <TextView
                             android:id="@+id/focus_list_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_below="@+id/focus_title"
                             android:layout_toStartOf="@id/focus_image_btn"
                             android:text="@string/focus_label"
-                            android:textSize="18sp"
+                            android:textSize="19sp"
                             tools:text="Back, Cardio" />
-
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/focus_list_tv"
-                            android:layout_toStartOf="@id/focus_image_btn"
-                            android:text="@string/focuses"
-                            android:textSize="12sp" />
 
                     <ImageButton
                             android:id="@+id/focus_image_btn"
@@ -118,24 +122,28 @@
                     android:layout_height="match_parent"
                     android:layout_below="@id/focus_container"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/bottom_border_selectable"
                     android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/associated_workouts_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/associated_workouts"
+                        android:textColor="@color/hintColor"
+                        android:textSize="12sp" />
 
                 <TextView
                         android:id="@+id/workout_list_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/workout_name"
-                        android:textSize="18sp"
+                        android:textSize="19sp"
                         tools:text="Josh's Workout, Strength Workout, High Intensity Workout, +5 more" />
 
-                <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/associated_workouts"
-                        android:textSize="12sp" />
             </LinearLayout>
 
             <RelativeLayout
@@ -144,7 +152,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/workout_container"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="8dp">
 
@@ -173,14 +181,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/default_weight_input_layout"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:baselineAligned="false">
 
                     <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/default_sets_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
                             android:hint="@string/default_sets_hint">
 
@@ -201,7 +209,6 @@
                             android:id="@+id/default_reps_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
                             android:layout_weight=".67"
                             android:hint="@string/default_reps_hint">
 
@@ -224,6 +231,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/sets_reps_container"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/default_details_hint">
 
@@ -245,7 +253,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/default_details_input_layout"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:hint="@string/url_hint"
                         app:autoSizeTextType="uniform">
 

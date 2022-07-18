@@ -149,6 +149,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:linksClickable="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         android:text="@string/acknowledgements"
                         android:visibility="gone"
                         tools:visibility="visible" />

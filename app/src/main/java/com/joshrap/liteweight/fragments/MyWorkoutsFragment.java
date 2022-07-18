@@ -33,6 +33,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -73,6 +74,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -632,19 +634,26 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }
 
-    public class SearchFriendArrayAdapter extends ArrayAdapter<Friend> {
+    public class SearchFriendArrayAdapter extends ArrayAdapter<Friend> implements Filterable {
         private final Context context;
         private final List<Friend> allFriends;
+        private final List<Friend> displayFriends;
 
         public SearchFriendArrayAdapter(Context context, List<Friend> friends) {
             super(context, 0, friends);
             this.context = context;
             this.allFriends = new ArrayList<>(friends);
+            this.displayFriends = new ArrayList<>(friends);
         }
 
         @Override
         public Friend getItem(int position) {
-            return this.allFriends.get(position);
+            return this.displayFriends.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return this.displayFriends.size();
         }
 
         @NonNull
@@ -656,10 +665,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             }
 
             Friend friend = getItem(position);
-            TextView usernameTV = (TextView) listItem.findViewById(R.id.username_tv);
+            TextView usernameTV = listItem.findViewById(R.id.username_tv);
             usernameTV.setText(friend.getUsername());
 
-            ImageView profilePicture = (ImageView) listItem.findViewById(R.id.profile_picture);
+            ImageView profilePicture = listItem.findViewById(R.id.profile_picture);
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friend.getIcon()))
                     .error(R.drawable.picture_load_error)
@@ -703,9 +712,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 } else {
                     String filterPattern = constraint.toString().toLowerCase().trim();
 
-                    for (Friend item : allFriends) {
-                        if (item.getUsername().toLowerCase().contains(filterPattern)) {
-                            filteredFriends.add(item);
+                    for (Friend friend : allFriends) {
+                        if (friend.getUsername().toLowerCase().contains(filterPattern)) {
+                            filteredFriends.add(friend);
                         }
                     }
                 }
@@ -718,8 +727,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                clear();
-                addAll((List) results.values);
+                displayFriends.clear();
+                displayFriends.addAll((List) results.values);
                 notifyDataSetChanged();
             }
 
