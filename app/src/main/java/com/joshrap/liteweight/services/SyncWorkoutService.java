@@ -55,7 +55,7 @@ public class SyncWorkoutService extends Service {
             if (finalWorkout != null) {
                 repository.syncWorkout(finalWorkout);
                 Handler handler = new Handler(getMainLooper());
-                handler.post(() -> stopSelf());
+                handler.post(this::stopSelf);
             } else {
                 stopSelf();
             }
