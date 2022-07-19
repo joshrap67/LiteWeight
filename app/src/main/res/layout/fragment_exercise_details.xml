@@ -72,7 +72,6 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bottom_border_selectable">
 
-
                     <TextView
                             android:id="@+id/focus_title"
                             android:layout_width="match_parent"

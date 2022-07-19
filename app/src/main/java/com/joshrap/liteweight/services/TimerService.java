@@ -127,7 +127,7 @@ public class TimerService extends Service {
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-//        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
+        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);

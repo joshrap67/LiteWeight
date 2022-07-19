@@ -65,18 +65,19 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@drawable/bottom_border_selectable">
+                    android:animateLayoutChanges="true">
 
-                <LinearLayout
+                <RelativeLayout
+                        android:id="@+id/focus_relative_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentStart="true"
-                        android:layout_toStartOf="@id/focus_image_btn">
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bottom_border_selectable">
 
                     <TextView
                             android:id="@+id/focus_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
                             android:text="@string/select_focus_title"
                             android:textSize="20sp" />
 
@@ -84,40 +85,42 @@
                             android:id="@+id/focus_count_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
                             android:layout_marginStart="8dp"
+                            android:layout_toStartOf="@id/focus_image_btn"
+                            android:layout_toEndOf="@id/focus_text_view"
                             android:text="@string/focus_selected_count"
                             android:textSize="12sp" />
-                </LinearLayout>
+
+                    <ImageButton
+                            android:id="@+id/focus_image_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:src="@drawable/down_icon" />
+
+                </RelativeLayout>
 
 
-                <ImageButton
-                        android:id="@+id/focus_image_btn"
-                        android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pick_focuses_recycler_view"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/down_icon" />
+                        android:layout_below="@+id/focus_relative_layout"
+                        android:visibility="gone"
+                        tools:itemCount="1"
+                        tools:listitem="@android:layout/simple_selectable_list_item"
+                        tools:visibility="visible" />
             </RelativeLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/pick_focuses_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/focus_container"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="20dp"
-                    android:visibility="gone"
-                    tools:itemCount="1"
-                    tools:listitem="@android:layout/simple_selectable_list_item"
-                    tools:visibility="visible" />
 
             <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/pick_focuses_recycler_view"
+                    android:layout_below="@+id/focus_container"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
