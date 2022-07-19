@@ -31,5 +31,6 @@
     <color name="login_gradient_center">#FF16384B</color>
     <color name="login_gradient_end">@color/colorPrimary</color>
 
-    <color name="password_constraint_unsuccessful_match">#ff0303</color>
+    <color name="password_constraint_unsuccessful_match">#FFFFFF</color>
+    <color name="error">#FFFFFF</color>
 </resources>

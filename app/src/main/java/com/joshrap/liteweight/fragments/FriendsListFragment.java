@@ -19,6 +19,7 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -184,6 +185,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
@@ -201,7 +204,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Bundle args = getArguments();
         if (args != null) {
-            // the are args which indicates user clicked on a notification, so bring them to the requests position
+            // there are args which indicates user clicked on a notification, so bring them to the requests position
             currentIndex = REQUESTS_POSITION;
         } else {
             currentIndex = FRIENDS_POSITION;

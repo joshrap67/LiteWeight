@@ -37,6 +37,7 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="android:textCursorDrawable">@android:color/transparent</item>
         <item name="android:windowTranslucentNavigation">true</item>
+        <item name="colorError">@color/error</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
