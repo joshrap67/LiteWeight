@@ -44,10 +44,10 @@ public class AndroidUtils {
         loadingDialog.show();
     }
 
-    public static TranslateAnimation shakeError() {
+    public static TranslateAnimation shakeError(int shakeCycles) {
         TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
         shake.setDuration(350);
-        shake.setInterpolator(new CycleInterpolator(2));
+        shake.setInterpolator(new CycleInterpolator(shakeCycles));
         return shake;
     }
 

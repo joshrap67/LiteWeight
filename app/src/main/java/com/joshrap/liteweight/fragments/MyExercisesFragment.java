@@ -1,8 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,36 +9,25 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
-import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
 
-import android.widget.Toast;
-
-import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
-import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
@@ -48,15 +35,9 @@ import com.joshrap.liteweight.network.repos.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
-
-import static android.os.Looper.getMainLooper;
 
 public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
 
@@ -64,7 +45,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     private String selectedFocus;
     private User user;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
-    private AlertDialog alertDialog;
     private List<String> focusList;
     @Inject
     ProgressDialog loadingDialog;
@@ -74,6 +54,8 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         Injector.getInjector(getContext()).inject(this);
 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
@@ -118,7 +100,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
                 AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise
-                newExercisePopup();
+                ((WorkoutActivity) getActivity()).goToNewExercise();
             }
         });
         Collections.sort(focusList);
@@ -145,9 +127,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void hideAllDialogs() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
     }
 
     private void populateFocusListView() {
@@ -185,112 +164,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
             OwnedExercise exercise = (OwnedExercise) listView.getItemAtPosition(position);
             ((WorkoutActivity) getActivity()).goToExerciseDetails(exercise.getExerciseId());
         });
-    }
-
-    private void newExercisePopup() {
-        ArrayList<String> selectedFocuses = new ArrayList<>();
-        View popupView = getLayoutInflater().inflate(R.layout.popup_new_exercise, null);
-        TextInputLayout nameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
-        EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
-        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(nameLayout));
-
-        RecyclerView focusRecyclerView = popupView.findViewById(R.id.pick_focuses_recycler_view);
-        AddFocusAdapter addFocusAdapter = new AddFocusAdapter(focusList, selectedFocuses);
-        focusRecyclerView.setAdapter(addFocusAdapter);
-        focusRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Create Exercise")
-                .setView(popupView)
-                .setNegativeButton("Back", null)
-                .setPositiveButton("Create", null)
-                .create();
-        alertDialog.setOnShowListener(dialogInterface -> {
-            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            button.setOnClickListener(view -> {
-                String exerciseName = exerciseNameInput.getText().toString().trim();
-                Set<String> allExerciseNames = new HashSet<>();
-                for (String focus : totalExercises.keySet()) {
-                    for (OwnedExercise ownedExercise : totalExercises.get(focus)) {
-                        allExerciseNames.add(ownedExercise.getExerciseName());
-                    }
-                }
-                String nameError = ValidatorUtils.validNewExerciseName(exerciseName, new ArrayList<>(allExerciseNames));
-                if (selectedFocuses.isEmpty()) {
-                    Toast.makeText(getContext(), "Select at least one focus.", Toast.LENGTH_SHORT).show();
-                } else if (nameError == null) {
-                    alertDialog.dismiss();
-                    AndroidUtils.showLoadingDialog(loadingDialog, "Creating exercise...");
-                    Executor executor = Executors.newSingleThreadExecutor();
-                    executor.execute(() -> {
-                        ResultStatus<OwnedExercise> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses);
-                        Handler handler = new Handler(getMainLooper());
-                        handler.post(() -> {
-                            loadingDialog.dismiss();
-                            if (resultStatus.isSuccess()) {
-                                OwnedExercise ownedExercise = resultStatus.getData();
-                                user.getOwnedExercises().put(ownedExercise.getExerciseId(), ownedExercise);
-                                ((WorkoutActivity) getActivity()).goToExerciseDetails(ownedExercise.getExerciseId());
-                            } else {
-                                AndroidUtils.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
-                            }
-                        });
-                    });
-                } else {
-                    // there was an error with the name
-                    nameLayout.setError(nameError);
-                }
-            });
-        });
-        alertDialog.show();
-    }
-
-    private class AddFocusAdapter extends
-            RecyclerView.Adapter<AddFocusAdapter.ViewHolder> {
-        class ViewHolder extends RecyclerView.ViewHolder {
-            CheckBox focusCheckbox;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                focusCheckbox = itemView.findViewById(R.id.focus_checkbox);
-            }
-        }
-
-        private List<String> focuses;
-        private List<String> selectedFocuses;
-
-        AddFocusAdapter(List<String> focuses, List<String> selectedFocuses) {
-            this.focuses = focuses;
-            this.selectedFocuses = selectedFocuses;
-        }
-
-        @Override
-        public AddFocusAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View focusView = inflater.inflate(R.layout.row_add_focus, parent, false);
-            return new ViewHolder(focusView);
-        }
-
-        @Override
-        public void onBindViewHolder(AddFocusAdapter.ViewHolder holder, int position) {
-            String focus = focuses.get(position);
-            CheckBox focusCheckbox = holder.focusCheckbox;
-            focusCheckbox.setText(focus);
-            focusCheckbox.setOnClickListener(v -> {
-                if (!focusCheckbox.isChecked()) {
-                    selectedFocuses.remove(focus);
-                } else {
-                    selectedFocuses.add(focus);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return focuses.size();
-        }
     }
 }
 

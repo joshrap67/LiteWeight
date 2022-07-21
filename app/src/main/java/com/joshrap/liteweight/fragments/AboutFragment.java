@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import android.os.Handler;
 import android.text.InputFilter;
@@ -16,8 +18,11 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +52,7 @@ import static android.os.Looper.getMainLooper;
 public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
+    private int acknowledgementsRotationAngle;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -55,6 +61,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         Injector.getInjector(getContext()).inject(this);
 
         View view = inflater.inflate(R.layout.fragment_about, container, false);
@@ -86,18 +93,22 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             startActivity(browserIntent);
         });
 
-        TextView acknowledgementsTV = view.findViewById(R.id.acknowledgements_tv);
+        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_layout);
         TextView acknowledgements = view.findViewById(R.id.acknowledgements);
+        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon);
         acknowledgements.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
-        acknowledgementsTV.setOnClickListener(view1 -> {
-            if (acknowledgements.getVisibility() == View.GONE) {
-                acknowledgementsTV.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.up_icon, 0);
-                acknowledgements.setVisibility(View.VISIBLE);
-            } else {
-                acknowledgementsTV.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.down_icon, 0);
-                acknowledgements.setVisibility(View.GONE);
-            }
-        });
+
+        View.OnClickListener acknowledgementLayoutClicked = v -> {
+            boolean visible = acknowledgements.getVisibility() == View.VISIBLE;
+            acknowledgements.setVisibility(visible ? View.GONE : View.VISIBLE);
+            acknowledgementsRotationAngle = acknowledgementsRotationAngle == 0 ? 180 : 0;
+            acknowledgementIcon.animate().rotation(acknowledgementsRotationAngle).setDuration(400).start();
+            TransitionManager.beginDelayedTransition(container, new AutoTransition());
+        };
+
+        acknowledgementsLayout.setOnClickListener(acknowledgementLayoutClicked);
+        acknowledgementIcon.setOnClickListener(acknowledgementLayoutClicked);
+
         TextView feedbackTV = view.findViewById(R.id.feedback_tv);
         feedbackTV.setOnClickListener(view1 -> {
             View popupView = getLayoutInflater().inflate(R.layout.popup_send_feedback, null);

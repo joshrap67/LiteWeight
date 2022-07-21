@@ -76,7 +76,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.NEW_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                Variables.FRIEND_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                Variables.FRIEND_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.FRIEND_REQUEST_CHANNEL)
                 .setContentTitle("New Friend Request!")
                 .setContentText(String.format("%s wants to be your friend! Click to respond.", friendRequest.getUsername()))
@@ -149,7 +149,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                Variables.ACCEPTED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                Variables.ACCEPTED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.ACCEPTED_FRIEND_CHANNEL)
                 .setContentTitle("New Workout Buddy!")
                 .setContentText(String.format("%s accepted your friend request!", userAccepted))
@@ -179,10 +179,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                Variables.RECEIVED_WORKOUT_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                Variables.RECEIVED_WORKOUT_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
                 .setContentTitle("Workout Received!")
-                .setContentText(String.format("%s sent you a workout: \"%s\"! Click to respond.",
+                .setContentText(String.format("%s sent you a workout: %s. Click to respond.",
                         sharedWorkoutMeta.getSender(), sharedWorkoutMeta.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)

@@ -3,6 +3,10 @@ package com.joshrap.liteweight.fragments;
 import android.app.AlertDialog;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,19 +14,29 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -32,7 +46,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
+import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.StatisticsUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -44,6 +60,9 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.utils.WorkoutUtils;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -79,6 +98,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         Injector.getInjector(getContext()).inject(this);
 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
@@ -234,7 +255,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void sortWorkouts() {
         WorkoutMeta currentWorkoutMeta = user.getWorkoutMetas().get(currentWorkout.getWorkoutId());
         workoutList.remove(currentWorkoutMeta);
-        Collections.sort(workoutList, (r1, r2) -> {
+        workoutList.sort((r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
@@ -261,7 +282,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         String msg = "Times Completed: " + timesCompleted + "\n" +
                 "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
                 "Total Number of Days in Workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
-                "Most Worked Focus: " + currentWorkout.getMostFrequentFocus().replaceAll(",", ", ");
+                "Most Worked Focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
         statisticsTV.setText(msg);
     }
 
@@ -269,12 +290,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Prompt the user if they actually want to reset the selected workout's statistics.
      */
     private void promptResetStatistics() {
-        String message = "Are you sure you wish to reset the statistics for \"" +
-                currentWorkout.getWorkoutName() + "\"?\n\n" +
-                "Doing so will reset the times completed and the percentage of exercises completed.";
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to reset the statistics for ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString("?\n\nDoing so will reset the times completed and the percentage of exercises completed.");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Reset Statistics")
-                .setMessage(message)
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
                 .setNegativeButton("No", null)
                 .create();
@@ -309,8 +334,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Rename ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Rename \"" + currentWorkout.getWorkoutName() + "\"")
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", null)
@@ -362,8 +394,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
         workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Copy ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString(" as new workout");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Copy \"%s\" as new workout", currentWorkout.getWorkoutName()))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Copy", null)
                 .setNegativeButton("Cancel", null)
@@ -418,36 +458,45 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void promptShare() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
-        EditText usernameInput = popupView.findViewById(R.id.username_input);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
-        ListView friendsListView = popupView.findViewById(R.id.friends_list_view);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
         int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
         if (remainingAmount < 0) {
             remainingAmount = 0; // lol. Just to cover my ass in case
         }
         remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
-        List<String> friendsUsernames = new ArrayList<>();
+
+        List<Friend> friends = new ArrayList<>();
         for (String username : user.getFriends().keySet()) {
-            if (user.getFriends().get(username).isConfirmed()) {
-                friendsUsernames.add(username);
+            Friend friend = user.getFriends().get(username);
+            if (friend.isConfirmed()) {
+                friends.add(friend);
             }
         }
-        if (friendsUsernames.isEmpty()) {
-            // user has no friends, so hide the TV and listview that displays the friends
-            popupView.findViewById(R.id.friends_text_view).setVisibility(View.GONE);
-            friendsListView.setVisibility(View.GONE);
-        }
-        Collections.sort(friendsUsernames, String::compareToIgnoreCase);
-        ArrayAdapter<String> friendsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, friendsUsernames);
-        friendsListView.setAdapter(friendsAdapter);
-        // when user clicks on one of their friends, put that friend's username into the input
-        friendsListView.setOnItemClickListener((adapterView, view, i, l) -> usernameInput.setText(friendsUsernames.get(i)));
+
+        AutoCompleteTextView usernameInput = popupView.findViewById(R.id.username_input);
+        SearchFriendArrayAdapter adapter = new SearchFriendArrayAdapter(getContext(), friends);
+        usernameInput.setAdapter(adapter);
+        usernameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (v.hasFocus()) {
+                // show suggestions when user clicks input for first time
+                if (friends.size() > 0) {
+                    usernameInput.showDropDown();
+                }
+            }
+        });
 
         usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(usernameInputLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
+
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Share ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Share \"%s\" to another user", currentWorkout.getWorkoutName()))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
@@ -495,11 +544,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Prompt user if they actually want to delete the currently selected workout.
      */
     private void promptDelete() {
-        String message = "Are you sure you wish to permanently delete \"" + currentWorkout.getWorkoutName() + "\"?" +
-                "\n\nIf so, all statistics for it will also be deleted.";
+        // workout name is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
+        SpannableString span3 = new SpannableString("?\n\nIf so, all statistics for it will also be deleted.");
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Workout")
-                .setMessage(message)
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> {
                     String nextWorkoutId = null;
                     if (workoutList.size() >= 2) {
@@ -546,6 +600,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             // don't allow user to switch to current workout since they are already on it
             return;
         }
+
         AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -577,5 +632,110 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void resetFragment() {
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
+    }
+
+    public class SearchFriendArrayAdapter extends ArrayAdapter<Friend> implements Filterable {
+        private final Context context;
+        private final List<Friend> allFriends;
+        private final List<Friend> displayFriends;
+
+        public SearchFriendArrayAdapter(Context context, List<Friend> friends) {
+            super(context, 0, friends);
+            this.context = context;
+            this.allFriends = new ArrayList<>(friends);
+            this.displayFriends = new ArrayList<>(friends);
+        }
+
+        @Override
+        public Friend getItem(int position) {
+            return this.displayFriends.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return this.displayFriends.size();
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            View listItem = convertView;
+            if (listItem == null) {
+                listItem = LayoutInflater.from(context).inflate(R.layout.row_search_friend, parent, false);
+            }
+
+            Friend friend = getItem(position);
+            TextView usernameTV = listItem.findViewById(R.id.username_tv);
+            usernameTV.setText(friend.getUsername());
+
+            ImageView profilePicture = listItem.findViewById(R.id.profile_picture);
+            Picasso.get()
+                    .load(ImageUtils.getIconUrl(friend.getIcon()))
+                    .error(R.drawable.picture_load_error)
+                    .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                    .into(profilePicture, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            if (!MyWorkoutsFragment.this.isResumed()) {
+                                return;
+                            }
+                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                            imageDrawable.setCircular(true);
+                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                            profilePicture.setImageDrawable(imageDrawable);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    });
+
+
+            return listItem;
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return friendFilter;
+        }
+
+        private final Filter friendFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<Friend> filteredFriends = new ArrayList<>();
+
+                if (constraint == null || constraint.length() == 0) {
+                    filteredFriends.addAll(allFriends);
+                } else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for (Friend friend : allFriends) {
+                        if (friend.getUsername().toLowerCase().contains(filterPattern)) {
+                            filteredFriends.add(friend);
+                        }
+                    }
+                }
+
+                results.values = filteredFriends;
+                results.count = filteredFriends.size();
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                displayFriends.clear();
+                displayFriends.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public CharSequence convertResultToString(Object resultValue) {
+                return ((Friend) resultValue).getUsername();
+            }
+        };
     }
 }

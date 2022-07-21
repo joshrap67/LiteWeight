@@ -3,11 +3,12 @@ package com.joshrap.liteweight.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.joshrap.liteweight.utils.JsonUtils;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -54,6 +55,7 @@ public class SplashActivity extends AppCompatActivity {
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
                     try {
+                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
                         launchWorkoutActivity(resultStatus.getData());
                     } catch (JsonProcessingException e) {
                         launchSignInActivity();
@@ -79,12 +81,12 @@ public class SplashActivity extends AppCompatActivity {
             intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, notificationData);
         }
         if (userWithWorkout != null) {
-            intent.putExtra(Variables.USER_WITH_WORKOUT_DATA, JsonUtils.serializeMap(userWithWorkout.asMap()));
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
         } else {
             // really should never happen, so just launch sign in activity.
+            Toast.makeText(this, "There was a problem loading your data.", Toast.LENGTH_SHORT).show();
             launchSignInActivity();
         }
 

@@ -52,7 +52,7 @@ public class WeightUtils {
     }
 
     /**
-     * Returns formatted wight to at least two decimal points with units to be used on a button (e.g. 23.5 lb).
+     * Returns formatted weight to at least two decimal points with units to be used on a button (e.g. 23.5 lb).
      *
      * @param weight      weight to be formatted
      * @param metricUnits whether the weight is in metric or imperial.

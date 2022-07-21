@@ -2,22 +2,23 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
         applicationId "com.joshrap.liteweight"
-        minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 7
-        versionName "2.0.1"
+        minSdkVersion 24
+        targetSdkVersion 31
+        versionCode 8
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -35,8 +36,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-    implementation 'androidx.room:room-runtime:2.0.0'
-    annotationProcessor 'androidx.room:room-compiler:2.0.0'
     implementation 'com.amplifyframework:core:1.0.0'
     implementation 'com.amplifyframework:aws-auth-cognito:1.0.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.11.0'
@@ -50,6 +49,5 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
-    implementation "androidx.preference:preference:1.1.1"
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
 }

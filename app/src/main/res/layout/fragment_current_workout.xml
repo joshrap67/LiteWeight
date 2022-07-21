@@ -68,7 +68,6 @@
                     tools:text="Workout Progress - 0%" />
 
             <RelativeLayout
-                    android:id="@+id/linear_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/progress_bar_TV"
@@ -118,7 +117,8 @@
                 app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/middle_container" />
+                app:layout_constraintTop_toBottomOf="@+id/middle_container"
+                tools:visibility="gone" />
 
         <include
                 android:id="@+id/stopwatch_container"

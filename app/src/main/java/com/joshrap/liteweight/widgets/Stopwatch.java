@@ -7,10 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.joshrap.liteweight.imports.Variables;
@@ -25,9 +24,9 @@ public class Stopwatch {
     private static final long timeUnit = 1000; // in SI units of milliseconds
     private long startTimeAbsolute, initialTimeOnClock, displayTime; // in SI units of milliseconds
     private TextView stopwatchDisplay;
-    private ConstraintLayout timerContainer, stopwatchContainer;
+    private RelativeLayout timerContainer, stopwatchContainer;
     private Activity activity;
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
     private final Handler stopwatchHandler = new Handler();
     private final Runnable stopwatch = new Runnable() {
         @Override

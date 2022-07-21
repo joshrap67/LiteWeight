@@ -10,9 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +20,6 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
             <ImageView
@@ -44,10 +41,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/version_number"
                     android:textSize="24sp"
@@ -61,9 +56,10 @@
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:drawableEnd="@drawable/feedback_icon"
-                    android:elevation="2dp"
                     android:focusable="true"
-                    android:text="Feedback/Report Problem"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/feedback_report_problem"
                     android:textSize="20sp" />
 
             <TextView
@@ -76,7 +72,9 @@
                     android:drawableEnd="@drawable/faq_icon"
                     android:elevation="2dp"
                     android:focusable="true"
-                    android:text="Frequently Asked Questions (FAQ)"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/frequently_asked_questions_faq"
                     android:textSize="20sp" />
 
             <TextView
@@ -89,7 +87,9 @@
                     android:drawableEnd="@drawable/privacy_policy_icon"
                     android:elevation="2dp"
                     android:focusable="true"
-                    android:text="Privacy Policy"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/privacy_policy"
                     android:textSize="20sp" />
 
             <TextView
@@ -102,7 +102,9 @@
                     android:drawableEnd="@drawable/terms_conditions_icon"
                     android:elevation="2dp"
                     android:focusable="true"
-                    android:text="Terms and Conditions"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/terms_and_conditions"
                     android:textSize="20sp" />
 
             <LinearLayout
@@ -111,16 +113,35 @@
                     android:layout_marginTop="16dp"
                     android:orientation="vertical">
 
-                <TextView
-                        android:id="@+id/acknowledgements_tv"
+                <RelativeLayout
+                        android:id="@+id/acknowledgements_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:drawableEnd="@drawable/down_icon"
-                        android:focusable="true"
-                        android:text="@string/acknowledgements_title"
-                        android:textSize="20sp" />
+                        android:focusable="true">
+
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="@string/acknowledgements_title"
+                            android:textSize="20sp" />
+
+                    <ImageButton
+                            android:id="@+id/acknowledgements_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:src="@drawable/down_icon" />
+                </RelativeLayout>
+
 
                 <TextView
                         android:id="@+id/acknowledgements"
@@ -128,6 +149,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:linksClickable="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         android:text="@string/acknowledgements"
                         android:visibility="gone"
                         tools:visibility="visible" />

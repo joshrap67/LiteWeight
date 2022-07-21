@@ -40,6 +40,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,6 +49,7 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -228,10 +230,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String action;
-        String jsonData;
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        String action = null;
+        String jsonNotificationData = null;
         activityFinishing = false;
         if (getIntent().getExtras() != null) {
+            // there is notification data
             action = getIntent().getAction();
             if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
                 /*
@@ -245,18 +250,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 finish();
                 return;
             }
-            jsonData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
-            if (getIntent().getExtras().containsKey(Variables.USER_WITH_WORKOUT_DATA)) {
-                try {
-                    userWithWorkout = new UserWithWorkout(JsonUtils.deserialize((String) getIntent().getExtras().get(Variables.USER_WITH_WORKOUT_DATA)));
-                } catch (IOException e) {
-                    return;
-                }
-            }
-        } else {
-            // should never happen, so return early
-            return;
+            jsonNotificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
+
+        if (userWithWorkout == null) {
+            userWithWorkout = Globals.userWithWorkout;
+            Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
+        }
+
         user = userWithWorkout.getUser();
         if (userWithWorkout.isWorkoutPresent()) {
             lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
@@ -338,7 +339,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         updateEndpointToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
-        if (action != null && jsonData != null) {
+        if (action != null && jsonNotificationData != null) {
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
         }
@@ -361,7 +362,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        String action = intent.getExtras().getString(Variables.NOTIFICATION_ACTION);
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return;
+        }
+        String action = extras.getString(Variables.NOTIFICATION_ACTION);
         if (action == null) {
             return;
         }
@@ -384,9 +389,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 break;
             case Variables.NEW_FRIEND_REQUEST_CLICK:
                 closeAllOpenDialogs();
-                Bundle extras = new Bundle(); // to start the fragment on the friend request tab
-                extras.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
-                goToFriendsList(extras);
+                Bundle extrasFriendRequest = new Bundle(); // to start the fragment on the friend request tab
+                extrasFriendRequest.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
+                goToFriendsList(extrasFriendRequest);
                 break;
         }
     }
@@ -478,7 +483,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 }
                 break;
         }
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -882,6 +886,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     // region Navigation Methods
+
+    private void closeDrawerFromNavigation() {
+        new Handler().postDelayed(() -> drawer.closeDrawer(GravityCompat.START), 100);
+    }
+
     public void goToCurrentWorkout() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.CURRENT_WORKOUT_TITLE);
@@ -890,6 +899,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToMyWorkouts() {
@@ -900,6 +910,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToNewWorkout() {
@@ -933,6 +944,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 myExercisesFragment, Variables.MY_EXERCISES_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToExerciseDetails(String exerciseId) {
@@ -951,6 +963,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
+    public void goToNewExercise() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.NEW_EXERCISE_TITLE);
+        fragmentStack.add(0, Variables.NEW_EXERCISE_TITLE);
+
+
+        Fragment fragment = new NewExerciseFragment();
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
+                .commit();
+    }
+
     public void goToAccountSettings() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_TITLE);
@@ -959,6 +984,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, new MyAccountFragment(), Variables.ACCOUNT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToAccountPreferences() {
@@ -1008,6 +1034,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, receivedWorkoutsFragment, Variables.RECEIVED_WORKOUTS_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToBrowseReceivedWorkout(String workoutId, String workoutName) {
@@ -1035,6 +1062,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AppSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToAbout() {
@@ -1045,6 +1073,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
                 new AboutFragment(), Variables.ABOUT_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToFaq() {

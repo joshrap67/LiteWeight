@@ -46,6 +46,9 @@ public class TimerService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(timerFinishedId);
+
         startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
         initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, 0);
 
@@ -108,7 +111,7 @@ public class TimerService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, 0);
+                Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         return new NotificationCompat.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText(content)
@@ -130,7 +133,7 @@ public class TimerService extends Service {
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
-                Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, 0);
+                Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.TIMER_FINISHED_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText("Timer finished!")

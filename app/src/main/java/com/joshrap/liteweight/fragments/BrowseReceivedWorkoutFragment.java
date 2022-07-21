@@ -7,12 +7,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -106,6 +111,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         Injector.getInjector(getContext()).inject(this);
 
         receivedWorkoutId = null;
@@ -196,8 +203,14 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
 
+        // workout name is italicized
+        SpannableString span1 = new SpannableString(receivedWorkout.getWorkoutName());
+        SpannableString span2 = new SpannableString(" already exists");
+        span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("\"" + receivedWorkout.getWorkoutName() + "\" already exists")
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
                 .setNegativeButton("Cancel", null)

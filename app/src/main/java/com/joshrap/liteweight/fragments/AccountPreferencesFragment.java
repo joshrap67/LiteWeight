@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,8 @@ public class AccountPreferencesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_PREFS_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);

@@ -8,13 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -121,6 +126,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
@@ -193,7 +200,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void sortReceivedWorkouts() {
-        Collections.sort(receivedWorkouts, (r1, r2) -> {
+        receivedWorkouts.sort((r1, r2) -> {
             // sort based on received workout sent time (newest at top)
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -296,9 +303,16 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void blockUserPopup(String username) {
+        // username is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to block ");
+        SpannableString span2 = new SpannableString(username);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Block User")
-                .setMessage(String.format("Are you sure you wish to block \"%s\"? They will no longer be able to add you as a friend or send you any workouts.", username))
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
                 .setNegativeButton("No", null)
                 .create();
@@ -400,8 +414,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
         renameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
+
+        // username is italicized
+        SpannableString span1 = new SpannableString(sharedWorkoutMeta.getWorkoutName());
+        SpannableString span2 = new SpannableString(" already exists");
+        span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("\"" + sharedWorkoutMeta.getWorkoutName() + "\" already exists")
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
                 .setNegativeButton("Cancel", null)
@@ -443,16 +464,11 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             sharedWorkoutMeta.setSeen(true);
         }
         ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+        updateAllSeenButton();
         displayReceivedWorkouts(); // to remove any unseen indicators
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             this.workoutRepository.setAllReceivedWorkoutsSeen();
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                if (this.isResumed()) {
-                    markAllReceivedWorkoutsSeen.setVisibility(View.GONE);
-                }
-            });
         });
     }
 
@@ -570,8 +586,13 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 workoutNameBottomSheetTV.setText(receivedWorkout.getWorkoutName());
 
                 TextView workoutMetaTV = sheetView.findViewById(R.id.workout_meta_tv);
-                workoutMetaTV.setText(String.format("Most frequent focus: %s\nNumber of days: %d",
-                        receivedWorkout.getMostFrequentFocus().replaceAll(",", ", "), receivedWorkout.getTotalDays()));
+                System.out.println(receivedWorkout);
+                String mostFrequentFocus = receivedWorkout.getMostFrequentFocus();
+                if (mostFrequentFocus != null) {
+                    workoutMetaTV.setText(String.format("Most frequent focus: %s\nNumber of days: %d",
+                            mostFrequentFocus.replaceAll(",", ", "), receivedWorkout.getTotalDays()));
+                }
+
                 browseWorkout.setOnClickListener(v1 -> {
                     ((WorkoutActivity) getActivity()).goToBrowseReceivedWorkout(receivedWorkout.getWorkoutId(), receivedWorkout.getWorkoutName());
                     bottomSheetDialog.dismiss();

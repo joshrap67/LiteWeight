@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class ExerciseUtils {
 
     /**
@@ -26,6 +28,28 @@ public class ExerciseUtils {
             }
         } else {
             Toast.makeText(context, "No valid URL found.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static final String FOCUS_DELIMITER = ", ";
+
+    /**
+     * Returns comma separated string of focuses.
+     *
+     * @param focuses list of focuses.
+     */
+    public static String getFocusTitle(List<String> focuses) {
+        StringBuilder focusesBuilder = new StringBuilder();
+        focuses.sort(String::compareToIgnoreCase);
+        int count = 0;
+        for (String focus : focuses) {
+            focusesBuilder.append(focus).append((count < focuses.size() - 1) ? FOCUS_DELIMITER : "");
+            count++;
+        }
+        if (count > 0) {
+            return focusesBuilder.toString();
+        } else {
+            return null;
         }
     }
 }

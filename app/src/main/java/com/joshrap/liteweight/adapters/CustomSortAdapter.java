@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
@@ -16,9 +17,8 @@ import com.joshrap.liteweight.models.RoutineExercise;
 import java.util.List;
 import java.util.Map;
 
-public class CustomSortAdapter extends
-        RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
-    class ViewHolder extends RecyclerView.ViewHolder {
+public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseTV;
         Button weightButton;
 
@@ -29,18 +29,18 @@ public class CustomSortAdapter extends
         }
     }
 
-    private List<RoutineExercise> exercises;
-    private Map<String, String> exerciseIdToName;
-    private boolean metricUnits;
+    private final List<RoutineExercise> exercises;
+    private final Map<String, String> exerciseIdToName;
+    private final boolean metricUnits;
 
-    public CustomSortAdapter(List<RoutineExercise> routineExercises, Map<String,
-            String> exerciseIdToName, boolean metricUnits) {
+    public CustomSortAdapter(List<RoutineExercise> routineExercises, Map<String, String> exerciseIdToName, boolean metricUnits) {
         this.exercises = routineExercises;
         this.exerciseIdToName = exerciseIdToName;
         this.metricUnits = metricUnits;
     }
 
 
+    @NonNull
     @Override
     public CustomSortAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();

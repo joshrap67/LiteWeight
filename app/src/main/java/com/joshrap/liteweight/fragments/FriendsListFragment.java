@@ -8,13 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,6 +32,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -62,6 +68,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +185,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
@@ -195,7 +204,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Bundle args = getArguments();
         if (args != null) {
-            // the are args which indicates user clicked on a notification, so bring them to the requests position
+            // there are args which indicates user clicked on a notification, so bring them to the requests position
             currentIndex = REQUESTS_POSITION;
         } else {
             currentIndex = FRIENDS_POSITION;
@@ -288,12 +297,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void sortFriendsList() {
-        Collections.sort(friends, (friend, t1) -> friend.getUsername().toLowerCase().compareTo(t1.getUsername().toLowerCase()));
+        friends.sort(Comparator.comparing(friend -> friend.getUsername().toLowerCase()));
     }
 
     private void sortFriendRequestList() {
         // newest at the top
-        Collections.sort(friendRequests, (friendRequest, t1) -> {
+        friendRequests.sort((friendRequest, t1) -> {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             int retVal = 0;
             try {
@@ -466,9 +475,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void blockUserPopup(String username) {
+        // username is italicized
+        SpannableString span1 = new SpannableString("Are you sure you wish to block ");
+        SpannableString span2 = new SpannableString(username);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
+        CharSequence title = TextUtils.concat(span1, span2, span3);
+
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Block User")
-                .setMessage(String.format("Are you sure you wish to block \"%s\"? They will no longer be able to add you as a friend or send you any workouts.", username))
+                .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
                 .setNegativeButton("No", null)
                 .create();
@@ -642,22 +658,31 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             RadioButton radioButton = new RadioButton(getContext());
             radioButton.setId(id);
             radioButton.setLayoutParams(new RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT));
-            radioButton.setTextColor(getResources().getColor(R.color.defaultTextColor)); // hate this but don't know another way
+            radioButton.setTextColor(ContextCompat.getColor(getContext(), R.color.defaultTextColor)); // hate this but don't know another way
             radioButton.setText(workoutName);
             radioButton.setTextSize(16);
             workoutsRadioGroup.addView(radioButton);
             id++;
         }
+        TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
         if (workoutNames.isEmpty()) {
             // user has no workouts to send
-            TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
-            workoutTV.setText("You have no workouts to send.");
+            workoutTV.setText(R.string.no_workouts_to_send);
+            remainingToSendTv.setVisibility(View.GONE);
             workoutsRadioGroup.setVisibility(View.GONE);
+        } else {
+            workoutTV.setVisibility(View.GONE);
         }
-        Collections.sort(workoutNames, String::compareToIgnoreCase);
+        workoutNames.sort(String::compareToIgnoreCase);
+
+        // username is italicized
+        SpannableString span1 = new SpannableString("Share a workout with ");
+        SpannableString span2 = new SpannableString(friendUsername);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
-                .setTitle(String.format("Share a workout with \"%s\"", friendUsername))
+                .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
                 .setNegativeButton("Cancel", null)
@@ -738,7 +763,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<Friend> friends;
+        private final List<Friend> friends;
 
         FriendsAdapter(List<Friend> friends) {
             this.friends = friends;
@@ -884,7 +909,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private List<FriendRequest> friendRequests;
+        private final List<FriendRequest> friendRequests;
 
         FriendRequestsAdapter(List<FriendRequest> friends) {
             this.friendRequests = friends;

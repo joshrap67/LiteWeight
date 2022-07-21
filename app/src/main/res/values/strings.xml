@@ -15,14 +15,16 @@
     <string name="stopwatch_switch_description">Provides a stopwatch at the bottom of the current workout page.</string>
     <string name="timer_switch_description">Provides a timer at the bottom of the current workout page.</string>
     <string name="save">SAVE</string>
-    <string name="select_focus_title">Select Focus(s)</string>
+    <string name="select_focus_title">Select Focuses</string>
     <string name="url_hint">Video URL (Leave empty for none)</string>
     <string name="name_hint">Exercise Name</string>
     <string name="delete">Delete</string>
     <string name="done">Done</string>
+    <string name="none">None</string>
     <string name="video_switch">Videos</string>
     <string name="stopwatch_switch">Stopwatch</string>
     <string name="timer_switch">Timer</string>
+    <string name="set_timer">Set Duration</string>
     <string name="focus_label">Focus</string>
     <string name="focuses">Focuses</string>
     <string name="workouts">Workouts</string>
@@ -77,7 +79,6 @@
     <string name="copy_msg">Copy</string>
     <string name="copy_day_msg">COPY DAY</string>
     <string name="copy_week_msg">COPY WEEK</string>
-    <string name="empty_workout_day_delete_mode">No exercises for this day. Switch modes to add some.</string>
     <string name="default_weight_help_msg">The default weight of this exercise is the weight that will be defaulted to whenever you add this exercise to a new workout or existing one.
         \n\nChanging this value will NOT update any weights in existing workouts. To do that, you would have to edit the workout and edit the specific instances of this exercise with the desired weight.
         \n\nIf enabled in your user settings, this default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.
@@ -107,9 +108,9 @@
     <string name="received_workouts_alert">Received Workouts (!)</string>
     <string name="workout_progress_description">Displays a progress bar in your current workout page showing the percentage of exercises completed in the workout.</string>
     <string name="app_purpose">
-        LiteWeight is used for creating and tracking custom workouts. The “Current Workout” tab is the tab that contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed and what weight you used, and then whenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! After you create a workout you can then share it to any other LiteWeight user.
+        LiteWeight is used for creating and tracking custom workouts. The “Current Workout” tab is the tab that contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed and what weight you used. Whenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! After you create a workout you can then share it to any other LiteWeight user.
     </string>
-    <string name="restart_workout_explanation">At this time, you are not able to see specifics of workouts that have already been restarted. The only information you can get would be from your statistics of that workout to see what your average completion percentage is of the workout.</string>
+    <string name="restart_workout_explanation">At this time, you are not able to previous states of workouts. Previous progress can be inferred from the average completion percentage of the workout.</string>
     <string name="share_workout_explanation">When you share a workout to another user, it makes a copy of the workout at the time of you sharing it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
     <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will take the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. weight, sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your user settings, this default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
     <string name="feedback">Feedback</string>
@@ -138,7 +139,7 @@
     <string name="purpose_title">What is the purpose of this app?</string>
     <string name="faq_progress_title">Can I see previous progress of already restarted workouts?</string>
     <string name="faq_transfer_title">I’m getting a new phone; do I need to transfer my data over to it?</string>
-    <string name="faq_transfer">Nope, all data is stored in the cloud!</string>
+    <string name="faq_transfer">Nope, all data (except local app settings) is stored in the cloud!</string>
     <string name="faq_shared_workout_tv">I shared a workout to my friend and then changed it and they didn’t get the changes. What gives?</string>
     <string name="custom_sort_msg">Press and hold an exercise to drag it to the position you want. When you are finished, hit the button below.</string>
     <string name="empty_received_workouts_msg">You have not yet received any workouts.</string>
@@ -165,4 +166,16 @@
     <string name="gmail_detected_msg">A Google email was detected for signing up. Click the \"Sign In\" button below to sign into your Google account to verify your new LiteWeight account.\n\nNote that the account MUST match the email you are using for your new LiteWeight account.</string>
     <string name="google_alt_msg">Or, if you do not wish to verify your email here, click the \"Send Code\" button to have a verification code sent to your inbox.</string>
     <string name="my_workouts">My Workouts</string>
+    <string name="exercise_not_apart_of_workouts">Exercise is not apart of any workouts.</string>
+    <string name="copy_url">Copy Url</string>
+    <string name="preview_url">Preview URL</string>
+    <string name="no_workouts_to_send">You have no workouts to send.</string>
+    <string name="associated_workouts">Associated Workouts</string>
+    <string name="focus_selected_count"><i>%1$d selected </i></string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="frequently_asked_questions_faq">Frequently Asked Questions (FAQ)</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="feedback_report_problem">Feedback/Report Problem</string>
+    <string name="faq_default_values_tv">What are these “default” values in the details page of one of my exercises?</string>
+    <string name="change">Change</string> <!-- Extra space is needed at the end bc android dumb and cuts off last letter -->
 </resources>

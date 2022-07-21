@@ -27,6 +27,7 @@
                     android:text="@string/workout_name_title"
                     android:textSize="30sp"
                     android:textStyle="bold"
+                    app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform" />
         </androidx.appcompat.widget.Toolbar>
 
