@@ -52,7 +52,7 @@ import static android.os.Looper.getMainLooper;
 public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
-    private int rotationAngle;
+    private int acknowledgementsRotationAngle;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -101,8 +101,8 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         View.OnClickListener acknowledgementLayoutClicked = v -> {
             boolean visible = acknowledgements.getVisibility() == View.VISIBLE;
             acknowledgements.setVisibility(visible ? View.GONE : View.VISIBLE);
-            rotationAngle = rotationAngle == 0 ? 180 : 0;
-            acknowledgementIcon.animate().rotation(rotationAngle).setDuration(400).start();
+            acknowledgementsRotationAngle = acknowledgementsRotationAngle == 0 ? 180 : 0;
+            acknowledgementIcon.animate().rotation(acknowledgementsRotationAngle).setDuration(400).start();
             TransitionManager.beginDelayedTransition(container, new AutoTransition());
         };
 

@@ -3,12 +3,12 @@ package com.joshrap.liteweight.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.joshrap.liteweight.imports.Globals;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -86,6 +86,7 @@ public class SplashActivity extends AppCompatActivity {
             finish();
         } else {
             // really should never happen, so just launch sign in activity.
+            Toast.makeText(this, "There was a problem loading your data.", Toast.LENGTH_SHORT).show();
             launchSignInActivity();
         }
 

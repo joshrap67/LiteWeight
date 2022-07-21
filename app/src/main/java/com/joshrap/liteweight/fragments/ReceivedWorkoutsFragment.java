@@ -586,8 +586,13 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 workoutNameBottomSheetTV.setText(receivedWorkout.getWorkoutName());
 
                 TextView workoutMetaTV = sheetView.findViewById(R.id.workout_meta_tv);
-                workoutMetaTV.setText(String.format("Most frequent focus: %s\nNumber of days: %d",
-                        receivedWorkout.getMostFrequentFocus().replaceAll(",", ", "), receivedWorkout.getTotalDays()));
+                System.out.println(receivedWorkout);
+                String mostFrequentFocus = receivedWorkout.getMostFrequentFocus();
+                if (mostFrequentFocus != null) {
+                    workoutMetaTV.setText(String.format("Most frequent focus: %s\nNumber of days: %d",
+                            mostFrequentFocus.replaceAll(",", ", "), receivedWorkout.getTotalDays()));
+                }
+
                 browseWorkout.setOnClickListener(v1 -> {
                     ((WorkoutActivity) getActivity()).goToBrowseReceivedWorkout(receivedWorkout.getWorkoutId(), receivedWorkout.getWorkoutName());
                     bottomSheetDialog.dismiss();

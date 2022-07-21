@@ -154,7 +154,6 @@ public class PendingRoutineAdapter extends RecyclerView.Adapter<PendingRoutineAd
 
                 if (transitionType == LayoutTransition.CHANGE_APPEARING &&
                         holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                    // todo idk why this is being called twice according to console logs...
                     // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
                     smoothScroller.setTargetPosition(holder.getLayoutPosition());
                     recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);

@@ -16,7 +16,6 @@
     <color name="nav_item_selected">#02F88F</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="deny_color">#2d4440</color>
-    <color name="list_tile_background">#23363d</color>
     <!--    really stupid, only way i was able to override default box color for text input layouts. Name can't change-->
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/hintColor
     </color>

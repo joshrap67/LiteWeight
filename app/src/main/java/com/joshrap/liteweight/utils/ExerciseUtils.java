@@ -48,7 +48,6 @@ public class ExerciseUtils {
         }
         if (count > 0) {
             return focusesBuilder.toString();
-
         } else {
             return null;
         }

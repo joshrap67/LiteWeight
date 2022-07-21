@@ -33,8 +33,7 @@ public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.Vi
     private final Map<String, String> exerciseIdToName;
     private final boolean metricUnits;
 
-    public CustomSortAdapter(List<RoutineExercise> routineExercises, Map<String,
-            String> exerciseIdToName, boolean metricUnits) {
+    public CustomSortAdapter(List<RoutineExercise> routineExercises, Map<String, String> exerciseIdToName, boolean metricUnits) {
         this.exercises = routineExercises;
         this.exerciseIdToName = exerciseIdToName;
         this.metricUnits = metricUnits;

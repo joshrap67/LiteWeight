@@ -50,7 +50,6 @@ import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -72,9 +71,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private ClipboardManager clipboard;
     private UserWithWorkout userWithWorkout;
     private List<String> focusList, selectedFocuses;
-    private int rotationAngle;
+    private int focusRotationAngle;
     private RelativeLayout focusRelativeLayout;
-    private TextView focusesTv;
+    private TextView focusesTV;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
@@ -113,7 +112,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         originalExercise = user.getOwnedExercises().get(exerciseId);
         selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
 
-        focusesTv = view.findViewById(R.id.focus_list_tv);
+        focusesTV = view.findViewById(R.id.focus_list_tv);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
 
@@ -160,22 +159,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
-        if (originalExercise.getVideoUrl().isEmpty()) {
-            clipboardBtn.setVisibility(View.GONE);
-            previewBtn.setVisibility(View.GONE);
-        }
-
-        urlInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if (v.hasFocus()) {
-                clipboardBtn.setVisibility(View.GONE);
-                previewBtn.setVisibility(View.GONE);
-            } else {
-                if (urlInput.getText().length() > 0) {
-                    clipboardBtn.setVisibility(View.VISIBLE);
-                    previewBtn.setVisibility(View.VISIBLE);
-                }
-            }
-        });
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
             workoutListTv.setText(R.string.none);
@@ -214,8 +197,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         View.OnClickListener focusLayoutClicked = v -> {
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
-            rotationAngle = rotationAngle == 0 ? 180 : 0;
-            focusRowIcon.animate().rotation(rotationAngle).setDuration(400).start();
+            focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
+            focusRowIcon.animate().rotation(focusRotationAngle).setDuration(400).start();
             if (visible) {
                 // provide smooth animation when closing
                 TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), new AutoTransition());
@@ -229,9 +212,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     private void setFocusTextView(String title) {
         if (title == null) {
-            focusesTv.setText(R.string.none);
+            focusesTV.setText(R.string.none);
         } else {
-            focusesTv.setText(title);
+            focusesTV.setText(title);
         }
     }
 
@@ -345,7 +328,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
      * Prompt user if they actually want to delete the currently selected workout
      */
     private void promptDelete() {
-
         // exercise name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
         SpannableString span2 = new SpannableString(originalExercise.getExerciseName());

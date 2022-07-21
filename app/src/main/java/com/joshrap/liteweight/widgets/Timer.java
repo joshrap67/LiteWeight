@@ -69,7 +69,6 @@ public class Timer {
      * @param stopwatchVisible whether the button to change to the stopwatch should be visible or not
      */
     public void initTimerUI(View timerView, Activity _activity, boolean stopwatchVisible) {
-        // todo get rid of this and use a broadcast?
         activity = _activity;
         startTimer = timerView.findViewById(R.id.start_timer);
         stopTimer = timerView.findViewById(R.id.stop_timer);

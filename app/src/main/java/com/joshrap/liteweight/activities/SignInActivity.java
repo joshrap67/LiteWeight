@@ -523,8 +523,6 @@ public class SignInActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        startActivity(intent);
-        finish();
     }
 
     private void attemptSignUp(String username, String password, String email, String optionalIdToken) {
