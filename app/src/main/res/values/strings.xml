@@ -176,5 +176,6 @@
     <string name="frequently_asked_questions_faq">Frequently Asked Questions (FAQ)</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="feedback_report_problem">Feedback/Report Problem</string>
-    <string name="faq_default_values_tv">What are these “default” values in the details page of one of my exercises?</string> <!-- Extra space is needed at the end bc android dumb and cuts off last letter -->
+    <string name="faq_default_values_tv">What are these “default” values in the details page of one of my exercises?</string>
+    <string name="change">Change</string> <!-- Extra space is needed at the end bc android dumb and cuts off last letter -->
 </resources>
