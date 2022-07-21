@@ -46,6 +46,9 @@ public class TimerService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(timerFinishedId);
+
         startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
         initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, 0);
 
