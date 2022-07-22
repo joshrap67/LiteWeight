@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
@@ -112,14 +113,26 @@ public class TimerService extends Service {
         notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-        return new NotificationCompat.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
-                .setContentTitle("Timer")
-                .setContentText(content)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setSound(null)
-                .setContentIntent(contentIntent)
-                .setOnlyAlertOnce(true) // only the first notification sent has a sound
-                .build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // weird bug on android 12 if this isn't used sometimes the notification is delayed
+            return new Notification.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
+                    .setContentTitle("Timer")
+                    .setContentText(content)
+                    .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+                    .setSmallIcon(R.drawable.notification_icon)
+                    .setContentIntent(contentIntent)
+                    .setOnlyAlertOnce(true) // only the first notification sent has a sound
+                    .build();
+        } else {
+            return new NotificationCompat.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
+                    .setContentTitle("Timer")
+                    .setContentText(content)
+                    .setSmallIcon(R.drawable.notification_icon)
+                    .setSound(null)
+                    .setContentIntent(contentIntent)
+                    .setOnlyAlertOnce(true) // only the first notification sent has a sound
+                    .build();
+        }
     }
 
     /**

@@ -685,6 +685,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     Variables.STOPWATCH_RUNNING_CHANNEL,
                     "Stopwatch Running",
                     NotificationManager.IMPORTANCE_DEFAULT);
+            stopwatchRunningChannel.setSound(null, null);
             manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(stopwatchRunningChannel);
 
