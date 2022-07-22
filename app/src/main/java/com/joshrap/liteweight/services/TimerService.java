@@ -77,7 +77,10 @@ public class TimerService extends Service {
         // get rid of the timer running notification whenever the service is killed
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(timerRunningId);
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
+
         super.onDestroy();
     }
 
