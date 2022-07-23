@@ -7,6 +7,7 @@ Default exercises are provided for adding to workouts, and any custom exercises 
 Friend requests can be sent to any other LiteWeight user and workouts can additionally be shared to any user.
 
 [Demo of LiteWeight version 2.0.0](https://youtu.be/2qwGRo8YSXg)
+[Change in v2.1.0](https://youtu.be/YlttwMJ_iwo)
 
 Refer to the Wiki for details on the application logic.
 
