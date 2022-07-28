@@ -14,7 +14,7 @@ Refer to the Wiki for details on the application logic.
 
 ## Prerequisites
 
-This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 21. The targeted SDK for this application is: 29.
+This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 24. The targeted SDK for this application is: 31.
 
 An internet connection is required to run this application.
 
