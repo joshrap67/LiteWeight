@@ -1,7 +1,9 @@
 package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.models.Routine;
+import com.joshrap.liteweight.models.RoutineDay1;
 import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.RoutineWeek1;
 import com.joshrap.liteweight.models.User;
 
 import java.util.HashMap;
@@ -31,6 +33,17 @@ public class WorkoutUtils {
      */
     public static String generateDayTitle(int currentWeekIndex, int currentDayIndex) {
         return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
+    }
+
+    /**
+     * Generates a day title in a standard format. E.g. W1:D2
+     *
+     * @param week current week of the routine.
+     * @param day  current day of the routine.
+     * @return formatted day title.
+     */
+    public static String generateDayTitle(RoutineWeek1 week, RoutineDay1 day) {
+        return "W" + (week.getIndex() + 1) + ":D" + (day.getIndex() + 1);
     }
 
 

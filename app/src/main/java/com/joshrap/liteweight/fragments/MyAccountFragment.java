@@ -153,7 +153,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                // a picture was successfully picked, so no immediately send it to be cropped
+                // a picture was successfully picked, so immediately send it to be cropped
                 try {
                     final Uri selectedUri = data.getData();
                     performCrop(selectedUri);
@@ -202,6 +202,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
+                    // todo update the icon on the user dumb dumb
                     if (!resultStatus.isSuccess()) {
                         AndroidUtils.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
                     }

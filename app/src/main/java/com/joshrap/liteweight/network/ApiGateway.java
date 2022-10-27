@@ -39,6 +39,7 @@ public class ApiGateway {
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
+        // todo put app version in all api calls
         if (this.tokens != null) {
             try {
                 URL url = new URL(BackendConfig.apiUrl + BackendConfig.deploymentStage + action);

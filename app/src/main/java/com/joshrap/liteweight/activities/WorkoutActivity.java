@@ -15,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -203,9 +205,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         }
 
                         // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
-                        boolean updateUnseen =
-                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
-                                        user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
+                        boolean updateUnseen = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
+                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
                         // no npe since Java will see the first part is true and then immediately return true
                         if (updateUnseen) {
                             // workout has not been seen yet so increase the unseen count
@@ -253,9 +254,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             jsonNotificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
 
-        if (userWithWorkout == null) {
+        if (userWithWorkout == null && Globals.userWithWorkout != null) {
             userWithWorkout = Globals.userWithWorkout;
             Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
+        } else if (userWithWorkout == null) {
+            // ughhhh. if app is eventually killed by OS, static vars get nulled out. so in that case just restart app for user to avoid crash
+            Intent intent = new Intent(this, SplashActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         user = userWithWorkout.getUser();
@@ -295,8 +301,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         }
 
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.nav_draw_open, R.string.nav_draw_close);
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         if (savedInstanceState == null) {
@@ -343,6 +348,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
         }
+        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
     private void launchSplashActivity(String jsonData, String action) {
@@ -451,6 +457,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        // todo annoying that animation has to stop for this to be clickable
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
                 if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
@@ -486,39 +493,28 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        Fragment visibleFragment = getVisibleFragment();
-        boolean modified = isFragmentModified(visibleFragment);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            // if the user clicked the navigation panel, allow back press to close it.
-            drawer.closeDrawer(GravityCompat.START);
-            return;
-        } else if (visibleFragment instanceof NewWorkoutFragment) {
-            if (modified && showPopupFlag) {
-                // workout is being made, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesPopup(Variables.NEW_WORKOUT_TITLE);
+    OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        // no longer overriding on back pressed. Using this callback means I can handle back presses in the fragments
+        @Override
+        public void handleOnBackPressed() {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                // if the user clicked the navigation panel, allow back press to close it.
+                drawer.closeDrawer(GravityCompat.START);
                 return;
             }
-        } else if (visibleFragment instanceof EditWorkoutFragment) {
-            if (modified && showPopupFlag) {
-                // workout is being edited, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesPopup(Variables.EDIT_WORKOUT_TITLE);
-                return;
-            }
-        }
 
-        if (fragmentStack.size() > 1) {
-            // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
-            popFragStack();
-        } else {
-            super.onBackPressed();
+            if (fragmentStack.size() > 1) {
+                // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
+                popFragStack();
+            } else {
+                ActivityCompat.finishAffinity(WorkoutActivity.this);
+            }
+
         }
-    }
+    };
 
     private void syncCurrentWorkout() {
-        if (userWithWorkout.isWorkoutPresent()
-                && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
+        if (userWithWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
             // we assume it always succeeds
             lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
             Intent intent = new Intent(this, SyncWorkoutService.class);
@@ -757,15 +753,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Found on SO. Hides keyboard when clicking outside editText.
             https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
          */
+        // todo this is causing weirdness on list views when clicking buttons and edit texts
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (v instanceof EditText) {
+            View view = getCurrentFocus();
+            if (view instanceof EditText) {
                 Rect viewRect = new Rect();
-                v.getGlobalVisibleRect(viewRect);
+                view.getGlobalVisibleRect(viewRect);
                 if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     boolean touchTargetIsEditText = false;
                     //Check if another editText has been touched
-                    for (View vi : v.getRootView().getTouchables()) {
+                    for (View vi : view.getRootView().getTouchables()) {
                         if (vi instanceof EditText) {
                             Rect clickedViewRect = new Rect();
                             vi.getGlobalVisibleRect(clickedViewRect);
@@ -777,38 +774,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         }
                     }
                     if (!touchTargetIsEditText) {
-                        v.clearFocus();
+                        view.clearFocus();
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
                 }
             }
         }
         return super.dispatchTouchEvent(event);
-    }
-
-    /**
-     * Shows a popup whenever user has unfinished work in either the new workout fragment or edit workout one.
-     *
-     * @param fragmentTitle title of the fragment that is unfinished.
-     */
-    private void showUnsavedChangesPopup(String fragmentTitle) {
-        String message = "";
-        if (fragmentTitle.equals(Variables.EDIT_WORKOUT_TITLE)) {
-            message = getString(R.string.popup_message_edit_workout);
-        } else if (fragmentTitle.equals(Variables.NEW_WORKOUT_TITLE)) {
-            message = getString(R.string.unsaved_workout_msg);
-        }
-        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Unsaved Changes")
-                .setMessage(message)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    showPopupFlag = false;
-                    onBackPressed();
-                })
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
     }
 
     /**
@@ -828,16 +801,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         imageDrawable.setCircular(true);
         imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
         profilePicture.setImageDrawable(imageDrawable);
-    }
-
-    private boolean isFragmentModified(Fragment aFragment) {
-        boolean retVal = false;
-        if (aFragment instanceof NewWorkoutFragment) {
-            retVal = ((NewWorkoutFragment) aFragment).isModified();
-        } else if (aFragment instanceof EditWorkoutFragment) {
-            retVal = ((EditWorkoutFragment) aFragment).isModified();
-        }
-        return retVal;
     }
 
     private Fragment getVisibleFragment() {
@@ -921,7 +884,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
+                .replace(R.id.fragment_container, new BlankFragment(), Variables.NEW_WORKOUT_TITLE)
                 .commit();
     }
 

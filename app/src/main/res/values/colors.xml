@@ -8,13 +8,15 @@
     <color name="color_control">#1FE4CE</color>
     <color name="popupBackground">#A0A4AA</color>
     <color name="row_activated">#8530688A</color>
-    <color name="row_pressed">#374B5A</color>
+    <color name="row_pressed">#80374B5A</color>
     <color name="notification_color">#FFFFFF</color>
     <color name="window_background">#0b2027</color>
     <color name="options_background">#153647</color>
     <color name="divider_color">#75FFFFFF</color>
     <color name="nav_item_selected">#02F88F</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="week_card_background">#DD0F2D36</color>
+    <color name="day_card_background">#DD143946</color>
     <color name="deny_color">#2d4440</color>
     <!--    really stupid, only way i was able to override default box color for text input layouts. Name can't change-->
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/hintColor

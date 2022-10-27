@@ -8,7 +8,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.joshrap.liteweight"
+        applicationId "com.joshrap.liteweightt"
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 9

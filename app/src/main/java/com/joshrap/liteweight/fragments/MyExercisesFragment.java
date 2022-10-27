@@ -91,7 +91,6 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_btn);
         createBtn.setOnClickListener(v -> {
-
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
                 AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());

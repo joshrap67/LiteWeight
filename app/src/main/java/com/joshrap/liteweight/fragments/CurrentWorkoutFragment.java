@@ -140,7 +140,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             progressBarLayout.setVisibility(View.GONE);
         }
 
-        setupChronometer(view);
+        setupTimerStopwatchUI(view);
         setupButtons();
         updateRoutineListUI();
         updateWorkoutProgressBar();
@@ -188,7 +188,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      *
      * @param view fragment view.
      */
-    private void setupChronometer(View view) {
+    private void setupTimerStopwatchUI(View view) {
         RelativeLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
         RelativeLayout timerContainer = view.findViewById(R.id.timer_container);
 

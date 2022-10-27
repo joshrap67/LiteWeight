@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/day_card"
+        android:layout_width="110dp"
+        android:layout_height="70dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/day_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:outlineProvider="bounds">
+
+    <TextView
+            android:id="@+id/day_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Day 1"
+            android:textSize="17sp" />
+
+    <TextView
+            android:id="@+id/exercise_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="12 exercises"
+            android:textSize="11sp"
+            android:textStyle="italic" />
+</RelativeLayout>
