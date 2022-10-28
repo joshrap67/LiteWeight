@@ -11,8 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.List;
 import java.util.Map;

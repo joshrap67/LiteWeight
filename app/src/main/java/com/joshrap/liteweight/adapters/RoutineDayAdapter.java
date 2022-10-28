@@ -19,8 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.Routine1;
-import com.joshrap.liteweight.models.RoutineExercise1;
+import com.joshrap.liteweight.models.Routine;
+import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.List;
@@ -69,14 +69,14 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     }
 
     private final Map<String, String> exerciseIdToName;
-    private final Routine1 pendingRoutine;
+    private final Routine pendingRoutine;
     private final int currentWeek;
     private final int currentDay;
     private final RecyclerView recyclerView;
     private final boolean metricUnits;
 
     public RoutineDayAdapter(Map<String, String> exerciseIdToName,
-                             Routine1 routine, int currentWeek, int currentDay, boolean metricUnits,
+                             Routine routine, int currentWeek, int currentDay, boolean metricUnits,
                              RecyclerView recyclerView) {
         this.exerciseIdToName = exerciseIdToName;
         this.pendingRoutine = routine;
@@ -109,7 +109,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
         if (!payloads.isEmpty()) {
             // this exercise has been updated, clear errors, set values, and animate back to single row
-            final RoutineExercise1 exercise = Exercises().get(position);
+            final RoutineExercise exercise = Exercises().get(position);
 
             // remove any errors
             holder.weightInputLayout.setError(null);
@@ -128,13 +128,13 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         }
     }
 
-    private List<RoutineExercise1> Exercises(){
+    private List<RoutineExercise> Exercises(){
         return pendingRoutine.getExerciseListForDay(currentWeek, currentDay);
     }
 
     @Override
     public void onBindViewHolder(RoutineDayAdapter.ViewHolder holder, int position) {
-        final RoutineExercise1 exercise = Exercises().get(position);
+        final RoutineExercise exercise = Exercises().get(position);
 
         LinearLayout rootLayout = holder.rootLayout;
         LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
@@ -223,7 +223,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         });
     }
 
-    private void setInputs(ViewHolder holder, RoutineExercise1 exercise) {
+    private void setInputs(ViewHolder holder, RoutineExercise exercise) {
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         holder.weightButton.setText(formattedWeight);

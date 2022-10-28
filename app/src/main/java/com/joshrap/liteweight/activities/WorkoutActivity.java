@@ -877,14 +877,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         closeDrawerFromNavigation();
     }
 
-    public void goToNewWorkout() {
+    public void goToCreateWorkout() {
         saveCurrentFragmentState();
-        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-        fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+        fragmentStack.remove(Variables.CREATE_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.CREATE_WORKOUT_TITLE);
+
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(Variables.EXISTING_WORKOUT, false);
+        Fragment fragment = new PendingWorkoutFragment();
+        fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new BlankFragment(), Variables.NEW_WORKOUT_TITLE)
+                .replace(R.id.fragment_container, fragment, Variables.CREATE_WORKOUT_TITLE)
                 .commit();
     }
 
@@ -893,8 +898,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
 
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new EditWorkoutFragment(), Variables.EDIT_WORKOUT_TITLE)
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(Variables.EXISTING_WORKOUT, true);
+        Fragment fragment = new PendingWorkoutFragment();
+        fragment.setArguments(arguments);
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment, Variables.EDIT_WORKOUT_TITLE)
                 .commit();
     }
 

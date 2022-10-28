@@ -52,7 +52,7 @@ public class Variables {
 
     public static final String CURRENT_WORKOUT_TITLE = "Current Workout";
     public static final String MY_WORKOUT_TITLE = "My Workouts";
-    public static final String NEW_WORKOUT_TITLE = "Create Workout";
+    public static final String CREATE_WORKOUT_TITLE = "Create Workout";
     public static final String EDIT_WORKOUT_TITLE = "Edit Workout";
     public static final String MY_EXERCISES_TITLE = "My Exercises";
     public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
@@ -78,6 +78,7 @@ public class Variables {
     public static final String NOTIFICATION_CLICKED = "NotificationClicked";
     public static final String NOTIFICATION_ACTION = "NotificationAction";
     public static final String EXERCISE_ID = "exerciseId";
+    public static final String EXISTING_WORKOUT = "existingWorkout";
 
     public static final String ID_TOKEN_KEY = "IdToken";
     public static final String REFRESH_TOKEN_KEY = "RefreshToken";

@@ -22,7 +22,7 @@ public class SharedExercise implements Model {
     private Integer reps;
     private String details;
 
-    SharedExercise(final Map<String, Object> json) {
+    public SharedExercise(final Map<String, Object> json) {
         this.exerciseName = (String) json.get(EXERCISE_NAME);
         this.weight = (Double) json.get(WEIGHT);
         this.sets = (Integer) json.get(SETS);
@@ -33,11 +33,11 @@ public class SharedExercise implements Model {
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        retVal.put(WEIGHT, this.weight);
-        retVal.put(EXERCISE_NAME, this.exerciseName);
-        retVal.put(SETS, this.sets);
-        retVal.put(REPS, this.reps);
-        retVal.put(DETAILS, this.details);
+        retVal.putIfAbsent(WEIGHT, this.weight);
+        retVal.putIfAbsent(EXERCISE_NAME, this.exerciseName);
+        retVal.putIfAbsent(SETS, this.sets);
+        retVal.putIfAbsent(REPS, this.reps);
+        retVal.putIfAbsent(DETAILS, this.details);
         return retVal;
     }
 }

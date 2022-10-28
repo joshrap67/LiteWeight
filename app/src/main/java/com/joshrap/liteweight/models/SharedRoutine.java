@@ -15,33 +15,31 @@ import lombok.Data;
 
 @Data
 @SuppressLint("UseSparseArrays")
-public class SharedRoutine implements Model, Iterable<Integer> {
+public class SharedRoutine implements Model, Iterable<SharedWeek> {
 
-    private Map<Integer, SharedWeek> weeks;
+    public static final String WEEKS = "weeks";
+
+    private List<SharedWeek> weeks;
 
     public SharedRoutine() {
-        this.weeks = new HashMap<>();
+        this.weeks = new ArrayList<>();
     }
 
     public SharedRoutine(Map<String, Object> json) {
         if (json == null) {
-            this.weeks = null;
+            this.weeks = new ArrayList<>();
         } else {
-            this.weeks = new HashMap<>();
-            for (String week : json.keySet()) {
-                SharedWeek sharedWeek = new SharedWeek((Map<String, Object>) json.get(week));
-                this.weeks.put(Integer.parseInt(week), sharedWeek);
+            this.weeks = new ArrayList<>();
+            List<Object> jsonWeeks = (List<Object>) json.get(WEEKS);
+            for (Object jsonKey : jsonWeeks) {
+                SharedWeek sharedWeek = new SharedWeek((Map<String, Object>) jsonKey);
+                this.weeks.add(sharedWeek);
             }
         }
     }
 
     public List<SharedExercise> getExerciseListForDay(int week, int day) {
-        List<SharedExercise> exerciseList = new ArrayList<>();
-        TreeMap<Integer, SharedExercise> sorted = new TreeMap<>(this.getWeek(week).getDay(day).getExercises());
-        for (Integer sortVal : sorted.keySet()) {
-            exerciseList.add(this.getDay(week, day).getExercise(sortVal));
-        }
-        return exerciseList;
+        return new ArrayList<>(this.getDay(week, day).getExercises());
     }
 
     public SharedWeek getWeek(int week) {
@@ -52,34 +50,23 @@ public class SharedRoutine implements Model, Iterable<Integer> {
         return this.weeks.get(week).getDay(day);
     }
 
-    void putWeek(int weekIndex, SharedWeek week) {
-        this.weeks.put(weekIndex, week);
-    }
-
     public int getNumberOfWeeks() {
         return this.weeks.size();
-    }
-
-    public int getTotalNumberOfDays() {
-        int days = 0;
-        for (Integer week : this.weeks.keySet()) {
-            days += this.weeks.get(week).getNumberOfDays();
-        }
-        return days;
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        for (Integer week : this.weeks.keySet()) {
-            retVal.put(week.toString(), this.getWeek(week).asMap());
+        List<Object> jsonWeeks = new ArrayList<>();
+        for (SharedWeek week : this) {
+            jsonWeeks.add(week.asMap());
         }
-
+        retVal.put(WEEKS, jsonWeeks);
         return retVal;
     }
 
     @Override
-    public Iterator<Integer> iterator() {
-        return this.weeks.keySet().iterator();
+    public Iterator<SharedWeek> iterator() {
+        return this.weeks.iterator();
     }
 }

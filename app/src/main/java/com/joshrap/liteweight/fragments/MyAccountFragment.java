@@ -117,6 +117,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         updateFriendsTvNotification();
 
         profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
+        // todo this is stale when uploading and coming back to this page
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
@@ -202,7 +203,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
-                    // todo update the icon on the user dumb dumb
                     if (!resultStatus.isSuccess()) {
                         AndroidUtils.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
                     }
@@ -231,8 +231,8 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
+        // todo blurry
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        options.setCompressionQuality(100);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);

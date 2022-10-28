@@ -37,6 +37,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
+import com.joshrap.liteweight.models.SharedDay;
+import com.joshrap.liteweight.models.SharedWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -393,12 +395,12 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (Integer week : sharedRoutine) {
-            for (Integer day : sharedRoutine.getWeek(week)) {
-                if (week == currentWeekIndex && day == currentDayIndex) {
+        for (SharedWeek week : sharedRoutine) {
+            for (SharedDay day : week) {
+                if (week.getIndex() == currentWeekIndex && day.getIndex() == currentDayIndex) {
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(week.getIndex(), day.getIndex());
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -420,11 +422,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (Integer week : sharedRoutine) {
-                        for (Integer day : sharedRoutine.getWeek(week)) {
+                    for (SharedWeek week : sharedRoutine) {
+                        for (SharedDay day : week) {
                             if (count == dayPicker.getValue()) {
-                                currentWeekIndex = week;
-                                currentDayIndex = day;
+                                currentWeekIndex = week.getIndex();
+                                currentDayIndex = day.getIndex();
                             }
                             count++;
                         }

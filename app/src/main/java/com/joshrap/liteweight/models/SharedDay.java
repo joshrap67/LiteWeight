@@ -4,53 +4,54 @@ import android.annotation.SuppressLint;
 
 import com.joshrap.liteweight.interfaces.Model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
 import lombok.Data;
 
 @Data
 @SuppressLint("UseSparseArrays")
-public class SharedDay implements Iterable<Integer>, Model {
+public class SharedDay implements Iterable<SharedExercise>, Model {
 
-    private Map<Integer, SharedExercise> exercises;
+    public static final String EXERCISES = "exercises";
+
+    private List<SharedExercise> exercises;
+    private Integer index;
 
     public SharedDay() {
-        this.exercises = new HashMap<>();
+        this.exercises = new ArrayList<>();
     }
 
-    public SharedDay(Map<String, Object> exercisesForDay) {
-        this.exercises = new HashMap<>();
-        for (String sortVal : exercisesForDay.keySet()) {
-            SharedExercise routineExercise = new SharedExercise(
-                (Map<String, Object>) exercisesForDay.get(sortVal));
-            this.exercises.put(Integer.parseInt(sortVal), routineExercise);
+    public SharedDay(Map<String, Object> json) {
+        this.exercises = new ArrayList<>();
+
+        List<Object> exercisesJson = (List<Object>) json.get(EXERCISES);
+        for (Object exerciseJson : exercisesJson) {
+            SharedExercise routineExercise = new SharedExercise((Map<String, Object>) exerciseJson);
+            this.exercises.add(routineExercise);
         }
     }
 
-    public int getNumberOfExercises() {
-        return this.exercises.size();
-    }
-
-    SharedExercise getExercise(int sortVal) {
-        return this.exercises.get(sortVal);
-    }
-
     public void put(int sortVal, SharedExercise sharedExercise) {
-        this.exercises.put(sortVal, sharedExercise);
+        this.exercises.set(sortVal, sharedExercise);
     }
 
     @Override
-    public Iterator<Integer> iterator() {
-        return this.exercises.keySet().iterator();
+    public Iterator<SharedExercise> iterator() {
+        return this.exercises.iterator();
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        for (Integer sortVal : this) {
-            retVal.put(sortVal.toString(), this.getExercise(sortVal).asMap());
+        List<Object> jsonExercises = new ArrayList<>();
+        for (SharedExercise exercise : this) {
+            jsonExercises.add(exercise.asMap());
         }
+        retVal.put(EXERCISES, jsonExercises);
         return retVal;
     }
 }

@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.models;
 
+import androidx.annotation.NonNull;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class RoutineExercise implements Model, Cloneable {
     private int reps;
     private String details;
 
+    @NonNull
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

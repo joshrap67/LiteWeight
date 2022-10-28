@@ -36,6 +36,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.models.RoutineDay;
+import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
@@ -117,7 +119,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
             FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
-            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
 
@@ -136,7 +138,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         workoutProgressBar = view.findViewById(R.id.progress_bar);
         workoutProgressTV = view.findViewById(R.id.progress_bar_TV);
         if (!sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true)) {
-            RelativeLayout progressBarLayout = view.findViewById(R.id.relative_layout_progress);
+            RelativeLayout progressBarLayout = view.findViewById(R.id.workout_progress_layout);
             progressBarLayout.setVisibility(View.GONE);
         }
 
@@ -354,9 +356,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void updateWorkoutProgressBar() {
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     totalExercises++;
                     if (routineExercise.isCompleted()) {
                         exercisesCompleted++;
@@ -376,13 +378,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                if (week == currentWeekIndex && day == currentDayIndex) {
+        for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
+            RoutineWeek week = routine.getWeek(weekIndex);
+            for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+                if (weekIndex == currentWeekIndex && dayIndex == currentDayIndex) {
                     // for highlighting what day the user is currently on
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(weekIndex, dayIndex);
                 days.add(dayTitle);
                 totalDays++;
             }
@@ -404,11 +407,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (Integer week : routine) {
-                        for (Integer day : routine.getWeek(week)) {
+                    for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
+                        RoutineWeek week = routine.getWeek(weekIndex);
+                        for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
                             if (count == dayPicker.getValue()) {
-                                currentWeekIndex = week;
-                                currentDayIndex = day;
+                                currentWeekIndex = weekIndex;
+                                currentDayIndex = dayIndex;
                             }
                             count++;
                         }
@@ -427,9 +431,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void showRestartPopup() {
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     totalExercises++;
                     if (routineExercise.isCompleted()) {
                         exercisesCompleted++;

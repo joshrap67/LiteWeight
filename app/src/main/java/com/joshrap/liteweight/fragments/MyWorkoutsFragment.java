@@ -68,7 +68,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -123,7 +122,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
             FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
-            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
         workoutList = new ArrayList<>(user.getWorkoutMetas().values());
@@ -223,7 +222,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 AndroidUtils.showErrorDialog("Too many workouts", "You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
             } else {
                 // no errors so let user create new workout
-                ((WorkoutActivity) getActivity()).goToNewWorkout();
+                ((WorkoutActivity) getActivity()).goToCreateWorkout();
             }
         });
 

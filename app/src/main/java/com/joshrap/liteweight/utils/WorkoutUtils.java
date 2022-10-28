@@ -1,9 +1,9 @@
 package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineDay1;
+import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.RoutineWeek1;
+import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 
 import java.util.HashMap;
@@ -17,9 +17,9 @@ public class WorkoutUtils {
         if (routine == null) {
             return;
         }
-        for (int week : routine) {
-            for (int day : routine.getWeek(week)) {
-                routine.removeExercise(week, day, exerciseId);
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                day.deleteExercise(exerciseId);
             }
         }
     }
@@ -36,18 +36,6 @@ public class WorkoutUtils {
     }
 
     /**
-     * Generates a day title in a standard format. E.g. W1:D2
-     *
-     * @param week current week of the routine.
-     * @param day  current day of the routine.
-     * @return formatted day title.
-     */
-    public static String generateDayTitle(RoutineWeek1 week, RoutineDay1 day) {
-        return "W" + (week.getIndex() + 1) + ":D" + (day.getIndex() + 1);
-    }
-
-
-    /**
      * Gets the most frequent focus for a given routine.
      *
      * @param user    user containing the current exercises and their focuses
@@ -56,10 +44,9 @@ public class WorkoutUtils {
      */
     public static String getMostFrequentFocus(final User user, final Routine routine) {
         Map<String, Integer> focusCount = new HashMap<>();
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                List<RoutineExercise> exerciseListForDay = routine.getExerciseListForDay(week, day);
-                for (RoutineExercise routineExercise : exerciseListForDay) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     String exerciseId = routineExercise.getExerciseId();
                     for (String focus : user.getOwnedExercises().get(exerciseId).getFocuses()) {
                         focusCount.merge(focus, 1, Integer::sum);

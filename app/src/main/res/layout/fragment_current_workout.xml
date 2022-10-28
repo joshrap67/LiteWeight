@@ -53,37 +53,39 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout">
 
-        <RelativeLayout
-                android:id="@+id/relative_layout_progress"
+        <FrameLayout
+                android:id="@+id/workout_progress_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
+            <!--- todo make progress bar animate when changing? -->
 
-            <TextView
-                    android:id="@+id/progress_bar_TV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:paddingBottom="8dp"
-                    android:textSize="14sp"
-                    tools:text="Workout Progress - 0%" />
+            <ProgressBar
+                    android:id="@+id/progress_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:progressDrawable="@drawable/gradient_progress"
+                    tools:progress="80" />
 
             <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/progress_bar_TV"
+                    android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                <ProgressBar
-                        android:id="@+id/progress_bar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
+                <TextView
+                        android:id="@+id/progress_bar_TV"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
-                        android:gravity="center" />
+                        android:layout_centerInParent="true"
+                        android:shadowColor="#000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="1"
+                        android:textSize="14sp"
+                        tools:text="Workout Progress - 0%" />
             </RelativeLayout>
-
-        </RelativeLayout>
+        </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
