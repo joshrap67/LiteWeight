@@ -172,7 +172,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialiconstwotone/keyboard_arrow_down/twotone_keyboard_arrow_down_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialiconsoutlined/timer/outline_timer_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -183,7 +183,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="small_down_arrow" />
+                            <entry key="outputName" value="timer_icon" />
                             <entry key="sourceFile" value="C:\Users\Josh\Downloads\noun_Shoulder Press_149086.svg" />
                           </map>
                         </option>

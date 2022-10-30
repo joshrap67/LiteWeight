@@ -9,8 +9,7 @@ import java.util.Map;
 
 public class JsonUtils {
 
-    public static String serializeMap(Map<String, Object> map)
-            throws JsonProcessingException {
+    public static String serializeMap(Map<String, Object> map) throws JsonProcessingException {
         String retVal;
         ObjectMapper mapper = new ObjectMapper();
         retVal = mapper.writeValueAsString(map);
@@ -19,7 +18,6 @@ public class JsonUtils {
 
     public static Map<String, Object> deserialize(String jsonString) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
-        });
+        return objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
     }
 }

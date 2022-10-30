@@ -149,5 +149,8 @@
     <string name="faq_default_values_tv">What are these “default” values in the details page of one of my exercises?</string>
     <string name="change">Change</string>
     <string name="copy_day_to_existing_msg">Copy this day to one of the following days.\n\nNote that doing this will overwrite all the existing exercises in the target day.</string>
-    <string name="copy_to_existing_week_msg">Copy this week to one of the following weeks.\n\nNote that doing this will overwrite ALL existing days in the target week.</string> <!-- Extra space is needed at the end bc android dumb and cuts off last letter -->
+    <string name="copy_to_existing_week_msg">Copy this week to one of the following weeks.\n\nNote that doing this will overwrite ALL existing days in the target week.</string>
+    <string name="next_day">Next Day</string>
+    <string name="previous_day">Previous Day</string>
+    <string name="restart_workout">Restart</string>
 </resources>

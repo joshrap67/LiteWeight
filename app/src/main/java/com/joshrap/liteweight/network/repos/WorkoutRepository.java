@@ -128,10 +128,11 @@ public class WorkoutRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout.");
+                resultStatus.setErrorMessage("Unable to rename workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.");
+            // todo do "There was a problem trying to rename the workout."
+            resultStatus.setErrorMessage("Unable to rename workout.");
         }
         return resultStatus;
     }

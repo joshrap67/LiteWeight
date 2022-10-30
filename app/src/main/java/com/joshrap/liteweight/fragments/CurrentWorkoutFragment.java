@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -32,6 +33,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -69,7 +71,7 @@ import static android.os.Looper.getMainLooper;
 
 public class CurrentWorkoutFragment extends Fragment implements FragmentWithDialog {
     private TextView dayTV;
-    private ImageButton forwardButton, backButton;
+    private Button forwardButton, backButton;
     private int currentDayIndex;
     private int currentWeekIndex;
     private Timer timer;
@@ -82,6 +84,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private ProgressBar workoutProgressBar;
     private TextView workoutProgressTV;
     private UserWithWorkout userWithWorkout;
+    private BottomSheetDialog bottomSheetDialog;
+    private ImageButton clockButton;
+
     @Inject
     ProgressDialog loadingDialog;
     @Inject
@@ -135,17 +140,25 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         backButton = view.findViewById(R.id.previous_day_button);
         dayTV = view.findViewById(R.id.day_text_view);
 
+        clockButton = view.findViewById(R.id.timer_icon_btn);
+        clockButton.setOnClickListener(v -> bottomSheetDialog.show());
+
         workoutProgressBar = view.findViewById(R.id.progress_bar);
         workoutProgressTV = view.findViewById(R.id.progress_bar_TV);
         if (!sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true)) {
-            RelativeLayout progressBarLayout = view.findViewById(R.id.workout_progress_layout);
+            FrameLayout progressBarLayout = view.findViewById(R.id.workout_progress_layout);
             progressBarLayout.setVisibility(View.GONE);
         }
 
-        setupTimerStopwatchUI(view);
+//        setupTimerStopwatchUI(view);
         setupButtons();
         updateRoutineListUI();
         updateWorkoutProgressBar();
+
+        bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_clock, null);
+        bottomSheetDialog.setContentView(sheetView);
+        setupTimerStopwatchUI(sheetView);
     }
 
     @Override
@@ -182,6 +195,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+            bottomSheetDialog.dismiss();
         }
     }
 
@@ -279,25 +295,23 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             // it's the first day in the entire routine, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
+            forwardButton.setText(R.string.next_day);
             if (currentWeekIndex + 1 == routine.getNumberOfWeeks() && routine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout, must show the restart button
-                forwardButton.setImageResource(R.drawable.restart_icon);
+                forwardButton.setText(R.string.restart_workout);
             }
         } else if (currentWeekIndex + 1 == routine.getNumberOfWeeks()
                 && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so show reset icon
             backButton.setVisibility(View.VISIBLE);
-            // lil hacky, but don't want the ripple showing when the icons switch
-            forwardButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
-            forwardButton.setImageResource(R.drawable.restart_icon);
+            forwardButton.setText(R.string.restart_workout);
         } else if (currentWeekIndex < routine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
+            forwardButton.setText(R.string.next_day);
         }
     }
 
@@ -367,7 +381,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
-        workoutProgressBar.setProgress(percentage);
+        workoutProgressBar.setProgress(percentage, true);
         workoutProgressTV.setText(String.format("Workout Progress - %d %%", percentage));
     }
 
@@ -446,24 +460,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
         ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
         progressBar.setProgress(percentage);
-        TextView progressTV = popupView.findViewById(R.id.progress_percentage_TV);
+        TextView progressTV = popupView.findViewById(R.id.progress_bar_TV);
         progressTV.setText(String.format("%d %%", percentage));
-        // color the percentage/percentage bar based on how much has been done
-        int color;
-        if (percentage <= 20) {
-            color = R.color.workout_very_low_percentage;
-        } else if (percentage <= 40) {
-            color = R.color.workout_low_percentage;
-        } else if (percentage <= 60) {
-            color = R.color.workout_medium_percentage;
-        } else if (percentage <= 80) {
-            color = R.color.workout_high_percentage;
-        } else {
-            color = R.color.workout_very_high_percentage;
-        }
-        ;
-        progressBar.setProgressTintList(ColorStateList.valueOf(getResources().getColor(color)));
-        progressTV.setTextColor(ContextCompat.getColor(getContext(), color));
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                 .setTitle("Restart Workout")

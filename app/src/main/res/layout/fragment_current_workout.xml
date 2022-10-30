@@ -16,31 +16,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-                android:id="@+id/previous_day_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:src="@drawable/back_icon" />
+        <!--        <ImageButton-->
+        <!--                android:id="@+id/previous_day_button"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_centerVertical="true"-->
+        <!--                android:background="?android:selectableItemBackgroundBorderless"-->
+        <!--                android:src="@drawable/back_icon" />-->
 
         <TextView
                 android:id="@+id/day_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="8dp"
                 android:background="?android:selectableItemBackground"
-                android:textSize="36sp"
-                tools:text="W1:D1" />
+                android:textSize="32sp"
+                tools:text="Week 1 Day 1" />
 
-        <ImageButton
-                android:id="@+id/next_day_button"
+        <TextView
+                android:id="@+id/day_tag_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:src="@drawable/next_icon" />
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/day_text_view"
+                android:text="Shoulders Day"
+                android:textSize="14sp" />
+
+        <!--        <ImageButton-->
+        <!--                android:id="@+id/next_day_button"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_alignParentEnd="true"-->
+        <!--                android:layout_centerVertical="true"-->
+        <!--                android:background="?android:selectableItemBackgroundBorderless"-->
+        <!--                android:src="@drawable/next_icon" />-->
     </RelativeLayout>
 
     <LinearLayout
@@ -57,8 +68,8 @@
                 android:id="@+id/workout_progress_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:animateLayoutChanges="true">
-            <!--- todo make progress bar animate when changing? -->
 
             <ProgressBar
                     android:id="@+id/progress_bar"
@@ -101,9 +112,10 @@
 
     </LinearLayout>
 
+
     <LinearLayout
             android:id="@+id/bottom_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -111,25 +123,43 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/middle_container">
 
-        <include
-                android:id="@+id/timer_container"
-                layout="@layout/timer"
-                android:layout_width="match_parent"
+        <TextView
+                android:id="@+id/clock_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/stopwatch_container"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/middle_container"
-                tools:visibility="gone" />
+                android:layout_gravity="center"
+                android:textSize="17sp"
+                tools:text="01:00" />
 
-        <include
-                android:id="@+id/stopwatch_container"
-                layout="@layout/stopwatch"
+        <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/timer_container" />
+                app:layout_constraintTop_toBottomOf="@+id/middle_container">
+
+            <Button
+                    android:id="@+id/previous_day_button"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/previous_day" />
+
+            <ImageButton
+                    android:id="@+id/timer_icon_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:src="@drawable/timer_icon" />
+
+            <Button
+                    android:id="@+id/next_day_button"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="@string/next_day" />
+        </RelativeLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

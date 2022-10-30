@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="340dp"
+        android:orientation="vertical">
+
+    <include
+            android:id="@+id/timer_container"
+            layout="@layout/timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/stopwatch_container"
+            layout="@layout/stopwatch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+</LinearLayout>

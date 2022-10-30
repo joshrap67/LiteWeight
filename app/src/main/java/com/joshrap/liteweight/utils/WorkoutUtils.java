@@ -32,7 +32,7 @@ public class WorkoutUtils {
      * @return formatted day title.
      */
     public static String generateDayTitle(int currentWeekIndex, int currentDayIndex) {
-        return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
+        return "Week " + (currentWeekIndex + 1) + " Day " + (currentDayIndex + 1);
     }
 
     /**

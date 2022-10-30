@@ -15,64 +15,48 @@
             android:layout_marginBottom="8dp"
             android:text="@string/restart_msg"
             android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/relative_layout"
+            app:layout_constraintBottom_toTopOf="@+id/workout_progress_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    <RelativeLayout
-            android:id="@+id/relative_layout"
+    <FrameLayout
+            android:id="@+id/workout_progress_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:animateLayoutChanges="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/restart_msg_TV">
 
-        <TextView
-                android:id="@+id/progress_bar_TV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:paddingBottom="8dp"
-                android:text="@string/workout_progress"
-                android:textSize="18sp" />
+        <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:progressDrawable="@drawable/gradient_progress"
+                tools:progress="80" />
 
         <RelativeLayout
-                android:id="@+id/linear_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/progress_bar_TV"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
+                android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-            <ProgressBar
-                    android:id="@+id/progress_bar"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:gravity="center"
-                    tools:progress="60" />
-
             <TextView
-                    android:id="@+id/progress_percentage_TV"
+                    android:id="@+id/progress_bar_TV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_toEndOf="@+id/progress_bar"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    tools:text="100%" />
+                    android:layout_centerInParent="true"
+                    android:shadowColor="#000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textSize="14sp"
+                    tools:text="Workout Progress - 0%" />
         </RelativeLayout>
-
-    </RelativeLayout>
-
-
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

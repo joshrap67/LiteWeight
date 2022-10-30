@@ -25,7 +25,7 @@ public class Routine implements Model, Iterable<RoutineWeek> {
         this.weeks = new ArrayList<>();
     }
 
-    public static Routine pendingRoutine() {
+    public static Routine emptyRoutine() {
         Routine routine = new Routine();
         routine.addWeek(RoutineWeek.EmptyWeek());
         return routine;

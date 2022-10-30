@@ -119,7 +119,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CREATE_WORKOUT_TITLE);
 
         if (this.getArguments() != null) {
             isExistingWorkout = this.getArguments().getBoolean(Variables.EXISTING_WORKOUT);
@@ -132,10 +131,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         user = userWithWorkout.getUser();
 
         if (isExistingWorkout) {
-            pendingWorkout = new Workout(userWithWorkout.getWorkout()); // needed to clone since user might not save
+            pendingWorkout = new Workout(userWithWorkout.getWorkout());
             pendingRoutine = pendingWorkout.getRoutine();
+            ((WorkoutActivity) getActivity()).updateToolbarTitle(pendingWorkout.getWorkoutName());
         } else {
-            pendingRoutine = Routine.pendingRoutine();
+            ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CREATE_WORKOUT_TITLE);
+            pendingRoutine = Routine.emptyRoutine();
         }
 
         exerciseIdToName = new HashMap<>();
@@ -669,6 +670,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
+            // todo make sure current day/week index updated if deleted day?
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
@@ -679,7 +681,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     pendingWorkout = new Workout(userWithWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
 
-                    updateRoutineDayExerciseList();
                     Toast.makeText(getContext(), "Workout saved.", Toast.LENGTH_LONG).show();
                 } else {
                     AndroidUtils.showErrorDialog("Save Workout Error", resultStatus.getErrorMessage(), getContext());
@@ -1071,7 +1072,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             RoutineDay day = days.get(dayPosition);
             String dayText = "Day " + (dayPosition + 1);
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
-            exerciseCountTV.setText(day.getNumberOfExercises() + " exercises");
+            exerciseCountTV.setText(Integer.toString(day.getNumberOfExercises()));
             dayViewHolder.dayTitle.setText(dayText);
             dayViewHolder.dayCard.setOnClickListener(v -> switchToRoutineDayView(weekPosition, dayPosition));
         }
