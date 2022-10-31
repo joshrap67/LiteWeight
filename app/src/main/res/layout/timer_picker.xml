@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/timer_picker_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+    <Button
+            android:id="@+id/timer_picker_back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="24dp"
+            android:layout_toStartOf="@id/test"
+            android:text="@string/back" />
+
+    <LinearLayout
+            android:id="@+id/test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+        <NumberPicker
+                android:id="@+id/minutes_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/colon"
+                android:textSize="36sp" />
+
+        <NumberPicker
+                android:id="@+id/seconds_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <Button
+            android:id="@+id/timer_picker_save_time_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="24dp"
+            android:layout_toEndOf="@id/test"
+            android:text="@string/save" />
+</RelativeLayout>

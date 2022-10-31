@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="340dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
     <include
-            android:id="@+id/timer_container"
             layout="@layout/timer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
 
     <include
-            android:id="@+id/stopwatch_container"
             layout="@layout/stopwatch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:layout_centerInParent="true"
+            android:visibility="visible" />
 
-</LinearLayout>
+</RelativeLayout>

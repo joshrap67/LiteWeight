@@ -143,6 +143,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         for (String id : user.getOwnedExercises().keySet()) {
             exerciseIdToName.put(id, user.getOwnedExercises().get(id).getExerciseName());
         }
+        // todo on first use of app, propagate weights so they don't have to keep changing from 0
 
         return inflater.inflate(R.layout.fragment_pending_workout, container, false);
     }

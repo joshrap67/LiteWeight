@@ -16,14 +16,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <!--        <ImageButton-->
-        <!--                android:id="@+id/previous_day_button"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_centerVertical="true"-->
-        <!--                android:background="?android:selectableItemBackgroundBorderless"-->
-        <!--                android:src="@drawable/back_icon" />-->
-
         <TextView
                 android:id="@+id/day_text_view"
                 android:layout_width="wrap_content"
@@ -41,17 +33,9 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:layout_toEndOf="@id/day_text_view"
-                android:text="Shoulders Day"
-                android:textSize="14sp" />
-
-        <!--        <ImageButton-->
-        <!--                android:id="@+id/next_day_button"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_alignParentEnd="true"-->
-        <!--                android:layout_centerVertical="true"-->
-        <!--                android:background="?android:selectableItemBackgroundBorderless"-->
-        <!--                android:src="@drawable/next_icon" />-->
+                android:text="Shoulders Day "
+                android:textSize="13sp"
+                android:textStyle="italic" />
     </RelativeLayout>
 
     <LinearLayout
@@ -124,21 +108,26 @@
             app:layout_constraintTop_toBottomOf="@+id/middle_container">
 
         <TextView
-                android:id="@+id/clock_tv"
+                android:id="@+id/secondary_stopwatch_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textSize="17sp"
                 tools:text="01:00" />
 
+        <TextView
+                android:id="@+id/secondary_timer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="17sp"
+                android:visibility="gone"
+                tools:text="01:00" />
+
         <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/middle_container">
+                android:orientation="vertical">
 
             <Button
                     android:id="@+id/previous_day_button"

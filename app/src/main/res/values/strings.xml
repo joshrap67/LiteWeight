@@ -153,4 +153,6 @@
     <string name="next_day">Next Day</string>
     <string name="previous_day">Previous Day</string>
     <string name="restart_workout">Restart</string>
+    <string name="colon">:</string>
+    <string name="back">BACK</string>
 </resources>

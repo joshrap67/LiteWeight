@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -89,13 +88,11 @@ import lombok.Getter;
 
 public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-    private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
     private TextView toolbarTitleTV, accountNotificationTV;
     private NavigationView nav;
     private FragmentManager fragmentManager;
-    private boolean showPopupFlag;
     private ArrayList<String> fragmentStack; // stack of fragment ids
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
@@ -283,10 +280,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
-        timer = new Timer(this, sharedPreferences);
-        stopwatch = new Stopwatch(this, sharedPreferences);
+        long timerDuration = sharedPreferences.getLong(Variables.TIMER_DURATION, Variables.DEFAULT_TIMER_VALUE);
+        timer = new Timer(timerDuration);
+        stopwatch = new Stopwatch();
         fragmentStack = new ArrayList<>();
-        showPopupFlag = true;
         fragmentSavedStatesMap = new HashMap<>();
         drawerListenerIsRegistered = false;
         fragmentManager = getSupportFragmentManager();
@@ -536,7 +533,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             The frag stack will only have one instance of the fragments in it at all times, handled by the
             navigation methods.
          */
-        showPopupFlag = true;
         fragmentStack.remove(0);
 
         String currentFrag = fragmentStack.get(0);
@@ -634,6 +630,37 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         });
     }
 
+    // service that continues the stopwatch's progress
+    public void startStopwatchService() {
+        Intent serviceIntent = new Intent(this, StopwatchService.class);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, stopwatch.initialTimeOnClock);
+        startService(serviceIntent);
+    }
+
+    public void cancelStopwatchService() {
+        stopService(new Intent(this, StopwatchService.class));
+        // get rid of any notifications that are still showing now that the stopwatch is on the screen
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(StopwatchService.stopwatchRunningId);
+    }
+
+    public void startTimerService() {
+        Intent serviceIntent = new Intent(this, TimerService.class);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, timer.initialTimeOnClock);
+        startService(serviceIntent);
+    }
+
+    public void cancelTimerService() {
+        stopService(new Intent(this, TimerService.class));
+
+        // get rid of any notifications that are still showing now that the timer is on the screen
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(TimerService.timerRunningId);
+        notificationManager.cancel(TimerService.timerFinishedId);
+    }
+
     /**
      * Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
      */
@@ -716,10 +743,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (currentFragment instanceof FragmentWithDialog) {
             ((FragmentWithDialog) currentFragment).hideAllDialogs();
         }
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
-        timer.hideDialog();
     }
 
     /**
@@ -817,7 +840,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
      * the back stack appropriately.
      */
     public void finishFragment() {
-        showPopupFlag = false;
         onBackPressed();
     }
 
