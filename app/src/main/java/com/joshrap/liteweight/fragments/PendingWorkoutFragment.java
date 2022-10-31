@@ -104,6 +104,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private RoutineDayAdapter routineDayAdapter;
     private boolean isExistingWorkout;
     private Workout pendingWorkout;
+    private boolean firstWorkout;
+    private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
     @Inject
     ProgressDialog loadingDialog;
@@ -137,13 +139,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         } else {
             ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CREATE_WORKOUT_TITLE);
             pendingRoutine = Routine.emptyRoutine();
+            firstWorkout = !userWithWorkout.isWorkoutPresent();
         }
 
         exerciseIdToName = new HashMap<>();
+        exerciseIdToCurrentMaxWeight = new HashMap<>();
         for (String id : user.getOwnedExercises().keySet()) {
             exerciseIdToName.put(id, user.getOwnedExercises().get(id).getExerciseName());
+            exerciseIdToCurrentMaxWeight.put(id, user.getOwnedExercises().get(id).getDefaultWeight());
         }
-        // todo on first use of app, propagate weights so they don't have to keep changing from 0
 
         return inflater.inflate(R.layout.fragment_pending_workout, container, false);
     }
@@ -370,7 +374,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void updateRoutineDayExerciseList() {
-        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), routineDayRecyclerView);
+        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), routineDayRecyclerView);
         routineDayRecyclerView.setAdapter(routineDayAdapter);
         routineDayRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         routineDayAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -843,8 +847,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
             exerciseCheckbox.setOnClickListener(v -> {
                 if (exerciseCheckbox.isChecked()) {
-                    pendingRoutine.addExercise(currentWeekIndex, currentDayIndex,
-                            new RoutineExercise(ownedExercise, ownedExercise.getExerciseId()));
+                    RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
+                    pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
+                    if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
+                        // todo test
+                        exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
+                    }
                     int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
                     routineDayAdapter.notifyItemInserted(newPosition);
                     routineDayRecyclerView.scrollToPosition(newPosition);

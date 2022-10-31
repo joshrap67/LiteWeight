@@ -69,16 +69,18 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     }
 
     private final Map<String, String> exerciseIdToName;
+    private final Map<String, Double> exerciseIdToCurrentMaxWeight;
     private final Routine pendingRoutine;
     private final int currentWeek;
     private final int currentDay;
     private final RecyclerView recyclerView;
     private final boolean metricUnits;
 
-    public RoutineDayAdapter(Map<String, String> exerciseIdToName,
+    public RoutineDayAdapter(Map<String, String> exerciseIdToName, Map<String, Double> exerciseIdToCurrentMaxWeight,
                              Routine routine, int currentWeek, int currentDay, boolean metricUnits,
                              RecyclerView recyclerView) {
         this.exerciseIdToName = exerciseIdToName;
+        this.exerciseIdToCurrentMaxWeight = exerciseIdToCurrentMaxWeight;
         this.pendingRoutine = routine;
         this.currentWeek = currentWeek;
         this.currentDay = currentDay;
@@ -128,7 +130,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         }
     }
 
-    private List<RoutineExercise> Exercises(){
+    private List<RoutineExercise> Exercises() {
         return pendingRoutine.getExerciseListForDay(currentWeek, currentDay);
     }
 
@@ -217,6 +219,10 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
                 exercise.setDetails(detailsInput.getText().toString().trim());
                 exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
                 exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
+                if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
+                    // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
+                    exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
+                }
 
                 notifyItemChanged(position, true);
             }
