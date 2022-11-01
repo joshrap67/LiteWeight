@@ -155,4 +155,7 @@
     <string name="restart_workout">Restart</string>
     <string name="colon">:</string>
     <string name="back">BACK</string>
+    <string name="day_tag_description">Set an optional tag for this day. Tags can be used to easily distinguish one day from another. E.g. \"Bicep Day\"</string>
+    <string name="day_tag_hint">Tag (leave empty for none)</string>
+    <string name="new_workout_name_hint">New workout name</string>
 </resources>

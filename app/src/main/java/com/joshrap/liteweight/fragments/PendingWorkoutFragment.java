@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -22,7 +23,10 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -64,6 +68,7 @@ import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -84,7 +89,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private RecyclerView weekRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
     private AlertDialog alertDialog;
-    private TextView routineDayTitleTV, exerciseNotFoundTV, emptyDayView;
+    private TextView routineDayTitleTV, exerciseNotFoundTV, emptyDayTV, routineDayTagTV;
     private String spinnerFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
@@ -159,8 +164,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         //region Views for routine day
         routineDayRecyclerView = view.findViewById(R.id.exercise_recycler_view);
-        emptyDayView = view.findViewById(R.id.empty_view);
+        emptyDayTV = view.findViewById(R.id.empty_view);
         routineDayTitleTV = view.findViewById(R.id.day_text_view);
+        routineDayTagTV = view.findViewById(R.id.day_tag_text_view);
         customSortLayout = view.findViewById(R.id.custom_sort_layout);
 
         Button saveSortButton = view.findViewById(R.id.done_sorting_btn);
@@ -218,9 +224,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final int deleteDayId = 0;
         final int copyDayAsNewId = 1;
         final int copyDayToExistingId = 2;
+        final int setDayTagId = 3;
         routineDayMenu.add(0, copyDayAsNewId, 0, "Copy As New Day");
         routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
+        routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
         dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -236,6 +244,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         return true;
                     }
                     copyDayAsNew();
+                    return true;
+                case setDayTagId:
+                    promptSetDayTag();
                     return true;
             }
             return false;
@@ -344,6 +355,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         currentDayIndex = day;
         currentWeekIndex = week;
         routineDayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
+        setRoutineDayTagTV(currentWeekIndex, currentDayIndex);
         updateRoutineDayExerciseList();
     }
 
@@ -404,11 +416,18 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
         });
         routineDayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
+        setRoutineDayTagTV(currentWeekIndex, currentDayIndex);
         checkEmptyView();
     }
 
+    private void setRoutineDayTagTV(int weekIndex, int dayIndex) {
+        RoutineDay day = pendingRoutine.getDay(weekIndex, dayIndex);
+        routineDayTagTV.setVisibility(day.getTag() == null ? View.INVISIBLE : View.VISIBLE);
+        routineDayTagTV.setText(day.getTag());
+    }
+
     private void checkEmptyView() {
-        emptyDayView.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
+        emptyDayTV.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
                 ? View.VISIBLE : View.GONE);
     }
 
@@ -465,6 +484,29 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekAdapter.notifyItemRemoved(weekIndex);
         weekAdapter.notifyItemRangeChanged(weekIndex, weekAdapter.getItemCount());
         addWeekButton.setVisibility(View.VISIBLE);
+    }
+
+    private void promptSetDayTag() {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_set_routine_day_tag, null);
+        EditText dayTagInput = popupView.findViewById(R.id.day_tag_input);
+        TextInputLayout dayTagInputLayout = popupView.findViewById(R.id.day_tag_input_layout);
+        dayTagInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DAY_TAG_LENGTH)});
+        dayTagInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(dayTagInputLayout));
+
+        RoutineDay currentDay = pendingRoutine.getDay(currentWeekIndex, currentDayIndex);
+        dayTagInput.setText(currentDay.getTag());
+
+        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                .setTitle("Set Day Tag")
+                .setView(popupView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String dayTag = dayTagInput.getText().toString().trim();
+                    currentDay.setTag(dayTag);
+                    setRoutineDayTagTV(currentWeekIndex, currentDayIndex);
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.show();
     }
 
     private void promptDeleteDay() {
@@ -1049,14 +1091,16 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         class DayViewHolder extends RecyclerView.ViewHolder {
 
-            private final TextView dayTitle;
+            private final TextView dayTitleTV;
             private final TextView exerciseCountTV;
+            private final TextView dayTagTV;
             private final RelativeLayout dayCard;
 
             DayViewHolder(View itemView) {
                 super(itemView);
-                dayTitle = itemView.findViewById(R.id.day_text_view);
+                dayTitleTV = itemView.findViewById(R.id.day_text_view);
                 dayCard = itemView.findViewById(R.id.day_card);
+                dayTagTV = itemView.findViewById(R.id.day_tag_text_view);
                 exerciseCountTV = itemView.findViewById(R.id.exercise_count);
             }
         }
@@ -1081,9 +1125,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             RoutineDay day = days.get(dayPosition);
             String dayText = "Day " + (dayPosition + 1);
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
+            TextView dayTagTV = dayViewHolder.dayTagTV;
             exerciseCountTV.setText(Integer.toString(day.getNumberOfExercises()));
-            dayViewHolder.dayTitle.setText(dayText);
+            dayViewHolder.dayTitleTV.setText(dayText); // todo italics being cut off...
             dayViewHolder.dayCard.setOnClickListener(v -> switchToRoutineDayView(weekPosition, dayPosition));
+
+            if (day.getTag() != null) {
+                dayTagTV.setText(day.getTag());
+            }
         }
 
         @Override

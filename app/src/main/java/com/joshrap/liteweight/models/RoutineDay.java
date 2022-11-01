@@ -23,9 +23,10 @@ public class RoutineDay implements Iterable<RoutineExercise>, Model {
     public static final int customSort = 5;
 
     public static final String EXERCISES = "exercises";
+    public static final String TAG = "tag";
 
     private List<RoutineExercise> exercises;
-    // todo an optional label?
+    private String tag;
 
     RoutineDay() {
         this.exercises = new ArrayList<>();
@@ -33,6 +34,7 @@ public class RoutineDay implements Iterable<RoutineExercise>, Model {
 
     RoutineDay(Map<String, Object> json) {
         this.exercises = new ArrayList<>();
+        this.tag = (String) json.get(TAG);
 
         List<Object> jsonExercises = (List<Object>) json.get(EXERCISES);
         for (Object exercise : jsonExercises) {
@@ -43,6 +45,7 @@ public class RoutineDay implements Iterable<RoutineExercise>, Model {
 
     public RoutineDay clone() {
         RoutineDay retVal = new RoutineDay();
+        retVal.setTag(this.tag);
         for (RoutineExercise routineExercise : this.exercises) {
             RoutineExercise specificExerciseCloned = new RoutineExercise(routineExercise);
             retVal.getExercises().add(specificExerciseCloned);
@@ -92,6 +95,7 @@ public class RoutineDay implements Iterable<RoutineExercise>, Model {
             jsonExercises.add(exercise.asMap());
         }
         retVal.put(EXERCISES, jsonExercises);
+        retVal.put(TAG, this.tag);
         return retVal;
     }
 }

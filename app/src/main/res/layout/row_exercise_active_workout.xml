@@ -30,6 +30,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+<!--                todo android:background="@drawable/week_card_background"-->
                 <CheckBox
                         android:id="@+id/exercise_name"
                         android:layout_width="0dp"

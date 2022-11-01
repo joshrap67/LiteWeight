@@ -24,27 +24,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Sort"
                 android:src="@drawable/sort_icon" />
 
-        <TextView
-                android:id="@+id/day_text_view"
+
+        <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:textSize="36sp"
-                tools:text="W1D2" />
+                android:layout_toStartOf="@id/day_more_icon"
+                android:layout_toEndOf="@id/sort_button"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/day_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="36sp"
+                    tools:text="Week 10 Day 7" />
+
+            <TextView
+                    android:id="@+id/day_tag_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Shoulders Day" />
+        </LinearLayout>
 
         <ImageButton
                 android:id="@+id/day_more_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:src="@drawable/more_icon" />
+
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -64,8 +81,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
-                android:textAlignment="center"
                 android:text="@string/empty_workout_day"
+                android:textAlignment="center"
                 android:textSize="24sp" />
 
         <androidx.recyclerview.widget.RecyclerView

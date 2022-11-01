@@ -7,10 +7,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp">
 
-    <RelativeLayout
+    <LinearLayout
             android:id="@+id/relative_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/middle_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -20,8 +21,7 @@
                 android:id="@+id/day_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="8dp"
+                android:layout_gravity="center"
                 android:background="?android:selectableItemBackground"
                 android:textSize="32sp"
                 tools:text="Week 1 Day 1" />
@@ -30,13 +30,11 @@
                 android:id="@+id/day_tag_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_toEndOf="@id/day_text_view"
-                android:text="Shoulders Day "
+                android:layout_gravity="center"
+                tools:text="Shoulders Day "
                 android:textSize="13sp"
                 android:textStyle="italic" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
             android:id="@+id/middle_container"
@@ -101,6 +99,7 @@
             android:id="@+id/bottom_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -1045,7 +1045,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left) // todo remove these animations?
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }

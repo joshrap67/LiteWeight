@@ -37,12 +37,13 @@
             tools:text="23" />
 
     <TextView
+            android:id="@+id/day_tag_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="4dp"
-            android:text="Shoulders Day"
             android:textSize="11sp"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            tools:text="Shoulders Day" />
 </RelativeLayout>

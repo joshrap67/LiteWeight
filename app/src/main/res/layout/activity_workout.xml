@@ -23,10 +23,8 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="@string/workout_name_title"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
+                    android:textSize="24sp"
                     app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform" />
         </androidx.appcompat.widget.Toolbar>

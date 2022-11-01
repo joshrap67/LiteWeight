@@ -10,6 +10,7 @@ public class Variables {
     public static final int WORKOUT_MAX_NUMBER_OF_DAYS = 7;
     public static final int MAX_NUMBER_OF_WEEKS = 10;
     public static final int MAX_WORKOUT_NAME = 40;
+    public static final int MAX_DAY_TAG_LENGTH = 25;
     public static final int MAX_EXERCISE_NAME = 40;
     public static final int MAX_WEIGHT = 99999;
     public static final int MAX_WEIGHT_DIGITS = Integer.toString(MAX_WEIGHT).length();

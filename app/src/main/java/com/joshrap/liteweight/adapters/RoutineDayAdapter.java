@@ -84,7 +84,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.pendingRoutine = routine;
         this.currentWeek = currentWeek;
         this.currentDay = currentDay;
-        this.metricUnits = metricUnits; // todo make a global? or injectable?
+        this.metricUnits = metricUnits;
         this.recyclerView = recyclerView;
     }
 

@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -73,11 +74,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private SharedRoutine sharedRoutine;
     private TextView dayTV;
     private String workoutName;
-    private ImageButton forwardButton, backButton;
+    private Button forwardButton, backButton;
     private int currentDayIndex;
     private int currentWeekIndex;
     private AlertDialog alertDialog;
-    private ConstraintLayout mainLayout;
+    private RelativeLayout mainLayout;
     private String receivedWorkoutId;
     private UserWithWorkout userWithWorkout;
     @Inject
@@ -356,7 +357,6 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             // means it's the first day in weeks, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
             if (currentWeekIndex + 1 == sharedRoutine.getNumberOfWeeks() && sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout
                 forwardButton.setVisibility(View.INVISIBLE);
@@ -365,13 +365,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 && currentDayIndex + 1 == sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so hide forward button
             backButton.setVisibility(View.VISIBLE);
-            // lil hacky, but don't want the ripple showing when the icons switch
             forwardButton.setVisibility(View.INVISIBLE);
         } else if (currentWeekIndex < sharedRoutine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
         }
     }
 

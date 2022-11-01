@@ -80,7 +80,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
     private ProgressBar workoutProgressBar;
-    private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV;
+    private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV, dayTagTV;
     private UserWithWorkout userWithWorkout;
     private BottomSheetDialog bottomSheetDialog;
     private ImageButton clockButton;
@@ -151,6 +151,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
         dayTV = view.findViewById(R.id.day_text_view);
+        dayTagTV = view.findViewById(R.id.day_tag_text_view);
 
         clockButton = view.findViewById(R.id.timer_icon_btn);
         clockButton.setOnClickListener(v -> bottomSheetDialog.show());
@@ -479,6 +480,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      */
     private void setupDayButtons() {
         dayTV.setOnClickListener(v -> showJumpDaysPopup());
+        dayTagTV.setOnClickListener(v -> showJumpDaysPopup());
+        // todo could i just add 1 to indices and then multiply to get place?
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
@@ -555,6 +558,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTagTV.setText(routine.getDay(currentWeekIndex, currentDayIndex).getTag());
         updateButtonViews();
     }
 
