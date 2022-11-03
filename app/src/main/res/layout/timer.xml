@@ -35,7 +35,7 @@
                     android:textColor="@color/colorAccent" />
         </LinearLayout>
 
-        <!-- todo can't use animateLayoutChanges due to bug with framework with bottom sheet dialog https://github.com/material-components/material-components-android/issues/2062 -->
+        <!-- can't use animateLayoutChanges due to bug with framework with bottom sheet dialog https://github.com/material-components/material-components-android/issues/2062 -->
         <LinearLayout
                 android:id="@+id/timer_buttons_layout"
                 android:layout_width="wrap_content"

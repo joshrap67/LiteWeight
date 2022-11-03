@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.VersionModel;
 
 import javax.inject.Singleton;
 
@@ -46,5 +47,16 @@ class LiteWeightModule {
         ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogStyle);
         progressDialog.setCancelable(false);
         return progressDialog;
+    }
+
+    @Provides
+    VersionModel provideVersionModel(final Context context) {
+        String version = null;
+        try {
+            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new VersionModel(version);
     }
 }

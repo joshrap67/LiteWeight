@@ -39,7 +39,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
+public class MyExercisesFragment extends Fragment {
 
     private static final String SELECTED_FOCUS_KEY = "selectedFocus";
     private String selectedFocus;
@@ -120,12 +120,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
-    }
-
-    @Override
-    public void hideAllDialogs() {
     }
 
     private void populateFocusListView() {

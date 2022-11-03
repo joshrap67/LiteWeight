@@ -2,6 +2,8 @@ package com.joshrap.liteweight.models;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.ArrayList;
@@ -17,9 +19,10 @@ import lombok.Data;
 public class SharedDay implements Iterable<SharedExercise>, Model {
 
     public static final String EXERCISES = "exercises";
+    public static final String TAG = "tag";
 
     private List<SharedExercise> exercises;
-    private Integer index;
+    private String tag;
 
     public SharedDay() {
         this.exercises = new ArrayList<>();
@@ -27,6 +30,7 @@ public class SharedDay implements Iterable<SharedExercise>, Model {
 
     public SharedDay(Map<String, Object> json) {
         this.exercises = new ArrayList<>();
+        this.tag = (String) json.get(TAG);
 
         List<Object> exercisesJson = (List<Object>) json.get(EXERCISES);
         for (Object exerciseJson : exercisesJson) {
@@ -39,6 +43,7 @@ public class SharedDay implements Iterable<SharedExercise>, Model {
         this.exercises.set(sortVal, sharedExercise);
     }
 
+    @NonNull
     @Override
     public Iterator<SharedExercise> iterator() {
         return this.exercises.iterator();
@@ -52,6 +57,7 @@ public class SharedDay implements Iterable<SharedExercise>, Model {
             jsonExercises.add(exercise.asMap());
         }
         retVal.put(EXERCISES, jsonExercises);
+        retVal.put(TAG, this.tag);
         return retVal;
     }
 }

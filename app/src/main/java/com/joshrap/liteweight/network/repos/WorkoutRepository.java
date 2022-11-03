@@ -41,7 +41,7 @@ public class WorkoutRepository {
     private static final String acceptReceivedWorkoutAction = "acceptReceivedWorkout";
     private static final String declineReceivedWorkoutAction = "declineReceivedWorkout";
 
-    private ApiGateway apiGateway;
+    private final ApiGateway apiGateway;
 
     @Inject
     public WorkoutRepository(ApiGateway apiGateway) {
@@ -62,10 +62,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to create workout.");
+                resultStatus.setErrorMessage("There was a problem trying to create the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to create workout.");
+            resultStatus.setErrorMessage("There was a problem trying to create the workout.");
         }
         return resultStatus;
     }
@@ -84,10 +84,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to copy workout.");
+                resultStatus.setErrorMessage("There was a problem trying to copy the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to copy workout.");
+            resultStatus.setErrorMessage("There was a problem trying to copy the workout.");
         }
         return resultStatus;
     }
@@ -106,10 +106,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to switch workout.");
+                resultStatus.setErrorMessage("There was a problem trying to switch workouts.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to switch workout.");
+            resultStatus.setErrorMessage("There was a problem trying to switch workouts.");
         }
         return resultStatus;
     }
@@ -128,11 +128,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to rename workout.");
+                resultStatus.setErrorMessage("There was a problem trying to rename the workout.");
             }
         } else {
-            // todo do "There was a problem trying to rename the workout."
-            resultStatus.setErrorMessage("Unable to rename workout.");
+            resultStatus.setErrorMessage("There was a problem trying to rename the workout.");
         }
         return resultStatus;
     }
@@ -151,10 +150,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to delete workout.");
+                resultStatus.setErrorMessage("There was a problem trying to delete the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to delete workout.");
+            resultStatus.setErrorMessage("There was a problem trying to delete the workout");
         }
         return resultStatus;
     }
@@ -172,10 +171,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new WorkoutMeta(JsonUtils.deserialize(apiResponse.getData()), workoutId));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to reset workout statistics.");
+                resultStatus.setErrorMessage("There was a problem trying to reset the statistics.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to reset workout statistics.");
+            resultStatus.setErrorMessage("There was a problem trying to reset the statistics.");
         }
         return resultStatus;
     }
@@ -194,10 +193,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to edit workout.");
+                resultStatus.setErrorMessage("There was a problem trying to edit the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to edit workout.");
+            resultStatus.setErrorMessage("There was a problem trying to edit the workout.");
         }
         return resultStatus;
     }
@@ -211,14 +210,10 @@ public class WorkoutRepository {
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(syncWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData(apiResponse.getData());
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to sync workout.");
-            }
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to sync workout.");
+            resultStatus.setErrorMessage("There was a problem trying to sync the workout.");
         }
         return resultStatus;
     }
@@ -236,10 +231,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to restart workout.");
+                resultStatus.setErrorMessage("There was a problem trying to restart the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to restart workout.");
+            resultStatus.setErrorMessage("There was a problem trying to restart the workout.");
         }
         return resultStatus;
     }
@@ -258,10 +253,10 @@ public class WorkoutRepository {
                 resultStatus.setData((String) JsonUtils.deserialize(apiResponse.getData()).get(SharedWorkout.SHARED_WORKOUT_ID));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to send workout.");
+                resultStatus.setErrorMessage("There was a problem trying to send the workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to send workout.");
+            resultStatus.setErrorMessage("There was a problem trying to send the workout.");
         }
         return resultStatus;
     }
@@ -284,10 +279,10 @@ public class WorkoutRepository {
                 resultStatus.setData(sharedWorkoutMetas);
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to receive workouts.");
+                resultStatus.setErrorMessage("There was a problem trying to fetch received workouts.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to receive workouts.");
+            resultStatus.setErrorMessage("There was a problem trying to fetch received workouts.");
         }
         return resultStatus;
     }
@@ -305,10 +300,10 @@ public class WorkoutRepository {
                 resultStatus.setData(new SharedWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to receive workout.");
+                resultStatus.setErrorMessage("There was a problem trying to load the received workout.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to receive workout.");
+            resultStatus.setErrorMessage("There was a problem trying to load the received workout.");
         }
         return resultStatus;
     }
@@ -321,14 +316,10 @@ public class WorkoutRepository {
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
         if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData(apiResponse.getData());
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to set received workout as seen.");
-            }
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to set received workout as seen.");
+            resultStatus.setErrorMessage("There was a problem trying to set workout as seen.");
         }
         return resultStatus;
     }
@@ -339,14 +330,10 @@ public class WorkoutRepository {
         Map<String, Object> requestBody = new HashMap<>();
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
         if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData(apiResponse.getData());
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to set all received workouts as seen.");
-            }
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to set all received workouts as seen.");
+            resultStatus.setErrorMessage("There was a problem trying to set workouts as seen.");
         }
         return resultStatus;
     }
@@ -367,7 +354,7 @@ public class WorkoutRepository {
                 resultStatus.setData(new AcceptWorkoutResponse(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to accept workout.");
+                resultStatus.setErrorMessage("There was a problem trying to accept the workout.");
             }
         } else {
             resultStatus.setErrorMessage(apiResponse.getErrorMessage());
@@ -384,12 +371,8 @@ public class WorkoutRepository {
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(declineReceivedWorkoutAction, requestBody, true);
 
         if (apiResponse.isSuccess()) {
-            try {
-                resultStatus.setData("Workout successfully declined.");
-                resultStatus.setSuccess(true);
-            } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to decline workout.");
-            }
+            resultStatus.setData("Workout successfully declined.");
+            resultStatus.setSuccess(true);
         } else {
             resultStatus.setErrorMessage(apiResponse.getErrorMessage());
         }

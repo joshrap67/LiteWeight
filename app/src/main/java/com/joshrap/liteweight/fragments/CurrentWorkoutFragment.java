@@ -184,7 +184,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         setupDayButtons();
-        updateRoutineListUI();
+        updateRoutineListUI(false);
         updateWorkoutProgressBar();
 
         bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
@@ -205,11 +205,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             ((WorkoutActivity) getActivity()).cancelStopwatchService();
         }
     }
-    // todo change video icon to be less visual noise
 
     @Override
     public void onPause() {
-        super.onPause(); // todo order?
+        super.onPause();
 
         hideAllDialogs();
         // as soon as this fragment isn't visible, start any running clock as a service
@@ -481,17 +480,16 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void setupDayButtons() {
         dayTV.setOnClickListener(v -> showJumpDaysPopup());
         dayTagTV.setOnClickListener(v -> showJumpDaysPopup());
-        // todo could i just add 1 to indices and then multiply to get place?
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
                 currentDayIndex--;
-                updateRoutineListUI();
+                updateRoutineListUI(true);
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
                 currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
-                updateRoutineListUI();
+                updateRoutineListUI(true);
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
@@ -500,12 +498,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(true);
             } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
                 // there are more weeks, so go to the next week
                 currentDayIndex = 0;
                 currentWeekIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(true);
             } else {
                 // on last week, prompt user to restart the workout
                 showRestartPopup();
@@ -543,22 +541,22 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
     }
 
-    // todo add setting that propagates weight to all exercises in workout (e.g. set squat to 100lb, all squats in the workout get set to 100 lb
-
     /**
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
-    private void updateRoutineListUI() {
+    private void updateRoutineListUI(boolean animate) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
                 user.getOwnedExercises(), metricUnits, videosEnabled);
-        // todo don't new it up? that way animation shows on day switch?
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        if (animate) {
+            recyclerView.startAnimation(AndroidUtils.shakeAttention(1));
+        }
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
-        dayTagTV.setText(routine.getDay(currentWeekIndex, currentDayIndex).getTag());
+        dayTagTV.setText(routine.getDay(currentWeekIndex, currentDayIndex).getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
         updateButtonViews();
     }
 
@@ -587,7 +585,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
 
-                    updateRoutineListUI();
+                    updateRoutineListUI(true);
                     updateWorkoutProgressBar();
                 } else {
                     AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
@@ -637,9 +635,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
         String[] daysAsArray = new String[totalDays];
-        for (int i = 0; i < totalDays; i++) {
-            daysAsArray[i] = days.get(i);
-        }
+        days.toArray(daysAsArray);
+
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
@@ -665,7 +662,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     }
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
-                    updateRoutineListUI();
+                    updateRoutineListUI(true);
                 })
                 .create();
         alertDialog.show();
@@ -700,7 +697,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 .setView(popupView)
                 .setPositiveButton("Yes", (dialog, which) -> {
                     restartWorkout();
-                    updateRoutineListUI();
+                    updateRoutineListUI(true);
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -713,7 +710,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             CheckBox exerciseCheckbox;
             Button weightButton;
             ImageButton saveButton;
-            ImageButton videoButton;
+            Button videoButton;
             LinearLayout extraInfo;
 
             EditText detailsInput;
@@ -736,7 +733,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 weightButton = itemView.findViewById(R.id.weight_btn);
                 extraInfo = itemView.findViewById(R.id.extra_info_layout);
                 saveButton = itemView.findViewById(R.id.save_button);
-                videoButton = itemView.findViewById(R.id.launch_video);
+                videoButton = itemView.findViewById(R.id.launch_video_button);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
                 detailsInput = itemView.findViewById(R.id.details_input);
@@ -799,7 +796,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 holder.weightButton.setVisibility(View.VISIBLE);
                 holder.extraInfo.setVisibility(View.GONE);
                 holder.saveButton.setVisibility(View.GONE);
-                holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
                 setInputs(holder, exercise);
             } else {
@@ -858,7 +854,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             LinearLayout extraInfo = holder.extraInfo;
             ImageButton saveButton = holder.saveButton;
-            ImageButton videoButton = holder.videoButton;
+            Button videoButton = holder.videoButton;
             videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
             weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
@@ -871,7 +867,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             weightButton.setOnClickListener((v) -> {
                 // show all the extra details for this exercise so the user can edit/read them
                 weightButton.setVisibility(View.INVISIBLE);
-                videoButton.setVisibility(View.GONE);
                 extraInfo.setVisibility(View.VISIBLE);
                 saveButton.setVisibility(View.VISIBLE);
             });

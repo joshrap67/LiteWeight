@@ -86,6 +86,7 @@ public class AccountPreferencesFragment extends Fragment {
 
     @Override
     public void onPause() {
+        super.onPause();
         if (metricChanged || privateChanged || restartChanged || saveChanged) {
             // one or more settings has changed, so update it in the DB and the local user settings
             userPreferences.setMetricUnits(metricSwitch.isChecked());
@@ -104,6 +105,5 @@ public class AccountPreferencesFragment extends Fragment {
                 });
             });
         }
-        super.onPause();
     }
 }

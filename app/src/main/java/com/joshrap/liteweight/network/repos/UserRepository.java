@@ -54,10 +54,10 @@ public class UserRepository {
                 resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse user data and workout.");
+                resultStatus.setErrorMessage("There was a problem loading your data.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to load user data and workout.");
+            resultStatus.setErrorMessage("There was a problem loading your data.");
         }
         return resultStatus;
     }
@@ -78,10 +78,10 @@ public class UserRepository {
                 resultStatus.setData(new User(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse response.");
+                resultStatus.setErrorMessage("There was a problem updating the exercise.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to update exercise.");
+            resultStatus.setErrorMessage("There was a problem updating the exercise.");
         }
         return resultStatus;
     }
@@ -105,10 +105,10 @@ public class UserRepository {
                 resultStatus.setData(new OwnedExercise(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
-                resultStatus.setErrorMessage("Unable to parse response.");
+                resultStatus.setErrorMessage("There was a problem creating the exercise.");
             }
         } else {
-            resultStatus.setErrorMessage("Unable to create exercise.");
+            resultStatus.setErrorMessage("There was a problem creating the exercise.");
         }
         return resultStatus;
     }
@@ -126,7 +126,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to delete exercise.");
+            resultStatus.setErrorMessage("There was a problem deleting the exercise.");
         }
         return resultStatus;
     }
@@ -144,7 +144,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to update icon.");
+            resultStatus.setErrorMessage("There was a problem updating the profile picture.");
         }
         return resultStatus;
     }
@@ -194,7 +194,7 @@ public class UserRepository {
                 resultStatus.setData(new Friend(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (IOException ioe) {
-                resultStatus.setErrorMessage("Could not parse response.");
+                resultStatus.setErrorMessage("There was a problem sending the friend request.");
             }
         } else {
             resultStatus.setErrorMessage(apiResponse.getErrorMessage());
@@ -215,7 +215,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to cancel friend request.");
+            resultStatus.setErrorMessage("There was a problem canceling the friend request.");
         }
         return resultStatus;
     }
@@ -230,7 +230,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to set all requests seen.");
+            resultStatus.setErrorMessage("There was a problem setting the friend requests as seen.");
         }
         return resultStatus;
     }
@@ -248,7 +248,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to set update preferences.");
+            resultStatus.setErrorMessage("There was a problem updating the user preferences.");
         }
         return resultStatus;
     }
@@ -284,7 +284,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to remove friend.");
+            resultStatus.setErrorMessage("There was a problem removing the friend.");
         }
         return resultStatus;
     }
@@ -302,7 +302,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to decline friend request.");
+            resultStatus.setErrorMessage("There was a problem declining the friend request.");
         }
         return resultStatus;
     }
@@ -320,11 +320,11 @@ public class UserRepository {
             try {
                 resultStatus.setData(JsonUtils.deserialize(apiResponse.getData()).get(User.ICON).toString());
             } catch (IOException e) {
-                resultStatus.setErrorMessage("Could not parse blocked user icon.");
+                resultStatus.setErrorMessage("There was a problem loading the blocked user's icon.");
             }
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to block user.");
+            resultStatus.setErrorMessage("There was a blocking the user.");
         }
         return resultStatus;
     }
@@ -342,7 +342,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to unblock user.");
+            resultStatus.setErrorMessage("There was a problem unblocking the user.");
         }
         return resultStatus;
     }
@@ -359,7 +359,7 @@ public class UserRepository {
             resultStatus.setData(apiResponse.getData());
             resultStatus.setSuccess(true);
         } else {
-            resultStatus.setErrorMessage("Unable to send feedback.");
+            resultStatus.setErrorMessage("There was a problem sending your feedback. Please try again later.");
         }
         return resultStatus;
     }

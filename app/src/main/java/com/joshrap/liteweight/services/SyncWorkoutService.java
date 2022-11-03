@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.VersionModel;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.CognitoGateway;
@@ -46,8 +47,14 @@ public class SyncWorkoutService extends Service {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        String version = null;
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()));
+        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()), new VersionModel(version));
         WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;

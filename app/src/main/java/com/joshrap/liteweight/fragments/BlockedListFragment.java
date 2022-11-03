@@ -120,8 +120,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override

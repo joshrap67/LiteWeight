@@ -154,8 +154,8 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     private void sendFeedback(String feedback) {

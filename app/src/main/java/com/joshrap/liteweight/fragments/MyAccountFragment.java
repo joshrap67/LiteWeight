@@ -37,6 +37,7 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
@@ -117,7 +118,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         updateFriendsTvNotification();
 
         profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
-        // todo this is stale when uploading and coming back to this page
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
@@ -138,9 +138,9 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
     @Override
     public void onPause() {
+        super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
-        super.onPause();
     }
 
     @Override
@@ -231,7 +231,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
-        // todo blurry
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setToolbarTitle("Crop Profile Picture");
 

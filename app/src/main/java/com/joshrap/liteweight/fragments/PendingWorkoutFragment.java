@@ -7,7 +7,6 @@ import androidx.appcompat.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -23,10 +22,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.InputFilter;
-import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -68,7 +64,6 @@ import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
-import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -96,7 +91,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private User user;
     private Button createWorkoutButton, exerciseDoneButton, addWeekButton;
     private Map<String, String> exerciseIdToName;
-    private ImageButton sortExercisesButton;
+    private ImageButton sortExercisesButton, routineDayMoreIcon;
     private LinearLayout customSortLayout;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
@@ -171,14 +166,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         Button saveSortButton = view.findViewById(R.id.done_sorting_btn);
         saveSortButton.setOnClickListener(v -> {
-            customSortLayout.setVisibility(View.GONE);
-            createWorkoutButton.setVisibility(View.VISIBLE);
-            sortExercisesButton.setVisibility(View.VISIBLE);
-            exerciseDoneButton.setVisibility(View.VISIBLE);
-            updateRoutineDayExerciseList();
-            addExercisesButton.show();
-            // needed to avoid weird bug that happens when user tries to sort again by dragging
-            customSortDispatcher.attachToRecyclerView(null);
+            finishCustomSortMode();
         });
 
         // set up sorting options
@@ -218,7 +206,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         sortExercisesButton.setOnClickListener(v -> dropDownSortMenu.show());
 
         // set up more details for day
-        ImageButton routineDayMoreIcon = view.findViewById(R.id.day_more_icon);
+        routineDayMoreIcon = view.findViewById(R.id.day_more_icon);
         final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), routineDayMoreIcon);
         Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
         final int deleteDayId = 0;
@@ -297,8 +285,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             @Override
             public void handleOnBackPressed() {
                 if (isRoutineDayViewShown) {
+                    finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
-                } else if (isModified()) {
+                } else if (isRoutineModified()) {
                     alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
                             .setTitle("Unsaved Changes")
                             .setMessage(R.string.unsaved_workout_msg)
@@ -367,22 +356,17 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekAdapter.notifyItemChanged(currentWeekIndex, true);
     }
 
-    private boolean isModified() {
+    private boolean isRoutineModified() {
         if (isExistingWorkout) {
             return Routine.routinesDifferent(pendingRoutine, userWithWorkout.getWorkout().getRoutine());
         }
 
-        // todo make this true if there are more than one days, even if all empty?
-        boolean modified = false;
-        for (RoutineWeek week : pendingRoutine) {
-            for (RoutineDay day : week.getDays()) {
-                if (!day.getExercises().isEmpty()) {
-                    modified = true;
-                    break;
-                }
-            }
+        if (pendingRoutine.getTotalNumberOfDays() > 1) {
+            return true;
         }
-        return modified;
+
+        // essentially routine is only not modified for new workout if not a single exercise or day has been added
+        return pendingRoutine.getDay(0, 0).getExercises().size() != 0;
     }
 
     private void updateRoutineDayExerciseList() {
@@ -423,7 +407,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void setRoutineDayTagTV(int weekIndex, int dayIndex) {
         RoutineDay day = pendingRoutine.getDay(weekIndex, dayIndex);
         routineDayTagTV.setVisibility(day.getTag() == null ? View.INVISIBLE : View.VISIBLE);
-        routineDayTagTV.setText(day.getTag());
+        routineDayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
     }
 
     private void checkEmptyView() {
@@ -438,12 +422,25 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         addExercisesButton.hide();
         customSortLayout.setVisibility(View.VISIBLE);
         createWorkoutButton.setVisibility(View.GONE);
-        sortExercisesButton.setVisibility(View.GONE);
+        sortExercisesButton.setVisibility(View.INVISIBLE);
+        routineDayMoreIcon.setVisibility(View.INVISIBLE);
         exerciseDoneButton.setVisibility(View.GONE);
 
         CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
         customSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
         routineDayRecyclerView.setAdapter(routineAdapter);
+    }
+
+    private void finishCustomSortMode() {
+        customSortLayout.setVisibility(View.GONE);
+        createWorkoutButton.setVisibility(View.VISIBLE);
+        sortExercisesButton.setVisibility(View.VISIBLE);
+        routineDayMoreIcon.setVisibility(View.VISIBLE);
+        exerciseDoneButton.setVisibility(View.VISIBLE);
+        updateRoutineDayExerciseList();
+        addExercisesButton.show();
+        // needed to avoid weird bug that happens when user tries to sort again by dragging
+        customSortDispatcher.attachToRecyclerView(null);
     }
 
     private final ItemTouchHelper customSortDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
@@ -528,12 +525,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void deleteDay() {
         pendingRoutine.deleteDay(currentWeekIndex, currentDayIndex);
-        if (isRoutineDayViewShown) {
-            switchToRoutineView();
-        } else {
-            // todo can delete this if not deleting day from routine view
-            weekAdapter.notifyItemChanged(currentWeekIndex, true);
-        }
+        switchToRoutineView();
     }
 
     private void promptCopyToExistingDay() {
@@ -658,7 +650,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             public void afterTextChanged(Editable s) {
             }
         });
-        // todo just put this at bottom of form instead of popup?
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
         alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
@@ -717,7 +708,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            // todo make sure current day/week index updated if deleted day?
             ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
@@ -746,7 +736,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
-        // todo make checkboxes bigger so its easier to click?
+        // todo too big of a pain to make checkboxes bigger. just give it a background card to make it clear the whole row is clickable
         allOwnedExercises = new HashMap<>();
         List<String> focusList = Variables.FOCUS_LIST;
         for (String focus : focusList) {
@@ -892,7 +882,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
                     pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
                     if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
-                        // todo test
                         exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
                     }
                     int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
@@ -1127,11 +1116,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
             TextView dayTagTV = dayViewHolder.dayTagTV;
             exerciseCountTV.setText(Integer.toString(day.getNumberOfExercises()));
-            dayViewHolder.dayTitleTV.setText(dayText); // todo italics being cut off...
+            dayViewHolder.dayTitleTV.setText(dayText);
             dayViewHolder.dayCard.setOnClickListener(v -> switchToRoutineDayView(weekPosition, dayPosition));
 
             if (day.getTag() != null) {
-                dayTagTV.setText(day.getTag());
+                dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
             }
         }
 

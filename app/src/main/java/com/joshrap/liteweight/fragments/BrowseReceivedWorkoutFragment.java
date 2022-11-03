@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -72,7 +70,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private RecyclerView recyclerView;
     private SharedWorkout sharedWorkout;
     private SharedRoutine sharedRoutine;
-    private TextView dayTV;
+    private TextView dayTV, dayTagTV;
     private String workoutName;
     private Button forwardButton, backButton;
     private int currentDayIndex;
@@ -142,6 +140,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         recyclerView = view.findViewById(R.id.recycler_view);
         mainLayout = view.findViewById(R.id.main_layout);
         dayTV = view.findViewById(R.id.day_text_view);
+        dayTagTV = view.findViewById(R.id.day_tag_text_view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
         Button acceptWorkoutButton = view.findViewById(R.id.accept_workout_btn);
@@ -168,9 +167,9 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
 
     @Override
     public void onPause() {
+        super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
-        super.onPause();
     }
 
     @Override
@@ -323,6 +322,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      */
     private void setupButtons() {
         dayTV.setOnClickListener(v -> jumpDaysPopup());
+        dayTagTV.setOnClickListener(v -> jumpDaysPopup());
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
@@ -383,6 +383,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
+        dayTagTV.setText(sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
         updateButtonViews();
     }
 
@@ -393,20 +394,20 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (SharedWeek week : sharedRoutine) {
-            for (SharedDay day : week) {
-                if (week.getIndex() == currentWeekIndex && day.getIndex() == currentDayIndex) {
+        for (int weekIndex = 0; weekIndex < sharedRoutine.getNumberOfWeeks(); weekIndex++) {
+            SharedWeek week = sharedRoutine.getWeek(weekIndex);
+            for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+                if (weekIndex == currentWeekIndex && dayIndex == currentDayIndex) {
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutUtils.generateDayTitle(week.getIndex(), day.getIndex());
+                String dayTitle = WorkoutUtils.generateDayTitle(weekIndex, dayIndex);
                 days.add(dayTitle);
                 totalDays++;
             }
         }
         String[] daysAsArray = new String[totalDays];
-        for (int i = 0; i < totalDays; i++) {
-            daysAsArray[i] = days.get(i);
-        }
+        days.toArray(daysAsArray);
+
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
@@ -420,11 +421,12 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (SharedWeek week : sharedRoutine) {
-                        for (SharedDay day : week) {
+                    for (int weekIndex = 0; weekIndex < sharedRoutine.getNumberOfWeeks(); weekIndex++) {
+                        SharedWeek week = sharedRoutine.getWeek(weekIndex);
+                        for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
                             if (count == dayPicker.getValue()) {
-                                currentWeekIndex = week.getIndex();
-                                currentDayIndex = day.getIndex();
+                                currentWeekIndex = weekIndex;
+                                currentDayIndex = dayIndex;
                             }
                             count++;
                         }

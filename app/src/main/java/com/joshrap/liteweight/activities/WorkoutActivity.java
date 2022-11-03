@@ -454,7 +454,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        // todo annoying that animation has to stop for this to be clickable
         switch (menuItem.getItemId()) {
             case R.id.nav_current_workout:
                 if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
@@ -910,7 +909,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, fragment, Variables.CREATE_WORKOUT_TITLE)
                 .commit();
     }
@@ -954,7 +952,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
                 .commit();
     }
@@ -967,7 +964,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         Fragment fragment = new NewExerciseFragment();
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
                 .commit();
     }
@@ -989,7 +985,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
                 .commit();
     }
@@ -1004,7 +999,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragment.setArguments(extras);
         }
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
@@ -1015,7 +1009,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
                 .commit();
     }
@@ -1045,7 +1038,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left) // todo remove these animations?
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }
@@ -1078,7 +1070,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.FAQ_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, new FaqFragment(), Variables.FAQ_TITLE)
                 .commit();
     }

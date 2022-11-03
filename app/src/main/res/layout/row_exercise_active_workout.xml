@@ -30,7 +30,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-<!--                todo android:background="@drawable/week_card_background"-->
+                <!--                todo android:background="@drawable/week_card_background"-->
                 <CheckBox
                         android:id="@+id/exercise_name"
                         android:layout_width="0dp"
@@ -45,11 +45,11 @@
                         android:id="@+id/weight_btn"
                         android:layout_width="110dp"
                         android:layout_height="wrap_content"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         android:drawableEnd="@drawable/small_down_arrow"
                         android:minWidth="75dp"
                         android:textAllCaps="false"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        android:background="?android:selectableItemBackgroundBorderless"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/exercise_name"
                         app:layout_constraintTop_toTopOf="parent"
@@ -80,17 +80,17 @@
                     app:srcCompat="@drawable/approve_icon"
                     tools:visibility="visible" />
 
-            <ImageButton
-                    android:id="@+id/launch_video"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="15dp"
-                    android:src="@drawable/launch_video_icon"
-                    android:tooltipText="View Video" />
+<!--            <ImageButton-->
+<!--                    android:id="@+id/launch_video_button"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="?android:selectableItemBackgroundBorderless"-->
+<!--                    android:clickable="true"-->
+<!--                    android:focusable="true"-->
+<!--                    android:paddingStart="15dp"-->
+<!--                    android:paddingEnd="15dp"-->
+<!--                    android:src="@drawable/video_icon"-->
+<!--                    android:tooltipText="View Video" />-->
 
         </LinearLayout>
 
@@ -198,5 +198,12 @@
                     android:scrollbars="vertical"
                     app:autoSizeTextType="uniform" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+                android:id="@+id/launch_video_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:backgroundTint="@color/transparent"
+                android:text="Watch Video" />
     </LinearLayout>
 </LinearLayout>

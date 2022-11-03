@@ -67,6 +67,7 @@
                         android:drawableEnd="@drawable/small_down_arrow"
                         android:minWidth="75dp"
                         android:textAllCaps="false"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/exercise_name"
@@ -180,11 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/details"
-                app:autoSizeTextType="uniform"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/launch_video"
-                app:layout_constraintStart_toEndOf="@+id/exercise_name"
-                app:layout_constraintTop_toTopOf="parent">
+                app:autoSizeTextType="uniform">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/details_input"

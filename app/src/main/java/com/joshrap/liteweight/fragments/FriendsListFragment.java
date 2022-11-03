@@ -274,13 +274,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
+        super.onPause();
         // sanity check to determine if user has any unseen requests after this fragment is paused
         if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
             markAllFriendRequestsSeen();
         }
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
         hideAllDialogs();
-        super.onPause();
     }
 
     @Override

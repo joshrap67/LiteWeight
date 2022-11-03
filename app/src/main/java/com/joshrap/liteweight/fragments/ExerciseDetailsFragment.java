@@ -220,8 +220,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override

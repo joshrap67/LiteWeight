@@ -5,6 +5,7 @@ import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.VersionModel;
 import com.joshrap.liteweight.network.repos.CognitoRepository;
 
 import java.io.BufferedReader;
@@ -26,26 +27,29 @@ import lombok.Data;
 public class ApiGateway {
 
     private static final int successCode = 200; // THIS MUST MATCH THE CODE RETURNED FROM THE API
+    private static final String VERSION_HEADER = "X-LiteWeight-Version";
 
     private final Tokens tokens;
     private final CognitoRepository cognitoRepository;
+    private final String version;
 
     @Inject
-    public ApiGateway(Tokens tokens, CognitoRepository cognitoRepository) {
+    public ApiGateway(Tokens tokens, CognitoRepository cognitoRepository, VersionModel versionModel) {
         this.tokens = tokens;
         this.cognitoRepository = cognitoRepository;
+        this.version = versionModel.toString();
     }
 
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
         ResultStatus<String> resultStatus = new ResultStatus<>();
 
-        // todo put app version in all api calls
         if (this.tokens != null) {
             try {
                 URL url = new URL(BackendConfig.apiUrl + BackendConfig.deploymentStage + action);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Authorization", "Bearer " + this.tokens.getIdToken());
+                httpURLConnection.setRequestProperty(VERSION_HEADER, version);
                 httpURLConnection.setUseCaches(false);
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.setDoOutput(true);

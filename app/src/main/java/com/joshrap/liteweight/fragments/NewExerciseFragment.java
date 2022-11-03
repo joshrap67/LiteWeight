@@ -178,8 +178,8 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override

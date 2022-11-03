@@ -50,6 +50,7 @@
                         android:drawableEnd="@drawable/small_down_arrow"
                         android:minWidth="75dp"
                         android:textAllCaps="false"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/exercise_name"

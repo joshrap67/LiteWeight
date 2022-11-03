@@ -21,7 +21,6 @@ public class SharedWeek implements Iterable<SharedDay>, Model {
     public static final String DAYS = "days";
 
     private List<SharedDay> days;
-    private Integer index;
 
     public SharedWeek() {
         this.days = new ArrayList<>();
