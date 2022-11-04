@@ -117,7 +117,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
 
         Button deleteExercise = view.findViewById(R.id.delete_exercise);
-        deleteExercise.setOnClickListener(v -> promptDelete());
+        deleteExercise.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            promptDelete();
+        });
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
@@ -155,6 +158,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         Button previewBtn = view.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         clipboardBtn.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
@@ -184,7 +188,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
 
         Button saveButton = view.findViewById(R.id.save_btn);
-        saveButton.setOnClickListener(v -> saveExercise());
+        saveButton.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            saveExercise();
+        });
 
         RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
@@ -195,6 +202,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusRelativeLayout = view.findViewById(R.id.focus_relative_layout);
 
         View.OnClickListener focusLayoutClicked = v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;

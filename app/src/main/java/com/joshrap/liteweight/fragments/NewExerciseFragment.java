@@ -143,17 +143,17 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         Button previewBtn = view.findViewById(R.id.preview_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         clipboardBtn.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             String url = urlInput.getText().toString().trim();
-            if (url.isEmpty()) {
-                Toast.makeText(getContext(), "No url to copy", Toast.LENGTH_SHORT).show();
-            } else {
-                clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
-                Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
-            }
+            clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
+            Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
         Button saveButton = view.findViewById(R.id.save_btn);
-        saveButton.setOnClickListener(v -> createExercise());
+        saveButton.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            createExercise();
+        });
 
         RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
@@ -163,6 +163,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;

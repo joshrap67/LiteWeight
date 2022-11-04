@@ -16,12 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <RelativeLayout
+        <LinearLayout
                 android:id="@+id/center_container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/right_container"
+                app:layout_constraintEnd_toStartOf="@id/save_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -55,44 +55,23 @@
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="12345 lb" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
-        </RelativeLayout>
-
-        <LinearLayout
-                android:id="@+id/right_container"
+        <ImageButton
+                android:id="@+id/save_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:tooltipText="Done"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/center_container"
-                app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                    android:id="@+id/save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:tooltipText="Done"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/approve_icon"
-                    tools:visibility="visible" />
-
-<!--            <ImageButton-->
-<!--                    android:id="@+id/launch_video_button"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:background="?android:selectableItemBackgroundBorderless"-->
-<!--                    android:clickable="true"-->
-<!--                    android:focusable="true"-->
-<!--                    android:paddingStart="15dp"-->
-<!--                    android:paddingEnd="15dp"-->
-<!--                    android:src="@drawable/video_icon"-->
-<!--                    android:tooltipText="View Video" />-->
-
-        </LinearLayout>
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/approve_icon"
+                tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -203,7 +182,7 @@
                 android:id="@+id/launch_video_button"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:backgroundTint="@color/transparent"
-                android:text="Watch Video" />
+                android:text="Watch Video"
+                app:backgroundTint="@color/transparent" />
     </LinearLayout>
 </LinearLayout>

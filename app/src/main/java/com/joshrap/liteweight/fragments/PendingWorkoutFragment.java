@@ -239,10 +239,16 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
             return false;
         });
-        routineDayMoreIcon.setOnClickListener(v -> dropDownRoutineDayMenu.show());
+        routineDayMoreIcon.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            dropDownRoutineDayMenu.show();
+        });
 
         addExercisesButton = view.findViewById(R.id.add_exercises);
-        addExercisesButton.setOnClickListener(v -> popupAddExercises());
+        addExercisesButton.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            popupAddExercises();
+        });
 
         exerciseDoneButton = view.findViewById(R.id.exercise_done_btn);
         exerciseDoneButton.setOnClickListener(v -> switchToRoutineView());
@@ -285,6 +291,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             @Override
             public void handleOnBackPressed() {
                 if (isRoutineDayViewShown) {
+                    ((WorkoutActivity) getActivity()).hideKeyboard();
                     finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
@@ -370,7 +377,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void updateRoutineDayExerciseList() {
-        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), routineDayRecyclerView);
+        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), routineDayRecyclerView, getActivity());
         routineDayRecyclerView.setAdapter(routineDayAdapter);
         routineDayRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         routineDayAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

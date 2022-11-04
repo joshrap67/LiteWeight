@@ -769,41 +769,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        /*
-            Found on SO. Hides keyboard when clicking outside editText.
-            https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
-         */
-        // todo this is causing weirdness on list views when clicking buttons and edit texts
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View view = getCurrentFocus();
-            if (view instanceof EditText) {
-                Rect viewRect = new Rect();
-                view.getGlobalVisibleRect(viewRect);
-                if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                    boolean touchTargetIsEditText = false;
-                    //Check if another editText has been touched
-                    for (View vi : view.getRootView().getTouchables()) {
-                        if (vi instanceof EditText) {
-                            Rect clickedViewRect = new Rect();
-                            vi.getGlobalVisibleRect(clickedViewRect);
-                            //Bounding box is to big, reduce it just a little bit
-                            if (clickedViewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                                touchTargetIsEditText = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!touchTargetIsEditText) {
-                        view.clearFocus();
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-                }
-            }
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        View view = getCurrentFocus();
+        if (view != null) {
+            view.clearFocus();
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        return super.dispatchTouchEvent(event);
     }
 
     /**

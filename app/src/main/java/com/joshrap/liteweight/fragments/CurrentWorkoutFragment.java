@@ -86,6 +86,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private ImageButton clockButton;
     private SharedPreferences.Editor editor;
 
+    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT}
+
+    ;
+
     // timer views
     private Button startTimerButton, stopTimerButton, showStopwatchButton;
     private boolean showStopwatch;
@@ -184,7 +188,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         setupDayButtons();
-        updateRoutineListUI(false);
+        updateRoutineListUI(RoutineListAnimateMode.NONE);
         updateWorkoutProgressBar();
 
         bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
@@ -484,12 +488,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
                 currentDayIndex--;
-                updateRoutineListUI(true);
+                updateRoutineListUI(RoutineListAnimateMode.FROM_RIGHT);
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
                 currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
-                updateRoutineListUI(true);
+                updateRoutineListUI(RoutineListAnimateMode.FROM_RIGHT);
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
@@ -498,12 +502,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
-                updateRoutineListUI(true);
+                updateRoutineListUI(RoutineListAnimateMode.FROM_LEFT);
             } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
                 // there are more weeks, so go to the next week
                 currentDayIndex = 0;
                 currentWeekIndex++;
-                updateRoutineListUI(true);
+                updateRoutineListUI(RoutineListAnimateMode.FROM_LEFT);
             } else {
                 // on last week, prompt user to restart the workout
                 showRestartPopup();
@@ -544,7 +548,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     /**
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
-    private void updateRoutineListUI(boolean animate) {
+    private void updateRoutineListUI(RoutineListAnimateMode mode) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
         RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
@@ -552,8 +556,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        if (animate) {
-            recyclerView.startAnimation(AndroidUtils.shakeAttention(1));
+        if (mode == RoutineListAnimateMode.FROM_LEFT) {
+            recyclerView.startAnimation(AndroidUtils.wiggleFromLeft(1));
+        } else if (mode == RoutineListAnimateMode.FROM_RIGHT) {
+            recyclerView.startAnimation(AndroidUtils.wiggleFromRight(1));
         }
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         dayTagTV.setText(routine.getDay(currentWeekIndex, currentDayIndex).getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
@@ -585,7 +591,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
 
-                    updateRoutineListUI(true);
+                    updateRoutineListUI(RoutineListAnimateMode.NONE);
                     updateWorkoutProgressBar();
                 } else {
                     AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
@@ -662,7 +668,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     }
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
-                    updateRoutineListUI(true);
+                    updateRoutineListUI(RoutineListAnimateMode.NONE);
                 })
                 .create();
         alertDialog.show();
@@ -697,7 +703,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 .setView(popupView)
                 .setPositiveButton("Yes", (dialog, which) -> {
                     restartWorkout();
-                    updateRoutineListUI(true);
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -866,6 +871,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             weightButton.setOnClickListener((v) -> {
                 // show all the extra details for this exercise so the user can edit/read them
+                ((WorkoutActivity) getActivity()).hideKeyboard();
                 weightButton.setVisibility(View.INVISIBLE);
                 extraInfo.setVisibility(View.VISIBLE);
                 saveButton.setVisibility(View.VISIBLE);
@@ -889,6 +895,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
 
                     notifyItemChanged(position, true);
+                    ((WorkoutActivity) getActivity()).hideKeyboard();
                 }
             });
             videoButton.setOnClickListener(v ->

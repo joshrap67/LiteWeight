@@ -52,9 +52,16 @@ public class AndroidUtils {
     }
 
     // used to shake a view to grab attention of user, not to signal error
-    public static TranslateAnimation shakeAttention(int shakeCycles) {
-        TranslateAnimation shake = new TranslateAnimation(0, 15, 0, 0);
-        shake.setDuration(500);
+    public static TranslateAnimation wiggleFromLeft(int shakeCycles) {
+        TranslateAnimation shake = new TranslateAnimation(-10, 0, 0, 0);
+        shake.setDuration(400);
+        shake.setInterpolator(new CycleInterpolator(shakeCycles));
+        return shake;
+    }
+
+    public static TranslateAnimation wiggleFromRight(int shakeCycles) {
+        TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
+        shake.setDuration(400);
         shake.setInterpolator(new CycleInterpolator(shakeCycles));
         return shake;
     }

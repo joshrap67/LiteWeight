@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.adapters;
 
 import android.animation.LayoutTransition;
+import android.app.Activity;
 import android.content.Context;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineExercise;
@@ -74,11 +76,12 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private final int currentWeek;
     private final int currentDay;
     private final RecyclerView recyclerView;
+    private final Activity activity;
     private final boolean metricUnits;
 
     public RoutineDayAdapter(Map<String, String> exerciseIdToName, Map<String, Double> exerciseIdToCurrentMaxWeight,
                              Routine routine, int currentWeek, int currentDay, boolean metricUnits,
-                             RecyclerView recyclerView) {
+                             RecyclerView recyclerView, Activity activity) {
         this.exerciseIdToName = exerciseIdToName;
         this.exerciseIdToCurrentMaxWeight = exerciseIdToCurrentMaxWeight;
         this.pendingRoutine = routine;
@@ -86,6 +89,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.currentDay = currentDay;
         this.metricUnits = metricUnits;
         this.recyclerView = recyclerView;
+        this.activity = activity;
     }
 
     @NonNull
@@ -191,6 +195,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
         weightButton.setOnClickListener((v) -> {
             // show all the extra details for this exercise
+            ((WorkoutActivity) activity).hideKeyboard();
             weightButton.setVisibility(View.INVISIBLE);
             extraInfo.setVisibility(View.VISIBLE);
             saveButton.setVisibility(View.VISIBLE);
@@ -198,6 +203,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
 
         deleteButton.setOnClickListener(v -> {
+            ((WorkoutActivity) activity).hideKeyboard();
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
@@ -224,6 +230,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
                     exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
                 }
 
+                ((WorkoutActivity) activity).hideKeyboard();
                 notifyItemChanged(position, true);
             }
         });
