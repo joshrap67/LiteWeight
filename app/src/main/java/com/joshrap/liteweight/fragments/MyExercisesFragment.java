@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,18 +25,14 @@ import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class MyExercisesFragment extends Fragment {
 
@@ -46,10 +41,6 @@ public class MyExercisesFragment extends Fragment {
     private User user;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private List<String> focusList;
-    @Inject
-    ProgressDialog loadingDialog;
-    @Inject
-    UserRepository userRepository;
 
     @Nullable
     @Override

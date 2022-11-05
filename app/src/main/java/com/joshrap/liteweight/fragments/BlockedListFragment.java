@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -61,8 +60,9 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     private BottomSheetDialog bottomSheetDialog;
     private List<String> blocked;
     private BlockedAdapter blockedAdapter;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -151,7 +151,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         EditText usernameInput = popupView.findViewById(R.id.friend_name_input);
         usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Block User")
                 .setView(popupView)
                 .setPositiveButton("Block", null)
@@ -236,7 +236,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -293,7 +293,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
                 // sets up a bottom dialog that is shown whenever a user clicks on the row
-                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_blocked_list, null);
                 TextView unblockTV = sheetView.findViewById(R.id.unblock_tv);
                 unblockTV.setOnClickListener(view -> {

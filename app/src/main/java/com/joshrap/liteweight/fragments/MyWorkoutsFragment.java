@@ -1,8 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
@@ -88,8 +88,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private UserWithWorkout userWithWorkout;
     private List<WorkoutMeta> workoutList;
     private WorkoutsAdapter workoutsAdapter;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
 
@@ -121,7 +122,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
-            FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
@@ -296,7 +297,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Reset Statistics")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
@@ -340,7 +341,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Save", null)
@@ -401,7 +402,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Copy", null)
@@ -494,7 +495,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
@@ -550,7 +551,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Workout")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> {

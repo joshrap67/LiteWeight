@@ -1,8 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.animation.LayoutTransition;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -88,8 +88,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
     private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT}
 
-    ;
-
     // timer views
     private Button startTimerButton, stopTimerButton, showStopwatchButton;
     private boolean showStopwatch;
@@ -103,7 +101,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private TextView stopwatchTV;
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -139,7 +137,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
-            FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
@@ -191,7 +189,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         updateRoutineListUI(RoutineListAnimateMode.NONE);
         updateWorkoutProgressBar();
 
-        bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+        bottomSheetDialog = new BottomSheetDialog(getActivity());
         View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_clock, null);
         bottomSheetDialog.setContentView(sheetView);
         setupTimerStopwatchUI(sheetView);
@@ -431,8 +429,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void setSecondaryTimerVisibility() {
-        secondaryTimerTV.setVisibility(timer.isTimerRunning() ? View.VISIBLE : View.GONE);
-        secondaryStopwatchTV.setVisibility(stopwatch.isStopwatchRunning() ? View.VISIBLE : View.GONE);
+        secondaryTimerTV.setVisibility(timer.isTimerRunning() ? View.VISIBLE : View.INVISIBLE);
+        // todo this is causing weird jumping as if being set to GONE...
+        secondaryStopwatchTV.setVisibility(stopwatch.isStopwatchRunning() ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void switchToStopwatch() {
@@ -474,9 +473,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             secondaryStopwatchTV.setText(timeFormatted);
         }
     }
-
-    // todo when restyling to material, maybe just have bottom dialog be black instead of charleston green
-
 
     /**
      * Setup button listeners for moving forward and backwards throughout the routine.
@@ -651,7 +647,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
@@ -698,7 +694,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         TextView progressTV = popupView.findViewById(R.id.progress_bar_TV);
         progressTV.setText(String.format("%d %%", percentage));
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Restart Workout")
                 .setView(popupView)
                 .setPositiveButton("Yes", (dialog, which) -> {

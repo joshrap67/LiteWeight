@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -36,13 +37,13 @@
                         android:id="@+id/username_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Username"
                         android:textSize="30sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toTopOf="@+id/profile_picture"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Username" />
 
                 <androidx.cardview.widget.CardView
                         android:id="@+id/profile_picture"
@@ -91,11 +92,11 @@
                     android:layout_marginEnd="16dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
-                    android:drawableEnd="@drawable/account_preferences_icon"
                     android:elevation="2dp"
                     android:focusable="true"
                     android:text="@string/account_preferences"
-                    android:textSize="25sp" />
+                    android:textSize="25sp"
+                    app:drawableEndCompat="@drawable/account_preferences_icon" />
 
             <TextView
                     android:id="@+id/blocked_list_tv"
@@ -106,11 +107,11 @@
                     android:layout_marginEnd="16dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
-                    android:drawableEnd="@drawable/block_user_icon"
                     android:elevation="2dp"
                     android:focusable="true"
                     android:text="@string/blocked_list"
-                    android:textSize="25sp" />
+                    android:textSize="25sp"
+                    app:drawableEndCompat="@drawable/block_user_icon" />
 
             <TextView
                     android:id="@+id/friends_list_tv"
@@ -121,11 +122,11 @@
                     android:layout_marginEnd="16dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
-                    android:drawableEnd="@drawable/friends_icon"
                     android:elevation="2dp"
                     android:focusable="true"
                     android:text="@string/friends_list"
-                    android:textSize="25sp" />
+                    android:textSize="25sp"
+                    app:drawableEndCompat="@drawable/friends_icon" />
         </LinearLayout>
 
     </ScrollView>

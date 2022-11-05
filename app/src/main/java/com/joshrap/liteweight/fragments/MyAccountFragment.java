@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -239,7 +239,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void promptLogout() {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
                 .setPositiveButton("Yes", (dialog, which) -> ((WorkoutActivity) getActivity()).logout())

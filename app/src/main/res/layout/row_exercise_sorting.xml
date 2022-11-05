@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,11 +12,20 @@
         android:focusable="true"
         android:orientation="horizontal">
 
+    <ImageView
+            android:id="@+id/drag_icon_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/drag_icon" />
+
     <TextView
             android:id="@+id/exercise_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/drag_icon_image_view"
             android:clickable="true"
             android:focusable="true"
             android:paddingStart="15dp"
@@ -31,5 +41,6 @@
             android:clickable="true"
             android:focusable="true"
             android:textAllCaps="false"
+            app:backgroundTint="@color/transparent"
             tools:text="25 lb" />
 </RelativeLayout>

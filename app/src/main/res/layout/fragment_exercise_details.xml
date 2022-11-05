@@ -41,7 +41,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/name_hint"
-                        app:autoSizeTextType="uniform">
+                        app:autoSizeTextType="uniform"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/exercise_name_input"
@@ -161,7 +163,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        tools:hint="Default Weight (lb)">
+                        app:expandedHintEnabled="false"
+                        tools:hint="Default Weight (lb)"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_weight_input"
@@ -189,8 +193,11 @@
                             android:id="@+id/default_sets_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
                             android:layout_weight=".67"
-                            android:hint="@string/default_sets_hint">
+                            android:hint="@string/default_sets_hint"
+                            app:expandedHintEnabled="false"
+                            tools:style="@style/TextInputLayoutStyle">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_sets_input"
@@ -210,7 +217,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight=".67"
-                            android:hint="@string/default_reps_hint">
+                            android:hint="@string/default_reps_hint"
+                            app:expandedHintEnabled="false"
+                            tools:style="@style/TextInputLayoutStyle">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_reps_input"
@@ -233,7 +242,9 @@
                         android:layout_below="@id/sets_reps_container"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
-                        android:hint="@string/default_details_hint">
+                        android:hint="@string/default_details_hint"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_details_input"
@@ -256,7 +267,9 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/url_hint"
-                        app:autoSizeTextType="uniform">
+                        app:autoSizeTextType="uniform"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/url_input"
@@ -284,10 +297,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
-                            android:drawableStart="@drawable/copy_icon"
                             android:text="@string/copy_url"
                             android:textColor="@color/colorAccent"
-                            app:backgroundTint="@color/deny_color" />
+                            app:icon="@drawable/copy_icon" />
 
                     <Button
                             android:id="@+id/preview_btn"
@@ -295,10 +307,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:drawableStart="@drawable/preview_icon"
                             android:text="@string/preview_url"
                             android:textColor="@color/colorAccent"
-                            app:backgroundTint="@color/colorPrimary" />
+                            app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
@@ -308,6 +319,7 @@
             android:id="@+id/bottom_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:orientation="horizontal"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
@@ -317,7 +329,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scroll_view_main">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
                 android:id="@+id/delete_exercise"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -327,7 +339,7 @@
                 android:textColor="@color/colorAccent"
                 app:backgroundTint="@color/deny_color" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
                 android:id="@+id/save_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

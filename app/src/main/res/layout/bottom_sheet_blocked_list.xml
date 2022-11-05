@@ -49,10 +49,11 @@
             android:layout_height="60dp"
             android:background="?android:selectableItemBackground"
             android:clickable="true"
-            android:drawableStart="@drawable/cancel_friend_request_icon"
             android:drawablePadding="16dp"
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="@string/unblock_user" />
+            android:paddingEnd="16dp"
+            android:text="@string/unblock_user"
+            app:drawableStartCompat="@drawable/cancel_friend_request_icon" />
 </LinearLayout>

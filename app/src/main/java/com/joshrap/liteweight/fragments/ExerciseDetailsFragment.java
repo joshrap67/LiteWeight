@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.graphics.Typeface;
@@ -77,7 +76,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -343,7 +342,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Exercise")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> deleteExercise())

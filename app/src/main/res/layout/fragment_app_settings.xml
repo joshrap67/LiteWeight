@@ -115,7 +115,7 @@
                         android:clickable="false"
                         android:text="@string/workout_progress_indicator"
                         android:textSize="16sp"
-                        tools:checked="true" />
+                        tools:checked="false" />
 
                 <TextView
                         android:layout_width="match_parent"

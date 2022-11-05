@@ -8,9 +8,11 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:animateLayoutChanges="true"
+        android:background="@drawable/exercise_row_background"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="6dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -35,11 +37,14 @@
                         android:id="@+id/exercise_name"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:buttonTint="@color/colorAccent"
                         android:textSize="18sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/weight_btn"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:checked="true"
+                        tools:text="Bicep Curl" />
 
                 <Button
                         android:id="@+id/weight_btn"
@@ -90,12 +95,12 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/sets_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:hint="@string/sets"
-                    app:autoSizeTextType="uniform">
+                    app:autoSizeTextType="uniform"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/sets_input"
@@ -112,14 +117,14 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/weight_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:layout_toStartOf="@+id/reps_input_layout"
                     android:layout_toEndOf="@+id/sets_input_layout"
-                    android:hint="@string/weight_lbs">
+                    android:hint="@string/weight_lbs"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/weight_input"
@@ -135,11 +140,11 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/reps_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:hint="@string/reps">
+                    android:hint="@string/reps"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/reps_input"
@@ -156,7 +161,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/details_input_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/details"
@@ -164,7 +168,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/launch_video"
                 app:layout_constraintStart_toEndOf="@+id/exercise_name"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                tools:style="@style/TextInputLayoutStyle">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/details_input"
@@ -182,7 +187,7 @@
                 android:id="@+id/launch_video_button"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Watch Video"
+                android:text="@string/watch_video"
                 app:backgroundTint="@color/transparent" />
     </LinearLayout>
 </LinearLayout>

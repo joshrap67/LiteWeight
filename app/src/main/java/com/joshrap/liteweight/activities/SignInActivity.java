@@ -1,8 +1,7 @@
 package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,7 +41,6 @@ import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.CognitoResponse;
@@ -73,8 +71,9 @@ public class SignInActivity extends AppCompatActivity {
     private TextView passwordAttributesTV;
     private GoogleSignInClient googleSignInClient;
     private AlertDialog alertDialog;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     Tokens tokens;
     @Inject
@@ -180,7 +179,7 @@ public class SignInActivity extends AppCompatActivity {
             alertDialog.dismiss();
             googleSignIn();
         });
-        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Gmail Detected")
                 .setView(popupView)
                 .setPositiveButton("Send Code", null)

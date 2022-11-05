@@ -4,7 +4,6 @@ import static android.os.Looper.getMainLooper;
 
 import androidx.appcompat.app.AlertDialog;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -46,7 +44,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
@@ -89,16 +87,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
     private User user;
-    private Button createWorkoutButton, exerciseDoneButton, addWeekButton;
+    private Button saveWorkoutButton, saveCustomSortButton;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
-    private LinearLayout customSortLayout;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
     private boolean isRoutineDayViewShown;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
-    private FloatingActionButton addExercisesButton;
+    private ExtendedFloatingActionButton addExercisesButton, addWeekButton;
     private AddExerciseAdapter addExerciseAdapter;
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
@@ -108,7 +105,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
@@ -162,10 +159,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         emptyDayTV = view.findViewById(R.id.empty_view);
         routineDayTitleTV = view.findViewById(R.id.day_text_view);
         routineDayTagTV = view.findViewById(R.id.day_tag_text_view);
-        customSortLayout = view.findViewById(R.id.custom_sort_layout);
 
-        Button saveSortButton = view.findViewById(R.id.done_sorting_btn);
-        saveSortButton.setOnClickListener(v -> {
+        saveCustomSortButton = view.findViewById(R.id.done_sorting_btn);
+        saveCustomSortButton.setOnClickListener(v -> {
             finishCustomSortMode();
         });
 
@@ -249,9 +245,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             ((WorkoutActivity) getActivity()).hideKeyboard();
             popupAddExercises();
         });
-
-        exerciseDoneButton = view.findViewById(R.id.exercise_done_btn);
-        exerciseDoneButton.setOnClickListener(v -> switchToRoutineView());
         //endregion
 
         //region Views for routine
@@ -266,18 +259,18 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             pendingRoutine.addEmptyWeek();
             weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
             if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
-                addWeekButton.setVisibility(View.GONE);
+                addWeekButton.hide();
             }
 
             // scroll to end when new week is added
             weekRecyclerView.post(() -> weekRecyclerView.scrollToPosition(weekAdapter.getItemCount() - 1));
         });
 
-        createWorkoutButton = view.findViewById(R.id.save_btn);
+        saveWorkoutButton = view.findViewById(R.id.save_btn);
         if (!isExistingWorkout) {
-            createWorkoutButton.setText(R.string.create);
+            saveWorkoutButton.setText(R.string.create);
         }
-        createWorkoutButton.setOnClickListener(v -> {
+        saveWorkoutButton.setOnClickListener(v -> {
             if (isExistingWorkout) {
                 saveWorkout();
             } else {
@@ -295,7 +288,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
-                    alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+                    alertDialog = new AlertDialog.Builder(getContext())
                             .setTitle("Unsaved Changes")
                             .setMessage(R.string.unsaved_workout_msg)
                             .setPositiveButton("Yes", (dialog, which) -> {
@@ -427,11 +420,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
      */
     private void enableCustomSortMode() {
         addExercisesButton.hide();
-        customSortLayout.setVisibility(View.VISIBLE);
-        createWorkoutButton.setVisibility(View.GONE);
+        saveCustomSortButton.setVisibility(View.VISIBLE);
+        saveWorkoutButton.setVisibility(View.GONE);
         sortExercisesButton.setVisibility(View.INVISIBLE);
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
-        exerciseDoneButton.setVisibility(View.GONE);
 
         CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
         customSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
@@ -439,11 +431,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void finishCustomSortMode() {
-        customSortLayout.setVisibility(View.GONE);
-        createWorkoutButton.setVisibility(View.VISIBLE);
+        saveCustomSortButton.setVisibility(View.GONE);
+        saveWorkoutButton.setVisibility(View.VISIBLE);
         sortExercisesButton.setVisibility(View.VISIBLE);
         routineDayMoreIcon.setVisibility(View.VISIBLE);
-        exerciseDoneButton.setVisibility(View.VISIBLE);
         updateRoutineDayExerciseList();
         addExercisesButton.show();
         // needed to avoid weird bug that happens when user tries to sort again by dragging
@@ -467,7 +458,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
 
     private void promptDeleteWeek(int weekIndex) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Week " + (weekIndex + 1))
                 .setMessage(R.string.remove_week_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -487,7 +478,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         pendingRoutine.deleteWeek(weekIndex);
         weekAdapter.notifyItemRemoved(weekIndex);
         weekAdapter.notifyItemRangeChanged(weekIndex, weekAdapter.getItemCount());
-        addWeekButton.setVisibility(View.VISIBLE);
+        addWeekButton.show();
     }
 
     private void promptSetDayTag() {
@@ -500,7 +491,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         RoutineDay currentDay = pendingRoutine.getDay(currentWeekIndex, currentDayIndex);
         dayTagInput.setText(currentDay.getTag());
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Set Day Tag")
                 .setView(popupView)
                 .setPositiveButton("Save", (dialog, which) -> {
@@ -514,7 +505,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void promptDeleteDay() {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Day " + (currentDayIndex + 1))
                 .setMessage(R.string.remove_day_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -555,7 +546,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(dayLabelsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
@@ -612,7 +603,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(String.format(Locale.US, "Copy Week %d", selectedWeek + 1))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
@@ -659,7 +650,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         });
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Create workout")
                 .setView(popupView)
                 .setPositiveButton("Create", null)
@@ -809,7 +800,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
         focusSpinner.setSelection((spinnerFocus == null) ? 0 : focusList.indexOf(spinnerFocus));
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Add Exercises")
                 .setView(popupView)
                 .setPositiveButton("Done", null)

@@ -1,8 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +42,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.DateUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -64,7 +64,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -90,7 +89,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private UserWithWorkout userWithWorkout;
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
@@ -310,7 +309,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Block User")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
@@ -421,7 +420,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -481,7 +480,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -551,19 +550,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 }
             });
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSender()));
+            dateSentTv.setText(DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent()));
 
-            DateFormat dateFormatInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
-            dateFormatInput.setTimeZone(TimeZone.getTimeZone("UTC"));
-            try {
-                Date date = dateFormatInput.parse(receivedWorkout.getDateSent());
-
-                // we have the date as a proper object, so now format it to the user's local timezone
-                DateFormat dateFormatOutput = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.ENGLISH);
-                dateFormatOutput.setTimeZone(TimeZone.getDefault());
-                dateSentTv.setText(dateFormatOutput.format(date));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
             String workoutName = receivedWorkout.getWorkoutName();
             if (!receivedWorkout.isSeen()) {
                 // if unseen, add ! to catch user's attention
@@ -579,7 +567,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     workoutNameTV.setText(receivedWorkout.getWorkoutName());
                 }
 
-                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_received_workout, null);
                 TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
                 TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);

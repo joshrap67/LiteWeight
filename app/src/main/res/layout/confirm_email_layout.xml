@@ -49,7 +49,8 @@
             android:backgroundTint="@android:color/white"
             android:hint="@string/email_verification_code_hint"
             android:textColor="@color/notification_color"
-            android:textColorHint="@android:color/white">
+            android:textColorHint="@android:color/white"
+            tools:style="@style/TextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/code_input"

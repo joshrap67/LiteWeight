@@ -8,9 +8,11 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:animateLayoutChanges="true"
+        android:background="@drawable/exercise_row_background"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="6dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -58,16 +60,17 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/weight_btn"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Barbell Curl" />
 
                 <Button
                         android:id="@+id/weight_btn"
                         android:layout_width="110dp"
                         android:layout_height="wrap_content"
+                        android:background="?android:selectableItemBackgroundBorderless"
                         android:drawableEnd="@drawable/small_down_arrow"
                         android:minWidth="75dp"
                         android:textAllCaps="false"
-                        android:background="?android:selectableItemBackgroundBorderless"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/exercise_name"
@@ -111,12 +114,12 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/sets_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:hint="@string/sets"
-                    app:autoSizeTextType="uniform">
+                    app:autoSizeTextType="uniform"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/sets_input"
@@ -133,14 +136,14 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/weight_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:layout_toStartOf="@+id/reps_input_layout"
                     android:layout_toEndOf="@+id/sets_input_layout"
-                    android:hint="Weight (lbs)">
+                    android:hint="Weight (lbs)"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/weight_input"
@@ -156,11 +159,11 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/reps_input_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:hint="@string/reps">
+                    android:hint="@string/reps"
+                    tools:style="@style/TextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/reps_input"
@@ -177,11 +180,11 @@
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/details_input_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/details"
-                app:autoSizeTextType="uniform">
+                app:autoSizeTextType="uniform"
+                tools:style="@style/TextInputLayoutStyle">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/details_input"

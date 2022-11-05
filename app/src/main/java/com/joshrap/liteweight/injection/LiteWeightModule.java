@@ -1,8 +1,9 @@
 package com.joshrap.liteweight.injection;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
@@ -43,10 +44,11 @@ class LiteWeightModule {
     }
 
     @Provides
-    ProgressDialog provideProgressDialog(final Context context) {
-        ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogStyle);
-        progressDialog.setCancelable(false);
-        return progressDialog;
+    AlertDialog provideAlertDialog(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setView(R.layout.popup_loading);
+        return builder.create();
     }
 
     @Provides

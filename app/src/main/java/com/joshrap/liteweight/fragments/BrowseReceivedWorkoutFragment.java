@@ -1,8 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -79,10 +78,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private RelativeLayout mainLayout;
     private String receivedWorkoutId;
     private UserWithWorkout userWithWorkout;
+
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
 
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
@@ -180,7 +180,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     }
 
     private void workoutUpdatedPopup(SharedWorkoutMeta sharedWorkoutMeta) {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Workout updated")
                 .setMessage(String.format("%s has sent a newer version of this workout. Would you like to refresh in order to see the changes?", sharedWorkoutMeta.getSender()))
                 .setPositiveButton("Yes", (dialogInterface, i) -> {
@@ -211,7 +211,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -416,7 +416,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {

@@ -48,10 +48,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="5dp"
-                android:drawableStart="@drawable/add_icon"
                 android:text="@string/add_day_msg"
                 android:textColor="@color/colorAccent"
-                app:backgroundTint="@color/deny_color" />
+                app:icon="@drawable/add_icon"
+                app:iconTint="@color/colorAccent" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -66,5 +66,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/week_title"
-            tools:listitem="@layout/routine_day_card" />
+            tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/routine_day_card"
+            tools:orientation="horizontal" />
 </androidx.constraintlayout.widget.ConstraintLayout>

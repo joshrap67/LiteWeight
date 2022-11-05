@@ -1,8 +1,8 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,19 +20,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -47,6 +46,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.DateUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -67,7 +67,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,8 +95,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FriendRequestsAdapter friendRequestsAdapter;
     private TabLayout tabLayout;
     private int currentIndex;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -423,7 +423,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         EditText friendInput = popupView.findViewById(R.id.friend_name_input);
         friendInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Add Friend")
                 .setView(popupView)
                 .setPositiveButton("Send Request", null)
@@ -482,7 +482,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Block User")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
@@ -639,7 +639,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void promptShareWorkout(String friendUsername) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
-        RadioGroup workoutsRadioGroup = popupView.findViewById(R.id.workouts_radio_group);
+        Spinner workoutSpinner = popupView.findViewById(R.id.workouts_spinner);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
         int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
         if (remainingAmount < 0) {
@@ -653,23 +653,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             workoutNameToId.put(user.getWorkoutMetas().get(workoutId).getWorkoutName(), workoutId);
             workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
         }
-        int id = 0;
-        for (String workoutName : workoutNames) {
-            RadioButton radioButton = new RadioButton(getContext());
-            radioButton.setId(id);
-            radioButton.setLayoutParams(new RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT));
-            radioButton.setTextColor(ContextCompat.getColor(getContext(), R.color.defaultTextColor)); // hate this but don't know another way
-            radioButton.setText(workoutName);
-            radioButton.setTextSize(16);
-            workoutsRadioGroup.addView(radioButton);
-            id++;
-        }
+        ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
+        workoutSpinner.setAdapter(workoutsAdapter);
+
         TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
         if (workoutNames.isEmpty()) {
             // user has no workouts to send
             workoutTV.setText(R.string.no_workouts_to_send);
             remainingToSendTv.setVisibility(View.GONE);
-            workoutsRadioGroup.setVisibility(View.GONE);
+            workoutSpinner.setVisibility(View.GONE);
         } else {
             workoutTV.setVisibility(View.GONE);
         }
@@ -681,7 +673,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
@@ -693,16 +685,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 sendButton.setVisibility(View.GONE);
             }
             sendButton.setOnClickListener(view -> {
-                int selectedId = workoutsRadioGroup.getCheckedRadioButtonId();
-                if (selectedId == -1) {
+                String selectedName = (String) workoutSpinner.getSelectedItem();
+                if (selectedName == null) {
                     // no workout is selected
                     Toast.makeText(getContext(), "Please select a workout to share.", Toast.LENGTH_LONG).show();
                 } else {
                     if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
                         AndroidUtils.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share.", getContext());
                     } else {
-                        RadioButton radioButtonSelected = popupView.findViewById(selectedId);
-                        shareWorkout(friendUsername, workoutNameToId.get(radioButtonSelected.getText().toString()));
+                        shareWorkout(friendUsername, workoutNameToId.get(selectedName));
                     }
                     alertDialog.dismiss();
                 }
@@ -738,7 +729,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -793,8 +784,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             ConstraintLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
-                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
-                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friends_list, null);
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_accepted_friend, null);
                 TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
                 TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
 
@@ -894,18 +885,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             TextView usernameTV;
             TextView unseenTV;
             ImageView profilePicture;
-            Button acceptRequestButton;
-            Button blockButton;
-            Button declineRequestButton;
+            ConstraintLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
                 usernameTV = itemView.findViewById(R.id.username_tv);
                 profilePicture = itemView.findViewById(R.id.profile_picture);
-                acceptRequestButton = itemView.findViewById(R.id.accept_request_btn);
-                declineRequestButton = itemView.findViewById(R.id.decline_request_btn);
-                blockButton = itemView.findViewById(R.id.block_btn);
                 unseenTV = itemView.findViewById(R.id.unseen_tv);
+                rootLayout = itemView.findViewById(R.id.root_layout);
             }
         }
 
@@ -939,16 +926,68 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             TextView usernameTV = holder.usernameTV;
             ImageView profilePicture = holder.profilePicture;
             TextView unseenTV = holder.unseenTV;
-            Button acceptRequestButton = holder.acceptRequestButton;
-            Button declineRequestButton = holder.declineRequestButton;
-            Button blockButton = holder.blockButton;
 
-            acceptRequestButton.setOnClickListener(view -> acceptFriendRequest(friendRequest.getUsername()));
-            declineRequestButton.setOnClickListener(view -> declineFriendRequest(friendRequest.getUsername()));
-            blockButton.setOnClickListener(view -> blockUserPopup(friendRequest.getUsername()));
+
+            holder.rootLayout.setOnClickListener(v -> {
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend_request, null);
+                TextView acceptFriendRequestTV = sheetView.findViewById(R.id.accept_friend_request_tv);
+                TextView declineFriendRequestTV = sheetView.findViewById(R.id.decline_friend_request_tv);
+                TextView blockUserTV = sheetView.findViewById(R.id.block_user_tv);
+                TextView dateSentTV = sheetView.findViewById(R.id.date_sent_tv);
+
+                dateSentTV.setText(DateUtils.getFormattedLocalDateTime(friendRequest.getRequestTimeStamp()));
+
+                acceptFriendRequestTV.setOnClickListener(view -> {
+                    acceptFriendRequest(friendRequest.getUsername());
+                    bottomSheetDialog.dismiss();
+                });
+                declineFriendRequestTV.setOnClickListener(view -> {
+                    declineFriendRequest(friendRequest.getUsername());
+                    bottomSheetDialog.dismiss();
+                });
+                blockUserTV.setOnClickListener(view -> {
+                    blockUserPopup(friendRequest.getUsername());
+                    bottomSheetDialog.dismiss();
+                });
+
+                RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
+                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
+                TextView dialogUsernameTV = sheetView.findViewById(R.id.username_tv);
+                ImageView dialogProfilePicture = sheetView.findViewById(R.id.profile_picture);
+                dialogUsernameTV.setText(friendRequest.getUsername());
+
+                Picasso.get()
+                        .load(ImageUtils.getIconUrl(friendRequest.getIcon()))
+                        .error(R.drawable.picture_load_error)
+                        .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
+                        .into(dialogProfilePicture, new com.squareup.picasso.Callback() {
+                            @Override
+                            public void onSuccess() {
+                                if (!FriendsListFragment.this.isResumed()) {
+                                    return;
+                                }
+                                Bitmap imageBitmap = ((BitmapDrawable) dialogProfilePicture.getDrawable()).getBitmap();
+                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                                imageDrawable.setCircular(true);
+                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                                dialogProfilePicture.setImageDrawable(imageDrawable);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                            }
+                        });
+
+                bottomSheetDialog.setContentView(sheetView);
+                bottomSheetDialog.show();
+            });
+
             unseenTV.setVisibility(friendRequest.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
             usernameTV.setText(friendRequest.getUsername());
+
+
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friendRequest.getIcon()))
                     .error(R.drawable.picture_load_error)

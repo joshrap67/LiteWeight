@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,10 +52,11 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
     private int acknowledgementsRotationAngle;
+
     @Inject
     UserRepository userRepository;
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
 
     @Nullable
     @Override
@@ -117,7 +117,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
             feedbackInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(feedbackInputLayout));
             feedbackInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_FEEDBACK)});
-            alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+            alertDialog = new AlertDialog.Builder(getContext())
                     .setTitle("Send Feedback")
                     .setView(popupView)
                     .setPositiveButton("Send", null)

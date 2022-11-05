@@ -31,9 +31,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                tools:text="Shoulders Day "
                 android:textSize="13sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="Shoulders Day " />
     </LinearLayout>
 
     <LinearLayout
@@ -85,13 +85,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:scrollbars="vertical"
                 app:layout_constraintBottom_toTopOf="@+id/timer_container"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
-
     </LinearLayout>
 
 
@@ -106,22 +104,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/middle_container">
 
-        <TextView
-                android:id="@+id/secondary_stopwatch_tv"
+        <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="17sp"
-                tools:text="01:00" />
+                android:layout_gravity="center">
 
-        <TextView
-                android:id="@+id/secondary_timer_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="17sp"
-                android:visibility="gone"
-                tools:text="01:00" />
+            <TextView
+                    android:id="@+id/secondary_stopwatch_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    tools:text="01:00" />
+
+            <TextView
+                    android:id="@+id/secondary_timer_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    android:visibility="invisible"
+                    tools:text="01:00" />
+        </RelativeLayout>
+
 
         <RelativeLayout
                 android:layout_width="match_parent"
@@ -130,7 +133,7 @@
 
             <Button
                     android:id="@+id/previous_day_button"
-                    android:layout_width="125dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="@string/previous_day" />
 
@@ -144,7 +147,7 @@
 
             <Button
                     android:id="@+id/next_day_button"
-                    android:layout_width="125dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:text="@string/next_day" />

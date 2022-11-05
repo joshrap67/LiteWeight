@@ -5,7 +5,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/week_list"
             android:layout_width="0dp"
@@ -23,22 +22,25 @@
     </androidx.recyclerview.widget.RecyclerView>
 
 
-    <Button
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/add_week_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
+            android:layout_margin="16dp"
             android:text="@string/add_week_msg"
             android:textColor="@color/colorAccent"
+            app:backgroundTint="@color/colorPrimary"
+            app:icon="@drawable/add_icon"
+            app:iconTint="@color/colorAccent"
             app:layout_constraintBottom_toTopOf="@id/save_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/week_list" />
 
-
-    <androidx.appcompat.widget.AppCompatButton
+    <Button
             android:id="@+id/save_btn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_weight="1"
             android:text="@string/save"
             android:textColor="@color/colorAccent"

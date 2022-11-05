@@ -32,7 +32,8 @@
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
@@ -78,7 +79,8 @@
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
@@ -125,6 +127,7 @@
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
+                        android:paddingVertical="10dp"
                         android:paddingStart="4dp"
                         android:paddingEnd="4dp">
 
@@ -170,7 +173,8 @@
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
@@ -216,7 +220,8 @@
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"

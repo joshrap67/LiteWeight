@@ -3,7 +3,6 @@ package com.joshrap.liteweight.fragments;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.os.Looper.getMainLooper;
 
-import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.res.Resources;
@@ -24,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -69,7 +69,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 

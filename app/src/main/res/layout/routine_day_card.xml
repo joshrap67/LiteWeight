@@ -30,11 +30,11 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
-            android:drawableEnd="@drawable/exercise_count_icon"
             android:drawablePadding="5dp"
             android:maxLines="1"
             android:textSize="14sp"
-            tools:text="23" />
+            tools:text="23"
+            app:drawableEndCompat="@drawable/exercise_count_icon" />
 
     <TextView
             android:id="@+id/day_tag_text_view"

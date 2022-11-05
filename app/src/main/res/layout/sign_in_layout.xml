@@ -40,7 +40,8 @@
             android:layout_below="@+id/sign_in_app_logo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:hint="@string/username_and_email_hint">
+            android:hint="@string/username_and_email_hint"
+            tools:style="@style/TextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_username_input"
@@ -63,7 +64,8 @@
             android:layout_marginTop="20dp"
             android:hint="@string/password_hint"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/colorAccent">
+            app:passwordToggleTint="@color/colorAccent"
+            tools:style="@style/TextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_password_input"
@@ -84,7 +86,8 @@
             android:layout_below="@id/sign_in_password_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="@string/forgot_pssword_link" />
+            android:text="@string/forgot_password_link" />
+
     <Button
             android:id="@+id/sign_in_primary_btn"
             android:layout_width="300dp"
