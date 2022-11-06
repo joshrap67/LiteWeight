@@ -355,6 +355,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         });
         //endregion
 
+        // todo move this to bottom fragment, introduce live data for is timer/stopwatch running and observe that to show secondary TV on this fragment
+
         //region Stopwatch
         startStopwatchButton = view.findViewById(R.id.start_stopwatch);
         stopStopwatchButton = view.findViewById(R.id.stop_stopwatch);
@@ -559,7 +561,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             routineRowModels.add(exerciseRowModel);
         }
         RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, user.getOwnedExercises(), metricUnits, videosEnabled);
-        // todo get rid of scrollbar?
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -893,7 +894,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     // show all the extra details for this exercise so the user can edit/read them
                     rowModel.isExpanded = true;
                     notifyItemChanged(position, true);
-                    setExpandedViews(holder, exercise); // todo idk why this is necessary for auto scroll to work...
+                    setExpandedViews(holder, exercise); // this prevents weird flashing on expanded animation
                 }
             });
 

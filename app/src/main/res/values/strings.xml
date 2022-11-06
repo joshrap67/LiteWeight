@@ -61,8 +61,8 @@
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
     <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
     <string name="done_msg">Done</string>
-    <string name="empty_friend_list_msg">You do not yet have any friends added. Click the button below to add some!</string>
-    <string name="empty_friends_request_msg">You do not have any pending requests.</string>
+    <string name="empty_friend_list_msg">You have not added any friends. Click the button below to add some!</string>
+    <string name="empty_friends_request_msg">You do not have any friend requests</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
     <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. A code will be sent to the email associated with that account.</string>
@@ -74,9 +74,9 @@
     <string name="received_workouts">Received Workouts</string>
     <string name="friends_list_alert">Friends List (!)</string>
     <string name="manage_notifications">Manage Notifications</string>
-    <string name="empty_blocked_list_msg">You are not blocking any users. To block a user click the plus button below.</string>
+    <string name="empty_blocked_list_msg">You are not blocking any users</string>
     <string name="create">Create</string>
-    <string name="workout_progress_description">Displays a progress bar in your current workout page showing the percentage of exercises completed in the workout.</string>
+    <string name="workout_progress_description">Displays a progress bar in the current workout page showing the percentage of exercises completed in the workout.</string>
     <string name="app_purpose">
         LiteWeight is used for creating and tracking custom workouts. The “Current Workout” tab is the tab that contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed and what weight you used.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! After you create a workout you can then share it to any other LiteWeight user.
     </string>
@@ -111,7 +111,7 @@
     <string name="faq_transfer_title">I’m getting a new phone - do I need to transfer my data over to it?</string>
     <string name="faq_transfer">Nope, all data (except local app settings) is stored in the cloud!</string>
     <string name="faq_shared_workout_tv">I shared a workout to my friend and then changed it and they didn’t get the changes. What gives?</string>
-    <string name="empty_received_workouts_msg">You have not yet received any workouts.</string>
+    <string name="empty_received_workouts_msg">You have not yet received any workouts</string>
     <string name="new_workout_name">New Workout name</string>
     <string name="workout_name">Workout name</string>
     <string name="workout_name_exists_msg">You already have a workout with this name. In order to accept it you must enter a new name below.</string>
@@ -160,4 +160,6 @@
     <string name="delete_exercise">Delete exercise</string>
     <string name="done_all_caps">DONE</string>
     <string name="show_timer_stopwatch">Show Timer/Stopwatch</string>
+    <string name="current_workout">Current Workout</string>
+    <string name="more_options">More options</string>
 </resources>

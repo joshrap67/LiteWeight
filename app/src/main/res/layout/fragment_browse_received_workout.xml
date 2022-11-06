@@ -21,89 +21,74 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <LinearLayout
-                android:id="@+id/relative_layout"
+        <ImageButton
+                android:id="@+id/placeholder_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:clickable="false"
+                android:src="@drawable/more_icon"
+                android:visibility="invisible" />
+
+        <TextView
+                android:id="@+id/day_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:orientation="vertical">
+                android:layout_toStartOf="@id/day_more_icon"
+                android:layout_toEndOf="@id/placeholder_icon"
+                android:background="?android:selectableItemBackground"
+                android:textAlignment="center"
+                android:textSize="36sp"
+                tools:text="Week 1 Day 1" />
 
-            <TextView
-                    android:id="@+id/day_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?android:selectableItemBackground"
-                    android:textSize="36sp"
-                    tools:text="Week 1 Day 1" />
+        <TextView
+                android:id="@+id/day_tag_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/day_text_view"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:textSize="13sp"
+                android:textStyle="italic"
+                tools:text="Shoulders Day " />
 
-            <TextView
-                    android:id="@+id/day_tag_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textSize="13sp"
-                    android:textStyle="italic"
-                    tools:text="Shoulders Day " />
-        </LinearLayout>
+        <ImageButton
+                android:id="@+id/day_more_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@drawable/more_icon" />
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@id/day_buttons_layout"
-                android:layout_below="@id/relative_layout"
+                android:layout_above="@id/previous_day_button"
+                android:layout_below="@id/day_tag_text_view"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="8dp"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/row_exercise_pending" />
 
-        <RelativeLayout
-                android:id="@+id/day_buttons_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/bottom_container"
-                android:orientation="vertical">
-
-            <Button
-                    android:id="@+id/previous_day_button"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/previous_day" />
-
-            <Button
-                    android:id="@+id/next_day_button"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="@string/next_day" />
-        </RelativeLayout>
-
-        <LinearLayout
-                android:id="@+id/bottom_container"
-                android:layout_width="match_parent"
+        <Button
+                android:id="@+id/previous_day_button"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal"
-                android:paddingStart="40dp"
-                android:paddingEnd="40dp"
-                android:weightSum="2">
+                android:layout_margin="8dp"
+                android:text="@string/previous_day" />
 
-            <Button
-                    android:id="@+id/decline_workout_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight="1"
-                    android:text="@string/decline"
-                    android:textColor="@color/colorAccent"
-                    app:backgroundTint="@color/deny_color" />
-
-            <Button
-                    android:id="@+id/accept_workout_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/accept"
-                    android:textColor="@color/colorAccent" />
-        </LinearLayout>
+        <Button
+                android:id="@+id/next_day_button"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="8dp"
+                android:text="@string/next_day" />
     </RelativeLayout>
 </RelativeLayout>

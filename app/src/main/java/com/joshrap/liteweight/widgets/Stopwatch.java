@@ -32,8 +32,7 @@ public class Stopwatch {
     public Stopwatch() {
         stopwatchRunning = false;
         initialTimeOnClock = 0; // assume at initialization the stopwatch isn't running
-        displayTime = new MutableLiveData<>();
-        displayTime.setValue(0L);
+        displayTime = new MutableLiveData<>(0L);
     }
 
     public void startStopwatch() {

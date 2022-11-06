@@ -6,7 +6,7 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:itemBackground">@color/options_background</item>
+        <!--        <item name="android:itemBackground">@color/options_background</item>-->
 
         <item name="android:textColor">@color/defaultTextColor</item>
         <item name="android:textColorPrimary">@color/defaultTextColor</item>
@@ -15,6 +15,7 @@
         <item name="android:textColorHint">@color/hintColor</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="android:navigationBarColor">@color/window_background</item>
+        <item name="android:itemBackground">@drawable/item_background_drawable</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control</item>
@@ -31,6 +32,7 @@
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
         <item name="textInputStyle">@style/TextInputLayoutStyle</item>
+        <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
     </style>
 
     <style name="SignInTheme" parent="AppTheme">
@@ -105,6 +107,11 @@
     <style name="BottomSheet" parent="Widget.MaterialComponents.BottomSheet">
         <item name="shapeAppearanceOverlay">@style/RoundedBottomSheetDialog</item>
     </style>
+
+    <style name="PopupMenuStyle" parent="Widget.MaterialComponents.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/rounded_popup</item>
+    </style>
+
 
     <style name="RoundedBottomSheetDialog" parent="">
         <item name="cornerFamily">rounded</item>

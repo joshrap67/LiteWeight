@@ -31,8 +31,7 @@ public class Timer {
         timerRunning = false;
         timerDuration = _timerDuration;
         initialTimeOnClock = timerDuration; // assume at initialization the timer isn't running
-        displayTime = new MutableLiveData<>();
-        displayTime.setValue(initialTimeOnClock);
+        displayTime = new MutableLiveData<>(initialTimeOnClock);
     }
 
     public void startTimer() {

@@ -14,12 +14,16 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,8 +39,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
-import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.SharedDay;
 import com.joshrap.liteweight.models.SharedExercise;
 import com.joshrap.liteweight.models.SharedWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -145,23 +147,38 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dayTagTV = view.findViewById(R.id.day_tag_text_view);
         forwardButton = view.findViewById(R.id.next_day_button);
         backButton = view.findViewById(R.id.previous_day_button);
-        Button acceptWorkoutButton = view.findViewById(R.id.accept_workout_btn);
-        acceptWorkoutButton.setOnClickListener(view1 -> {
-            boolean workoutNameExists = false;
-            for (String workoutId : user.getWorkoutMetas().keySet()) {
-                if (user.getWorkoutMetas().get(workoutId).getWorkoutName().equals(workoutName)) {
-                    workoutNameExists = true;
-                    break;
-                }
+
+        ImageButton moreIcon = view.findViewById(R.id.day_more_icon);
+        final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), moreIcon);
+        Menu moreMenu = dropDownRoutineDayMenu.getMenu();
+        final int acceptWorkoutId = 0;
+        final int declineWorkoutId = 1;
+        moreMenu.add(0, acceptWorkoutId, 0, "Accept Workout");
+        moreMenu.add(0, declineWorkoutId, 0, "Decline Workout");
+
+        dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case acceptWorkoutId:
+                    boolean workoutNameExists = false;
+                    for (String workoutId : user.getWorkoutMetas().keySet()) {
+                        if (user.getWorkoutMetas().get(workoutId).getWorkoutName().equals(workoutName)) {
+                            workoutNameExists = true;
+                            break;
+                        }
+                    }
+                    if (workoutNameExists) {
+                        workoutNameAlreadyExistsPopup(sharedWorkout);
+                    } else {
+                        acceptWorkout(null);
+                    }
+                    return true;
+                case declineWorkoutId:
+                    declineWorkout(receivedWorkoutId);
+                    return true;
             }
-            if (workoutNameExists) {
-                workoutNameAlreadyExistsPopup(sharedWorkout);
-            } else {
-                acceptWorkout(null);
-            }
+            return false;
         });
-        Button declineWorkoutButton = view.findViewById(R.id.decline_workout_btn);
-        declineWorkoutButton.setOnClickListener(view1 -> declineWorkout(receivedWorkoutId));
+        moreIcon.setOnClickListener(v -> dropDownRoutineDayMenu.show());
 
         getReceivedWorkout(receivedWorkoutId);
         return view;

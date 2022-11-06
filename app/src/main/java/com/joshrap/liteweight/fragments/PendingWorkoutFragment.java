@@ -902,7 +902,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 } else {
                     pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
                     // adapter uses list of separate models to maintain expanded state, need to remove it there too
-                    routineDayAdapter.routineRowModels.removeIf(x->x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
+                    routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
                     // too much of a pain to get the index in that adapter that this exercise could have been removed from
                     routineDayAdapter.notifyDataSetChanged();
                 }
