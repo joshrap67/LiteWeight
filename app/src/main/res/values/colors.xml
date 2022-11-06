@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2D8B6D</color>
-<!--    <color name="colorPrimaryDark">#000000</color>-->
+    <color name="colorPrimary">#2B8366</color>
     <color name="colorAccent">#fff</color>
     <color name="defaultTextColor">#fff</color>
     <color name="hintColor">#BEFFFFFF</color>
     <color name="color_control">#02F88F</color>
-<!--    <color name="popupBackground">#A0A4AA</color>-->
     <color name="row_activated">#303030</color>
     <color name="notification_color">#FFFFFF</color>
     <color name="logo_background">#0b2027</color>
@@ -21,12 +19,14 @@
     <color name="window_background">#121212</color>
     <color name="dialog_window_background">#424242</color>
 
-    <color name="outline_box_unfocused_color">#E4E4E4</color>
-    <color name="outline_box_focused_color">#12BC73</color>
+    <color name="workout_activity_outline_box_unfocused_color">#BEFFFFFF</color>
+    <color name="workout_activity_outline_box_focused_color">#30C272</color>
+
+    <color name="signin_activity_outline_box_unfocused_color">#E6FFFFFF</color>
+    <color name="signin_activity_outline_box_focused_color">#B5F1F6</color>
 
     <color name="login_gradient_start">@color/colorPrimary</color>
     <color name="login_gradient_center">#FF16384B</color>
-    <color name="login_gradient_end">@color/colorPrimary</color>
 
     <color name="password_constraint_unsuccessful_match">#FFFFFF</color>
     <color name="error">#FFFFFF</color>

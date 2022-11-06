@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
+import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.SharedExercise;
 
@@ -24,11 +29,10 @@ import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseName;
-        Button weightButton;
-        ImageButton doneButton;
-        LinearLayout extraInfo;
-        LinearLayout rootLayout;
+        CheckBox exerciseName; // checkbox just to make layout easier
+        Button expandButton;
+        RelativeLayout extraInfo;
+        RelativeLayout rootLayout;
 
         EditText detailsInput;
         EditText weightInput;
@@ -45,9 +49,8 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
             rootLayout = itemView.findViewById(R.id.root_layout);
 
             exerciseName = itemView.findViewById(R.id.exercise_name);
-            weightButton = itemView.findViewById(R.id.weight_btn);
+            expandButton = itemView.findViewById(R.id.expand_btn);
             extraInfo = itemView.findViewById(R.id.extra_info_layout);
-            doneButton = itemView.findViewById(R.id.save_button);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -61,14 +64,14 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         }
     }
 
-    private final List<SharedExercise> exercises;
+    private final List<SharedRoutineRowModel> sharedRoutineRowModels;
     private final boolean metricUnits;
     private final RecyclerView recyclerView;
     private final Context context;
 
-    public SharedRoutineAdapter(List<SharedExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
+    public SharedRoutineAdapter(List<SharedRoutineRowModel> sharedRoutineRowModels, boolean metricUnits, RecyclerView recyclerView,
                                 Context context) {
-        this.exercises = routineExercises;
+        this.sharedRoutineRowModels = sharedRoutineRowModels;
         this.metricUnits = metricUnits;
         this.recyclerView = recyclerView;
         this.context = context;
@@ -85,22 +88,18 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
+        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            // hide extra layout
-            holder.weightButton.setVisibility(View.VISIBLE);
-            holder.extraInfo.setVisibility(View.GONE);
-            holder.doneButton.setVisibility(View.GONE);
+            final SharedRoutineRowModel routineRowModel = sharedRoutineRowModels.get(position);
+            final SharedExercise exercise = routineRowModel.sharedExercise;
+            boolean isExpanded = routineRowModel.isExpanded;
+
+            if (isExpanded) {
+                setExpandedViews(holder, exercise);
+            } else {
+                setCollapsedViews(holder, exercise);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -108,9 +107,11 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     @Override
     public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
-        final SharedExercise exercise = exercises.get(position);
+        final SharedRoutineRowModel rowModel = sharedRoutineRowModels.get(position);
+        final SharedExercise exercise = rowModel.sharedExercise;
+        boolean isExpanded = rowModel.isExpanded;
 
-        LinearLayout rootLayout = holder.rootLayout;
+        RelativeLayout rootLayout = holder.rootLayout;
         LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
         layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
             @Override
@@ -139,45 +140,76 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         final TextView exerciseName = holder.exerciseName;
         exerciseName.setText(currentExercise);
 
-        final Button weightButton = holder.weightButton;
+        final Button expandButton = holder.expandButton;
         final EditText weightInput = holder.weightInput;
         final EditText detailsInput = holder.detailsInput;
         final EditText repsInput = holder.repsInput;
         final EditText setsInput = holder.setsInput;
-
-        final TextInputLayout weightInputLayout = holder.weightInputLayout;
-
-        final LinearLayout extraInfo = holder.extraInfo;
-        final ImageButton doneButton = holder.doneButton;
 
         weightInput.setEnabled(false);
         setsInput.setEnabled(false);
         repsInput.setEnabled(false);
         detailsInput.setEnabled(false);
 
+        if (isExpanded) {
+            setExpandedViews(holder, exercise);
+        } else {
+            setCollapsedViews(holder, exercise);
+        }
+
+        expandButton.setOnClickListener((v) -> {
+            rowModel.isExpanded = !rowModel.isExpanded;
+            notifyItemChanged(position, true);
+            setExpandedViews(holder, exercise);
+        });
+    }
+
+    private void setInputs(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
+
+        holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
+        holder.setsInput.setText(Integer.toString(exercise.getSets()));
+        holder.repsInput.setText(Integer.toString(exercise.getReps()));
+        holder.detailsInput.setText(exercise.getDetails());
+
+    }
+
+    private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        holder.extraInfo.setVisibility(View.VISIBLE);
+        holder.expandButton.setText(R.string.done_all_caps);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        setInputs(holder, exercise);
+    }
+
+    private void setCollapsedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        holder.weightInputLayout.setError(null);
+        holder.setsInputLayout.setError(null);
+        holder.repsInputLayout.setError(null);
+        holder.detailsInput.setError(null);
+
+        // hide the extra layout
+        holder.extraInfo.setVisibility(View.GONE);
+
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-        weightButton.setText(formattedWeight);
-        weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
-
-        setsInput.setText(Integer.toString(exercise.getSets()));
-        repsInput.setText(Integer.toString(exercise.getReps()));
-        detailsInput.setText(exercise.getDetails());
-
-        weightButton.setOnClickListener((v) -> {
-            // show all the extra details for this exercise
-            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
-            weightButton.setVisibility(View.INVISIBLE);
-            extraInfo.setVisibility(View.VISIBLE);
-            doneButton.setVisibility(View.VISIBLE);
-        });
-        doneButton.setOnClickListener(v -> {
-            notifyItemChanged(position, true);
-        });
+        holder.expandButton.setText(formattedWeight);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
     }
 
     @Override
     public int getItemCount() {
-        return exercises.size();
+        return sharedRoutineRowModels.size();
+    }
+
+    // separate class that wraps the shared exercise and holds data about the state of the row in the recycler view
+    public static class SharedRoutineRowModel {
+        private final SharedExercise sharedExercise;
+        private boolean isExpanded;
+
+        public SharedRoutineRowModel(SharedExercise sharedExercise, boolean isExpanded) {
+            this.sharedExercise = sharedExercise;
+            this.isExpanded = isExpanded;
+        }
     }
 }

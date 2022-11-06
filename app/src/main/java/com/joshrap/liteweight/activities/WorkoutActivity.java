@@ -497,6 +497,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 return;
             }
 
+            hideKeyboard();
             if (fragmentStack.size() > 1) {
                 // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
                 popFragStack();

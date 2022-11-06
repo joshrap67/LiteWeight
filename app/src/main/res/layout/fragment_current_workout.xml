@@ -7,93 +7,77 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp">
 
-    <LinearLayout
-            android:id="@+id/relative_layout"
-            android:layout_width="0dp"
+    <TextView
+            android:id="@+id/day_text_view"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/middle_container"
+            android:layout_gravity="center"
+            android:background="?android:selectableItemBackground"
+            android:textSize="32sp"
+            app:layout_constraintBottom_toTopOf="@+id/day_tag_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Week 1 Day 1" />
+
+    <TextView
+            android:id="@+id/day_tag_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="13sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toTopOf="@+id/workout_progress_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/day_text_view"
+            tools:text="Shoulders Day " />
+
+    <FrameLayout
+            android:id="@+id/workout_progress_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:animateLayoutChanges="true"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/day_tag_text_view">
+
+        <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:progressDrawable="@drawable/gradient_progress"
+                tools:progress="80" />
 
         <TextView
-                android:id="@+id/day_text_view"
+                android:id="@+id/progress_bar_TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="?android:selectableItemBackground"
-                android:textSize="32sp"
-                tools:text="Week 1 Day 1" />
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="1"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                tools:text="Workout Progress - 80%" />
+    </FrameLayout>
 
-        <TextView
-                android:id="@+id/day_tag_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="13sp"
-                android:textStyle="italic"
-                tools:text="Shoulders Day " />
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/middle_container"
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout">
+            app:layout_constraintTop_toBottomOf="@+id/workout_progress_layout" />
 
-        <FrameLayout
-                android:id="@+id/workout_progress_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:animateLayoutChanges="true">
-
-            <ProgressBar
-                    android:id="@+id/progress_bar"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:progressDrawable="@drawable/gradient_progress"
-                    tools:progress="80" />
-
-            <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                <TextView
-                        android:id="@+id/progress_bar_TV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:shadowColor="#000000"
-                        android:shadowDx="1"
-                        android:shadowDy="1"
-                        android:shadowRadius="1"
-                        android:textSize="14sp"
-                        tools:text="Workout Progress - 0%" />
-            </RelativeLayout>
-        </FrameLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                android:scrollbars="vertical"
-                app:layout_constraintBottom_toTopOf="@+id/timer_container"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
-    </LinearLayout>
-
-
-    <LinearLayout
+    <RelativeLayout
             android:id="@+id/bottom_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,55 +86,54 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/middle_container">
+            app:layout_constraintTop_toBottomOf="@+id/recycler_view">
 
-        <RelativeLayout
+        <TextView
+                android:id="@+id/secondary_stopwatch_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center">
+                android:layout_centerHorizontal="true"
+                android:textSize="17sp"
+                tools:text="01:00" />
 
-            <TextView
-                    android:id="@+id/secondary_stopwatch_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="17sp"
-                    tools:text="01:00" />
-
-            <TextView
-                    android:id="@+id/secondary_timer_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="17sp"
-                    android:visibility="invisible"
-                    tools:text="01:00" />
-        </RelativeLayout>
-
-
-        <RelativeLayout
-                android:layout_width="match_parent"
+        <TextView
+                android:id="@+id/secondary_timer_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_centerHorizontal="true"
+                android:textSize="17sp"
+                android:visibility="invisible"
+                tools:text="01:00" />
 
-            <Button
-                    android:id="@+id/previous_day_button"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/previous_day" />
+        <Button
+                android:id="@+id/previous_day_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/secondary_stopwatch_tv"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/timer_icon_btn"
+                android:maxLines="1"
+                android:text="@string/previous_day" />
 
-            <ImageButton
-                    android:id="@+id/timer_icon_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/timer_icon" />
+        <ImageButton
+                android:id="@+id/timer_icon_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/secondary_stopwatch_tv"
+                android:layout_centerInParent="true"
+                android:layout_marginHorizontal="24dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/show_timer_stopwatch"
+                android:src="@drawable/timer_icon" />
 
-            <Button
-                    android:id="@+id/next_day_button"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="@string/next_day" />
-        </RelativeLayout>
-    </LinearLayout>
+        <Button
+                android:id="@+id/next_day_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/secondary_stopwatch_tv"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@id/timer_icon_btn"
+                android:maxLines="1"
+                android:text="@string/next_day" />
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

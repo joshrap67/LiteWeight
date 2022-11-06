@@ -9,7 +9,6 @@
         android:background="@drawable/day_background"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
         android:outlineProvider="bounds">
 
     <TextView

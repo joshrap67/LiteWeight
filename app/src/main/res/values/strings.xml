@@ -37,8 +37,7 @@
     <string name="default_reps_hint">Default Reps</string>
     <string name="default_details_hint">Default Details</string>
     <string name="nav_about">About</string>
-    <string name="restart_msg">Do you wish to restart this workout?\n\nIf so, you will be taken back
-    to the first day of the workout with all exercises unchecked.
+    <string name="restart_msg">Restart this workout and be taken back to the first day of the workout with all exercises unchecked?
         \n\nThe statistics for this workout will be updated using the current workout progress.</string>
     <string name="start_button">START</string>
     <string name="stop_button">STOP</string>
@@ -61,7 +60,7 @@
     <string name="add_day_msg">ADD DAY</string>
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
     <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
-    <string name="done_msg">DONE</string>
+    <string name="done_msg">Done</string>
     <string name="empty_friend_list_msg">You do not yet have any friends added. Click the button below to add some!</string>
     <string name="empty_friends_request_msg">You do not have any pending requests.</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
@@ -144,8 +143,8 @@
     <string name="change">Change</string>
     <string name="copy_day_to_existing_msg">Copy this day to one of the following days.\n\nNote that doing this will overwrite all the existing exercises in the target day.</string>
     <string name="copy_to_existing_week_msg">Copy this week to one of the following weeks.\n\nNote that doing this will overwrite ALL existing days in the target week.</string>
-    <string name="next_day">Next Day</string>
-    <string name="previous_day">Previous Day</string>
+    <string name="next_day">Next</string>
+    <string name="previous_day">Back</string>
     <string name="restart_workout">Restart</string>
     <string name="colon">:</string>
     <string name="back">BACK</string>
@@ -158,4 +157,7 @@
     <string name="click_to_respond">Click to respond…</string>
     <string name="create_workout">Create workout</string>
     <string name="watch_video">Watch Video</string>
+    <string name="delete_exercise">Delete exercise</string>
+    <string name="done_all_caps">DONE</string>
+    <string name="show_timer_stopwatch">Show Timer/Stopwatch</string>
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/root_layout"
@@ -11,177 +11,129 @@
         android:background="@drawable/exercise_row_background"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical"
         android:padding="6dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
+            android:id="@+id/exercise_name_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/expand_btn">
 
         <ImageButton
                 android:id="@+id/delete_exercise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="8dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:clickable="true"
+                android:contentDescription="@string/delete_exercise"
                 android:focusable="true"
                 android:src="@drawable/trash_icon"
-                android:tooltipText="Delete exercise"
                 android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/center_container"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />
 
-
-        <RelativeLayout
-                android:id="@+id/center_container"
-                android:layout_width="0dp"
+        <TextView
+                android:id="@+id/exercise_name"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/save_button"
-                app:layout_constraintStart_toEndOf="@id/delete_exercise"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/delete_exercise"
+                android:textSize="18sp"
+                tools:text="Barbell Curl" />
+    </RelativeLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/exercise_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+    <Button
+            android:id="@+id/expand_btn"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="?android:selectableItemBackground"
+            android:drawableEnd="@drawable/small_down_arrow"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textAllCaps="false"
+            tools:text="12345 lb" />
 
-                <TextView
-                        android:id="@+id/exercise_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textSize="18sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/weight_btn"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="Barbell Curl" />
-
-                <Button
-                        android:id="@+id/weight_btn"
-                        android:layout_width="110dp"
-                        android:layout_height="wrap_content"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:drawableEnd="@drawable/small_down_arrow"
-                        android:minWidth="75dp"
-                        android:textAllCaps="false"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/exercise_name"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="12345 lb" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </RelativeLayout>
-
-        <ImageButton
-                android:id="@+id/save_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingStart="15dp"
-                android:tooltipText="Done"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/center_container"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/approve_icon"
-                tools:visibility="visible" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <LinearLayout
+    <RelativeLayout
             android:id="@+id/extra_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:layout_below="@id/expand_btn"
+            android:orientation="horizontal">
 
-        <RelativeLayout
-                android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/sets_input_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_alignParentStart="true"
+                android:hint="@string/sets"
+                app:autoSizeTextType="uniform"
+                tools:style="@style/TextInputLayoutStyle">
 
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/sets_input_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:hint="@string/sets"
-                    app:autoSizeTextType="uniform"
-                    tools:style="@style/TextInputLayoutStyle">
-
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sets_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:minWidth="75dp"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true"
-                        app:autoSizeTextType="uniform" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/weight_input_layout"
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sets_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_toStartOf="@+id/reps_input_layout"
-                    android:layout_toEndOf="@+id/sets_input_layout"
-                    android:hint="Weight (lbs)"
-                    tools:style="@style/TextInputLayoutStyle">
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:minWidth="75dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/weight_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true"
-                        app:autoSizeTextType="uniform" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/weight_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/reps_input_layout"
+                android:layout_toEndOf="@+id/sets_input_layout"
+                tools:hint="Weight (lbs)"
+                tools:style="@style/TextInputLayoutStyle">
 
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/reps_input_layout"
-                    android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/weight_input"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:hint="@string/reps"
-                    tools:style="@style/TextInputLayoutStyle">
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/reps_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:minWidth="75dp"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </RelativeLayout>
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reps_input_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:hint="@string/reps"
+                tools:style="@style/TextInputLayoutStyle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reps_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:minWidth="75dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/details_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/sets_input_layout"
+                android:layout_marginTop="4dp"
                 android:hint="@string/details"
                 app:autoSizeTextType="uniform"
                 tools:style="@style/TextInputLayoutStyle">
@@ -197,5 +149,5 @@
                     android:scrollbars="vertical"
                     app:autoSizeTextType="uniform" />
         </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
-</LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

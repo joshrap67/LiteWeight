@@ -50,7 +50,7 @@
             android:hint="@string/email_verification_code_hint"
             android:textColor="@color/notification_color"
             android:textColorHint="@android:color/white"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/code_input"
@@ -58,8 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:drawablePadding="5dp"
-                android:inputType="number"
-                android:textCursorDrawable="@null" />
+                android:inputType="number" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

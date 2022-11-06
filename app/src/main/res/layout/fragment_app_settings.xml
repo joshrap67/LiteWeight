@@ -28,7 +28,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/stopwatch_switch"
@@ -54,7 +55,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/timer_switch"
@@ -80,7 +82,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/video_switch"
@@ -106,7 +109,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/workout_progress_switch"

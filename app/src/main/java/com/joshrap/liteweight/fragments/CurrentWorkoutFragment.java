@@ -1,9 +1,14 @@
 package com.joshrap.liteweight.fragments;
 
 import android.animation.LayoutTransition;
+
 import androidx.appcompat.app.AlertDialog;
+
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -33,7 +38,6 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
@@ -68,6 +72,8 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
+
+import lombok.Data;
 
 public class CurrentWorkoutFragment extends Fragment implements FragmentWithDialog {
     private Button forwardButton, backButton;
@@ -274,7 +280,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             // none are enabled so don't show anything
             stopwatchContainer.setVisibility(View.INVISIBLE);
             timerContainer.setVisibility(View.INVISIBLE);
-            clockButton.setVisibility(View.GONE);
+            clockButton.setVisibility(View.INVISIBLE);
         }
         // setup logic for buttons/display
 
@@ -430,7 +436,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void setSecondaryTimerVisibility() {
         secondaryTimerTV.setVisibility(timer.isTimerRunning() ? View.VISIBLE : View.INVISIBLE);
-        // todo this is causing weird jumping as if being set to GONE...
         secondaryStopwatchTV.setVisibility(stopwatch.isStopwatchRunning() ? View.VISIBLE : View.INVISIBLE);
     }
 
@@ -547,8 +552,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void updateRoutineListUI(RoutineListAnimateMode mode) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
-        RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
-                user.getOwnedExercises(), metricUnits, videosEnabled);
+
+        List<RoutineRowModel> routineRowModels = new ArrayList<>();
+        for (RoutineExercise exercise : routine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+            RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
+            routineRowModels.add(exerciseRowModel);
+        }
+        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, user.getOwnedExercises(), metricUnits, videosEnabled);
+        // todo get rid of scrollbar?
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -558,7 +569,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             recyclerView.startAnimation(AndroidUtils.wiggleFromRight(1));
         }
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
-        dayTagTV.setText(routine.getDay(currentWeekIndex, currentDayIndex).getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+        String dayTag = routine.getDay(currentWeekIndex, currentDayIndex).getTag();
+        dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
+        dayTagTV.setText(dayTag + " "); // android cuts off italics on wrap content without trailing whitespace
         updateButtonViews();
     }
 
@@ -708,22 +721,22 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
+            RelativeLayout rootLayout;
+
             CheckBox exerciseCheckbox;
-            Button weightButton;
-            ImageButton saveButton;
-            Button videoButton;
-            LinearLayout extraInfo;
+            Button expandButton;
+            RelativeLayout extraInfo;
 
             EditText detailsInput;
             EditText weightInput;
             EditText setsInput;
             EditText repsInput;
+            Button videoButton;
 
             TextInputLayout weightInputLayout;
             TextInputLayout setsInputLayout;
             TextInputLayout repsInputLayout;
             TextInputLayout detailsInputLayout;
-            LinearLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -731,9 +744,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 rootLayout = itemView.findViewById(R.id.root_layout);
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_name);
-                weightButton = itemView.findViewById(R.id.weight_btn);
+                expandButton = itemView.findViewById(R.id.expand_btn);
                 extraInfo = itemView.findViewById(R.id.extra_info_layout);
-                saveButton = itemView.findViewById(R.id.save_button);
                 videoButton = itemView.findViewById(R.id.launch_video_button);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
@@ -748,13 +760,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        private final List<RoutineExercise> exercises;
+        private final List<RoutineRowModel> routineRowModels;
         private final Map<String, OwnedExercise> exerciseUserMap;
         private final boolean metricUnits;
         private final boolean videosEnabled;
 
-        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
-            this.exercises = routineExercises;
+        RoutineAdapter(List<RoutineRowModel> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
+            this.routineRowModels = routineRowModels;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
             this.videosEnabled = videosEnabled;
@@ -770,35 +782,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
-        public long getItemId(int position) {
-            // not using the real power of recycler views since it's extremely cumbersome to deal with the "recycling" in this case...
-            return position;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            // not using the real power of recycler views since it's extremely cumbersome to deal with the "recycling" in this case...
-            return position;
-        }
-
-        @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-            // imma be real i have no idea why using this overload fixes the weird animation bugs
+            // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
             if (!payloads.isEmpty()) {
-                // this exercise has been updated, clear errors, set values, and animate back to single row
-                final RoutineExercise exercise = exercises.get(position);
+                final RoutineRowModel routineRowModel = routineRowModels.get(position);
+                final RoutineExercise exercise = routineRowModel.routineExercise;
+                boolean isExpanded = routineRowModel.isExpanded;
 
-                // remove any errors
-                holder.weightInputLayout.setError(null);
-                holder.setsInputLayout.setError(null);
-                holder.repsInputLayout.setError(null);
-                holder.detailsInput.setError(null);
-                // hide extra layout
-                holder.weightButton.setVisibility(View.VISIBLE);
-                holder.extraInfo.setVisibility(View.GONE);
-                holder.saveButton.setVisibility(View.GONE);
-
-                setInputs(holder, exercise);
+                if (isExpanded) {
+                    setExpandedViews(holder, exercise);
+                } else {
+                    setCollapsedViews(holder, exercise);
+                }
             } else {
                 super.onBindViewHolder(holder, position, payloads);
             }
@@ -806,9 +801,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final RoutineExercise exercise = exercises.get(position);
+            final RoutineRowModel rowModel = routineRowModels.get(position);
+            final RoutineExercise exercise = rowModel.routineExercise;
+            boolean isExpanded = rowModel.isExpanded;
 
-            LinearLayout rootLayout = holder.rootLayout;
+            RelativeLayout rootLayout = holder.rootLayout;
             LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
             layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
                 @Override
@@ -842,7 +839,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 updateWorkoutProgressBar();
             });
 
-            Button weightButton = holder.weightButton;
+            Button expandButton = holder.expandButton;
             EditText weightInput = holder.weightInput;
             EditText detailsInput = holder.detailsInput;
             EditText repsInput = holder.repsInput;
@@ -853,8 +850,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             TextInputLayout repsInputLayout = holder.repsInputLayout;
             TextInputLayout weightInputLayout = holder.weightInputLayout;
 
-            LinearLayout extraInfo = holder.extraInfo;
-            ImageButton saveButton = holder.saveButton;
             Button videoButton = holder.videoButton;
             videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
@@ -863,45 +858,74 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
             detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-            setInputs(holder, exercise);
+            if (isExpanded) {
+                setExpandedViews(holder, exercise);
+            } else {
+                setCollapsedViews(holder, exercise);
+            }
 
-            weightButton.setOnClickListener((v) -> {
-                // show all the extra details for this exercise so the user can edit/read them
+            expandButton.setOnClickListener((v) -> {
                 ((WorkoutActivity) getActivity()).hideKeyboard();
-                weightButton.setVisibility(View.INVISIBLE);
-                extraInfo.setVisibility(View.VISIBLE);
-                saveButton.setVisibility(View.VISIBLE);
-            });
 
-            saveButton.setOnClickListener(view -> {
-                // first check if input on all fields is valid
-                boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
-                        weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+                if (rowModel.isExpanded) {
+                    boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
+                            weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
 
-                if (validInput) {
-                    double newWeight = Double.parseDouble(weightInput.getText().toString());
-                    if (metricUnits) {
-                        // convert back to imperial if in metric since weight is stored in imperial on backend
-                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                    if (validInput) {
+                        double newWeight = Double.parseDouble(weightInput.getText().toString());
+                        if (metricUnits) {
+                            // convert back to imperial if in metric since weight is stored in imperial on backend
+                            newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                        }
+
+                        exercise.setWeight(newWeight);
+                        exercise.setDetails(detailsInput.getText().toString().trim());
+                        exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
+                        exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
+
+                        rowModel.isExpanded = false;
+
+                        notifyItemChanged(position, true);
+                        ((WorkoutActivity) getActivity()).hideKeyboard();
                     }
 
-                    exercise.setWeight(newWeight);
-                    exercise.setDetails(detailsInput.getText().toString().trim());
-                    exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
-                    exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
-
+                } else {
+                    // show all the extra details for this exercise so the user can edit/read them
+                    rowModel.isExpanded = true;
                     notifyItemChanged(position, true);
-                    ((WorkoutActivity) getActivity()).hideKeyboard();
+                    setExpandedViews(holder, exercise); // todo idk why this is necessary for auto scroll to work...
                 }
             });
+
             videoButton.setOnClickListener(v ->
                     ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()));
         }
 
-        private void setInputs(ViewHolder holder, RoutineExercise exercise) {
+        private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
+            holder.extraInfo.setVisibility(View.VISIBLE);
+            holder.expandButton.setText(R.string.done_all_caps);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+
+            setInputs(holder, exercise);
+        }
+
+        private void setCollapsedViews(ViewHolder holder, RoutineExercise exercise) {
+            holder.weightInputLayout.setError(null);
+            holder.setsInputLayout.setError(null);
+            holder.repsInputLayout.setError(null);
+            holder.detailsInput.setError(null);
+
+            // hide the extra layout
+            holder.extraInfo.setVisibility(View.GONE);
+
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-            holder.weightButton.setText(formattedWeight);
+            holder.expandButton.setText(formattedWeight);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+        }
+
+        private void setInputs(ViewHolder holder, RoutineExercise exercise) {
+            double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
             holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
@@ -916,9 +940,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             boolean valid = true;
             if (weightInput.getText().toString().trim().isEmpty()) {
                 valid = false;
-                weightLayout.setError("Weight cannot be empty.");
+                weightLayout.setError("Weight cannot be empty");
             } else if (weightInput.getText().toString().trim().length() > Variables.MAX_WEIGHT_DIGITS) {
-                weightLayout.setError("Weight is too large.");
+                weightLayout.setError("Weight too large");
                 valid = false;
             }
 
@@ -935,7 +959,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             if (detailsInput.getText().toString().length() > Variables.MAX_DETAILS_LENGTH) {
-                detailsLayout.setError("Too many characters.");
+                detailsLayout.setError("Too many characters");
                 valid = false;
             }
 
@@ -944,7 +968,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public int getItemCount() {
-            return exercises.size();
+            return routineRowModels.size();
+        }
+    }
+
+    // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
+    private class RoutineRowModel {
+        private final RoutineExercise routineExercise;
+        private boolean isExpanded;
+
+        public RoutineRowModel(RoutineExercise routineExercise, boolean isExpanded) {
+            this.routineExercise = routineExercise;
+            this.isExpanded = isExpanded;
         }
     }
 }

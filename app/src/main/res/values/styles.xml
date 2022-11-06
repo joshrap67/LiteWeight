@@ -38,14 +38,24 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="colorError">@color/error</item>
+        <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
     </style>
 
     <style name="TextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="expandedHintEnabled">false</item>
 
-        <item name="boxStrokeColor">@color/box_color</item>
-        <item name="hintTextColor">@color/outline_box_focused_color</item>
-        <item name="android:textColorHint">@color/outline_box_unfocused_color</item>
+        <item name="boxStrokeColor">@color/workout_activity_box_color</item>
+        <item name="hintTextColor">@color/workout_activity_outline_box_focused_color</item>
+        <item name="android:textColorHint">@color/workout_activity_outline_box_unfocused_color
+        </item>
+    </style>
+
+    <style name="SignInTextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="expandedHintEnabled">false</item>
+
+        <item name="boxStrokeColor">@color/signin_activity_box_color</item>
+        <item name="hintTextColor">@color/signin_activity_outline_box_focused_color</item>
+        <item name="android:textColorHint">@color/signin_activity_outline_box_unfocused_color</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">

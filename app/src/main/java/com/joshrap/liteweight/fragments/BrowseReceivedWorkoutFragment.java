@@ -35,7 +35,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
+import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.SharedDay;
+import com.joshrap.liteweight.models.SharedExercise;
 import com.joshrap.liteweight.models.SharedWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -379,11 +381,20 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private void updateRoutineListUI() {
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
-        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), metricUnits, recyclerView, getContext());
+        List<SharedRoutineAdapter.SharedRoutineRowModel> sharedRoutineRowModels = new ArrayList<>();
+        for (SharedExercise exercise : sharedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+            SharedRoutineAdapter.SharedRoutineRowModel exerciseRowModel = new SharedRoutineAdapter.SharedRoutineRowModel(exercise, false);
+            sharedRoutineRowModels.add(exerciseRowModel);
+        }
+
+        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits, recyclerView, getContext());
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
-        dayTagTV.setText(sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+        String dayTag = sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();
+        dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
+        dayTagTV.setText(dayTag + " "); // android cuts off italics on wrap content without trailing whitespace
         updateButtonViews();
     }
 

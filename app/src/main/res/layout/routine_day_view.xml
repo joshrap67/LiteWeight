@@ -42,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textSize="36sp"
+                    android:textSize="32sp"
                     tools:text="Week 10 Day 7" />
 
             <TextView

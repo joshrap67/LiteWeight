@@ -41,7 +41,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:hint="@string/username_and_email_hint"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_username_input"
@@ -50,8 +50,7 @@
                 android:layout_centerHorizontal="true"
                 android:drawableStart="@drawable/user_icon_login"
                 android:drawablePadding="5dp"
-                android:inputType="textEmailAddress"
-                android:textCursorDrawable="@null" />
+                android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -65,7 +64,7 @@
             android:hint="@string/password_hint"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/colorAccent"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_password_input"
@@ -75,8 +74,7 @@
                 android:drawableStart="@drawable/password_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
-                android:longClickable="false"
-                android:textCursorDrawable="@null" />
+                android:longClickable="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView

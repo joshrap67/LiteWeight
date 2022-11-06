@@ -64,7 +64,7 @@ public class Variables {
     public static final String BLOCKED_LIST_TITLE = "Blocked List";
     public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";
-    public static final String SETTINGS_TITLE = "Settings";
+    public static final String SETTINGS_TITLE = "App Settings";
     public static final String ABOUT_TITLE = "About";
     public static final String FAQ_TITLE = "FAQ";
 

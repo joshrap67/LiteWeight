@@ -13,8 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -116,16 +114,12 @@ public class MyExercisesFragment extends Fragment {
 
     private void populateFocusListView() {
         ListView listView = getView().findViewById(R.id.focus_list);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             selectedFocus = listView.getItemAtPosition(position).toString();
             populateExercisesListView();
-            // provide a "clicking" animation
-            Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
-            animation1.setDuration(50);
-            view.startAnimation(animation1);
         });
         // programmatically select selected focus
         listView.setItemChecked(focusList.indexOf(selectedFocus), true);

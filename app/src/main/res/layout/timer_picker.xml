@@ -15,11 +15,11 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="24dp"
-            android:layout_toStartOf="@id/test"
+            android:layout_toStartOf="@id/middle_container"
             android:text="@string/back" />
 
     <LinearLayout
-            android:id="@+id/test"
+            android:id="@+id/middle_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true">
@@ -52,6 +52,6 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="8dp"
-            android:layout_toEndOf="@id/test"
+            android:layout_toEndOf="@id/middle_container"
             android:text="@string/save" />
 </RelativeLayout>

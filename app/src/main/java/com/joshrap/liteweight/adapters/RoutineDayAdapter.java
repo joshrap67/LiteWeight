@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,17 +25,19 @@ import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
 
 public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView exerciseTV;
-        Button weightButton;
+        Button expandButton;
         ImageButton deleteButton;
-        ImageButton saveButton;
-        LinearLayout extraInfo;
+        RelativeLayout extraInfo;
 
         EditText detailsInput;
         EditText weightInput;
@@ -46,7 +48,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextInputLayout setsInputLayout;
         TextInputLayout repsInputLayout;
         TextInputLayout detailsInputLayout;
-        LinearLayout rootLayout;
+        RelativeLayout rootLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -54,9 +56,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
             deleteButton = itemView.findViewById(R.id.delete_exercise);
             exerciseTV = itemView.findViewById(R.id.exercise_name);
-            weightButton = itemView.findViewById(R.id.weight_btn);
+            expandButton = itemView.findViewById(R.id.expand_btn);
             extraInfo = itemView.findViewById(R.id.extra_info_layout);
-            saveButton = itemView.findViewById(R.id.save_button);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -75,6 +76,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private final Routine pendingRoutine;
     private final int currentWeek;
     private final int currentDay;
+    public final List<RoutineRowModel> routineRowModels;
     private final RecyclerView recyclerView;
     private final Activity activity;
     private final boolean metricUnits;
@@ -90,6 +92,13 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.metricUnits = metricUnits;
         this.recyclerView = recyclerView;
         this.activity = activity;
+
+        List<RoutineRowModel> routineRowModels = new ArrayList<>();
+        for (RoutineExercise exercise : routine.getExerciseListForDay(currentWeek, currentDay)) {
+            RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
+            routineRowModels.add(exerciseRowModel);
+        }
+        this.routineRowModels = routineRowModels;
     }
 
     @NonNull
@@ -102,47 +111,30 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
+        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            // this exercise has been updated, clear errors, set values, and animate back to single row
-            final RoutineExercise exercise = Exercises().get(position);
+            final RoutineRowModel routineRowModel = routineRowModels.get(position);
+            final RoutineExercise exercise = routineRowModel.routineExercise;
+            boolean isExpanded = routineRowModel.isExpanded;
 
-            // remove any errors
-            holder.weightInputLayout.setError(null);
-            holder.setsInputLayout.setError(null);
-            holder.repsInputLayout.setError(null);
-            holder.detailsInput.setError(null);
-            // hide extra layout
-            holder.weightButton.setVisibility(View.VISIBLE);
-            holder.extraInfo.setVisibility(View.GONE);
-            holder.saveButton.setVisibility(View.GONE);
-            holder.exerciseTV.setVisibility(View.VISIBLE);
-
-            setInputs(holder, exercise);
+            if (isExpanded) {
+                setExpandedViews(holder, exercise);
+            } else {
+                setCollapsedViews(holder, exercise);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
     }
 
-    private List<RoutineExercise> Exercises() {
-        return pendingRoutine.getExerciseListForDay(currentWeek, currentDay);
-    }
-
     @Override
     public void onBindViewHolder(RoutineDayAdapter.ViewHolder holder, int position) {
-        final RoutineExercise exercise = Exercises().get(position);
+        final RoutineRowModel rowModel = routineRowModels.get(position);
+        final RoutineExercise exercise = rowModel.routineExercise;
+        boolean isExpanded = rowModel.isExpanded;
 
-        LinearLayout rootLayout = holder.rootLayout;
+        RelativeLayout rootLayout = holder.rootLayout;
         LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
         layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
             @Override
@@ -171,7 +163,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextView exerciseTV = holder.exerciseTV;
         exerciseTV.setText(currentExercise);
 
-        Button weightButton = holder.weightButton;
+        Button expandButton = holder.expandButton;
         EditText weightInput = holder.weightInput;
         EditText detailsInput = holder.detailsInput;
         EditText repsInput = holder.repsInput;
@@ -183,63 +175,89 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextInputLayout weightInputLayout = holder.weightInputLayout;
 
         ImageButton deleteButton = holder.deleteButton;
-        LinearLayout extraInfo = holder.extraInfo;
-        ImageButton saveButton = holder.saveButton;
 
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-        setInputs(holder, exercise);
-
-        weightButton.setOnClickListener((v) -> {
-            // show all the extra details for this exercise
-            ((WorkoutActivity) activity).hideKeyboard();
-            weightButton.setVisibility(View.INVISIBLE);
-            extraInfo.setVisibility(View.VISIBLE);
-            saveButton.setVisibility(View.VISIBLE);
-        });
-
+        if (isExpanded) {
+            setExpandedViews(holder, exercise);
+        } else {
+            setCollapsedViews(holder, exercise);
+        }
 
         deleteButton.setOnClickListener(v -> {
             ((WorkoutActivity) activity).hideKeyboard();
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
+            routineRowModels.remove(rowModel);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         });
 
-        saveButton.setOnClickListener(view -> {
-            // first check if input on all fields is valid
-            boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
-                    weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+        expandButton.setOnClickListener((v) -> {
+            ((WorkoutActivity) activity).hideKeyboard();
 
-            if (validInput) {
-                double newWeight = Double.parseDouble(weightInput.getText().toString());
-                if (metricUnits) {
-                    // convert if in metric
-                    newWeight = WeightUtils.metricWeightToImperial(newWeight);
+            if (rowModel.isExpanded) {
+                boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
+                        weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+
+                if (validInput) {
+                    double newWeight = Double.parseDouble(weightInput.getText().toString());
+                    if (metricUnits) {
+                        // convert back to imperial if in metric since weight is stored in imperial on backend
+                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                    }
+
+                    exercise.setWeight(newWeight);
+                    exercise.setDetails(detailsInput.getText().toString().trim());
+                    exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
+                    exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
+                    if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
+                        // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
+                        exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
+                    }
+
+                    rowModel.isExpanded = false;
+
+                    notifyItemChanged(position, true);
+                    ((WorkoutActivity) activity).hideKeyboard();
                 }
 
-                exercise.setWeight(newWeight);
-                exercise.setDetails(detailsInput.getText().toString().trim());
-                exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
-                exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
-                if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
-                    // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
-                    exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
-                }
-
-                ((WorkoutActivity) activity).hideKeyboard();
+            } else {
+                // show all the extra details for this exercise so the user can edit/read them
+                rowModel.isExpanded = true;
                 notifyItemChanged(position, true);
+                setExpandedViews(holder, exercise);
             }
         });
     }
 
-    private void setInputs(ViewHolder holder, RoutineExercise exercise) {
+    private void setExpandedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
+        holder.extraInfo.setVisibility(View.VISIBLE);
+        holder.expandButton.setText(R.string.done_all_caps);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+
+        setInputs(holder, exercise);
+    }
+
+    private void setCollapsedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
+        holder.weightInputLayout.setError(null);
+        holder.setsInputLayout.setError(null);
+        holder.repsInputLayout.setError(null);
+        holder.detailsInput.setError(null);
+
+        // hide the extra layout
+        holder.extraInfo.setVisibility(View.GONE);
+
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-        holder.weightButton.setText(formattedWeight);
+        holder.expandButton.setText(formattedWeight);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+    }
+
+    private void setInputs(ViewHolder holder, RoutineExercise exercise) {
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
         holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
@@ -282,6 +300,18 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return Exercises().size();
+        return routineRowModels.size();
+    }
+
+    // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
+    @Data
+    public static class RoutineRowModel {
+        private final RoutineExercise routineExercise;
+        private boolean isExpanded;
+
+        public RoutineRowModel(RoutineExercise routineExercise, boolean isExpanded) {
+            this.routineExercise = routineExercise;
+            this.isExpanded = isExpanded;
+        }
     }
 }

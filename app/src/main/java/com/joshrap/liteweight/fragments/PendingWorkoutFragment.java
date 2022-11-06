@@ -87,15 +87,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
     private User user;
-    private Button saveWorkoutButton, saveCustomSortButton;
+    private Button saveCustomSortButton;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
-    private boolean isRoutineDayViewShown;
+    private boolean isRoutineDayViewShown, isSorting;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
-    private ExtendedFloatingActionButton addExercisesButton, addWeekButton;
+    private ExtendedFloatingActionButton saveWorkoutButton, addExercisesButton, addWeekButton;
     private AddExerciseAdapter addExerciseAdapter;
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
@@ -248,11 +248,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         //endregion
 
         //region Views for routine
-        LinearLayoutManager weekLayoutManager = new LinearLayoutManager(getActivity());
-        weekAdapter = new WeekAdapter(pendingRoutine);
         weekRecyclerView = view.findViewById(R.id.week_list);
-        weekRecyclerView.setAdapter(weekAdapter);
-        weekRecyclerView.setLayoutManager(weekLayoutManager);
+//        LinearLayoutManager weekLayoutManager = new LinearLayoutManager(getActivity());
+//        weekAdapter = new WeekAdapter(pendingRoutine);
+//        weekRecyclerView.setAdapter(weekAdapter);
+//        weekRecyclerView.setLayoutManager(weekLayoutManager);
+        setWeekAdapter();
 
         addWeekButton = view.findViewById(R.id.add_week_btn);
         addWeekButton.setOnClickListener(v -> {
@@ -283,7 +284,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (isRoutineDayViewShown) {
+                if (isSorting) {
+                    finishCustomSortMode();
+                } else if (isRoutineDayViewShown) {
                     ((WorkoutActivity) getActivity()).hideKeyboard();
                     finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
@@ -310,6 +313,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void addBackPressedCallback() {
         requireActivity().getOnBackPressedDispatcher().addCallback(backPressedCallback);
+    }
+
+    private void setWeekAdapter() {
+        LinearLayoutManager weekLayoutManager = new LinearLayoutManager(getActivity());
+        weekAdapter = new WeekAdapter(pendingRoutine);
+        weekRecyclerView.setAdapter(weekAdapter);
+        weekRecyclerView.setLayoutManager(weekLayoutManager);
     }
 
     @Override
@@ -419,9 +429,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
      * Allows the user to drag specific exercises within a day to the position of their liking.
      */
     private void enableCustomSortMode() {
+        isSorting = true;
         addExercisesButton.hide();
         saveCustomSortButton.setVisibility(View.VISIBLE);
-        saveWorkoutButton.setVisibility(View.GONE);
+        saveWorkoutButton.hide();
         sortExercisesButton.setVisibility(View.INVISIBLE);
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
 
@@ -431,8 +442,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void finishCustomSortMode() {
+        isSorting = false;
         saveCustomSortButton.setVisibility(View.GONE);
-        saveWorkoutButton.setVisibility(View.VISIBLE);
+        saveWorkoutButton.show();
         sortExercisesButton.setVisibility(View.VISIBLE);
         routineDayMoreIcon.setVisibility(View.VISIBLE);
         updateRoutineDayExerciseList();
@@ -716,6 +728,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     pendingWorkout = new Workout(userWithWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
 
+                    setWeekAdapter(); // since adapter holds old references to weeks
                     Toast.makeText(getContext(), "Workout saved.", Toast.LENGTH_LONG).show();
                 } else {
                     AndroidUtils.showErrorDialog("Save Workout Error", resultStatus.getErrorMessage(), getContext());
@@ -734,7 +747,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
-        // todo too big of a pain to make checkboxes bigger. just give it a background card to make it clear the whole row is clickable
         allOwnedExercises = new HashMap<>();
         List<String> focusList = Variables.FOCUS_LIST;
         for (String focus : focusList) {
@@ -883,10 +895,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
                     }
                     int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
+                    // adapter uses list of separate models to maintain expanded state, need to add it there too
+                    routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
                     routineDayAdapter.notifyItemInserted(newPosition);
                     routineDayRecyclerView.scrollToPosition(newPosition);
                 } else {
                     pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
+                    // adapter uses list of separate models to maintain expanded state, need to remove it there too
+                    routineDayAdapter.routineRowModels.removeIf(x->x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
                     // too much of a pain to get the index in that adapter that this exercise could have been removed from
                     routineDayAdapter.notifyDataSetChanged();
                 }

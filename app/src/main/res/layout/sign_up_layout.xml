@@ -29,7 +29,7 @@
             android:layout_below="@+id/sign_up_app_title"
             android:layout_centerHorizontal="true"
             android:hint="@string/email_hint"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_email_input"
@@ -38,8 +38,7 @@
                 android:layout_centerHorizontal="true"
                 android:drawableStart="@drawable/email_icon"
                 android:drawablePadding="5dp"
-                android:inputType="textEmailAddress"
-                android:textCursorDrawable="@null" />
+                android:inputType="textEmailAddress" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,7 +50,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:hint="@string/username_hint"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_username_input"
@@ -60,8 +59,7 @@
                 android:layout_centerHorizontal="true"
                 android:drawableStart="@drawable/user_icon_login"
                 android:drawablePadding="5dp"
-                android:inputType="textEmailAddress"
-                android:textCursorDrawable="@null" />
+                android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -75,7 +73,7 @@
             android:hint="@string/password_hint"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/colorAccent"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_password_input"
@@ -85,8 +83,7 @@
                 android:drawableStart="@drawable/password_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
-                android:longClickable="false"
-                android:textCursorDrawable="@null" />
+                android:longClickable="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -113,7 +110,7 @@
             android:hint="@string/password_confirm_hint"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/colorAccent"
-            tools:style="@style/TextInputLayoutStyle">
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_up_password_input_confirm"
@@ -124,7 +121,6 @@
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
                 android:longClickable="false"
-                android:textCursorDrawable="@null"
                 android:visibility="visible" />
     </com.google.android.material.textfield.TextInputLayout>
 
