@@ -2,24 +2,24 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary</item>
+        <item name="colorAccent">@color/color_accent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!--        <item name="android:itemBackground">@color/options_background</item>-->
 
-        <item name="android:textColor">@color/defaultTextColor</item>
-        <item name="android:textColorPrimary">@color/defaultTextColor</item>
-        <item name="android:textColorSecondary">@color/defaultTextColor</item>
-        <item name="android:textColorTertiary">@color/defaultTextColor</item>
-        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="android:textColor">@color/default_text_color</item>
+        <item name="android:textColorPrimary">@color/default_text_color</item>
+        <item name="android:textColorSecondary">@color/default_text_color</item>
+        <item name="android:textColorTertiary">@color/default_text_color</item>
+        <item name="android:textColorHint">@color/hint_color</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="android:navigationBarColor">@color/window_background</item>
         <item name="android:itemBackground">@drawable/item_background_drawable</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control</item>
-        <item name="android:colorForeground">@color/colorAccent</item>
+        <item name="android:colorForeground">@color/color_accent</item>
 
         <item name="android:listDivider">@color/divider_color</item>
         <item name="spinnerStyle">@style/SpinnerStyle</item>
@@ -37,7 +37,7 @@
 
     <style name="SignInTheme" parent="AppTheme">
         <item name="android:windowActivityTransitions">true</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="colorError">@color/error</item>
         <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
@@ -82,17 +82,17 @@
     </style>
 
     <style name="CheckBoxStyle" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
-        <item name="android:textColor">@color/defaultTextColor</item>
-        <item name="android:buttonTint">@color/colorAccent</item>
+        <item name="android:textColor">@color/default_text_color</item>
+        <item name="android:buttonTint">@color/color_accent</item>
     </style>
 
     <style name="ButtonStyle" parent="@style/Widget.MaterialComponents.Button">
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/color_primary</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="FloatingActionButtonStyle" parent="@style/Widget.MaterialComponents.FloatingActionButton">
-        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="backgroundTint">@color/color_primary</item>
         <item name="tint">@android:color/white</item>
     </style>
 

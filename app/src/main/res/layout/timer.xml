@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/set_timer"
                     android:textAllCaps="true"
-                    android:textColor="@color/colorAccent" />
+                    android:textColor="@color/color_accent" />
         </LinearLayout>
 
         <!-- can't use animateLayoutChanges due to bug with framework with bottom sheet dialog https://github.com/material-components/material-components-android/issues/2062 -->

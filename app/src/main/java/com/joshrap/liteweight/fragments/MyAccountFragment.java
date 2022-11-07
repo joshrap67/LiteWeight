@@ -37,7 +37,6 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
@@ -228,8 +227,8 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         UCrop.Options options = new UCrop.Options();
         options.setHideBottomControls(true);
 
-        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
-        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
+        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
         options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setToolbarTitle("Crop Profile Picture");

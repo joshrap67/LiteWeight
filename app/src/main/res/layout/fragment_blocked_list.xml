@@ -23,8 +23,7 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
                 android:text="@string/empty_blocked_list_msg"
-                android:textAlignment="center"
-                android:textSize="20sp" />
+                android:textSize="24sp" />
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/blocked_recycler_view"
@@ -43,5 +42,5 @@
             android:layout_marginBottom="8dp"
             android:src="@drawable/add_icon"
             android:tooltipText="Block User"
-            app:backgroundTint="@color/colorPrimary" />
+            app:backgroundTint="@color/color_primary" />
 </RelativeLayout>

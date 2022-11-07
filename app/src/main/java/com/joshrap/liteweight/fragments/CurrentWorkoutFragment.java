@@ -4,11 +4,8 @@ import android.animation.LayoutTransition;
 
 import androidx.appcompat.app.AlertDialog;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -29,14 +26,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -73,8 +67,6 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-import lombok.Data;
-
 public class CurrentWorkoutFragment extends Fragment implements FragmentWithDialog {
     private Button forwardButton, backButton;
     private int currentDayIndex, currentWeekIndex;
@@ -88,23 +80,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private ProgressBar workoutProgressBar;
     private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV, dayTagTV;
     private UserWithWorkout userWithWorkout;
-    private BottomSheetDialog bottomSheetDialog;
-    private ImageButton clockButton;
-    private SharedPreferences.Editor editor;
+    private ClockBottomFragment clockBottomFragment;
 
-    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT}
+    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT} // todo kill these animations?
 
-    // timer views
-    private Button startTimerButton, stopTimerButton, showStopwatchButton;
-    private boolean showStopwatch;
-    private TextView timerTV, setTimerDurationTV;
-    private RelativeLayout stopwatchContainer, timerContainer, timerDurationContainer;
-    private LinearLayout timerDisplayLayout, timerButtonsLayout;
-
-    // stopwatch views
-    private Button startStopwatchButton, stopStopwatchButton, showTimerButton;
-    private boolean showTimer;
-    private TextView stopwatchTV;
 
     @Inject
     AlertDialog loadingDialog;
@@ -121,7 +100,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         Injector.getInjector(getContext()).inject(this);
 
-        editor = sharedPreferences.edit();
         userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         currentWorkout = userWithWorkout.getWorkout();
         user = userWithWorkout.getUser();
@@ -154,6 +132,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         timer = ((WorkoutActivity) getActivity()).getTimer();
         stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+        clockBottomFragment = ClockBottomFragment.newInstance();
 
         recyclerView = view.findViewById(R.id.recycler_view);
         forwardButton = view.findViewById(R.id.next_day_button);
@@ -161,11 +140,35 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         dayTV = view.findViewById(R.id.day_text_view);
         dayTagTV = view.findViewById(R.id.day_tag_text_view);
 
-        clockButton = view.findViewById(R.id.timer_icon_btn);
-        clockButton.setOnClickListener(v -> bottomSheetDialog.show());
+        ImageButton clockButton = view.findViewById(R.id.timer_icon_btn);
+        clockButton.setOnClickListener(v -> clockBottomFragment.show(getActivity().getSupportFragmentManager(), ClockBottomFragment.TAG));
         clockButton.setOnLongClickListener(v -> {
-            String lastMode = sharedPreferences.getString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-            if (lastMode.equals(Variables.TIMER)) {
+            boolean useTimer = false;
+
+            // determine what this long press does - start timer/stopwatch depending on what is in shared prefs
+            boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
+            boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (timerEnabled && stopwatchEnabled) {
+                // both are enabled, so use whatever was last used
+                String lastMode = sharedPreferences.getString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
+                useTimer = lastMode.equals(Variables.TIMER);
+            } else if (timerEnabled) {
+                // only the timer is enabled, hide the stopwatch
+                editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
+                editor.apply();
+
+                useTimer = true;
+            } else if (stopwatchEnabled) {
+                // only the stopwatch is enabled, hide the timer
+                editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
+                editor.apply();
+            } else {
+                // shouldn't be reached, but none are enabled so don't show anything
+                return true;
+            }
+
+            if (useTimer) {
                 if (timer.isTimerRunning()) {
                     stopTimer();
                 } else {
@@ -195,10 +198,20 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         updateRoutineListUI(RoutineListAnimateMode.NONE);
         updateWorkoutProgressBar();
 
-        bottomSheetDialog = new BottomSheetDialog(getActivity());
-        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_clock, null);
-        bottomSheetDialog.setContentView(sheetView);
-        setupTimerStopwatchUI(sheetView);
+        // setup clock UI
+        boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
+        boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
+        if (!timerEnabled && !stopwatchEnabled) {
+            // neither are enabled so hide button, invisible as to not mess up layout
+            clockButton.setVisibility(View.INVISIBLE);
+        }
+
+        timer.displayTime.observe(getViewLifecycleOwner(), this::updateTimerDisplay);
+
+        stopwatch.displayTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplay);
+
+        timer.timerRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryTimerTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
+        stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryStopwatchTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
     }
 
     @Override
@@ -237,245 +250,43 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
-        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-            bottomSheetDialog.dismiss();
+        if (clockBottomFragment != null && clockBottomFragment.isVisible()) {
+            clockBottomFragment.dismiss();
         }
-    }
-
-    private void setupTimerStopwatchUI(View view) {
-        stopwatchContainer = view.findViewById(R.id.stopwatch_container);
-        timerContainer = view.findViewById(R.id.timer_container);
-
-        boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
-        boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
-        final SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (timerEnabled && stopwatchEnabled) {
-            // both are enabled, so use whatever was last used
-            String lastMode = sharedPreferences.getString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-            showStopwatch = true;
-            showTimer = true;
-            switch (lastMode) {
-                case Variables.TIMER:
-                    stopwatchContainer.setVisibility(View.INVISIBLE);
-                    break;
-                case Variables.STOPWATCH:
-                    timerContainer.setVisibility(View.INVISIBLE);
-                    break;
-            }
-        } else if (timerEnabled) {
-            // only the timer is enabled, hide the stopwatch
-            editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-            editor.apply();
-
-            timerContainer.setVisibility(View.VISIBLE);
-            stopwatchContainer.setVisibility(View.INVISIBLE);
-        } else if (stopwatchEnabled) {
-            // only the stopwatch is enabled, hide the timer
-            editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
-            editor.apply();
-
-            timerContainer.setVisibility(View.INVISIBLE);
-            stopwatchContainer.setVisibility(View.VISIBLE);
-        } else {
-            // none are enabled so don't show anything
-            stopwatchContainer.setVisibility(View.INVISIBLE);
-            timerContainer.setVisibility(View.INVISIBLE);
-            clockButton.setVisibility(View.INVISIBLE);
-        }
-        // setup logic for buttons/display
-
-
-        //region Time Duration Picker
-        final NumberPicker minutePicker = view.findViewById(R.id.minutes_picker);
-        minutePicker.setMaxValue(59);
-        minutePicker.setMinValue(0);
-        minutePicker.setValue((int) (timer.timerDuration / (60 * Timer.timeUnit)));
-        minutePicker.setFormatter(i -> String.format("%02d", i));
-        final NumberPicker secondPicker = view.findViewById(R.id.seconds_picker);
-        secondPicker.setMaxValue(59);
-        secondPicker.setMinValue(0);
-        secondPicker.setValue((int) (timer.timerDuration / Timer.timeUnit) % 60);
-        secondPicker.setFormatter(i -> String.format("%02d", i));
-
-        Button saveTimeDurationButton = view.findViewById(R.id.timer_picker_save_time_btn);
-        Button timerPickerBackButton = view.findViewById(R.id.timer_picker_back_btn);
-        timerPickerBackButton.setOnClickListener(v -> setTimerDurationVisibility(false));
-        saveTimeDurationButton.setOnClickListener(v -> {
-            long minutes = minutePicker.getValue() * (60 * Timer.timeUnit);
-            long seconds = secondPicker.getValue() * Timer.timeUnit;
-            int totalTime = (int) (minutes + seconds);
-            if (totalTime > 0) {
-                timer.timerDuration = minutes + seconds;
-                timer.resetTimer();
-                editor.putLong(Variables.TIMER_DURATION, timer.timerDuration);
-                editor.apply();
-                setTimerDurationVisibility(false);
-            } else {
-                Toast.makeText(getActivity(), "Invalid time", Toast.LENGTH_SHORT).show();
-            }
-        });
-        //endregion
-
-        //region Timer
-        startTimerButton = view.findViewById(R.id.start_timer);
-        stopTimerButton = view.findViewById(R.id.stop_timer);
-        Button resetTimerButton = view.findViewById(R.id.reset_timer);
-        showStopwatchButton = view.findViewById(R.id.show_stopwatch);
-        timerTV = view.findViewById(R.id.timer);
-        setTimerDurationTV = view.findViewById(R.id.set_time_tv);
-        timerDurationContainer = view.findViewById(R.id.timer_picker_layout);
-        timerDisplayLayout = view.findViewById(R.id.timer_display_layout);
-        timerButtonsLayout = view.findViewById(R.id.timer_buttons_layout);
-
-        setTimerViewsVisibility();
-        startTimerButton.setOnClickListener(v -> startTimer());
-        stopTimerButton.setOnClickListener(v -> stopTimer());
-        resetTimerButton.setOnClickListener(v -> timer.resetTimer());
-        showStopwatchButton.setOnClickListener(v -> switchToStopwatch());
-
-        setTimerDurationTV.setOnClickListener(v -> {
-            if (!timer.isTimerRunning()) {
-                setTimerDurationVisibility(true);
-            }
-        });
-        timerTV.setOnClickListener(v -> {
-            if (!timer.isTimerRunning()) {
-                setTimerDurationVisibility(true);
-            }
-        });
-
-        timer.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime <= 0) {
-                // timer is done
-                updateTimerDisplays(elapsedTime);
-                setTimerViewsVisibility();
-            } else {
-                updateTimerDisplays(elapsedTime);
-            }
-        });
-        //endregion
-
-        // todo move this to bottom fragment, introduce live data for is timer/stopwatch running and observe that to show secondary TV on this fragment
-
-        //region Stopwatch
-        startStopwatchButton = view.findViewById(R.id.start_stopwatch);
-        stopStopwatchButton = view.findViewById(R.id.stop_stopwatch);
-        Button resetStopwatchButton = view.findViewById(R.id.reset_stopwatch);
-        showTimerButton = view.findViewById(R.id.show_timer);
-        stopwatchTV = view.findViewById(R.id.stopwatch);
-
-        setStopwatchViewsVisibility();
-        startStopwatchButton.setOnClickListener(v -> startStopwatch());
-        stopStopwatchButton.setOnClickListener(v -> stopStopwatch());
-        resetStopwatchButton.setOnClickListener(v -> stopwatch.resetStopwatch());
-        showTimerButton.setOnClickListener(v -> switchToTimer());
-
-        stopwatch.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime >= Variables.MAX_STOPWATCH_TIME) {
-                updateStopwatchDisplays(elapsedTime);
-                setStopwatchViewsVisibility();
-            } else {
-                updateStopwatchDisplays(elapsedTime);
-            }
-        });
-        //endregion
     }
 
     private void startStopwatch() {
         stopwatch.startStopwatch();
-        bottomSheetDialog.dismiss();
-        setStopwatchViewsVisibility();
     }
 
     private void startTimer() {
         timer.startTimer();
-        bottomSheetDialog.dismiss();
-        setTimerViewsVisibility();
     }
 
     private void stopTimer() {
         timer.stopTimer();
-        setTimerViewsVisibility();
     }
 
     private void stopStopwatch() {
         stopwatch.stopStopwatch();
-        setStopwatchViewsVisibility();
     }
 
-    private void setTimerViewsVisibility() {
-        boolean timerRunning = timer.isTimerRunning();
-        setTimerDurationTV.setVisibility(timerRunning ? View.INVISIBLE : View.VISIBLE);
-        stopTimerButton.setVisibility(timerRunning ? View.VISIBLE : View.GONE);
-        startTimerButton.setVisibility(timerRunning ? View.GONE : View.VISIBLE);
-        setSecondaryTimerVisibility();
 
-        if (showStopwatch && !timerRunning) {
-            showStopwatchButton.setVisibility(View.VISIBLE);
-        } else {
-            showStopwatchButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void setStopwatchViewsVisibility() {
-        boolean stopwatchRunning = stopwatch.isStopwatchRunning();
-        stopStopwatchButton.setVisibility(stopwatchRunning ? View.VISIBLE : View.GONE);
-        startStopwatchButton.setVisibility(stopwatchRunning ? View.GONE : View.VISIBLE);
-        setSecondaryTimerVisibility();
-
-        if (showTimer && !stopwatchRunning) {
-            showTimerButton.setVisibility(View.VISIBLE);
-        } else {
-            showTimerButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void setTimerDurationVisibility(boolean showTimerDuration) {
-        timerDurationContainer.setVisibility(showTimerDuration ? View.VISIBLE : View.INVISIBLE);
-        timerButtonsLayout.setVisibility(showTimerDuration ? View.INVISIBLE : View.VISIBLE);
-        timerDisplayLayout.setVisibility(showTimerDuration ? View.INVISIBLE : View.VISIBLE);
-    }
-
-    private void setSecondaryTimerVisibility() {
-        secondaryTimerTV.setVisibility(timer.isTimerRunning() ? View.VISIBLE : View.INVISIBLE);
-        secondaryStopwatchTV.setVisibility(stopwatch.isStopwatchRunning() ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    public void switchToStopwatch() {
-        editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
-        editor.apply();
-        timerContainer.setVisibility(View.INVISIBLE);
-        stopwatchContainer.setVisibility(View.VISIBLE);
-    }
-
-    private void switchToTimer() {
-        editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-        editor.apply();
-        timerContainer.setVisibility(View.VISIBLE);
-        stopwatchContainer.setVisibility(View.INVISIBLE);
-    }
-
-    private void updateTimerDisplays(long elapsedTime) {
+    private void updateTimerDisplay(long elapsedTime) {
         int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));
         int seconds = (int) (elapsedTime / Timer.timeUnit) % 60;
         String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
 
-        if (timerTV != null) {
-            timerTV.setText(timeRemaining);
-        }
         if (secondaryTimerTV != null) {
             secondaryTimerTV.setText(timeRemaining);
         }
     }
 
-    private void updateStopwatchDisplays(long elapsedTime) {
+    private void updateStopwatchDisplay(long elapsedTime) {
         int minutes = (int) (elapsedTime / (60 * Stopwatch.timeUnit));
         int seconds = (int) (elapsedTime / Stopwatch.timeUnit) % 60;
         String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
 
-        if (stopwatchTV != null) {
-            stopwatchTV.setText(timeFormatted);
-        }
         if (secondaryStopwatchTV != null) {
             secondaryStopwatchTV.setText(timeFormatted);
         }

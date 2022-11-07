@@ -94,7 +94,7 @@
             android:layout_margin="16dp"
             android:src="@drawable/add_icon"
             android:tooltipText="Create New Exercise"
-            app:backgroundTint="@color/colorPrimary"
+            app:backgroundTint="@color/color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

@@ -5,7 +5,7 @@ import android.os.Handler;
 import androidx.lifecycle.MutableLiveData;
 
 public class Timer {
-    private boolean timerRunning;
+    public MutableLiveData<Boolean> timerRunning;
     public static final long timeUnit = 1000; // in SI units of milliseconds
     public long startTimeAbsolute, initialTimeOnClock, timerDuration; // in SI units of milliseconds
     public MutableLiveData<Long> displayTime; // in SI units of milliseconds
@@ -17,7 +17,7 @@ public class Timer {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             displayTime.setValue(initialTimeOnClock - elapsedTime);
             if (displayTime.getValue() <= 0) {
-                timerRunning = false;
+                timerRunning.setValue(false);
                 initialTimeOnClock = timerDuration;
                 resetTimer();
                 timerHandler.removeCallbacks(timer);
@@ -28,14 +28,14 @@ public class Timer {
     };
 
     public Timer(long _timerDuration) {
-        timerRunning = false;
+        timerRunning = new MutableLiveData<>(false);
         timerDuration = _timerDuration;
         initialTimeOnClock = timerDuration; // assume at initialization the timer isn't running
         displayTime = new MutableLiveData<>(initialTimeOnClock);
     }
 
     public void startTimer() {
-        if (!timerRunning) {
+        if (!isTimerRunning()) {
             if (initialTimeOnClock == timerDuration) {
                 // want the timer to start counting from timer duration, not duration - 1
                 startTimeAbsolute = System.currentTimeMillis() + timeUnit - 1; // -1 so when resetting it doesn't momentarily start above actual time
@@ -44,24 +44,24 @@ public class Timer {
                 startTimeAbsolute = System.currentTimeMillis();
             }
             timerHandler.post(timer);
-            timerRunning = true;
+            timerRunning.setValue(true);
         }
     }
 
     public void stopTimer() {
-        if (timerRunning) {
+        if (isTimerRunning()) {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             initialTimeOnClock -= elapsedTime;
             startTimeAbsolute = System.currentTimeMillis();
             timerHandler.removeCallbacks(timer);
-            timerRunning = false;
+            timerRunning.setValue(false);
         }
     }
 
     public void resetTimer() {
         initialTimeOnClock = timerDuration;
-        if (timerRunning) {
-            timerRunning = false;
+        if (isTimerRunning()) {
+            timerRunning.setValue(false);
             timerHandler.removeCallbacks(timer);
             startTimer();
         } else {
@@ -70,6 +70,6 @@ public class Timer {
     }
 
     public boolean isTimerRunning() {
-        return timerRunning;
+        return timerRunning.getValue();
     }
 }

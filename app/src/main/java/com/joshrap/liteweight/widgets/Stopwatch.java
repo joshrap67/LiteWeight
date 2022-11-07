@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.joshrap.liteweight.imports.Variables;
 
 public class Stopwatch {
-    private boolean stopwatchRunning;
+    public MutableLiveData<Boolean> stopwatchRunning;
     public static final long timeUnit = 1000; // in SI units of milliseconds
     public long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
     public MutableLiveData<Long> displayTime; // in SI units of milliseconds
@@ -19,7 +19,7 @@ public class Stopwatch {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             displayTime.setValue(initialTimeOnClock + elapsedTime);
             if (displayTime.getValue() > Variables.MAX_STOPWATCH_TIME) {
-                stopwatchRunning = false;
+                stopwatchRunning.setValue(false);
                 displayTime.setValue(0L);
                 resetStopwatch();
                 stopwatchHandler.removeCallbacks(stopwatch);
@@ -30,34 +30,34 @@ public class Stopwatch {
     };
 
     public Stopwatch() {
-        stopwatchRunning = false;
+        stopwatchRunning = new MutableLiveData<>(false);
         initialTimeOnClock = 0; // assume at initialization the stopwatch isn't running
         displayTime = new MutableLiveData<>(0L);
     }
 
     public void startStopwatch() {
-        if (!stopwatchRunning) {
+        if (!isStopwatchRunning()) {
             startTimeAbsolute = System.currentTimeMillis();
             stopwatchHandler.post(stopwatch);
-            stopwatchRunning = true;
+            stopwatchRunning.setValue(true);
         }
     }
 
     public void stopStopwatch() {
-        if (stopwatchRunning) {
+        if (isStopwatchRunning()) {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             initialTimeOnClock += elapsedTime;
             startTimeAbsolute = System.currentTimeMillis();
             stopwatchHandler.removeCallbacks(stopwatch);
-            stopwatchRunning = false;
+            stopwatchRunning.setValue(false);
         }
     }
 
     public void resetStopwatch() {
         initialTimeOnClock = 0;
         startTimeAbsolute = System.currentTimeMillis();
-        if (stopwatchRunning) {
-            stopwatchRunning = false;
+        if (isStopwatchRunning()) {
+            stopwatchRunning.setValue(false);
             stopwatchHandler.removeCallbacks(stopwatch);
             startStopwatch();
         } else {
@@ -66,6 +66,6 @@ public class Stopwatch {
     }
 
     public boolean isStopwatchRunning() {
-        return stopwatchRunning;
+        return stopwatchRunning.getValue();
     }
 }

@@ -80,7 +80,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@color/colorAccent"
+            android:background="@color/color_accent"
             app:layout_constraintBottom_toTopOf="@+id/workout_list_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

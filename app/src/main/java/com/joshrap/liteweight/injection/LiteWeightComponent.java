@@ -5,6 +5,7 @@ import com.joshrap.liteweight.activities.SplashActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.fragments.AboutFragment;
 import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
+import com.joshrap.liteweight.fragments.ClockBottomFragment;
 import com.joshrap.liteweight.fragments.PendingWorkoutFragment;
 import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
 import com.joshrap.liteweight.fragments.AppSettingsFragment;
@@ -59,4 +60,6 @@ public interface LiteWeightComponent {
     void inject(AboutFragment aboutFragment);
 
     void inject(PendingWorkoutFragment blankFragment);
+
+    void inject(ClockBottomFragment clockBottomFragment);
 }

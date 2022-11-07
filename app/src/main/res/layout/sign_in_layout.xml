@@ -63,7 +63,7 @@
             android:layout_marginTop="20dp"
             android:hint="@string/password_hint"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/colorAccent"
+            app:passwordToggleTint="@color/color_accent"
             tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText

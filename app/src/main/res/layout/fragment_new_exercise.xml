@@ -269,7 +269,7 @@
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
                             android:text="@string/copy_url"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="@color/color_accent"
                             app:icon="@drawable/copy_icon" />
 
                     <Button
@@ -279,7 +279,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/preview_url"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="@color/color_accent"
                             app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>
@@ -293,8 +293,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/save"
-            android:textColor="@color/colorAccent"
-            app:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/color_accent"
+            app:backgroundTint="@color/color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

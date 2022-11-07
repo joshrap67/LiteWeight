@@ -82,7 +82,7 @@
                             android:layout_marginBottom="4dp"
                             android:layout_toStartOf="@id/focus_image_btn"
                             android:text="@string/focuses"
-                            android:textColor="@color/hintColor"
+                            android:textColor="@color/hint_color"
                             android:textSize="12sp" />
 
                     <TextView
@@ -136,7 +136,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
                         android:text="@string/associated_workouts"
-                        android:textColor="@color/hintColor"
+                        android:textColor="@color/hint_color"
                         android:textSize="12sp" />
 
                 <TextView
@@ -298,7 +298,7 @@
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
                             android:text="@string/copy_url"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="@color/color_accent"
                             app:icon="@drawable/copy_icon" />
 
                     <Button
@@ -308,7 +308,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/preview_url"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="@color/color_accent"
                             app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>
@@ -336,7 +336,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:text="@string/delete"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/color_accent"
                 app:backgroundTint="@color/deny_color" />
 
         <Button
@@ -345,7 +345,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/save"
-                android:textColor="@color/colorAccent"
-                app:backgroundTint="@color/colorPrimary" />
+                android:textColor="@color/color_accent"
+                app:backgroundTint="@color/color_primary" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
