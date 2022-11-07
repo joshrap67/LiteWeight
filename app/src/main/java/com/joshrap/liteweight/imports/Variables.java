@@ -48,8 +48,6 @@ public class Variables {
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
     public static final String SHARED_PREF_SETTINGS = "userSettings";
-    public static final String DATABASE_NAME = "workout_db";
-    public static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
 
     public static final String CURRENT_WORKOUT_TITLE = "Current Workout";
     public static final String MY_WORKOUT_TITLE = "My Workouts";
@@ -99,11 +97,11 @@ public class Variables {
     public static final String INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
     public static final String INTENT_ID_TOKEN = "idToken";
     public static final String INTENT_REFRESH_TOKEN = "refreshToken";
-    public static final String USER_WITH_WORKOUT_DATA = "userWithWorkoutData";
     public static final String NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked";
     public static final String ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked";
     public static final String INTENT_NOTIFICATION_DATA = "Notification_Data";
     public static final String RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked";
+    public static final String ERROR_MESSAGE = "Error_Message";
 
 
     public static final String CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest";

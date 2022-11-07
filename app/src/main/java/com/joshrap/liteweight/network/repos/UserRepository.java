@@ -56,6 +56,8 @@ public class UserRepository {
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem loading your data.");
             }
+        } else if (apiResponse.isOutDatedVersion()) {
+            resultStatus.setErrorMessage("You are using an outdated version of LiteWeight. Please upgrade your application to continue.");
         } else {
             resultStatus.setErrorMessage("There was a problem loading your data.");
         }

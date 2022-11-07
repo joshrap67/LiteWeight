@@ -1,14 +1,15 @@
 package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
+
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -170,6 +171,12 @@ public class SignInActivity extends AppCompatActivity {
             resetPassword();
         });
         initEditTexts();
+        if (getIntent().getExtras() != null) {
+            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            if (errorMessage != null) {
+                AndroidUtils.showErrorDialog("Error", errorMessage, this);
+            }
+        }
     }
 
     private void showGmailDetectedPopup() {
@@ -501,12 +508,8 @@ public class SignInActivity extends AppCompatActivity {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    try {
-                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
-                        launchWorkoutActivity(resultStatus.getData());
-                    } catch (JsonProcessingException e) {
-                        AndroidUtils.showErrorDialog("Error", "Error loading data.", this);
-                    }
+                    Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
+                    launchWorkoutActivity(resultStatus.getData());
                 } else {
                     AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
                 }
@@ -514,7 +517,7 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) throws JsonProcessingException {
+    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) {
         Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         if (userWithWorkout != null) {

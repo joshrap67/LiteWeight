@@ -47,14 +47,16 @@ public class SyncWorkoutService extends Service {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        String version = null;
+        String versionName = null;
+        int versionCode = 0;
         try {
-            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()), new VersionModel(version));
+        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()), new VersionModel(versionName, versionCode));
         WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;

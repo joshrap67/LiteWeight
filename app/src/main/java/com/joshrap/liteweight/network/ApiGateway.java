@@ -27,17 +27,19 @@ import lombok.Data;
 public class ApiGateway {
 
     private static final int successCode = 200; // THIS MUST MATCH THE CODE RETURNED FROM THE API
-    private static final String VERSION_HEADER = "X-LiteWeight-Version";
+    private static final int versionUpgradeCode = 426; // THIS MUST MATCH THE CODE RETURNED FROM THE API
+    private static final String VERSION_CODE_HEADER = "X-LiteWeight-Version-Code";
+    private static final String VERSION_NAME_HEADER = "X-LiteWeight-Version-Name";
 
     private final Tokens tokens;
     private final CognitoRepository cognitoRepository;
-    private final String version;
+    private final VersionModel versionModel;
 
     @Inject
     public ApiGateway(Tokens tokens, CognitoRepository cognitoRepository, VersionModel versionModel) {
         this.tokens = tokens;
         this.cognitoRepository = cognitoRepository;
-        this.version = versionModel.toString();
+        this.versionModel = versionModel;
     }
 
     public ResultStatus<String> makeRequest(String action, Map<String, Object> body, boolean firstTry) {
@@ -49,7 +51,8 @@ public class ApiGateway {
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Authorization", "Bearer " + this.tokens.getIdToken());
-                httpURLConnection.setRequestProperty(VERSION_HEADER, version);
+                httpURLConnection.setRequestProperty(VERSION_CODE_HEADER, String.valueOf(versionModel.getVersionCode()));
+                httpURLConnection.setRequestProperty(VERSION_NAME_HEADER, versionModel.getVersionName());
                 httpURLConnection.setUseCaches(false);
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.setDoOutput(true);
@@ -76,6 +79,9 @@ public class ApiGateway {
                     }
                     resultStatus.setData(jsonResponse.toString());
                     resultStatus.setSuccess(true);
+                } else if (responseCode == versionUpgradeCode) {
+                    resultStatus.setData("You must upgrade your version of LiteWeight to continue.");
+                    resultStatus.setOutDatedVersion(true);
                 } else {
                     if (firstTry && responseCode == 401) {
                         if (refreshIdToken(this.tokens.getRefreshToken())) {

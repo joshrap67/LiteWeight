@@ -1,17 +1,14 @@
 package com.joshrap.liteweight.models;
 
-import androidx.annotation.NonNull;
+import lombok.Data;
 
+@Data
 public class VersionModel {
-    private final String version;
+    private final String versionName;
+    private final int versionCode;
 
-    public VersionModel(String version){
-        this.version = version;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return this.version;
+    public VersionModel(String version, int versionCode){
+        this.versionCode = versionCode;
+        this.versionName = version;
     }
 }

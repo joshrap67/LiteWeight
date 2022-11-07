@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -40,7 +39,7 @@ public class SplashActivity extends AppCompatActivity {
         }
         if (tokens.getRefreshToken() == null || tokens.getIdToken() == null) {
             // no tokens exist, so user is not logged in
-            launchSignInActivity();
+            launchSignInActivity(null);
         } else {
             // user is logged in, attempt to fetch their info
             getUserWithWorkout();
@@ -54,27 +53,26 @@ public class SplashActivity extends AppCompatActivity {
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
-                    try {
-                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
-                        launchWorkoutActivity(resultStatus.getData());
-                    } catch (JsonProcessingException e) {
-                        launchSignInActivity();
-                    }
+                    Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
+                    launchWorkoutActivity(resultStatus.getData());
                 } else {
-                    launchSignInActivity();
+                    launchSignInActivity(resultStatus.getErrorMessage());
                 }
             });
         });
     }
 
-    private void launchSignInActivity() {
+    private void launchSignInActivity(String errorMessage) {
         Intent intent = new Intent(this, SignInActivity.class);
+        if (errorMessage != null) {
+            intent.putExtra(Variables.ERROR_MESSAGE, errorMessage);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }
 
-    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) throws JsonProcessingException {
+    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) {
         Intent intent = new Intent(this, WorkoutActivity.class);
         if (notificationData != null && notificationAction != null) {
             intent.setAction(notificationAction);
@@ -86,8 +84,9 @@ public class SplashActivity extends AppCompatActivity {
             finish();
         } else {
             // really should never happen, so just launch sign in activity.
+            String errorMessage = "There was a problem trying to load your data.";
             Toast.makeText(this, "There was a problem loading your data.", Toast.LENGTH_SHORT).show();
-            launchSignInActivity();
+            launchSignInActivity(errorMessage);
         }
 
     }

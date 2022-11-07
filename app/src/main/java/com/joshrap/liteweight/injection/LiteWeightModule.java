@@ -53,12 +53,14 @@ class LiteWeightModule {
 
     @Provides
     VersionModel provideVersionModel(final Context context) {
-        String version = null;
+        String versionName = null;
+        int versionCode = 0;
         try {
-            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new VersionModel(version);
+        return new VersionModel(versionName, versionCode);
     }
 }

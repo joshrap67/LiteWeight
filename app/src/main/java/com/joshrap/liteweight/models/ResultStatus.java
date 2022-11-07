@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ResultStatus<T> {
     private boolean success;
+    private boolean outDatedVersion;
     private String errorMessage;
     private T data;
 
