@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 
 public class ValidatorUtils {
 
-    private static Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
+    // todo unit test all these
+    private static final Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
 
     /**
      * Ensures that a URL has the correct format.

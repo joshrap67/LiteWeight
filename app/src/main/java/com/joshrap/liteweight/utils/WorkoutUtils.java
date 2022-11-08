@@ -13,6 +13,7 @@ import java.util.StringJoiner;
 
 public class WorkoutUtils {
 
+    // todo move this to routine class... not sure why i made it static here. also unit test
     public static void deleteExerciseFromRoutine(final String exerciseId, final Routine routine) {
         if (routine == null) {
             return;
@@ -34,6 +35,8 @@ public class WorkoutUtils {
     public static String generateDayTitle(int currentWeekIndex, int currentDayIndex) {
         return "Week " + (currentWeekIndex + 1) + " Day " + (currentDayIndex + 1);
     }
+
+    // todo unit test
 
     /**
      * Gets the most frequent focus for a given routine.

@@ -242,6 +242,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
     }
 
+    //todo give consistent name to all ids in layouts :(
+
     @Override
     public void hideAllDialogs() {
         if (alertDialog != null && alertDialog.isShowing()) {
@@ -785,7 +787,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
-    private class RoutineRowModel {
+    private static class RoutineRowModel {
         private final RoutineExercise routineExercise;
         private boolean isExpanded;
 

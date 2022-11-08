@@ -14,7 +14,7 @@
             android:id="@+id/workout_name_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bottom_border_selectable"

@@ -3,6 +3,8 @@ package com.joshrap.liteweight.utils;
 import com.joshrap.liteweight.imports.Variables;
 
 public class WeightUtils {
+    //todo unit test all these
+
     /**
      * Returns the converted weight of the exercise according to whether metric units was specified.
      * Note that in DB it is stored as imperial.

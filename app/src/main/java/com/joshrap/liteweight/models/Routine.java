@@ -56,10 +56,8 @@ public class Routine implements Model, Iterable<RoutineWeek> {
         }
     }
 
+    // assumes both routines are sorted
     public static boolean routinesDifferent(Routine routine1, Routine routine2) {
-        // assume both routines are sorted
-
-        // todo unit test
         if (routine1.getTotalNumberOfDays() != routine2.getTotalNumberOfDays()) {
             // one routine has more total days than the other, so not equal
             return true;
@@ -169,7 +167,6 @@ public class Routine implements Model, Iterable<RoutineWeek> {
     public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
         this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
     }
-
 
     public int getNumberOfWeeks() {
         return this.weeks.size();

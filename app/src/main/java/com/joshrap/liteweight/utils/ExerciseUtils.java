@@ -39,6 +39,7 @@ public class ExerciseUtils {
      * @param focuses list of focuses.
      */
     public static String getFocusTitle(List<String> focuses) {
+        // todo unit test
         StringBuilder focusesBuilder = new StringBuilder();
         focuses.sort(String::compareToIgnoreCase);
         int count = 0;

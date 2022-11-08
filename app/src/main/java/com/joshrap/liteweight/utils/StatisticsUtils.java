@@ -3,6 +3,7 @@ package com.joshrap.liteweight.utils;
 public class StatisticsUtils {
 
     public static String getFormattedAverageCompleted(double averageCompleted) {
+        // todo unit test
         String retVal;
         averageCompleted = averageCompleted * 100; // make average a percentage
         if ((averageCompleted == Math.floor(averageCompleted)) && !Double.isInfinite(averageCompleted)) {
