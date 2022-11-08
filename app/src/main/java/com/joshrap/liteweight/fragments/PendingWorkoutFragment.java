@@ -249,10 +249,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         //region Views for routine
         weekRecyclerView = view.findViewById(R.id.week_list);
-//        LinearLayoutManager weekLayoutManager = new LinearLayoutManager(getActivity());
-//        weekAdapter = new WeekAdapter(pendingRoutine);
-//        weekRecyclerView.setAdapter(weekAdapter);
-//        weekRecyclerView.setLayoutManager(weekLayoutManager);
         setWeekAdapter();
 
         addWeekButton = view.findViewById(R.id.add_week_btn);
@@ -291,6 +287,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
+                    hideAllDialogs(); // since user could spam back button and cause multiple ones to show
                     alertDialog = new AlertDialog.Builder(getContext())
                             .setTitle("Unsaved Changes")
                             .setMessage(R.string.unsaved_workout_msg)

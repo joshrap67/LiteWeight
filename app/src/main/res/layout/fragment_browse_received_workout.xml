@@ -4,10 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_margin="8dp">
 
     <ProgressBar
             android:id="@+id/loading_icon"
@@ -71,8 +68,10 @@
                 android:layout_below="@id/day_tag_text_view"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:paddingHorizontal="4dp"
+                android:scrollbarStyle="outsideInset"
                 android:scrollbars="vertical"
-                tools:listitem="@layout/row_exercise_pending" />
+                tools:listitem="@layout/row_exercise_read_only" />
 
         <Button
                 android:id="@+id/previous_day_button"

@@ -25,26 +25,6 @@
             android:layout_marginBottom="8dp"
             android:spinnerMode="dropdown" />
 
-
-    <!--    <ScrollView-->
-    <!--            android:id="@+id/scroll_view"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="200dp"-->
-    <!--            android:layout_centerHorizontal="true"-->
-    <!--            android:layout_marginStart="32dp"-->
-    <!--            android:layout_marginTop="8dp"-->
-    <!--            android:layout_marginEnd="32dp"-->
-    <!--            android:layout_marginBottom="8dp"-->
-    <!--            android:maxHeight="400dp">-->
-
-    <!--        <RadioGroup-->
-    <!--                android:id="@+id/workouts_radio_group"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:scrollbars="vertical"-->
-    <!--                tools:layout_height="200dp" />-->
-    <!--    </ScrollView>-->
-
     <TextView
             android:id="@+id/remaining_workouts_to_send_tv"
             android:layout_width="match_parent"

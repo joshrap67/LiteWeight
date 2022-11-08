@@ -42,7 +42,10 @@
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/friends_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:paddingHorizontal="4dp"
+                android:scrollbarStyle="outsideInset"
+                tools:listitem="@layout/row_friend" />
 
     </RelativeLayout>
 

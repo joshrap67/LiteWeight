@@ -9,15 +9,16 @@
             android:id="@+id/week_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:layout_marginVertical="8dp"
+            android:paddingHorizontal="4dp"
+            android:scrollbarStyle="outsideInset"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/routine_week_card">
 
     </androidx.recyclerview.widget.RecyclerView>
 

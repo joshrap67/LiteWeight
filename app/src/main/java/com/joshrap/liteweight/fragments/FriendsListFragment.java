@@ -240,10 +240,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 break;
             }
         }
-        tabLayout.addTab(tabLayout.newTab().setText(
-                requestsUnseen ? "Friend Requests (!)" : "Friend Requests"), REQUESTS_POSITION);
+        tabLayout.addTab(tabLayout.newTab().setText(requestsUnseen ? "Friend Requests (!)" : "Friend Requests"), REQUESTS_POSITION);
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == FRIENDS_POSITION) {
@@ -264,6 +263,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+
         if (currentIndex == REQUESTS_POSITION) {
             tabLayout.getTabAt(REQUESTS_POSITION).select();
         } else {

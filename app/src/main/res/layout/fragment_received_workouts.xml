@@ -25,7 +25,8 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             android:text="@string/empty_received_workouts_msg"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            tools:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -34,7 +35,10 @@
             android:layout_above="@id/loading_icon_list"
             android:layout_below="@id/mark_all_read_btn"
             android:layout_marginTop="8dp"
-            android:scrollbars="vertical">
+            android:paddingHorizontal="4dp"
+            android:scrollbarStyle="outsideInset"
+            android:scrollbars="vertical"
+            tools:listitem="@layout/row_received_workout">
 
     </androidx.recyclerview.widget.RecyclerView>
 

@@ -4,8 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginHorizontal="4dp"
         android:focusable="true"
         android:focusableInTouchMode="true">
 
@@ -24,6 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_marginStart="4dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Sort"
                 android:src="@drawable/sort_icon" />
@@ -58,6 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_marginEnd="4dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:src="@drawable/more_icon" />
 
@@ -91,7 +92,10 @@
                 android:layout_height="match_parent"
                 android:layout_above="@id/add_exercises"
                 android:layout_marginTop="8dp"
-                android:scrollbars="vertical">
+                android:scrollbars="vertical"
+                android:paddingHorizontal="4dp"
+                android:scrollbarStyle="outsideInset"
+                tools:listitem="@layout/row_exercise_pending">
 
         </androidx.recyclerview.widget.RecyclerView>
 
