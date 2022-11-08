@@ -1,7 +1,5 @@
 package com.joshrap.liteweight.fragments;
 
-import android.animation.LayoutTransition;
-
 import androidx.appcompat.app.AlertDialog;
 
 import android.content.Context;
@@ -12,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
@@ -535,8 +532,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            RelativeLayout rootLayout;
-
             CheckBox exerciseCheckbox;
             Button expandButton;
             RelativeLayout extraInfo;
@@ -554,8 +549,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             ViewHolder(View itemView) {
                 super(itemView);
-
-                rootLayout = itemView.findViewById(R.id.root_layout);
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_name);
                 expandButton = itemView.findViewById(R.id.expand_btn);
@@ -618,31 +611,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final RoutineRowModel rowModel = routineRowModels.get(position);
             final RoutineExercise exercise = rowModel.routineExercise;
             boolean isExpanded = rowModel.isExpanded;
-
-            RelativeLayout rootLayout = holder.rootLayout;
-            LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
-            layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-                @Override
-                public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                    RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(getContext()) {
-                        @Override
-                        protected int getVerticalSnapPreference() {
-                            return LinearSmoothScroller.SNAP_TO_START;
-                        }
-                    };
-
-                    if (transitionType == LayoutTransition.CHANGE_APPEARING &&
-                            holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                        // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
-                        smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                    }
-                }
-
-                @Override
-                public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                }
-            });
 
             String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;

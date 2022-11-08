@@ -404,7 +404,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             sharedRoutineRowModels.add(exerciseRowModel);
         }
 
-        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits, recyclerView, getContext());
+        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits);
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

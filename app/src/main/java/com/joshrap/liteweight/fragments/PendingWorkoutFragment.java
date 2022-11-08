@@ -380,7 +380,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void updateRoutineDayExerciseList() {
-        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), routineDayRecyclerView, getActivity());
+        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), getActivity());
         routineDayRecyclerView.setAdapter(routineDayAdapter);
         routineDayRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         routineDayAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

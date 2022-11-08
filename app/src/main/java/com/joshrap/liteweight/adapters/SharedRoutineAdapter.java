@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.adapters;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,20 +7,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
-import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.SharedExercise;
 
@@ -32,7 +25,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         CheckBox exerciseName; // checkbox just to make layout easier
         Button expandButton;
         RelativeLayout extraInfo;
-        RelativeLayout rootLayout;
 
         EditText detailsInput;
         EditText weightInput;
@@ -46,7 +38,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
         ViewHolder(View itemView) {
             super(itemView);
-            rootLayout = itemView.findViewById(R.id.root_layout);
 
             exerciseName = itemView.findViewById(R.id.exercise_name);
             expandButton = itemView.findViewById(R.id.expand_btn);
@@ -66,15 +57,10 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     private final List<SharedRoutineRowModel> sharedRoutineRowModels;
     private final boolean metricUnits;
-    private final RecyclerView recyclerView;
-    private final Context context;
 
-    public SharedRoutineAdapter(List<SharedRoutineRowModel> sharedRoutineRowModels, boolean metricUnits, RecyclerView recyclerView,
-                                Context context) {
+    public SharedRoutineAdapter(List<SharedRoutineRowModel> sharedRoutineRowModels, boolean metricUnits) {
         this.sharedRoutineRowModels = sharedRoutineRowModels;
         this.metricUnits = metricUnits;
-        this.recyclerView = recyclerView;
-        this.context = context;
     }
 
 
@@ -110,31 +96,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         final SharedRoutineRowModel rowModel = sharedRoutineRowModels.get(position);
         final SharedExercise exercise = rowModel.sharedExercise;
         boolean isExpanded = rowModel.isExpanded;
-
-        RelativeLayout rootLayout = holder.rootLayout;
-        LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
-        layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-            @Override
-            public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(context) {
-                    @Override
-                    protected int getVerticalSnapPreference() {
-                        return LinearSmoothScroller.SNAP_TO_START;
-                    }
-                };
-
-                if (transitionType == LayoutTransition.CHANGE_APPEARING &&
-                        holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                    // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
-                    smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                    recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                }
-            }
-
-            @Override
-            public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-            }
-        });
 
         final String currentExercise = exercise.getExerciseName();
         final TextView exerciseName = holder.exerciseName;

@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.adapters;
 
-import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.content.Context;
 import android.text.InputFilter;
@@ -14,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -48,11 +46,9 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextInputLayout setsInputLayout;
         TextInputLayout repsInputLayout;
         TextInputLayout detailsInputLayout;
-        RelativeLayout rootLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
-            rootLayout = itemView.findViewById(R.id.root_layout);
 
             deleteButton = itemView.findViewById(R.id.delete_exercise);
             exerciseTV = itemView.findViewById(R.id.exercise_name);
@@ -77,20 +73,17 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private final int currentWeek;
     private final int currentDay;
     public final List<RoutineRowModel> routineRowModels;
-    private final RecyclerView recyclerView;
     private final Activity activity;
     private final boolean metricUnits;
 
     public RoutineDayAdapter(Map<String, String> exerciseIdToName, Map<String, Double> exerciseIdToCurrentMaxWeight,
-                             Routine routine, int currentWeek, int currentDay, boolean metricUnits,
-                             RecyclerView recyclerView, Activity activity) {
+                             Routine routine, int currentWeek, int currentDay, boolean metricUnits, Activity activity) {
         this.exerciseIdToName = exerciseIdToName;
         this.exerciseIdToCurrentMaxWeight = exerciseIdToCurrentMaxWeight;
         this.pendingRoutine = routine;
         this.currentWeek = currentWeek;
         this.currentDay = currentDay;
         this.metricUnits = metricUnits;
-        this.recyclerView = recyclerView;
         this.activity = activity;
 
         List<RoutineRowModel> routineRowModels = new ArrayList<>();
@@ -133,31 +126,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final RoutineRowModel rowModel = routineRowModels.get(position);
         final RoutineExercise exercise = rowModel.routineExercise;
         boolean isExpanded = rowModel.isExpanded;
-
-        RelativeLayout rootLayout = holder.rootLayout;
-        LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
-        layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-            @Override
-            public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(view.getContext()) {
-                    @Override
-                    protected int getVerticalSnapPreference() {
-                        return LinearSmoothScroller.SNAP_TO_START;
-                    }
-                };
-
-                if (transitionType == LayoutTransition.CHANGE_APPEARING &&
-                        holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                    // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
-                    smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                    recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                }
-            }
-
-            @Override
-            public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-            }
-        });
 
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         TextView exerciseTV = holder.exerciseTV;
