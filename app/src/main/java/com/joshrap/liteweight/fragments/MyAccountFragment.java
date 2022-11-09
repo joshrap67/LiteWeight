@@ -112,7 +112,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
-        profilePicture = view.findViewById(R.id.profile_image);
+        profilePicture = view.findViewById(R.id.profile_picture_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
         updateFriendsTvNotification();
 

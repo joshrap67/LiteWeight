@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
     <ScrollView
-            android:id="@+id/scroll_view_main"
+            android:id="@+id/scroll_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:fadeScrollbars="true"
@@ -27,13 +27,11 @@
                 android:animateLayoutChanges="true">
 
             <LinearLayout
-                    android:id="@+id/top_container"
+                    android:id="@+id/exercise_name_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="8dp"
                     android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -62,25 +60,23 @@
                     android:id="@+id/focus_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/top_container"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_below="@id/exercise_name_container"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginVertical="8dp"
                     android:animateLayoutChanges="true">
 
                 <RelativeLayout
-                        android:id="@+id/focus_relative_layout"
+                        android:id="@+id/focus_title_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bottom_border_selectable">
 
                     <TextView
-                            android:id="@+id/focus_title"
+                            android:id="@+id/focus_title_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
-                            android:layout_toStartOf="@id/focus_image_btn"
+                            android:layout_toStartOf="@id/focus_icon_btn"
                             android:text="@string/focuses"
                             android:textColor="@color/hint_color"
                             android:textSize="12sp" />
@@ -89,14 +85,14 @@
                             android:id="@+id/focus_list_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/focus_title"
-                            android:layout_toStartOf="@id/focus_image_btn"
+                            android:layout_below="@+id/focus_title_tv"
+                            android:layout_toStartOf="@id/focus_icon_btn"
                             android:text="@string/focus_label"
                             android:textSize="19sp"
                             tools:text="Back, Cardio" />
 
                     <ImageButton
-                            android:id="@+id/focus_image_btn"
+                            android:id="@+id/focus_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -104,7 +100,6 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
-
                 </RelativeLayout>
 
 
@@ -112,7 +107,7 @@
                         android:id="@+id/pick_focuses_recycler_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/focus_relative_layout"
+                        android:layout_below="@id/focus_title_container"
                         android:visibility="gone"
                         tools:itemCount="1"
                         tools:listitem="@android:layout/simple_selectable_list_item"
@@ -291,7 +286,7 @@
                         android:weightSum="2">
 
                     <Button
-                            android:id="@+id/clipboard_btn"
+                            android:id="@+id/copy_clipboard_btn"
                             style="?android:attr/buttonBarButtonStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -302,7 +297,7 @@
                             app:icon="@drawable/copy_icon" />
 
                     <Button
-                            android:id="@+id/preview_btn"
+                            android:id="@+id/preview_video_btn"
                             style="?android:attr/buttonBarButtonStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -327,10 +322,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_main">
+            app:layout_constraintTop_toBottomOf="@id/scroll_view">
 
         <Button
-                android:id="@+id/delete_exercise"
+                android:id="@+id/delete_exercise_icon_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
@@ -340,7 +335,7 @@
                 app:backgroundTint="@color/deny_color" />
 
         <Button
-                android:id="@+id/save_btn"
+                android:id="@+id/save_fab"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

@@ -7,45 +7,45 @@
         android:layout_marginHorizontal="4dp">
 
     <TextView
-            android:id="@+id/day_text_view"
+            android:id="@+id/day_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?android:selectableItemBackground"
             android:textSize="32sp"
-            app:layout_constraintBottom_toTopOf="@+id/day_tag_text_view"
+            app:layout_constraintBottom_toTopOf="@+id/day_tag_tv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Week 1 Day 1" />
 
     <TextView
-            android:id="@+id/day_tag_text_view"
+            android:id="@+id/day_tag_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="13sp"
             android:textStyle="italic"
-            app:layout_constraintBottom_toTopOf="@+id/workout_progress_layout"
+            app:layout_constraintBottom_toTopOf="@+id/workout_progress_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/day_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/day_title_tv"
             tools:text="Shoulders Day " />
 
     <FrameLayout
-            android:id="@+id/workout_progress_layout"
+            android:id="@+id/workout_progress_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
             android:layout_marginTop="4dp"
             android:animateLayoutChanges="true"
-            app:layout_constraintBottom_toTopOf="@+id/recycler_view"
+            app:layout_constraintBottom_toTopOf="@+id/routine_recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/day_tag_text_view">
+            app:layout_constraintTop_toBottomOf="@+id/day_tag_tv">
 
         <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/workout_progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
@@ -53,7 +53,7 @@
                 tools:progress="80" />
 
         <TextView
-                android:id="@+id/progress_bar_TV"
+                android:id="@+id/progress_bar_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -67,7 +67,7 @@
     </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/routine_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
@@ -77,7 +77,7 @@
             app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workout_progress_layout"
+            app:layout_constraintTop_toBottomOf="@+id/workout_progress_container"
             tools:listitem="@layout/row_exercise_active_workout" />
 
     <RelativeLayout
@@ -89,7 +89,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view">
+            app:layout_constraintTop_toBottomOf="@+id/routine_recycler_view">
 
         <TextView
                 android:id="@+id/secondary_stopwatch_tv"
@@ -109,7 +109,7 @@
                 tools:text="01:00" />
 
         <Button
-                android:id="@+id/previous_day_button"
+                android:id="@+id/previous_day_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/secondary_stopwatch_tv"
@@ -130,7 +130,7 @@
                 android:src="@drawable/timer_icon" />
 
         <Button
-                android:id="@+id/next_day_button"
+                android:id="@+id/next_day_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/secondary_stopwatch_tv"

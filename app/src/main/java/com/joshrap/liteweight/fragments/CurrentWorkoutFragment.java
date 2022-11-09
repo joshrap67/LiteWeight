@@ -118,7 +118,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
-            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
@@ -131,11 +131,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
         clockBottomFragment = ClockBottomFragment.newInstance();
 
-        recyclerView = view.findViewById(R.id.recycler_view);
-        forwardButton = view.findViewById(R.id.next_day_button);
-        backButton = view.findViewById(R.id.previous_day_button);
-        dayTV = view.findViewById(R.id.day_text_view);
-        dayTagTV = view.findViewById(R.id.day_tag_text_view);
+        recyclerView = view.findViewById(R.id.routine_recycler_view);
+        forwardButton = view.findViewById(R.id.next_day_btn);
+        backButton = view.findViewById(R.id.previous_day_btn);
+        dayTV = view.findViewById(R.id.day_title_tv);
+        dayTagTV = view.findViewById(R.id.day_tag_tv);
 
         ImageButton clockButton = view.findViewById(R.id.timer_icon_btn);
         clockButton.setOnClickListener(v -> clockBottomFragment.show(getActivity().getSupportFragmentManager(), ClockBottomFragment.TAG));
@@ -184,10 +184,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         secondaryTimerTV = view.findViewById(R.id.secondary_timer_tv);
         secondaryStopwatchTV = view.findViewById(R.id.secondary_stopwatch_tv);
 
-        workoutProgressBar = view.findViewById(R.id.progress_bar);
-        workoutProgressTV = view.findViewById(R.id.progress_bar_TV);
+        workoutProgressBar = view.findViewById(R.id.workout_progress_bar);
+        workoutProgressTV = view.findViewById(R.id.progress_bar_tv);
         if (!sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true)) {
-            FrameLayout progressBarLayout = view.findViewById(R.id.workout_progress_layout);
+            FrameLayout progressBarLayout = view.findViewById(R.id.workout_progress_container);
             progressBarLayout.setVisibility(View.GONE);
         }
 
@@ -238,8 +238,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             ((WorkoutActivity) getActivity()).startStopwatchService();
         }
     }
-
-    //todo give consistent name to all ids in layouts :(
 
     @Override
     public void hideAllDialogs() {
@@ -513,9 +511,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
 
         View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
-        ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
+        ProgressBar progressBar = popupView.findViewById(R.id.workout_progress_bar);
         progressBar.setProgress(percentage);
-        TextView progressTV = popupView.findViewById(R.id.progress_bar_TV);
+        TextView progressTV = popupView.findViewById(R.id.progress_bar_tv);
         progressTV.setText(String.format("%d %%", percentage));
 
         alertDialog = new AlertDialog.Builder(getContext())
@@ -534,7 +532,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         class ViewHolder extends RecyclerView.ViewHolder {
             CheckBox exerciseCheckbox;
             Button expandButton;
-            RelativeLayout extraInfo;
+            RelativeLayout extraInfoContainer;
 
             EditText detailsInput;
             EditText weightInput;
@@ -550,10 +548,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             ViewHolder(View itemView) {
                 super(itemView);
 
-                exerciseCheckbox = itemView.findViewById(R.id.exercise_name);
+                exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
                 expandButton = itemView.findViewById(R.id.expand_btn);
-                extraInfo = itemView.findViewById(R.id.extra_info_layout);
-                videoButton = itemView.findViewById(R.id.launch_video_button);
+                extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
+                videoButton = itemView.findViewById(R.id.launch_video_btn);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
                 detailsInput = itemView.findViewById(R.id.details_input);
@@ -684,7 +682,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.extraInfo.setVisibility(View.VISIBLE);
+            holder.extraInfoContainer.setVisibility(View.VISIBLE);
             holder.expandButton.setText(R.string.done_all_caps);
             holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
 
@@ -698,7 +696,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             holder.detailsInput.setError(null);
 
             // hide the extra layout
-            holder.extraInfo.setVisibility(View.GONE);
+            holder.extraInfoContainer.setVisibility(View.GONE);
 
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);

@@ -13,11 +13,10 @@
         tools:background="@drawable/login_gradient">
 
     <TextView
-            android:id="@+id/sign_up_app_title"
+            android:id="@+id/sign_up_app_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:fontFamily="@font/roboto"
             android:text="@string/app_name"
             android:textSize="36sp"
             android:textStyle="bold" />
@@ -26,7 +25,7 @@
             android:id="@+id/sign_up_email_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/sign_up_app_title"
+            android:layout_below="@+id/sign_up_app_title_tv"
             android:layout_centerHorizontal="true"
             android:hint="@string/email_hint"
             tools:style="@style/SignInTextInputLayoutStyle">
@@ -93,7 +92,6 @@
             android:layout_below="@+id/sign_up_password_input_layout"
             android:layout_alignStart="@+id/sign_up_password_input_layout"
             android:layout_alignEnd="@+id/sign_up_password_input_layout"
-            android:fontFamily="@font/roboto"
             android:textColor="@color/password_constraint_unsuccessful_match"
             android:textStyle="bold"
             android:visibility="gone"
@@ -101,7 +99,7 @@
             tools:visibility="visible" />
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/sign_up_password_confirm_layout"
+            android:id="@+id/sign_up_password_confirm_input_layout"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/sign_up_password_attributes_tv"
@@ -113,7 +111,7 @@
             tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/sign_up_password_input_confirm"
+                android:id="@+id/sign_up_password_confirm_input"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -128,10 +126,10 @@
             android:id="@+id/sign_up_primary_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sign_up_password_confirm_layout"
+            android:layout_below="@id/sign_up_password_confirm_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#50000000"
+            android:background="@color/semi_transparent"
             android:foreground="?android:selectableItemBackground"
             android:text="@string/sign_up" />
 
@@ -142,7 +140,7 @@
             android:layout_below="@id/sign_up_primary_btn"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#c0c0c0" />
+            android:background="@color/login_divider_color" />
 
     <Button
             android:id="@+id/sign_up_change_mode_btn"
@@ -151,7 +149,7 @@
             android:layout_below="@id/divider"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#50000000"
+            android:background="@color/semi_transparent"
             android:foreground="?android:selectableItemBackground"
             android:text="@string/back_to_sign_in" />
 </RelativeLayout>

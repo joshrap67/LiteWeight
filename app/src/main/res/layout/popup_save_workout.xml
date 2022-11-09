@@ -12,9 +12,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:hint="@string/workout_name"
-            android:paddingStart="20dp"
+            android:paddingHorizontal="20dp"
             android:paddingTop="20dp"
-            android:paddingEnd="20dp"
             app:autoSizeTextType="uniform"
             app:expandedHintEnabled="false"
             tools:style="@style/TextInputLayoutStyle">

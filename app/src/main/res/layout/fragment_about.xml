@@ -9,9 +9,7 @@
             android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -23,30 +21,23 @@
                 android:orientation="vertical">
 
             <ImageView
-                    android:id="@+id/app_logo"
+                    android:id="@+id/app_logo_image"
                     android:layout_width="185dp"
                     android:layout_height="140dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_margin="8dp"
+                    android:contentDescription="@string/app_logo"
                     app:srcCompat="@mipmap/app_logo_round" />
 
             <TextView
-                    android:id="@+id/version_number"
+                    android:id="@+id/version_number_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/version_number"
+                    android:layout_margin="8dp"
                     android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Version 2.2.0" />
 
             <TextView
                     android:id="@+id/feedback_tv"
@@ -56,9 +47,8 @@
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
+                    android:paddingHorizontal="4dp"
                     android:paddingVertical="10dp"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
                     android:text="@string/feedback_report_problem"
                     android:textSize="20sp"
                     app:drawableEndCompat="@drawable/feedback_icon" />
@@ -72,9 +62,8 @@
                     android:clickable="true"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingHorizontal="4dp"
                     android:paddingVertical="10dp"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
                     android:text="@string/frequently_asked_questions_faq"
                     android:textSize="20sp"
                     app:drawableEndCompat="@drawable/faq_icon" />
@@ -88,9 +77,8 @@
                     android:clickable="true"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingHorizontal="4dp"
                     android:paddingVertical="10dp"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
                     android:text="@string/privacy_policy"
                     android:textSize="20sp"
                     app:drawableEndCompat="@drawable/privacy_policy_icon" />
@@ -104,9 +92,8 @@
                     android:clickable="true"
                     android:elevation="2dp"
                     android:focusable="true"
+                    android:paddingHorizontal="4dp"
                     android:paddingVertical="10dp"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
                     android:text="@string/terms_and_conditions"
                     android:textSize="20sp"
                     app:drawableEndCompat="@drawable/terms_conditions_icon" />
@@ -118,7 +105,7 @@
                     android:orientation="vertical">
 
                 <RelativeLayout
-                        android:id="@+id/acknowledgements_layout"
+                        android:id="@+id/acknowledgements_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
@@ -129,33 +116,30 @@
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:paddingHorizontal="4dp"
                             android:text="@string/acknowledgements_title"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/acknowledgements_icon"
+                            android:id="@+id/acknowledgements_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:paddingHorizontal="4dp"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
-
                 <TextView
-                        android:id="@+id/acknowledgements"
+                        android:id="@+id/acknowledgements_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:linksClickable="true"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp"
+                        android:paddingHorizontal="4dp"
                         android:text="@string/acknowledgements"
                         android:visibility="gone"
                         tools:visibility="visible" />

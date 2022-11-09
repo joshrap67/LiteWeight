@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -70,7 +69,7 @@ import static android.os.Looper.getMainLooper;
 public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentWithDialog {
     private User user;
     private ProgressBar loadingIcon;
-    private RecyclerView recyclerView;
+    private RecyclerView browseRecyclerView;
     private SharedWorkout sharedWorkout;
     private SharedRoutine sharedRoutine;
     private TextView dayTV, dayTagTV;
@@ -79,7 +78,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private int currentDayIndex;
     private int currentWeekIndex;
     private AlertDialog alertDialog;
-    private RelativeLayout mainLayout;
+    private RelativeLayout browseContainer;
     private String receivedWorkoutId;
     private UserWithWorkout userWithWorkout;
 
@@ -140,15 +139,15 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         currentWeekIndex = 0;
         View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);
 
-        loadingIcon = view.findViewById(R.id.loading_icon);
-        recyclerView = view.findViewById(R.id.recycler_view);
-        mainLayout = view.findViewById(R.id.main_layout);
-        dayTV = view.findViewById(R.id.day_text_view);
-        dayTagTV = view.findViewById(R.id.day_tag_text_view);
-        forwardButton = view.findViewById(R.id.next_day_button);
-        backButton = view.findViewById(R.id.previous_day_button);
+        loadingIcon = view.findViewById(R.id.loading_progress_bar);
+        browseRecyclerView = view.findViewById(R.id.browse_recycler_view);
+        browseContainer = view.findViewById(R.id.browse_container);
+        dayTV = view.findViewById(R.id.day_title_tv);
+        dayTagTV = view.findViewById(R.id.day_tag_tv);
+        forwardButton = view.findViewById(R.id.next_day_btn);
+        backButton = view.findViewById(R.id.previous_day_btn);
 
-        ImageButton moreIcon = view.findViewById(R.id.day_more_icon);
+        ImageButton moreIcon = view.findViewById(R.id.day_more_icon_btn);
         final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), moreIcon);
         Menu moreMenu = dropDownRoutineDayMenu.getMenu();
         final int acceptWorkoutId = 0;
@@ -313,7 +312,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     }
 
     private void getReceivedWorkout(String sharedWorkoutId) {
-        mainLayout.setVisibility(View.GONE);
+        browseContainer.setVisibility(View.GONE);
         loadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -323,7 +322,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 if (this.isResumed()) {
                     loadingIcon.setVisibility(View.GONE);
                     if (resultStatus.isSuccess()) {
-                        mainLayout.setVisibility(View.VISIBLE);
+                        browseContainer.setVisibility(View.VISIBLE);
                         sharedWorkout = resultStatus.getData();
                         sharedRoutine = sharedWorkout.getRoutine();
                         setupButtons();
@@ -405,8 +404,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         }
 
         SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits);
-        recyclerView.setAdapter(routineAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        browseRecyclerView.setAdapter(routineAdapter);
+        browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         String dayTag = sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();

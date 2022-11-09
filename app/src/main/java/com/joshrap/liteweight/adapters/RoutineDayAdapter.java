@@ -35,7 +35,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextView exerciseTV;
         Button expandButton;
         ImageButton deleteButton;
-        RelativeLayout extraInfo;
+        RelativeLayout extraInfoContainer;
 
         EditText detailsInput;
         EditText weightInput;
@@ -50,10 +50,10 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         ViewHolder(View itemView) {
             super(itemView);
 
-            deleteButton = itemView.findViewById(R.id.delete_exercise);
-            exerciseTV = itemView.findViewById(R.id.exercise_name);
+            deleteButton = itemView.findViewById(R.id.delete_exercise_icon_btn);
+            exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
             expandButton = itemView.findViewById(R.id.expand_btn);
-            extraInfo = itemView.findViewById(R.id.extra_info_layout);
+            extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -202,7 +202,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     }
 
     private void setExpandedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
-        holder.extraInfo.setVisibility(View.VISIBLE);
+        holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
         holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
 
@@ -216,7 +216,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         holder.detailsInput.setError(null);
 
         // hide the extra layout
-        holder.extraInfo.setVisibility(View.GONE);
+        holder.extraInfoContainer.setVisibility(View.GONE);
 
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);

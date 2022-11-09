@@ -122,7 +122,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
-            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
+            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
             createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
@@ -207,13 +207,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
         workoutOptionsButton.setOnClickListener(v -> dropDownMenu.show());
 
-        workoutListView = view.findViewById(R.id.workout_list);
-        selectedWorkoutTV = view.findViewById(R.id.selected_workout_text_view);
-        statisticsTV = view.findViewById(R.id.stat_text_view);
+        workoutListView = view.findViewById(R.id.workout_list_view);
+        selectedWorkoutTV = view.findViewById(R.id.selected_workout_tv);
+        statisticsTV = view.findViewById(R.id.statistics_tv);
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         updateStatisticsTV();
 
-        FloatingActionButton createWorkoutBtn = view.findViewById(R.id.new_workout_btn);
+        FloatingActionButton createWorkoutBtn = view.findViewById(R.id.new_workout_fab);
         createWorkoutBtn.setOnClickListener(v -> {
             if (user.getPremiumToken() == null
                     && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
@@ -668,7 +668,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             TextView usernameTV = listItem.findViewById(R.id.username_tv);
             usernameTV.setText(friend.getUsername());
 
-            ImageView profilePicture = listItem.findViewById(R.id.profile_picture);
+            ImageView profilePicture = listItem.findViewById(R.id.profile_picture_image);
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friend.getIcon()))
                     .error(R.drawable.picture_load_error)

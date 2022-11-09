@@ -24,7 +24,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox exerciseName; // checkbox just to make layout easier
         Button expandButton;
-        RelativeLayout extraInfo;
+        RelativeLayout extraInfoContainer;
 
         EditText detailsInput;
         EditText weightInput;
@@ -39,9 +39,9 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         ViewHolder(View itemView) {
             super(itemView);
 
-            exerciseName = itemView.findViewById(R.id.exercise_name);
+            exerciseName = itemView.findViewById(R.id.exercise_checkbox);
             expandButton = itemView.findViewById(R.id.expand_btn);
-            extraInfo = itemView.findViewById(R.id.extra_info_layout);
+            extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -137,7 +137,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     }
 
     private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
-        holder.extraInfo.setVisibility(View.VISIBLE);
+        holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
         holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
         setInputs(holder, exercise);
@@ -150,7 +150,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         holder.detailsInput.setError(null);
 
         // hide the extra layout
-        holder.extraInfo.setVisibility(View.GONE);
+        holder.extraInfoContainer.setVisibility(View.GONE);
 
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);

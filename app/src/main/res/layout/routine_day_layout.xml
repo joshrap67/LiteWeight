@@ -9,23 +9,23 @@
         android:focusableInTouchMode="true">
 
     <RelativeLayout
-            android:id="@+id/title_layout"
+            android:id="@+id/title_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/recycler_view_layout"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_view_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-                android:id="@+id/sort_button"
+                android:id="@+id/sort_icon_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="4dp"
                 android:background="?android:selectableItemBackgroundBorderless"
-                android:contentDescription="Sort"
+                android:contentDescription="@string/sort_exercises"
                 android:src="@drawable/sort_icon" />
 
 
@@ -33,12 +33,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:layout_toStartOf="@id/day_more_icon"
-                android:layout_toEndOf="@id/sort_button"
+                android:layout_toStartOf="@id/day_more_icon_btn"
+                android:layout_toEndOf="@id/sort_icon_button"
                 android:orientation="vertical">
 
             <TextView
-                    android:id="@+id/day_text_view"
+                    android:id="@+id/day_title_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -46,7 +46,7 @@
                     tools:text="Week 10 Day 7" />
 
             <TextView
-                    android:id="@+id/day_tag_text_view"
+                    android:id="@+id/day_tag_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -54,53 +54,51 @@
         </LinearLayout>
 
         <ImageButton
-                android:id="@+id/day_more_icon"
+                android:id="@+id/day_more_icon_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="4dp"
                 android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/more_options"
                 android:src="@drawable/more_icon" />
-
-
     </RelativeLayout>
 
     <RelativeLayout
-            android:id="@+id/recycler_view_layout"
+            android:id="@+id/recycler_view_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/done_sorting_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title_layout">
+            app:layout_constraintTop_toBottomOf="@id/title_container">
 
         <TextView
-                android:id="@+id/empty_view"
+                android:id="@+id/empty_view_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
+                android:layout_marginHorizontal="16dp"
                 android:text="@string/empty_workout_day"
                 android:textAlignment="center"
                 android:textSize="24sp" />
 
         <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/exercise_recycler_view"
+                android:id="@+id/exercises_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@id/add_exercises"
+                android:layout_above="@id/add_exercises_fab"
                 android:layout_marginTop="8dp"
-                android:scrollbars="vertical"
                 android:paddingHorizontal="4dp"
                 android:scrollbarStyle="outsideInset"
+                android:scrollbars="vertical"
                 tools:listitem="@layout/row_exercise_pending">
 
         </androidx.recyclerview.widget.RecyclerView>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/add_exercises"
+                android:id="@+id/add_exercises_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -126,6 +124,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view_layout"
+            app:layout_constraintTop_toBottomOf="@+id/recycler_view_container"
             tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

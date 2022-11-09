@@ -33,8 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginHorizontal="8dp"
                 android:text="@string/colon"
                 android:textSize="36sp" />
 
@@ -45,7 +44,7 @@
     </LinearLayout>
 
     <Button
-            android:id="@+id/timer_picker_save_time_btn"
+            android:id="@+id/save_time_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

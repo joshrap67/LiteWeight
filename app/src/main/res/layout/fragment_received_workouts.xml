@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -9,31 +8,31 @@
         android:orientation="vertical">
 
     <ImageButton
-            android:id="@+id/mark_all_read_btn"
+            android:id="@+id/mark_all_seen_icon_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="?android:selectableItemBackgroundBorderless"
+            android:contentDescription="@string/mark_all_seen"
             android:src="@drawable/mark_all_read_icon"
             android:tooltipText="Mark all seen" />
 
     <TextView
-            android:id="@+id/empty_view"
+            android:id="@+id/empty_view_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
+            android:layout_marginHorizontal="16dp"
             android:text="@string/empty_received_workouts_msg"
             android:textSize="24sp"
             tools:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/received_workouts_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/loading_icon_list"
-            android:layout_below="@id/mark_all_read_btn"
+            android:layout_above="@id/loading_progress_bar"
+            android:layout_below="@id/mark_all_seen_icon_btn"
             android:layout_marginTop="8dp"
             android:paddingHorizontal="4dp"
             android:scrollbarStyle="outsideInset"
@@ -43,7 +42,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <ProgressBar
-            android:id="@+id/loading_icon_list"
+            android:id="@+id/loading_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

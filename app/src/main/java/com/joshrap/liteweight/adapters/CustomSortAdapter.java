@@ -24,7 +24,7 @@ public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.Vi
 
         ViewHolder(View itemView) {
             super(itemView);
-            exerciseTV = itemView.findViewById(R.id.exercise_name);
+            exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
             weightButton = itemView.findViewById(R.id.weight_btn);
         }
     }

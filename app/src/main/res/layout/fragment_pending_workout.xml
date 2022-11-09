@@ -4,18 +4,16 @@
         android:layout_height="match_parent">
 
     <include
-            android:id="@+id/routine_view"
-            layout="@layout/routine_view"
+            android:id="@+id/routine_week_layout"
+            layout="@layout/routine_week_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     <include
-            android:id="@+id/routine_day_view"
-            layout="@layout/routine_day_view"
+            android:id="@+id/routine_day_layout"
+            layout="@layout/routine_day_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginHorizontal="8dp"
             android:visibility="gone" />
-
 </RelativeLayout>

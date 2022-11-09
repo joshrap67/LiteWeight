@@ -47,7 +47,7 @@ public class AppSettingsFragment extends Fragment {
         SwitchCompat workoutProgressSwitch = view.findViewById(R.id.workout_progress_switch);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_layout);
+        LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_container);
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());
         stopwatchSwitch.setChecked(sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true));
         stopwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {

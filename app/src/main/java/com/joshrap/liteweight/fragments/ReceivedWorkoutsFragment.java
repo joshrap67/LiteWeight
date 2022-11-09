@@ -141,11 +141,11 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         View view = inflater.inflate(R.layout.fragment_received_workouts, container, false);
 
-        listLoadingIcon = view.findViewById(R.id.loading_icon_list);
+        listLoadingIcon = view.findViewById(R.id.loading_progress_bar);
         listLoadingIcon.setVisibility(View.INVISIBLE);
-        receivedWorkoutsRecyclerView = view.findViewById(R.id.recycler_view);
-        emptyView = view.findViewById(R.id.empty_view);
-        markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_read_btn);
+        receivedWorkoutsRecyclerView = view.findViewById(R.id.received_workouts_recycler_view);
+        emptyView = view.findViewById(R.id.empty_view_tv);
+        markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_seen_icon_btn);
         updateAllSeenButton();
         markAllReceivedWorkoutsSeen.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
 
@@ -473,7 +473,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
     private void showBlownUpProfilePic(String username, String iconUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
-        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(iconUrl))
                 .error(R.drawable.picture_load_error)
@@ -598,7 +598,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(receivedWorkout.getSender(), receivedWorkout.getSenderIcon()));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
-                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 usernameTV.setText(receivedWorkout.getSender());
 
                 Picasso.get()

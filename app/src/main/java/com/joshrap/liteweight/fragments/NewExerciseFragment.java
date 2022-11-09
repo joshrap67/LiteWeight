@@ -139,8 +139,8 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
         urlInput.setText("");
 
-        Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        Button previewBtn = view.findViewById(R.id.preview_btn);
+        Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
+        Button previewBtn = view.findViewById(R.id.preview_video_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         clipboardBtn.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
@@ -149,7 +149,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
-        Button saveButton = view.findViewById(R.id.save_btn);
+        Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             createExercise();
@@ -159,7 +159,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        ImageButton focusRowIcon = view.findViewById(R.id.focus_image_btn);
+        ImageButton focusRowIcon = view.findViewById(R.id.focus_icon_btn);
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {

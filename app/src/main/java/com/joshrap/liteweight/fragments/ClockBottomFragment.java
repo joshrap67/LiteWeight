@@ -32,7 +32,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     private Button startTimerButton, stopTimerButton, showStopwatchButton;
     private boolean showStopwatch;
     private TextView timerTV, setTimerDurationTV;
-    private RelativeLayout stopwatchContainer, timerContainer, timerDurationContainer;
+    private RelativeLayout stopwatchLayout, timerContainer, timerDurationContainer;
     private LinearLayout timerDisplayLayout, timerButtonsLayout;
 
     // stopwatch views
@@ -64,7 +64,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
 
         View view = inflater.inflate(R.layout.bottom_sheet_clock, container, false);
         // get the views and attach the listener
-        stopwatchContainer = view.findViewById(R.id.stopwatch_container);
+        stopwatchLayout = view.findViewById(R.id.stopwatch_layout);
         timerContainer = view.findViewById(R.id.timer_container);
 
         boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
@@ -77,7 +77,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             showTimer = true;
             switch (lastMode) {
                 case Variables.TIMER:
-                    stopwatchContainer.setVisibility(View.INVISIBLE);
+                    stopwatchLayout.setVisibility(View.INVISIBLE);
                     break;
                 case Variables.STOPWATCH:
                     timerContainer.setVisibility(View.INVISIBLE);
@@ -89,17 +89,17 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             editor.apply();
 
             timerContainer.setVisibility(View.VISIBLE);
-            stopwatchContainer.setVisibility(View.INVISIBLE);
+            stopwatchLayout.setVisibility(View.INVISIBLE);
         } else if (stopwatchEnabled) {
             // only the stopwatch is enabled, hide the timer
             editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
             editor.apply();
 
             timerContainer.setVisibility(View.INVISIBLE);
-            stopwatchContainer.setVisibility(View.VISIBLE);
+            stopwatchLayout.setVisibility(View.VISIBLE);
         } else {
             // shouldn't be reached, but none are enabled so don't show anything
-            stopwatchContainer.setVisibility(View.INVISIBLE);
+            stopwatchLayout.setVisibility(View.INVISIBLE);
             timerContainer.setVisibility(View.INVISIBLE);
         }
         // setup logic for buttons/display
@@ -117,7 +117,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         secondPicker.setValue((int) (timer.timerDuration / Timer.timeUnit) % 60);
         secondPicker.setFormatter(i -> String.format("%02d", i));
 
-        Button saveTimeDurationButton = view.findViewById(R.id.timer_picker_save_time_btn);
+        Button saveTimeDurationButton = view.findViewById(R.id.save_time_btn);
         Button timerPickerBackButton = view.findViewById(R.id.timer_picker_back_btn);
         timerPickerBackButton.setOnClickListener(v -> setTimerDurationVisibility(false));
         saveTimeDurationButton.setOnClickListener(v -> {
@@ -137,15 +137,15 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         //endregion
 
         //region Timer
-        startTimerButton = view.findViewById(R.id.start_timer);
-        stopTimerButton = view.findViewById(R.id.stop_timer);
-        Button resetTimerButton = view.findViewById(R.id.reset_timer);
-        showStopwatchButton = view.findViewById(R.id.show_stopwatch);
-        timerTV = view.findViewById(R.id.timer);
+        startTimerButton = view.findViewById(R.id.start_timer_btn);
+        stopTimerButton = view.findViewById(R.id.stop_timer_btn);
+        Button resetTimerButton = view.findViewById(R.id.reset_timer_btn);
+        showStopwatchButton = view.findViewById(R.id.show_stopwatch_btn);
+        timerTV = view.findViewById(R.id.timer_tv);
         setTimerDurationTV = view.findViewById(R.id.set_time_tv);
         timerDurationContainer = view.findViewById(R.id.timer_picker_layout);
-        timerDisplayLayout = view.findViewById(R.id.timer_display_layout);
-        timerButtonsLayout = view.findViewById(R.id.timer_buttons_layout);
+        timerDisplayLayout = view.findViewById(R.id.timer_display_container);
+        timerButtonsLayout = view.findViewById(R.id.timer_buttons_container);
 
         setTimerViewsVisibility();
         startTimerButton.setOnClickListener(v -> startTimer());
@@ -176,11 +176,11 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         //endregion
 
         //region Stopwatch
-        startStopwatchButton = view.findViewById(R.id.start_stopwatch);
-        stopStopwatchButton = view.findViewById(R.id.stop_stopwatch);
-        Button resetStopwatchButton = view.findViewById(R.id.reset_stopwatch);
-        showTimerButton = view.findViewById(R.id.show_timer);
-        stopwatchTV = view.findViewById(R.id.stopwatch);
+        startStopwatchButton = view.findViewById(R.id.start_stopwatch_btn);
+        stopStopwatchButton = view.findViewById(R.id.stop_stopwatch_btn);
+        Button resetStopwatchButton = view.findViewById(R.id.reset_stopwatch_btn);
+        showTimerButton = view.findViewById(R.id.show_timer_btn);
+        stopwatchTV = view.findViewById(R.id.stopwatch_tv);
 
         setStopwatchViewsVisibility();
         startStopwatchButton.setOnClickListener(v -> startStopwatch());
@@ -259,14 +259,14 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
         editor.apply();
         timerContainer.setVisibility(View.INVISIBLE);
-        stopwatchContainer.setVisibility(View.VISIBLE);
+        stopwatchLayout.setVisibility(View.VISIBLE);
     }
 
     private void switchToTimer() {
         editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
         editor.apply();
         timerContainer.setVisibility(View.VISIBLE);
-        stopwatchContainer.setVisibility(View.INVISIBLE);
+        stopwatchLayout.setVisibility(View.INVISIBLE);
     }
 
     private void updateTimerDisplays(long elapsedTime) {

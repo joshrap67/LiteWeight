@@ -53,30 +53,30 @@ public class AccountPreferencesFragment extends Fragment {
         saveChanged = false;
         restartChanged = false;
 
-        privateSwitch = view.findViewById(R.id.private_switch);
+        privateSwitch = view.findViewById(R.id.private_account_switch);
         metricSwitch = view.findViewById(R.id.metric_switch);
         updateOnSaveSwitch = view.findViewById(R.id.update_on_save_switch);
         updateOnRestartSwitch = view.findViewById(R.id.update_on_restart_switch);
 
-        LinearLayout metricLayout = view.findViewById(R.id.metric_layout);
+        LinearLayout metricLayout = view.findViewById(R.id.metric_container);
         metricLayout.setOnClickListener(view1 -> metricSwitch.performClick());
         metricSwitch.setChecked(userPreferences.isMetricUnits());
         metricSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> metricChanged = isChecked != userPreferences.isMetricUnits());
 
-        LinearLayout privateLayout = view.findViewById(R.id.private_layout);
+        LinearLayout privateLayout = view.findViewById(R.id.private_account_container);
         privateLayout.setOnClickListener(view1 -> privateSwitch.performClick());
         privateSwitch.setChecked(userPreferences.isPrivateAccount());
         privateSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> privateChanged = isChecked != userPreferences.isPrivateAccount());
 
-        LinearLayout updateOnRestartLayout = view.findViewById(R.id.update_on_restart_layout);
+        LinearLayout updateOnRestartLayout = view.findViewById(R.id.update_on_restart_container);
         updateOnRestartLayout.setOnClickListener(view1 -> updateOnRestartSwitch.performClick());
         updateOnRestartSwitch.setChecked(userPreferences.isUpdateDefaultWeightOnRestart());
         updateOnRestartSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> restartChanged = isChecked != userPreferences.isUpdateDefaultWeightOnRestart());
 
-        LinearLayout updateOnSaveLayout = view.findViewById(R.id.update_on_save_layout);
+        LinearLayout updateOnSaveLayout = view.findViewById(R.id.update_on_save_container);
         updateOnSaveLayout.setOnClickListener(view1 -> updateOnSaveSwitch.performClick());
         updateOnSaveSwitch.setChecked(userPreferences.isUpdateDefaultWeightOnSave());
         updateOnSaveSwitch.setOnCheckedChangeListener(

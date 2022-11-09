@@ -115,7 +115,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
 
-        Button deleteExercise = view.findViewById(R.id.delete_exercise);
+        Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
         deleteExercise.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             promptDelete();
@@ -153,8 +153,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
 
-        Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        Button previewBtn = view.findViewById(R.id.preview_btn);
+        Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
+        Button previewBtn = view.findViewById(R.id.preview_video_btn);
         previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
         clipboardBtn.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
@@ -186,7 +186,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             workoutListTv.setText(workouts.toString());
         }
 
-        Button saveButton = view.findViewById(R.id.save_btn);
+        Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             saveExercise();
@@ -197,8 +197,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        ImageButton focusRowIcon = view.findViewById(R.id.focus_image_btn);
-        focusRelativeLayout = view.findViewById(R.id.focus_relative_layout);
+        ImageButton focusRowIcon = view.findViewById(R.id.focus_icon_btn);
+        focusRelativeLayout = view.findViewById(R.id.focus_title_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();

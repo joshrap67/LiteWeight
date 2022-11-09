@@ -306,15 +306,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             nav.setCheckedItem(R.id.nav_current_workout);
         }
         View headerView = nav.getHeaderView(0);
-        ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
-        headerLayout.setOnClickListener(view -> {
+        ConstraintLayout navHeaderLayout = headerView.findViewById(R.id.nav_header_layout);
+        navHeaderLayout.setOnClickListener(view -> {
             goToAccountSettings();
             drawer.closeDrawer(GravityCompat.START);
         });
         TextView usernameTV = headerView.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
         accountNotificationTV = headerView.findViewById(R.id.notification_tv);
-        profilePicture = headerView.findViewById(R.id.profile_picture);
+        profilePicture = headerView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(user.getIcon()))
                 .error(R.drawable.picture_load_error)

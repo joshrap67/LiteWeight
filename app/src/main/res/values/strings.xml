@@ -162,4 +162,13 @@
     <string name="show_timer_stopwatch">Show Timer/Stopwatch</string>
     <string name="current_workout">Current Workout</string>
     <string name="more_options">More options</string>
+    <string name="app_logo">App Logo</string>
+    <string name="expand_collapse">Expand/Collapse</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="add_friend">Add Friend</string>
+    <string name="create_new_exercise">Create New Exercise</string>
+    <string name="mark_all_seen">Mark all seen</string>
+    <string name="alert">!</string>
+    <string name="sort_exercises">Sort Exercises</string>
+    <string name="drag_to_sort">Drag to sort</string>
 </resources>

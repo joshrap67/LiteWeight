@@ -18,6 +18,10 @@
     <color name="deny_color">#2d4440</color>
     <color name="window_background">#121212</color>
     <color name="dialog_window_background">#424242</color>
+    <!-- todo organize better -->
+    <color name="login_divider_color">#c0c0c0</color>
+
+    <color name="semi_transparent">#50000000</color>
 
     <color name="workout_activity_outline_box_unfocused_color">#BEFFFFFF</color>
     <color name="workout_activity_outline_box_focused_color">#30C272</color>

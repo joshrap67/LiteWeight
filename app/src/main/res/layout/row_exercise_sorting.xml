@@ -4,8 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginVertical="10dp"
         android:background="@drawable/exercise_row_background"
         android:clickable="true"
         android:focusable="true"
@@ -13,24 +12,25 @@
         android:padding="6dp">
 
     <ImageView
-            android:id="@+id/drag_icon_image_view"
+            android:id="@+id/drag_icon_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
+            android:contentDescription="@string/drag_to_sort"
             android:src="@drawable/drag_icon" />
 
     <TextView
-            android:id="@+id/exercise_name"
+            android:id="@+id/exercise_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/drag_icon_image_view"
+            android:layout_toStartOf="@id/weight_btn"
+            android:layout_toEndOf="@id/drag_icon_image"
             android:clickable="true"
             android:focusable="true"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
+            android:paddingHorizontal="15dp"
             android:textSize="18sp"
             tools:text="Exercise Name" />
 

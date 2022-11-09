@@ -5,8 +5,7 @@
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginVertical="10dp"
         android:animateLayoutChanges="true"
         android:background="@drawable/exercise_row_background"
         android:focusable="true"
@@ -14,7 +13,7 @@
         android:padding="6dp">
 
     <CheckBox
-            android:id="@+id/exercise_name"
+            android:id="@+id/exercise_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
@@ -33,17 +32,15 @@
             android:layout_alignParentEnd="true"
             android:background="?android:selectableItemBackground"
             android:drawableEnd="@drawable/small_down_arrow"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
+            android:paddingHorizontal="2dp"
             android:textAllCaps="false"
             tools:text="12345 lb" />
 
-
     <RelativeLayout
-            android:id="@+id/extra_info_layout"
+            android:id="@+id/extra_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/exercise_name"
+            android:layout_below="@id/exercise_checkbox"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
@@ -74,8 +71,7 @@
                 android:id="@+id/weight_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginHorizontal="10dp"
                 android:layout_toStartOf="@+id/reps_input_layout"
                 android:layout_toEndOf="@+id/sets_input_layout"
                 android:hint="@string/weight_lbs"
@@ -127,8 +123,7 @@
                     android:id="@+id/details_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginVertical="8dp"
                     android:inputType="textMultiLine"
                     android:maxLines="3"
                     android:scrollbars="vertical"

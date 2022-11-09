@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/stopwatch_container"
+        android:id="@+id/stopwatch_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
     <TextView
-            android:id="@+id/stopwatch"
+            android:id="@+id/stopwatch_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -18,11 +18,11 @@
             android:id="@+id/placeholder_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/stopwatch"
+            android:layout_below="@id/stopwatch_tv"
             android:visibility="invisible" />
 
     <LinearLayout
-            android:id="@+id/stopwatch_layout"
+            android:id="@+id/stopwatch_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/placeholder_tv"
@@ -31,28 +31,32 @@
             android:orientation="horizontal">
 
         <Button
-                android:id="@+id/start_stopwatch"
+                android:id="@+id/start_stopwatch_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/start_button" />
 
         <Button
-                android:id="@+id/stop_stopwatch"
+                android:id="@+id/stop_stopwatch_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/stop_button" />
 
         <Button
-                android:id="@+id/reset_stopwatch"
+                android:id="@+id/reset_stopwatch_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/reset" />
 
         <Button
-                android:id="@+id/show_timer"
+                android:id="@+id/show_timer_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/show_timer"

@@ -75,7 +75,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             e.printStackTrace();
         }
         if (version != null) {
-            TextView versionTV = view.findViewById(R.id.version_number);
+            TextView versionTV = view.findViewById(R.id.version_number_tv);
             String displayText = getResources().getString(R.string.version_number) + " " + version;
             versionTV.setText(displayText);
         }
@@ -93,9 +93,9 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             startActivity(browserIntent);
         });
 
-        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_layout);
-        TextView acknowledgements = view.findViewById(R.id.acknowledgements);
-        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon);
+        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_container);
+        TextView acknowledgements = view.findViewById(R.id.acknowledgements_tv);
+        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon_btn);
         acknowledgements.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
 
         View.OnClickListener acknowledgementLayoutClicked = v -> {

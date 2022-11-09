@@ -12,14 +12,14 @@
 
 
         <LinearLayout
-                android:id="@+id/timer_display_layout"
+                android:id="@+id/timer_display_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:orientation="vertical">
 
             <TextView
-                    android:id="@+id/timer"
+                    android:id="@+id/timer_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -38,37 +38,41 @@
 
         <!-- can't use animateLayoutChanges due to bug with framework with bottom sheet dialog https://github.com/material-components/material-components-android/issues/2062 -->
         <LinearLayout
-                android:id="@+id/timer_buttons_layout"
+                android:id="@+id/timer_buttons_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/timer_display_layout"
+                android:layout_below="@id/timer_display_container"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
             <Button
-                    android:id="@+id/start_timer"
+                    android:id="@+id/start_timer_btn"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:text="@string/start_button" />
 
             <Button
-                    android:id="@+id/stop_timer"
+                    android:id="@+id/stop_timer_btn"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:text="@string/stop_button" />
 
             <Button
-                    android:id="@+id/reset_timer"
+                    android:id="@+id/reset_timer_btn"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:text="@string/reset" />
 
             <Button
-                    android:id="@+id/show_stopwatch"
+                    android:id="@+id/show_stopwatch_btn"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/show_stopwatch"

@@ -151,14 +151,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        routineDayView = view.findViewById(R.id.routine_day_view);
-        routineView = view.findViewById(R.id.routine_view);
+        routineDayView = view.findViewById(R.id.routine_day_layout);
+        routineView = view.findViewById(R.id.routine_week_layout);
 
         //region Views for routine day
-        routineDayRecyclerView = view.findViewById(R.id.exercise_recycler_view);
-        emptyDayTV = view.findViewById(R.id.empty_view);
-        routineDayTitleTV = view.findViewById(R.id.day_text_view);
-        routineDayTagTV = view.findViewById(R.id.day_tag_text_view);
+        routineDayRecyclerView = view.findViewById(R.id.exercises_recycler_view);
+        emptyDayTV = view.findViewById(R.id.empty_view_tv);
+        routineDayTitleTV = view.findViewById(R.id.day_title_tv);
+        routineDayTagTV = view.findViewById(R.id.day_tag_tv);
 
         saveCustomSortButton = view.findViewById(R.id.done_sorting_btn);
         saveCustomSortButton.setOnClickListener(v -> {
@@ -166,7 +166,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         });
 
         // set up sorting options
-        sortExercisesButton = view.findViewById(R.id.sort_button);
+        sortExercisesButton = view.findViewById(R.id.sort_icon_button);
         final PopupMenu dropDownSortMenu = new PopupMenu(getContext(), sortExercisesButton);
         Menu sortMenu = dropDownSortMenu.getMenu();
         sortMenu.add(0, RoutineDay.alphabeticalSortAscending, 0, "Alphabetical (A-Z)");
@@ -202,7 +202,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         sortExercisesButton.setOnClickListener(v -> dropDownSortMenu.show());
 
         // set up more details for day
-        routineDayMoreIcon = view.findViewById(R.id.day_more_icon);
+        routineDayMoreIcon = view.findViewById(R.id.day_more_icon_btn);
         final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), routineDayMoreIcon);
         Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
         final int deleteDayId = 0;
@@ -240,7 +240,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             dropDownRoutineDayMenu.show();
         });
 
-        addExercisesButton = view.findViewById(R.id.add_exercises);
+        addExercisesButton = view.findViewById(R.id.add_exercises_fab);
         addExercisesButton.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             popupAddExercises();
@@ -248,10 +248,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         //endregion
 
         //region Views for routine
-        weekRecyclerView = view.findViewById(R.id.week_list);
+        weekRecyclerView = view.findViewById(R.id.week_recycler_view);
         setWeekAdapter();
 
-        addWeekButton = view.findViewById(R.id.add_week_btn);
+        addWeekButton = view.findViewById(R.id.add_week_fab);
         addWeekButton.setOnClickListener(v -> {
             pendingRoutine.addEmptyWeek();
             weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
@@ -263,7 +263,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             weekRecyclerView.post(() -> weekRecyclerView.scrollToPosition(weekAdapter.getItemCount() - 1));
         });
 
-        saveWorkoutButton = view.findViewById(R.id.save_btn);
+        saveWorkoutButton = view.findViewById(R.id.save_fab);
         if (!isExistingWorkout) {
             saveWorkoutButton.setText(R.string.create);
         }
@@ -741,7 +741,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void popupAddExercises() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
-        exerciseNotFoundTV = popupView.findViewById(R.id.search_not_found_TV);
+        exerciseNotFoundTV = popupView.findViewById(R.id.exercise_not_found_tv);
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
         allOwnedExercises = new HashMap<>();
@@ -763,7 +763,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        SearchView searchExerciseView = popupView.findViewById(R.id.search_input);
+        SearchView searchExerciseView = popupView.findViewById(R.id.exercise_search_view);
         searchExerciseView.setOnSearchClickListener(v -> {
             // populate the list view with all exercises
             ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
@@ -961,10 +961,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             WeekViewHolder(final View itemView) {
                 super(itemView);
 
-                weekTitle = itemView.findViewById(R.id.week_text_view);
-                dayRecyclerView = itemView.findViewById(R.id.day_list);
+                weekTitle = itemView.findViewById(R.id.week_tv);
+                dayRecyclerView = itemView.findViewById(R.id.day_recycler_view);
                 addDayButton = itemView.findViewById(R.id.add_day_btn);
-                weekMoreButton = itemView.findViewById(R.id.week_more_icon);
+                weekMoreButton = itemView.findViewById(R.id.week_more_icon_btn);
             }
         }
 
@@ -1098,10 +1098,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
             DayViewHolder(View itemView) {
                 super(itemView);
-                dayTitleTV = itemView.findViewById(R.id.day_text_view);
+                dayTitleTV = itemView.findViewById(R.id.day_title_tv);
                 dayCard = itemView.findViewById(R.id.day_card);
-                dayTagTV = itemView.findViewById(R.id.day_tag_text_view);
-                exerciseCountTV = itemView.findViewById(R.id.exercise_count);
+                dayTagTV = itemView.findViewById(R.id.day_tag_tv);
+                exerciseCountTV = itemView.findViewById(R.id.exercise_count_tv);
             }
         }
 

@@ -78,7 +78,7 @@ public class MyExercisesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_btn);
+        FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_fab);
         createBtn.setOnClickListener(v -> {
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
@@ -113,7 +113,7 @@ public class MyExercisesFragment extends Fragment {
     }
 
     private void populateFocusListView() {
-        ListView listView = getView().findViewById(R.id.focus_list);
+        ListView listView = getView().findViewById(R.id.focus_list_view);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -129,7 +129,7 @@ public class MyExercisesFragment extends Fragment {
      * Populates the exercise list view based on the selected focus
      */
     private void populateExercisesListView() {
-        ListView listView = getView().findViewById(R.id.exercise_list);
+        ListView listView = getView().findViewById(R.id.exercise_list_view);
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }

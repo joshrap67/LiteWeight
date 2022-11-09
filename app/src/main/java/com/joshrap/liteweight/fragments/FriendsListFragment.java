@@ -225,11 +225,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         friendRequestsAdapter = new FriendRequestsAdapter(friendRequests);
         friendsAdapter = new FriendsAdapter(friends);
 
-        emptyView = view.findViewById(R.id.empty_view);
+        emptyView = view.findViewById(R.id.empty_view_tv);
         recyclerView = view.findViewById(R.id.friends_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        floatingActionButton = view.findViewById(R.id.floating_action_btn);
+        floatingActionButton = view.findViewById(R.id.add_friend_fab);
         floatingActionButton.setOnClickListener(v -> sendFriendRequestPopup());
         tabLayout = view.findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Friends"), FRIENDS_POSITION);
@@ -419,8 +419,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void sendFriendRequestPopup() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
-        TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
-        EditText friendInput = popupView.findViewById(R.id.friend_name_input);
+        TextInputLayout friendNameLayout = popupView.findViewById(R.id.username_input_layout);
+        EditText friendInput = popupView.findViewById(R.id.username_input);
         friendInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
         alertDialog = new AlertDialog.Builder(getContext())
@@ -656,7 +656,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
         workoutSpinner.setAdapter(workoutsAdapter);
 
-        TextView workoutTV = popupView.findViewById(R.id.workouts_text_view);
+        TextView workoutTV = popupView.findViewById(R.id.my_workouts_tv);
         if (workoutNames.isEmpty()) {
             // user has no workouts to send
             workoutTV.setText(R.string.no_workouts_to_send);
@@ -722,7 +722,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void showBlownUpProfilePic(String username, String iconUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
-        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(iconUrl))
                 .error(R.drawable.picture_load_error)
@@ -750,7 +750,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 pendingTV = itemView.findViewById(R.id.pending_request_tv);
                 rootLayout = itemView.findViewById(R.id.root_layout);
                 usernameTV = itemView.findViewById(R.id.username_tv);
-                profilePicture = itemView.findViewById(R.id.profile_picture);
+                profilePicture = itemView.findViewById(R.id.profile_picture_image);
             }
         }
 
@@ -786,7 +786,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             rootLayout.setOnClickListener(v -> {
                 bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_accepted_friend, null);
-                TextView sendWorkout = sheetView.findViewById(R.id.send_friend_workout_tv);
+                TextView sendWorkout = sheetView.findViewById(R.id.share_workout_tv);
                 TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
 
                 TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
@@ -818,7 +818,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend.getUsername(), friend.getIcon()));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
-                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 usernameTV.setText(friend.getUsername());
 
                 Picasso.get()
@@ -890,7 +890,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             ViewHolder(View itemView) {
                 super(itemView);
                 usernameTV = itemView.findViewById(R.id.username_tv);
-                profilePicture = itemView.findViewById(R.id.profile_picture);
+                profilePicture = itemView.findViewById(R.id.profile_picture_image);
                 unseenTV = itemView.findViewById(R.id.unseen_tv);
                 rootLayout = itemView.findViewById(R.id.root_layout);
             }
@@ -934,9 +934,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 TextView acceptFriendRequestTV = sheetView.findViewById(R.id.accept_friend_request_tv);
                 TextView declineFriendRequestTV = sheetView.findViewById(R.id.decline_friend_request_tv);
                 TextView blockUserTV = sheetView.findViewById(R.id.block_user_tv);
-                TextView dateSentTV = sheetView.findViewById(R.id.date_sent_tv);
+                TextView dateReceivedTV = sheetView.findViewById(R.id.date_received_tv);
 
-                dateSentTV.setText(DateUtils.getFormattedLocalDateTime(friendRequest.getRequestTimeStamp()));
+                dateReceivedTV.setText(DateUtils.getFormattedLocalDateTime(friendRequest.getRequestTimeStamp()));
 
                 acceptFriendRequestTV.setOnClickListener(view -> {
                     acceptFriendRequest(friendRequest.getUsername());
@@ -954,7 +954,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
                 TextView dialogUsernameTV = sheetView.findViewById(R.id.username_tv);
-                ImageView dialogProfilePicture = sheetView.findViewById(R.id.profile_picture);
+                ImageView dialogProfilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 dialogUsernameTV.setText(friendRequest.getUsername());
 
                 Picasso.get()
