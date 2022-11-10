@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +21,7 @@ import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         TextView exerciseTV;
         Button expandButton;
         ImageButton deleteButton;
-        RelativeLayout extraInfoContainer;
+        LinearLayout extraInfoContainer;
 
         EditText detailsInput;
         EditText weightInput;
@@ -149,6 +150,11 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
+        weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightInputLayout));
+        setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsInputLayout));
+        repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsInputLayout));
+        detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsInputLayout));
+
         if (isExpanded) {
             setExpandedViews(holder, exercise);
         } else {
@@ -210,12 +216,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     }
 
     private void setCollapsedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
-        holder.weightInputLayout.setError(null);
-        holder.setsInputLayout.setError(null);
-        holder.repsInputLayout.setError(null);
-        holder.detailsInput.setError(null);
-
-        // hide the extra layout
         holder.extraInfoContainer.setVisibility(View.GONE);
 
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());

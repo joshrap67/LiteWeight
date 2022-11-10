@@ -23,6 +23,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -532,7 +533,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         class ViewHolder extends RecyclerView.ViewHolder {
             CheckBox exerciseCheckbox;
             Button expandButton;
-            RelativeLayout extraInfoContainer;
+            LinearLayout extraInfoContainer;
 
             EditText detailsInput;
             EditText weightInput;
@@ -638,6 +639,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
             detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
+            weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightInputLayout));
+            setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsInputLayout));
+            repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsInputLayout));
+            detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsInputLayout));
+
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
             } else {
@@ -690,12 +696,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setCollapsedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.weightInputLayout.setError(null);
-            holder.setsInputLayout.setError(null);
-            holder.repsInputLayout.setError(null);
-            holder.detailsInput.setError(null);
-
-            // hide the extra layout
             holder.extraInfoContainer.setVisibility(View.GONE);
 
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
@@ -738,7 +738,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 valid = false;
             }
 
-            if (detailsInput.getText().toString().length() > Variables.MAX_DETAILS_LENGTH) {
+            if (detailsInput.getText().toString().trim().length() > Variables.MAX_DETAILS_LENGTH) {
                 detailsLayout.setError("Too many characters");
                 valid = false;
             }

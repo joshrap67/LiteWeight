@@ -639,24 +639,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         View popupView = getLayoutInflater().inflate(R.layout.popup_save_workout, null);
         EditText workoutNameInput = popupView.findViewById(R.id.workout_name_input);
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.workout_name_input_layout);
-        workoutNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (workoutNameInputLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    workoutNameInputLayout.setErrorEnabled(false);
-                    workoutNameInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
         alertDialog = new AlertDialog.Builder(getContext())
@@ -677,7 +660,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 if (errorMsg != null) {
                     workoutNameInputLayout.setError(errorMsg);
                 } else {
-                    // no problems so go ahead and save
                     alertDialog.dismiss();
                     createWorkout(workoutName);
                 }
