@@ -29,12 +29,6 @@ public class UserWithWorkout implements Model {
         }
     }
 
-    public UserWithWorkout(final User user, final Workout workout) {
-        this.user = user;
-        this.workoutPresent = workout != null;
-        this.workout = workout;
-    }
-
     public void setWorkout(Workout workout) {
         this.workoutPresent = workout != null;
         this.workout = workout;

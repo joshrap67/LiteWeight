@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseTV;
-        Button weightButton;
+        final TextView exerciseTV;
+        final Button weightButton;
 
         ViewHolder(View itemView) {
             super(itemView);

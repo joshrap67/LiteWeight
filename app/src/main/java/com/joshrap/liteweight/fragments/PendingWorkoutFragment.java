@@ -19,9 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Parcelable;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -161,9 +159,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         routineDayTagTV = view.findViewById(R.id.day_tag_tv);
 
         saveCustomSortButton = view.findViewById(R.id.done_sorting_btn);
-        saveCustomSortButton.setOnClickListener(v -> {
-            finishCustomSortMode();
-        });
+        saveCustomSortButton.setOnClickListener(v -> finishCustomSortMode());
 
         // set up sorting options
         sortExercisesButton = view.findViewById(R.id.sort_icon_button);

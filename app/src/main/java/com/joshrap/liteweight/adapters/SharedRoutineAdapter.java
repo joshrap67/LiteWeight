@@ -22,19 +22,16 @@ import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        CheckBox exerciseName; // checkbox just to make layout easier
-        Button expandButton;
-        LinearLayout extraInfoContainer;
+        final CheckBox exerciseName; // checkbox just to make layout easier
+        final Button expandButton;
+        final LinearLayout extraInfoContainer;
 
-        EditText detailsInput;
-        EditText weightInput;
-        EditText setsInput;
-        EditText repsInput;
+        final EditText detailsInput;
+        final EditText weightInput;
+        final EditText setsInput;
+        final EditText repsInput;
 
-        TextInputLayout weightInputLayout;
-        TextInputLayout setsInputLayout;
-        TextInputLayout repsInputLayout;
-        TextInputLayout detailsInputLayout;
+        final TextInputLayout weightInputLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -49,9 +46,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
             repsInput = itemView.findViewById(R.id.reps_input);
 
             weightInputLayout = itemView.findViewById(R.id.weight_input_layout);
-            setsInputLayout = itemView.findViewById(R.id.sets_input_layout);
-            repsInputLayout = itemView.findViewById(R.id.reps_input_layout);
-            detailsInputLayout = itemView.findViewById(R.id.details_input_layout);
         }
     }
 
@@ -144,12 +138,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     }
 
     private void setCollapsedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
-        holder.weightInputLayout.setError(null);
-        holder.setsInputLayout.setError(null);
-        holder.repsInputLayout.setError(null);
-        holder.detailsInput.setError(null);
-
-        // hide the extra layout
         holder.extraInfoContainer.setVisibility(View.GONE);
 
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());

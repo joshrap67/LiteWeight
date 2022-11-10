@@ -7,10 +7,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.joshrap.liteweight.imports.Variables;
 
 public class Stopwatch {
-    public MutableLiveData<Boolean> stopwatchRunning;
+    public final MutableLiveData<Boolean> stopwatchRunning;
     public static final long timeUnit = 1000; // in SI units of milliseconds
     public long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
-    public MutableLiveData<Long> displayTime; // in SI units of milliseconds
+    public final MutableLiveData<Long> displayTime; // in SI units of milliseconds
 
     private final Handler stopwatchHandler = new Handler();
     private final Runnable stopwatch = new Runnable() {

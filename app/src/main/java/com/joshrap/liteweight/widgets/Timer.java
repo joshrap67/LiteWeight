@@ -5,10 +5,10 @@ import android.os.Handler;
 import androidx.lifecycle.MutableLiveData;
 
 public class Timer {
-    public MutableLiveData<Boolean> timerRunning;
+    public final MutableLiveData<Boolean> timerRunning;
     public static final long timeUnit = 1000; // in SI units of milliseconds
     public long startTimeAbsolute, initialTimeOnClock, timerDuration; // in SI units of milliseconds
-    public MutableLiveData<Long> displayTime; // in SI units of milliseconds
+    public final MutableLiveData<Long> displayTime; // in SI units of milliseconds
 
     private final Handler timerHandler = new Handler();
     private final Runnable timer = new Runnable() {

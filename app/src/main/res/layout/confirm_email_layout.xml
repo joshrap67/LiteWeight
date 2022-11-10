@@ -9,7 +9,7 @@
         tools:background="@drawable/login_gradient">
 
     <TextView
-            android:id="@+id/app_title_tv"
+            android:id="@+id/confirm_email_app_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -22,7 +22,7 @@
             android:id="@+id/app_logo_image"
             android:layout_width="185dp"
             android:layout_height="140dp"
-            android:layout_below="@+id/app_title_tv"
+            android:layout_below="@+id/confirm_email_app_title_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:contentDescription="@string/app_logo"
@@ -69,7 +69,7 @@
             android:text="@string/confirm" />
 
     <View
-            android:id="@+id/divider"
+            android:id="@+id/confirm_email_divider"
             android:layout_width="300dp"
             android:layout_height="2dp"
             android:layout_below="@id/confirm_email_btn"
@@ -81,7 +81,7 @@
             android:id="@+id/resend_code_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/divider"
+            android:layout_below="@id/confirm_email_divider"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="@color/semi_transparent"

@@ -26,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -520,9 +519,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Restart Workout")
                 .setView(popupView)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    restartWorkout();
-                })
+                .setPositiveButton("Yes", (dialog, which) -> restartWorkout())
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
@@ -531,20 +528,20 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            CheckBox exerciseCheckbox;
-            Button expandButton;
-            LinearLayout extraInfoContainer;
+            final CheckBox exerciseCheckbox;
+            final Button expandButton;
+            final LinearLayout extraInfoContainer;
 
-            EditText detailsInput;
-            EditText weightInput;
-            EditText setsInput;
-            EditText repsInput;
-            Button videoButton;
+            final EditText detailsInput;
+            final EditText weightInput;
+            final EditText setsInput;
+            final EditText repsInput;
+            final Button videoButton;
 
-            TextInputLayout weightInputLayout;
-            TextInputLayout setsInputLayout;
-            TextInputLayout repsInputLayout;
-            TextInputLayout detailsInputLayout;
+            final TextInputLayout weightInputLayout;
+            final TextInputLayout setsInputLayout;
+            final TextInputLayout repsInputLayout;
+            final TextInputLayout detailsInputLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -666,8 +663,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
                         exercise.setWeight(newWeight);
                         exercise.setDetails(detailsInput.getText().toString().trim());
-                        exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
-                        exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
+                        exercise.setReps(Integer.parseInt(repsInput.getText().toString().trim()));
+                        exercise.setSets(Integer.parseInt(setsInput.getText().toString().trim()));
 
                         rowModel.isExpanded = false;
 

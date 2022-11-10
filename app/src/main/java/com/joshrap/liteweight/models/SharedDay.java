@@ -24,10 +24,6 @@ public class SharedDay implements Iterable<SharedExercise>, Model {
     private List<SharedExercise> exercises;
     private String tag;
 
-    public SharedDay() {
-        this.exercises = new ArrayList<>();
-    }
-
     public SharedDay(Map<String, Object> json) {
         this.exercises = new ArrayList<>();
         this.tag = (String) json.get(TAG);
@@ -37,10 +33,6 @@ public class SharedDay implements Iterable<SharedExercise>, Model {
             SharedExercise routineExercise = new SharedExercise((Map<String, Object>) exerciseJson);
             this.exercises.add(routineExercise);
         }
-    }
-
-    public void put(int sortVal, SharedExercise sharedExercise) {
-        this.exercises.set(sortVal, sharedExercise);
     }
 
     @NonNull

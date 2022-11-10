@@ -98,6 +98,7 @@
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>

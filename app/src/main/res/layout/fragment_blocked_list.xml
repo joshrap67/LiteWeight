@@ -41,5 +41,6 @@
             android:layout_marginBottom="8dp"
             android:src="@drawable/add_icon"
             android:tooltipText="Block User"
-            app:backgroundTint="@color/color_primary" />
+            app:backgroundTint="@color/color_primary"
+            android:contentDescription="@string/block_user" />
 </RelativeLayout>

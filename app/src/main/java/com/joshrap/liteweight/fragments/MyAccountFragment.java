@@ -1,7 +1,11 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -54,7 +58,6 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class MyAccountFragment extends Fragment implements FragmentWithDialog {
-    private static final int PICK_PHOTO_FOR_AVATAR = 1;
     private User user;
     private ImageView profilePicture;
     private String profilePicUrl;
@@ -149,34 +152,46 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                // a picture was successfully picked, so immediately send it to be cropped
-                try {
-                    final Uri selectedUri = data.getData();
-                    performCrop(selectedUri);
-                } catch (Exception e) {
-                    e.printStackTrace();
+    private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null) {
+                        // a picture was successfully picked, so immediately send it to be cropped
+                        try {
+                            final Uri selectedUri = result.getData().getData();
+                            performCrop(selectedUri);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-            }
-        } else if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            final Uri uri = UCrop.getOutput(data);
-            if (uri != null) {
-                profilePicture.setImageURI(uri);
-                ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
-                try {
-                    InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
-                    updateIcon(ImageUtils.getImageByteArray(iStream));
-                } catch (IOException e) {
-                    e.printStackTrace();
+            });
+
+    private final ActivityResultLauncher<Intent> cropPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    final Uri uri = UCrop.getOutput(result.getData());
+                    if (uri != null) {
+                        profilePicture.setImageURI(uri);
+                        ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
+                        try {
+                            InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
+                            updateIcon(ImageUtils.getImageByteArray(iStream));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Picasso.get().invalidate(profilePicUrl); // since upload was successful,
+                    }
                 }
-                Picasso.get().invalidate(profilePicUrl); // since upload was successful,
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+            });
 
     /**
      * Updates whether an indicator should be shown on the view that takes users to their friend's list.
@@ -215,7 +230,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private void launchPhotoPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);
+        pickPhotoLauncher.launch(intent);
     }
 
     private void performCrop(Uri picUri) {
@@ -229,12 +244,13 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
         options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
-        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
+        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.color_accent));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);
-        cropper.start(getActivity().getApplicationContext(), getActivity().getSupportFragmentManager().findFragmentByTag(Variables.ACCOUNT_TITLE));
+        cropper.getIntent(getContext());
+        cropPhotoLauncher.launch(cropper.getIntent(getContext()));
     }
 
     private void promptLogout() {

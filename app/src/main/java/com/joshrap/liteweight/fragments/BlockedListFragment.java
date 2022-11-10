@@ -247,9 +247,9 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     // region Adapters
     private class BlockedAdapter extends RecyclerView.Adapter<BlockedAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView usernameTV;
-            ImageView profilePicture;
-            RelativeLayout rootLayout;
+            final TextView usernameTV;
+            final ImageView profilePicture;
+            final RelativeLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -267,6 +267,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             this.blockedList = blockedList;
         }
 
+        @NonNull
         @Override
         public BlockedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();

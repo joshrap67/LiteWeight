@@ -172,10 +172,6 @@ public class Routine implements Model, Iterable<RoutineWeek> {
         return this.weeks.size();
     }
 
-    public boolean isEmpty() {
-        return this.getNumberOfWeeks() == 0;
-    }
-
     public int getTotalNumberOfDays() {
         int days = 0;
         for (RoutineWeek week : this) {

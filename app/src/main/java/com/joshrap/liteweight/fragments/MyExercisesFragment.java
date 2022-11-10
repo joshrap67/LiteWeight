@@ -107,11 +107,6 @@ public class MyExercisesFragment extends Fragment {
         outState.putString(SELECTED_FOCUS_KEY, selectedFocus);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     private void populateFocusListView() {
         ListView listView = getView().findViewById(R.id.focus_list_view);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);

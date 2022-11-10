@@ -33,20 +33,20 @@ import lombok.Data;
 public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseTV;
-        Button expandButton;
-        ImageButton deleteButton;
-        LinearLayout extraInfoContainer;
+        final TextView exerciseTV;
+        final Button expandButton;
+        final ImageButton deleteButton;
+        final LinearLayout extraInfoContainer;
 
-        EditText detailsInput;
-        EditText weightInput;
-        EditText setsInput;
-        EditText repsInput;
+        final EditText detailsInput;
+        final EditText weightInput;
+        final EditText setsInput;
+        final EditText repsInput;
 
-        TextInputLayout weightInputLayout;
-        TextInputLayout setsInputLayout;
-        TextInputLayout repsInputLayout;
-        TextInputLayout detailsInputLayout;
+        final TextInputLayout weightInputLayout;
+        final TextInputLayout setsInputLayout;
+        final TextInputLayout repsInputLayout;
+        final TextInputLayout detailsInputLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -185,8 +185,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
                     exercise.setWeight(newWeight);
                     exercise.setDetails(detailsInput.getText().toString().trim());
-                    exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
-                    exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
+                    exercise.setReps(Integer.parseInt(repsInput.getText().toString().trim()));
+                    exercise.setSets(Integer.parseInt(setsInput.getText().toString().trim()));
                     if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
                         // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
                         exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);

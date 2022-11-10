@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.VersionModel;
 import com.joshrap.liteweight.models.Workout;
@@ -29,11 +28,6 @@ public class SyncWorkoutService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
     }
 
     @Override

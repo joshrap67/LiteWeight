@@ -452,42 +452,36 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         hideKeyboard();
-        switch (menuItem.getItemId()) {
-            case R.id.nav_current_workout:
-                if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
-                    goToCurrentWorkout();
-                }
-                break;
-            case R.id.nav_my_workouts:
-                if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
-                    goToMyWorkouts();
-                }
-                break;
-            case R.id.nav_my_exercises:
-                if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
-                    goToMyExercises();
-                }
-                break;
-            case R.id.nav_received_workouts:
-                if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
-                    goToReceivedWorkouts();
-                }
-                break;
-            case R.id.nav_user_settings:
-                if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
-                    goToAppSettings();
-                }
-                break;
-            case R.id.nav_about:
-                if (!(getVisibleFragment() instanceof AboutFragment)) {
-                    goToAbout();
-                }
-                break;
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.nav_current_workout) {
+            if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
+                goToCurrentWorkout();
+            }
+        } else if (itemId == R.id.nav_my_workouts) {
+            if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
+                goToMyWorkouts();
+            }
+        } else if (itemId == R.id.nav_my_exercises) {
+            if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
+                goToMyExercises();
+            }
+        } else if (itemId == R.id.nav_received_workouts) {
+            if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
+                goToReceivedWorkouts();
+            }
+        } else if (itemId == R.id.nav_user_settings) {
+            if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
+                goToAppSettings();
+            }
+        } else if (itemId == R.id.nav_about) {
+            if (!(getVisibleFragment() instanceof AboutFragment)) {
+                goToAbout();
+            }
         }
         return true;
     }
 
-    OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+    final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
         // no longer overriding on back pressed. Using this callback means I can handle back presses in the fragments
         @Override
         public void handleOnBackPressed() {

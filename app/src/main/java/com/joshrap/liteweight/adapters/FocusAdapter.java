@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FocusAdapter extends RecyclerView.Adapter<FocusAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        CheckBox focusCheckbox;
+        final CheckBox focusCheckbox;
 
         ViewHolder(View itemView) {
             super(itemView);

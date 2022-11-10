@@ -155,7 +155,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         displayReceivedWorkouts();
         receivedWorkoutsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     if (!isGettingNextBatch && receivedWorkouts.size() < user.getTotalReceivedWorkouts()) {
@@ -466,9 +466,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         updateAllSeenButton();
         displayReceivedWorkouts(); // to remove any unseen indicators
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            this.workoutRepository.setAllReceivedWorkoutsSeen();
-        });
+        executor.execute(() -> this.workoutRepository.setAllReceivedWorkoutsSeen());
     }
 
     private void showBlownUpProfilePic(String username, String iconUrl) {
@@ -490,12 +488,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
     private class ReceivedWorkoutsAdapter extends RecyclerView.Adapter<ReceivedWorkoutsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView workoutNameTV;
-            TextView dateSentTV;
-            TextView senderTV;
-            Button acceptButton;
-            Button declineButton;
-            RelativeLayout rootLayout;
+            final TextView workoutNameTV;
+            final TextView dateSentTV;
+            final TextView senderTV;
+            final Button acceptButton;
+            final Button declineButton;
+            final RelativeLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -515,6 +513,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         }
 
 
+        @NonNull
         @Override
         public ReceivedWorkoutsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();

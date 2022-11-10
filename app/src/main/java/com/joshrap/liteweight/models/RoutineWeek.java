@@ -38,6 +38,7 @@ public class RoutineWeek implements Iterable<RoutineDay>, Model {
         }
     }
 
+    @NonNull
     public RoutineWeek clone() {
         RoutineWeek retVal = new RoutineWeek();
         for (RoutineDay day : this) {

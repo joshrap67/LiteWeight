@@ -97,7 +97,7 @@
             android:text="@string/sign_in" />
 
     <View
-            android:id="@+id/divider"
+            android:id="@+id/sign_in_divider"
             android:layout_width="300dp"
             android:layout_height="2dp"
             android:layout_below="@id/sign_in_primary_btn"
@@ -109,7 +109,7 @@
             android:id="@+id/sign_in_change_mode_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/divider"
+            android:layout_below="@id/sign_in_divider"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="@color/semi_transparent"

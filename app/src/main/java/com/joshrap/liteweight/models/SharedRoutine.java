@@ -2,6 +2,8 @@ package com.joshrap.liteweight.models;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.ArrayList;
@@ -9,7 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import lombok.Data;
 
@@ -20,10 +21,6 @@ public class SharedRoutine implements Model, Iterable<SharedWeek> {
     public static final String WEEKS = "weeks";
 
     private List<SharedWeek> weeks;
-
-    public SharedRoutine() {
-        this.weeks = new ArrayList<>();
-    }
 
     public SharedRoutine(Map<String, Object> json) {
         if (json == null) {
@@ -65,6 +62,7 @@ public class SharedRoutine implements Model, Iterable<SharedWeek> {
         return retVal;
     }
 
+    @NonNull
     @Override
     public Iterator<SharedWeek> iterator() {
         return this.weeks.iterator();

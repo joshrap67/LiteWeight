@@ -740,10 +740,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     // region Adapters
     private class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView usernameTV;
-            TextView pendingTV;
-            ImageView profilePicture;
-            ConstraintLayout rootLayout;
+            final TextView usernameTV;
+            final TextView pendingTV;
+            final ImageView profilePicture;
+            final ConstraintLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -760,6 +760,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             this.friends = friends;
         }
 
+        @NonNull
         @Override
         public FriendsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
@@ -882,10 +883,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private class FriendRequestsAdapter extends RecyclerView.Adapter<FriendRequestsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView usernameTV;
-            TextView unseenTV;
-            ImageView profilePicture;
-            ConstraintLayout rootLayout;
+            final TextView usernameTV;
+            final TextView unseenTV;
+            final ImageView profilePicture;
+            final ConstraintLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -902,6 +903,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             this.friendRequests = friends;
         }
 
+        @NonNull
         @Override
         public FriendRequestsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();

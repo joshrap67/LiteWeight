@@ -22,10 +22,6 @@ public class SharedWeek implements Iterable<SharedDay>, Model {
 
     private List<SharedDay> days;
 
-    public SharedWeek() {
-        this.days = new ArrayList<>();
-    }
-
     public SharedWeek(Map<String, Object> jsonWeek) {
         this.days = new ArrayList<>();
 
@@ -42,10 +38,6 @@ public class SharedWeek implements Iterable<SharedDay>, Model {
 
     public SharedDay getDay(int day) {
         return this.days.get(day);
-    }
-
-    public void put(int dayIndex, SharedDay sharedDay) {
-        this.days.set(dayIndex, sharedDay);
     }
 
     @Override

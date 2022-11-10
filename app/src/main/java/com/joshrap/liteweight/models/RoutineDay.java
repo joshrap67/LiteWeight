@@ -43,6 +43,7 @@ public class RoutineDay implements Iterable<RoutineExercise>, Model {
         }
     }
 
+    @NonNull
     public RoutineDay clone() {
         RoutineDay retVal = new RoutineDay();
         retVal.setTag(this.tag);
