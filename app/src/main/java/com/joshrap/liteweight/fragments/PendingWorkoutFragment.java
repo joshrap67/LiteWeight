@@ -249,6 +249,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         addWeekButton = view.findViewById(R.id.add_week_fab);
         addWeekButton.setOnClickListener(v -> {
+            if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
+                // otherwise user can bypass by clicking quickly
+                return;
+            }
             pendingRoutine.addEmptyWeek();
             weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
             if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {

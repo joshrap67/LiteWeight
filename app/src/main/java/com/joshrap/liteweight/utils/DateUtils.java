@@ -10,7 +10,6 @@ import java.util.TimeZone;
 public class DateUtils {
 
     public static String getFormattedLocalDateTime(String utcDateTime) {
-        // todo unit test
         String formattedDateTime = null;
         DateFormat dateFormatInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
         dateFormatInput.setTimeZone(TimeZone.getTimeZone("UTC"));

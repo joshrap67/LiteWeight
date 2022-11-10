@@ -28,7 +28,7 @@
 
     <color name="signin_activity_outline_box_unfocused_color">#E6FFFFFF</color>
     <!-- todo   gotta get a better color-->
-    <color name="signin_activity_outline_box_focused_color">#B5F1F6</color>
+    <color name="signin_activity_outline_box_focused_color">#E600FF99</color>
 
     <color name="login_gradient_start">@color/color_primary</color>
     <color name="login_gradient_center">#FF16384B</color>
