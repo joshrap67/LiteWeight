@@ -69,8 +69,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         String version = null;
         try {
-            version = getContext().getPackageManager()
-                    .getPackageInfo(getContext().getPackageName(), 0).versionName;
+            version = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
         } catch (Exception e) {
             e.printStackTrace();
         }

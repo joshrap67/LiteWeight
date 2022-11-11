@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,15 +18,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <ImageButton
+        <Space
                 android:id="@+id/placeholder_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:clickable="false"
-                android:src="@drawable/more_icon"
-                android:visibility="invisible" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true" />
 
         <TextView
                 android:id="@+id/day_title_tv"
@@ -75,19 +72,31 @@
 
         <Button
                 android:id="@+id/previous_day_btn"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="true"
                 android:layout_margin="8dp"
-                android:text="@string/previous_day" />
+                android:layout_toStartOf="@id/space"
+                android:text="@string/previous_day"
+                app:shapeAppearance="@style/roundedButton" />
+
+        <Space
+                android:id="@+id/space"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
 
         <Button
                 android:id="@+id/next_day_btn"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_margin="8dp"
-                android:text="@string/next_day" />
+                android:layout_toEndOf="@id/space"
+                android:text="@string/next_day"
+                app:shapeAppearance="@style/roundedButton" />
     </RelativeLayout>
 </RelativeLayout>

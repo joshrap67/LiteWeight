@@ -87,7 +87,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
         IntentFilter receiverActions = new IntentFilter();
         receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);

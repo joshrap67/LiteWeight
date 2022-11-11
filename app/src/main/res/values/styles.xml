@@ -39,7 +39,7 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="colorError">@color/error</item>
+        <item name="colorError">@color/login_activity_error</item>
         <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
     </style>
 
@@ -56,8 +56,8 @@
         <item name="expandedHintEnabled">false</item>
 
         <item name="boxStrokeColor">@color/signin_activity_box_color</item>
-        <item name="hintTextColor">@color/signin_activity_outline_box_focused_color</item>
-        <item name="android:textColorHint">@color/signin_activity_outline_box_unfocused_color</item>
+        <item name="hintTextColor">@color/login_activity_outline_box_focused_color</item>
+        <item name="android:textColorHint">@color/login_activity_outline_box_unfocused_color</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
@@ -120,4 +120,10 @@
         <item name="cornerSizeBottomRight">0dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
+
+    <style name="roundedButton">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>

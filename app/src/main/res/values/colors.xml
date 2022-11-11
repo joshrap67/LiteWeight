@@ -4,35 +4,31 @@
     <color name="color_accent">#fff</color>
     <color name="default_text_color">#fff</color>
     <color name="hint_color">#BEFFFFFF</color>
+    <color name="deny_color">#2d4440</color>
     <color name="color_control">#02F88F</color>
-    <color name="row_activated">#303030</color>
     <color name="notification_color">#FFFFFF</color>
-    <color name="logo_background">#0b2027</color>
-    <color name="options_background">#303030</color>
     <color name="divider_color">#75FFFFFF</color>
     <color name="nav_item_selected">#02F88F</color>
     <color name="transparent">#00FFFFFF</color>
+
+    <color name="row_activated">#303030</color>
+    <color name="options_background">#303030</color>
     <color name="exercise_row_background">#80303030</color>
     <color name="week_card_background">#CD303030</color>
     <color name="day_card_background">#424242</color>
-    <color name="deny_color">#2d4440</color>
     <color name="window_background">#121212</color>
     <color name="dialog_window_background">#424242</color>
-    <!-- todo organize better -->
-    <color name="login_divider_color">#c0c0c0</color>
-
-    <color name="semi_transparent">#50000000</color>
+    <color name="logo_background">#0b2027</color>
 
     <color name="workout_activity_outline_box_unfocused_color">#BEFFFFFF</color>
     <color name="workout_activity_outline_box_focused_color">#30C272</color>
 
-    <color name="signin_activity_outline_box_unfocused_color">#E6FFFFFF</color>
-    <!-- todo   gotta get a better color-->
-    <color name="signin_activity_outline_box_focused_color">#E600FF99</color>
-
+    <color name="login_divider_color">#c0c0c0</color>
+    <color name="semi_transparent">#50000000</color>
+    <color name="login_activity_outline_box_unfocused_color">#E6FFFFFF</color>
+    <color name="login_activity_outline_box_focused_color">#E600FF99</color>
     <color name="login_gradient_start">@color/color_primary</color>
     <color name="login_gradient_center">#FF16384B</color>
-
     <color name="password_constraint_unsuccessful_match">#FFFFFF</color>
-    <color name="error">#FFFFFF</color>
+    <color name="login_activity_error">#FFFFFF</color>
 </resources>

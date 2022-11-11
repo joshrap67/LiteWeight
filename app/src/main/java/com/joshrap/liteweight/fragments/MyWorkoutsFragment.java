@@ -279,10 +279,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         int timesCompleted = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double average = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
-        String msg = "Times Completed: " + timesCompleted + "\n" +
-                "Average Percentage of Exercises Completed: " + formattedPercentage + "\n" +
-                "Total Number of Days in Workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
-                "Most Worked Focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
+        String msg = "Times completed: " + timesCompleted + "\n" +
+                "Average exercises completed: " + formattedPercentage + "\n" +
+                "Total days in workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
+                "Most frequent focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
         statisticsTV.setText(msg);
     }
 

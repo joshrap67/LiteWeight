@@ -5,7 +5,7 @@
 
     <NumberPicker
             android:id="@+id/day_picker"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginHorizontal="24dp"

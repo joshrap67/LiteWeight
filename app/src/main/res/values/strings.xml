@@ -5,7 +5,7 @@
     <string name="nav_draw_close">Close Nav</string>
     <string name="workout_name_title">Workout Name</string>
     <string name="empty_workout_day">No exercises for this day</string>
-    <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all progress
+    <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all changes
     will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="video_switch_description">Provides a button in the more details section for each exercise in the current workout page that, when
     clicked, launches a video using the provided URL for the specific exercise.</string>
@@ -37,8 +37,8 @@
     <string name="default_reps_hint">Default Reps</string>
     <string name="default_details_hint">Default Details</string>
     <string name="nav_about">About</string>
-    <string name="restart_msg">Restart this workout and be taken back to the first day of the workout with all exercises unchecked?
-        \n\nThe statistics for this workout will be updated using the current workout progress.</string>
+    <string name="restart_msg">Restart this workout and return to the first day of the workout with all exercises unchecked?
+        \n\nThe statistics for this workout will be updated using the workout progress below.</string>
     <string name="start_button">START</string>
     <string name="stop_button">STOP</string>
     <string name="reset">RESET</string>
@@ -171,4 +171,5 @@
     <string name="alert">!</string>
     <string name="sort_exercises">Sort Exercises</string>
     <string name="drag_to_sort">Drag to sort</string>
+    <string name="my_account">My Account</string>
 </resources>

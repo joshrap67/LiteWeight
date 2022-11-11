@@ -87,7 +87,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
-    private TextView toolbarTitleTV, accountNotificationTV;
+    private TextView toolbarTitleTV;
     private NavigationView nav;
     private FragmentManager fragmentManager;
     private ArrayList<String> fragmentStack; // stack of fragment ids
@@ -308,12 +308,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         View headerView = nav.getHeaderView(0);
         ConstraintLayout navHeaderLayout = headerView.findViewById(R.id.nav_header_layout);
         navHeaderLayout.setOnClickListener(view -> {
-            goToAccountSettings();
+            goToMyAccount();
             drawer.closeDrawer(GravityCompat.START);
+            nav.setCheckedItem(R.id.nav_my_account);
         });
         TextView usernameTV = headerView.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
-        accountNotificationTV = headerView.findViewById(R.id.notification_tv);
         profilePicture = headerView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(user.getIcon()))
@@ -477,6 +477,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             if (!(getVisibleFragment() instanceof AboutFragment)) {
                 goToAbout();
             }
+        } else if (itemId == R.id.nav_my_account) {
+            if (!(getVisibleFragment() instanceof MyAccountFragment)) {
+                goToMyAccount();
+            }
         }
         return true;
     }
@@ -550,7 +554,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 nav.setCheckedItem(R.id.nav_about);
                 break;
             case Variables.ACCOUNT_TITLE:
-                goToAccountSettings();
+                goToMyAccount();
                 break;
             case Variables.BLOCKED_LIST_TITLE:
                 goToBlockedList();
@@ -809,13 +813,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     public void updateAccountNotificationIndicator() {
         // check if there are any unseen notifications for friend requests
-        boolean showAlert = false;
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
         for (String username : user.getFriendRequests().keySet()) {
             if (!user.getFriendRequests().get(username).isSeen()) {
-                showAlert = true;
+                view.setText(R.string.alert);
+                return;
             }
         }
-        accountNotificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
     }
 
     public void updateReceivedWorkoutNotificationIndicator() {
@@ -933,7 +937,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 .commit();
     }
 
-    public void goToAccountSettings() {
+    public void goToMyAccount() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_TITLE);
         fragmentStack.add(0, Variables.ACCOUNT_TITLE);
