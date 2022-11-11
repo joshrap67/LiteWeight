@@ -6,8 +6,8 @@
     <item>
         <bitmap
                 android:gravity="center"
-                android:transitionName="app_logo"
-                android:src="@drawable/app_icon_no_background" />
+                android:src="@drawable/foreground"
+                android:transitionName="app_logo" />
     </item>
 
 </layer-list>
