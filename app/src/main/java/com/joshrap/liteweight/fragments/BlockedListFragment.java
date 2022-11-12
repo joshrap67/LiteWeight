@@ -160,7 +160,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
-                String username = usernameInput.getText().toString().trim();
+                // usernames are case insensitive!
+                String username = usernameInput.getText().toString().trim().toLowerCase();
                 List<String> blockedUsers = new ArrayList<>(blocked);
                 String errorMsg = ValidatorUtils.validUserToBlock(user.getUsername(), username, blockedUsers);
                 if (errorMsg != null) {

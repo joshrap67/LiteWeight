@@ -80,7 +80,7 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
-    private TextView selectedWorkoutTV, statisticsTV;
+    private TextView selectedWorkoutTV, timesCompletedTV, completionRateTV, totalDaysTV, mostFrequentFocusTV;
     private ListView workoutListView;
     private AlertDialog alertDialog;
     private User user;
@@ -209,7 +209,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         workoutListView = view.findViewById(R.id.workout_list_view);
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_tv);
-        statisticsTV = view.findViewById(R.id.statistics_tv);
+        totalDaysTV = view.findViewById(R.id.total_days_tv);
+        mostFrequentFocusTV = view.findViewById(R.id.most_frequent_focus_tv);
+        completionRateTV = view.findViewById(R.id.completion_rate_tv);
+        timesCompletedTV = view.findViewById(R.id.times_completed_tv);
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         updateStatisticsTV();
 
@@ -279,11 +282,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         int timesCompleted = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getTimesCompleted();
         double average = user.getWorkoutMetas().get(currentWorkout.getWorkoutId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
-        String msg = "Times completed: " + timesCompleted + "\n" +
-                "Average exercises completed: " + formattedPercentage + "\n" +
-                "Total days in workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
-                "Most frequent focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
-        statisticsTV.setText(msg);
+//        String msg = "Times completed: " + timesCompleted + "\n" +
+//                "Average exercises completed: " + formattedPercentage + "\n" +
+//                "Total days in workout: " + currentWorkout.getRoutine().getTotalNumberOfDays() + "\n" +
+//                "Most frequent focus: " + WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", ");
+        timesCompletedTV.setText(Integer.toString(timesCompleted));
+        totalDaysTV.setText(Integer.toString(currentWorkout.getRoutine().getTotalNumberOfDays()));
+        completionRateTV.setText(formattedPercentage);
+        mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", "));
+
     }
 
     /**
@@ -504,7 +511,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.setOnShowListener(dialogInterface -> {
             Button shareButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             shareButton.setOnClickListener(view -> {
-                String username = usernameInput.getText().toString().trim();
+                // usernames are case insensitive!
+                String username = usernameInput.getText().toString().trim().toLowerCase();
                 String errorMsg = ValidatorUtils.validUserToSendWorkout(user.getUsername(), username);
                 if (errorMsg != null) {
                     usernameInputLayout.setError(errorMsg);

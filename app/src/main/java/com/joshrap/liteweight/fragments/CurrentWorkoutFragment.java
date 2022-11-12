@@ -79,8 +79,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private UserWithWorkout userWithWorkout;
     private ClockBottomFragment clockBottomFragment;
 
-    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT} // todo kill these animations?
-
+    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT}
 
     @Inject
     AlertDialog loadingDialog;

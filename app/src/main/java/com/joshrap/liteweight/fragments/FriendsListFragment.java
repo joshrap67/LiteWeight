@@ -71,6 +71,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -432,7 +433,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
-                String friendUsername = friendInput.getText().toString().trim();
+                // usernames are case insensitive!
+                String friendUsername = friendInput.getText().toString().trim().toLowerCase();
                 List<String> existingFriends = new ArrayList<>();
                 List<String> existingFriendRequests = new ArrayList<>();
                 for (Friend friend : friends) {

@@ -172,4 +172,8 @@
     <string name="sort_exercises">Sort Exercises</string>
     <string name="drag_to_sort">Drag to sort</string>
     <string name="my_account">My Account</string>
+    <string name="times_completed">Times Completed</string>
+    <string name="total_days">Total Days</string>
+    <string name="average_completion_rate">Exercise Completion Average</string>
+    <string name="most_frequent_focus">Most frequent focus</string>
 </resources>
