@@ -155,7 +155,15 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
         Button previewBtn = view.findViewById(R.id.preview_video_btn);
-        previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
+        previewBtn.setOnClickListener(v -> {
+            alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle("Launch Video")
+                    .setMessage(R.string.launch_video_msg)
+                    .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
+                    .setNegativeButton("No", null)
+                    .create();
+            alertDialog.show();
+        });
         clipboardBtn.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));

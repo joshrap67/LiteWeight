@@ -61,6 +61,7 @@
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
     <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
     <string name="done_msg">Done</string>
+    <string name="done_sorting_msg">Done Sorting</string>
     <string name="empty_friend_list_msg">You have not added any friends. Click the button below to add some!</string>
     <string name="empty_friends_request_msg">You do not have any friend requests</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
@@ -151,7 +152,7 @@
     <string name="day_tag_description">Set an optional tag for this day. Tags can be used to easily distinguish one day from another. E.g. \"Bicep Day\"</string>
     <string name="day_tag_hint">Tag (leave empty for none)</string>
     <string name="new_workout_name_hint">New workout name</string>
-    <string name="add_exercise">Add Exercise</string>
+    <string name="add_exercises">Add Exercises</string>
     <string name="accept_friend_request">Accept Friend Request</string>
     <string name="decline_friend_request">Decline Friend Request</string>
     <string name="click_to_respond">Click to respond…</string>
@@ -176,4 +177,7 @@
     <string name="total_days">Total Days</string>
     <string name="average_completion_rate">Exercise Completion Average</string>
     <string name="most_frequent_focus">Most frequent focus</string>
+    <string name="day_details">Day Details</string>
+    <string name="launch_video_msg">Launch this video using an external application?</string>
+    <string name="save_and_return">Return</string>
 </resources>

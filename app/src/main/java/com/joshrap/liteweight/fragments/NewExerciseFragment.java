@@ -66,6 +66,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private int focusRotationAngle;
     private RelativeLayout focusRelativeLayout;
     private TextView focusCountTV;
+    private AlertDialog alertDialog;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
@@ -141,7 +142,15 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
         Button previewBtn = view.findViewById(R.id.preview_video_btn);
-        previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
+        previewBtn.setOnClickListener(v -> {
+            alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle("Launch Video")
+                    .setMessage(R.string.launch_video_msg)
+                    .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
+                    .setNegativeButton("No", null)
+                    .create();
+            alertDialog.show();
+        });
         clipboardBtn.setOnClickListener(v -> {
             ((WorkoutActivity) getActivity()).hideKeyboard();
             String url = urlInput.getText().toString().trim();
@@ -187,6 +196,9 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     public void hideAllDialogs() {
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
     }
 

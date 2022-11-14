@@ -679,8 +679,15 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 }
             });
 
-            videoButton.setOnClickListener(v ->
-                    ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()));
+            videoButton.setOnClickListener(v -> {
+                alertDialog = new AlertDialog.Builder(getContext())
+                        .setTitle("Launch Video")
+                        .setMessage(R.string.launch_video_msg)
+                        .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()))
+                        .setNegativeButton("No", null)
+                        .create();
+                alertDialog.show();
+            });
         }
 
         private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {

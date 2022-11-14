@@ -3,7 +3,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="4dp">
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/week_recycler_view"
@@ -40,7 +41,7 @@
                 android:text="@string/save"
                 android:textColor="@color/color_accent"
                 app:backgroundTint="@color/color_primary"
-                app:icon="@drawable/save_icon"
+                app:icon="@drawable/check_icon"
                 app:iconTint="@color/color_accent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

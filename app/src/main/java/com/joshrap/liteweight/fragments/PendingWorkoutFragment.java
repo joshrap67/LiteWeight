@@ -85,21 +85,18 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
     private User user;
-    private Button saveCustomSortButton;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
-    private boolean isRoutineDayViewShown, isSorting;
+    private boolean isRoutineDayViewShown, isSorting, isExistingWorkout, firstWorkout;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
-    private ExtendedFloatingActionButton saveWorkoutButton, addExercisesButton, addWeekButton;
+    private ExtendedFloatingActionButton saveWorkoutButton, addWeekButton, saveCustomSortButton, addExercisesButton;
     private AddExerciseAdapter addExerciseAdapter;
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
-    private boolean isExistingWorkout;
     private Workout pendingWorkout;
-    private boolean firstWorkout;
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
     @Inject
@@ -130,12 +127,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         if (isExistingWorkout) {
             pendingWorkout = new Workout(userWithWorkout.getWorkout());
             pendingRoutine = pendingWorkout.getRoutine();
-            ((WorkoutActivity) getActivity()).updateToolbarTitle(pendingWorkout.getWorkoutName());
         } else {
-            ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.CREATE_WORKOUT_TITLE);
             pendingRoutine = Routine.emptyRoutine();
             firstWorkout = !userWithWorkout.isWorkoutPresent();
         }
+
+        setToolbarTitle();
 
         exerciseIdToName = new HashMap<>();
         exerciseIdToCurrentMaxWeight = new HashMap<>();
@@ -158,7 +155,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         routineDayTitleTV = view.findViewById(R.id.day_title_tv);
         routineDayTagTV = view.findViewById(R.id.day_tag_tv);
 
-        saveCustomSortButton = view.findViewById(R.id.done_sorting_btn);
+        saveCustomSortButton = view.findViewById(R.id.done_sorting_fab);
         saveCustomSortButton.setOnClickListener(v -> finishCustomSortMode());
 
         // set up sorting options
@@ -319,6 +316,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekRecyclerView.setLayoutManager(weekLayoutManager);
     }
 
+    private void setToolbarTitle() {
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(isExistingWorkout
+                ? pendingWorkout.getWorkoutName()
+                : Variables.CREATE_WORKOUT_TITLE);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -344,10 +347,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
     }
 
-    public void switchToRoutineDayView(int week, int day) {
+    private void switchToRoutineDayView(int week, int day) {
         isRoutineDayViewShown = true;
         routineDayView.setVisibility(View.VISIBLE);
         routineView.setVisibility(View.GONE);
+        ((WorkoutActivity) getActivity()).updateToolbarTitle(getString(R.string.day_details));
+
         currentDayIndex = day;
         currentWeekIndex = week;
         routineDayTitleTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
@@ -355,10 +360,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         updateRoutineDayExerciseList();
     }
 
-    public void switchToRoutineView() {
+    private void switchToRoutineView() {
         isRoutineDayViewShown = false;
         routineDayView.setVisibility(View.GONE);
         routineView.setVisibility(View.VISIBLE);
+        setToolbarTitle();
+
         // this is required to get the exercise count to update
         weekAdapter.notifyItemChanged(currentWeekIndex, true);
     }
@@ -428,7 +435,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void enableCustomSortMode() {
         isSorting = true;
         addExercisesButton.hide();
-        saveCustomSortButton.setVisibility(View.VISIBLE);
+        saveCustomSortButton.show();
         saveWorkoutButton.hide();
         sortExercisesButton.setVisibility(View.INVISIBLE);
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
@@ -440,7 +447,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void finishCustomSortMode() {
         isSorting = false;
-        saveCustomSortButton.setVisibility(View.GONE);
+        saveCustomSortButton.hide();
         saveWorkoutButton.show();
         sortExercisesButton.setVisibility(View.VISIBLE);
         routineDayMoreIcon.setVisibility(View.VISIBLE);
