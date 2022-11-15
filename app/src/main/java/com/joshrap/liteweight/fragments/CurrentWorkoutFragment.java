@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -78,8 +80,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV, dayTagTV;
     private UserWithWorkout userWithWorkout;
     private ClockBottomFragment clockBottomFragment;
-
-    private enum RoutineListAnimateMode {NONE, FROM_LEFT, FROM_RIGHT}
 
     @Inject
     AlertDialog loadingDialog;
@@ -191,7 +191,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         setupDayButtons();
-        updateRoutineListUI(RoutineListAnimateMode.NONE);
+        updateRoutineListUI(false);
         updateWorkoutProgressBar();
 
         // setup clock UI
@@ -298,12 +298,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
                 currentDayIndex--;
-                updateRoutineListUI(RoutineListAnimateMode.FROM_RIGHT);
+                updateRoutineListUI(true);
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
                 currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
-                updateRoutineListUI(RoutineListAnimateMode.FROM_RIGHT);
+                updateRoutineListUI(true);
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
@@ -312,12 +312,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
-                updateRoutineListUI(RoutineListAnimateMode.FROM_LEFT);
+                updateRoutineListUI(true);
             } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
                 // there are more weeks, so go to the next week
                 currentDayIndex = 0;
                 currentWeekIndex++;
-                updateRoutineListUI(RoutineListAnimateMode.FROM_LEFT);
+                updateRoutineListUI(true);
             } else {
                 // on last week, prompt user to restart the workout
                 showRestartPopup();
@@ -358,7 +358,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     /**
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
-    private void updateRoutineListUI(RoutineListAnimateMode mode) {
+    private void updateRoutineListUI(boolean animate) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
@@ -371,11 +371,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        if (mode == RoutineListAnimateMode.FROM_LEFT) {
-            recyclerView.startAnimation(AndroidUtils.wiggleFromLeft(1));
-        } else if (mode == RoutineListAnimateMode.FROM_RIGHT) {
-            recyclerView.startAnimation(AndroidUtils.wiggleFromRight(1));
-        }
+        if (animate)
+            recyclerView.scheduleLayoutAnimation();
+
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         String dayTag = routine.getDay(currentWeekIndex, currentDayIndex).getTag();
         dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
@@ -408,7 +406,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
 
-                    updateRoutineListUI(RoutineListAnimateMode.NONE);
+                    updateRoutineListUI(true);
                     updateWorkoutProgressBar();
                 } else {
                     AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
@@ -485,7 +483,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     }
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
-                    updateRoutineListUI(RoutineListAnimateMode.NONE);
+                    updateRoutineListUI(false);
                 })
                 .create();
         alertDialog.show();
@@ -529,7 +527,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         class ViewHolder extends RecyclerView.ViewHolder {
             final CheckBox exerciseCheckbox;
             final Button expandButton;
-            final LinearLayout extraInfoContainer;
+//            final LinearLayout extraInfoContainer;
 
             final EditText detailsInput;
             final EditText weightInput;
@@ -547,7 +545,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
                 expandButton = itemView.findViewById(R.id.expand_btn);
-                extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
+                // todo might still need this for when only EditText. if at bottom of list and expand there is a weird jump. if textinputlayout is cause of lag then linear layout should be fine to keep
+//                extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
                 videoButton = itemView.findViewById(R.id.launch_video_btn);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
@@ -577,9 +576,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         @NonNull
         @Override
         public RoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            long startTime = System.currentTimeMillis();
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
             View exerciseView = inflater.inflate(R.layout.row_exercise_active_workout, parent, false);
+            Log.i("fuck", "bindView time: " + (System.currentTimeMillis() - startTime));
             return new RoutineAdapter.ViewHolder(exerciseView);
         }
 
@@ -691,7 +692,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.extraInfoContainer.setVisibility(View.VISIBLE);
+//            holder.extraInfoContainer.setVisibility(View.VISIBLE);
+            holder.weightInputLayout.setVisibility(View.VISIBLE);
+            holder.setsInputLayout.setVisibility(View.VISIBLE);
+            holder.repsInputLayout.setVisibility(View.VISIBLE);
+            holder.detailsInputLayout.setVisibility(View.VISIBLE);
+            holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
+
             holder.expandButton.setText(R.string.done_all_caps);
             holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
 
@@ -699,7 +706,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setCollapsedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.extraInfoContainer.setVisibility(View.GONE);
+//            holder.extraInfoContainer.setVisibility(View.GONE);
+            holder.weightInputLayout.setVisibility(View.GONE);
+            holder.setsInputLayout.setVisibility(View.GONE);
+            holder.repsInputLayout.setVisibility(View.GONE);
+            holder.detailsInputLayout.setVisibility(View.GONE);
+            holder.videoButton.setVisibility(View.GONE);
 
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);

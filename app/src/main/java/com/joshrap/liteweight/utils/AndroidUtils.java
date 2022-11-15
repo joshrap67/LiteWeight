@@ -49,21 +49,6 @@ public class AndroidUtils {
         return shake;
     }
 
-    // used to shake a view to grab attention of user, not to signal error
-    public static TranslateAnimation wiggleFromLeft(int shakeCycles) {
-        TranslateAnimation shake = new TranslateAnimation(-10, 0, 0, 0);
-        shake.setDuration(400);
-        shake.setInterpolator(new CycleInterpolator(shakeCycles));
-        return shake;
-    }
-
-    public static TranslateAnimation wiggleFromRight(int shakeCycles) {
-        TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
-        shake.setDuration(400);
-        shake.setInterpolator(new CycleInterpolator(shakeCycles));
-        return shake;
-    }
-
     public static void showErrorDialog(String title, String msg, Context context) {
         if (context == null) {
             return;

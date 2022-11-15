@@ -403,6 +403,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             sharedRoutineRowModels.add(exerciseRowModel);
         }
 
+        // todo animations?
         SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits);
         browseRecyclerView.setAdapter(routineAdapter);
         browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
