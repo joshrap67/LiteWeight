@@ -18,6 +18,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -81,6 +83,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private RelativeLayout browseContainer;
     private String receivedWorkoutId;
     private UserWithWorkout userWithWorkout;
+
+    private enum AnimationDirection {NONE, FROM_LEFT, FROM_RIGHT}
 
     @Inject
     WorkoutRepository workoutRepository;
@@ -326,7 +330,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                         sharedWorkout = resultStatus.getData();
                         sharedRoutine = sharedWorkout.getRoutine();
                         setupButtons();
-                        updateRoutineListUI();
+                        updateRoutineListUI(AnimationDirection.NONE);
                     } else {
                         AndroidUtils.showErrorDialog("Load Workout Error", resultStatus.getErrorMessage(), getContext());
                     }
@@ -345,24 +349,24 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
                 currentDayIndex--;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_LEFT);
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
                 currentDayIndex = sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_LEFT);
             }
         });
         forwardButton.setOnClickListener(v -> {
             if (currentDayIndex + 1 < sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_RIGHT);
             } else if (currentWeekIndex + 1 < sharedRoutine.getNumberOfWeeks()) {
                 // there are more weeks
                 currentDayIndex = 0;
                 currentWeekIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_RIGHT);
             }
         });
     }
@@ -394,7 +398,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     /**
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
-    private void updateRoutineListUI() {
+    private void updateRoutineListUI(AnimationDirection animationDirection) {
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
         List<SharedRoutineAdapter.SharedRoutineRowModel> sharedRoutineRowModels = new ArrayList<>();
@@ -403,10 +407,23 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             sharedRoutineRowModels.add(exerciseRowModel);
         }
 
-        // todo animations?
         SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits);
         browseRecyclerView.setAdapter(routineAdapter);
         browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        LayoutAnimationController animation = null;
+        switch (animationDirection) {
+            case FROM_LEFT:
+                animation = AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_from_left);
+                break;
+            case FROM_RIGHT:
+                animation = AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_from_right);
+                break;
+        }
+
+        if (animation != null) {
+            browseRecyclerView.setLayoutAnimation(animation);
+        }
 
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         String dayTag = sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();
@@ -459,7 +476,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                             count++;
                         }
                     }
-                    updateRoutineListUI();
+                    updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                 })
                 .create();
         alertDialog.show();

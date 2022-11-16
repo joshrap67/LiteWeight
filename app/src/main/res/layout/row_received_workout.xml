@@ -38,8 +38,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_marginEnd="4dp"
                 android:textSize="14sp"
-                tools:text="Sent 10/16/2020" />
+                tools:text="10/16/2020 09:32 AM    *" />
     </RelativeLayout>
 
     <RelativeLayout

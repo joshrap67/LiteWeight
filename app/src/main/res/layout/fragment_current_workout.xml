@@ -71,7 +71,6 @@
             android:layout_marginTop="8dp"
             android:paddingHorizontal="4dp"
             android:scrollbarStyle="outsideInset"
-            android:layoutAnimation="@anim/layout_animation_from_bottom"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"

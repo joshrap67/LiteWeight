@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
+
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -549,13 +550,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 }
             });
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSender()));
-            dateSentTv.setText(DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent()));
+            String dateSent = DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent());
+            if (!receivedWorkout.isSeen()) {
+                dateSent += "   *";
+                dateSentTv.setTypeface(dateSentTv.getTypeface(), Typeface.BOLD);
+            }
+            dateSentTv.setText(dateSent);
 
             String workoutName = receivedWorkout.getWorkoutName();
-            if (!receivedWorkout.isSeen()) {
-                // if unseen, add ! to catch user's attention
-                workoutName += "  (!)";
-            }
             workoutNameTV.setText(workoutName);
             RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {

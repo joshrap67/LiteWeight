@@ -8,8 +8,6 @@
         android:layout_marginVertical="10dp"
         android:animateLayoutChanges="true"
         android:background="@drawable/exercise_row_background"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:padding="6dp">
 
     <CheckBox
