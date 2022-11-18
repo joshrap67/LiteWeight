@@ -151,8 +151,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         forwardButton = view.findViewById(R.id.next_day_btn);
         backButton = view.findViewById(R.id.previous_day_btn);
 
-        ImageButton moreIcon = view.findViewById(R.id.day_more_icon_btn);
-        final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), moreIcon);
+        Button respondIcon = view.findViewById(R.id.respond_btn);
+        final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), respondIcon);
         Menu moreMenu = dropDownRoutineDayMenu.getMenu();
         final int acceptWorkoutId = 0;
         final int declineWorkoutId = 1;
@@ -181,7 +181,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             }
             return false;
         });
-        moreIcon.setOnClickListener(v -> dropDownRoutineDayMenu.show());
+        respondIcon.setOnClickListener(v -> dropDownRoutineDayMenu.show());
 
         getReceivedWorkout(receivedWorkoutId);
         return view;
@@ -208,6 +208,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 .setPositiveButton("Yes", (dialogInterface, i) -> {
                     currentDayIndex = 0;
                     currentWeekIndex = 0;
+                    // user has acknowledged this update, so mark it as seen
+                    SharedWorkoutMeta workoutMeta = user.getReceivedWorkouts().get(receivedWorkoutId);
+                    workoutMeta.setSeen(true);
+                    setReceivedWorkoutSeen(receivedWorkoutId);
+
                     getReceivedWorkout(receivedWorkoutId);
                 })
                 .setNegativeButton("No", null)
@@ -215,11 +220,15 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         alertDialog.show();
     }
 
-    /**
-     * Prompt the user if they want to rename the current workout.
-     *
-     * @param receivedWorkout workout that is currently being browsed.
-     */
+    private void setReceivedWorkoutSeen(String workoutId) {
+        // blind send for marking a workout read for now
+        user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+
+        ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> this.workoutRepository.setReceivedWorkoutSeen(workoutId));
+    }
+
     private void workoutNameAlreadyExistsPopup(final SharedWorkout receivedWorkout) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
         EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);

@@ -191,14 +191,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
 
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
-
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
 
@@ -279,8 +271,22 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
             markAllFriendRequestsSeen();
         }
+
+        ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
         hideAllDialogs();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
     }
 
     @Override

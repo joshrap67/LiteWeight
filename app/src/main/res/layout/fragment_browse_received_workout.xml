@@ -25,7 +25,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginHorizontal="8dp"
-                android:layout_toStartOf="@id/day_more_icon_btn"
+                android:layout_toStartOf="@id/respond_btn"
                 android:background="?android:selectableItemBackground"
                 android:fontFamily="@font/roboto_thin"
                 android:textSize="40sp"
@@ -42,14 +42,15 @@
                 android:textStyle="italic"
                 tools:text="Shoulders Day " />
 
-        <ImageButton
-                android:id="@+id/day_more_icon_btn"
+        <Button
+                android:id="@+id/respond_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="@string/more_options"
-                android:src="@drawable/more_icon" />
+                android:src="@drawable/more_icon"
+                android:text="@string/respond" />
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/browse_recycler_view"

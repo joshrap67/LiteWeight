@@ -62,8 +62,8 @@
     <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
     <string name="done_msg">Done</string>
     <string name="done_sorting_msg">Done Sorting</string>
-    <string name="empty_friend_list_msg">You have not added any friends. Click the button below to add some!</string>
-    <string name="empty_friends_request_msg">You do not have any friend requests</string>
+    <string name="empty_friend_list_msg">Your friends list is empty</string>
+    <string name="empty_friends_request_msg">No pending requests</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
     <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. A code will be sent to the email associated with that account.</string>
@@ -131,7 +131,7 @@
     <string name="my_workouts">My Workouts</string>
     <string name="copy_url">Copy Url</string>
     <string name="preview_url">Preview URL</string>
-    <string name="no_workouts_to_send">You have no workouts to send.</string>
+    <string name="no_workouts_to_send">You have no workouts to send</string>
     <string name="associated_workouts">Associated Workouts</string>
     <string name="focus_selected_count"><i>%1$d selected </i></string>
     <string name="terms_and_conditions">Terms and Conditions</string>
@@ -178,4 +178,5 @@
     <string name="day_details">Day Details</string>
     <string name="launch_video_msg">Launch this video using an external application?</string>
     <string name="save_and_return">Return</string>
+    <string name="respond">Respond</string>
 </resources>

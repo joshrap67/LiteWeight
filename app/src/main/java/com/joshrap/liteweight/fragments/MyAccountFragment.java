@@ -89,11 +89,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
-
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
         return inflater.inflate(R.layout.fragment_my_account, container, false);
@@ -143,6 +138,15 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
     }
 
     @Override

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -7,15 +8,16 @@
         android:layout_marginEnd="12dp"
         android:orientation="vertical">
 
-    <ImageButton
-            android:id="@+id/mark_all_seen_icon_btn"
+    <Button
+            android:id="@+id/mark_all_seen_btn"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="?android:selectableItemBackgroundBorderless"
+            android:textColor="@color/color_accent"
             android:contentDescription="@string/mark_all_seen"
-            android:src="@drawable/mark_all_read_icon"
-            android:tooltipText="Mark all seen" />
+            android:text="@string/mark_all_seen"
+            app:icon="@drawable/mark_all_read_icon" />
 
     <TextView
             android:id="@+id/empty_view_tv"
@@ -32,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/loading_progress_bar"
-            android:layout_below="@id/mark_all_seen_icon_btn"
+            android:layout_below="@id/mark_all_seen_btn"
             android:layout_marginTop="8dp"
             android:paddingHorizontal="4dp"
             android:scrollbarStyle="outsideInset"

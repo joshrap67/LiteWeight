@@ -33,6 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginHorizontal="16dp"
+                android:textAlignment="center"
                 android:text="@string/empty_friend_list_msg"
                 android:textSize="24sp"
                 tools:visibility="gone" />

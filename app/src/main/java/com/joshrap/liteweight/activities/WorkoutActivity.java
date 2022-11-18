@@ -816,6 +816,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     public void updateAccountNotificationIndicator() {
         // check if there are any unseen notifications for friend requests
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        view.setText(null);
         for (String username : user.getFriendRequests().keySet()) {
             if (!user.getFriendRequests().get(username).isSeen()) {
                 view.setText(R.string.alert);

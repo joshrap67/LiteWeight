@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -81,8 +80,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private List<SharedWorkoutMeta> receivedWorkouts;
     private ProgressBar listLoadingIcon;
     private RecyclerView receivedWorkoutsRecyclerView;
-    private ImageButton markAllReceivedWorkoutsSeen;
-    private TextView emptyView;
+    private Button markAllReceivedWorkoutsSeenButton;
+    private TextView emptyViewTV;
     private BottomSheetDialog bottomSheetDialog;
     private AlertDialog alertDialog;
     private ReceivedWorkoutsAdapter receivedWorkoutsAdapter;
@@ -136,19 +135,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         isGettingNextBatch = false;
         receivedWorkouts = new ArrayList<>();
 
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
-
         View view = inflater.inflate(R.layout.fragment_received_workouts, container, false);
 
         listLoadingIcon = view.findViewById(R.id.loading_progress_bar);
         listLoadingIcon.setVisibility(View.INVISIBLE);
         receivedWorkoutsRecyclerView = view.findViewById(R.id.received_workouts_recycler_view);
-        emptyView = view.findViewById(R.id.empty_view_tv);
-        markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_seen_icon_btn);
+        emptyViewTV = view.findViewById(R.id.empty_view_tv);
+        markAllReceivedWorkoutsSeenButton = view.findViewById(R.id.mark_all_seen_btn);
         updateAllSeenButton();
-        markAllReceivedWorkoutsSeen.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
+        markAllReceivedWorkoutsSeenButton.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
 
         receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
         sortReceivedWorkouts();
@@ -184,6 +179,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
     }
 
     @Override
@@ -294,12 +297,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             isGettingNextBatch = true;
             getNextBatch();
         } else {
-            emptyView.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
+            emptyViewTV.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
         }
     }
 
     private void updateAllSeenButton() {
-        markAllReceivedWorkoutsSeen.setVisibility(user.getUnseenReceivedWorkouts() > 0 ? View.VISIBLE : View.GONE);
+        markAllReceivedWorkoutsSeenButton.setVisibility(user.getUnseenReceivedWorkouts() > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void blockUserPopup(String username) {
@@ -565,7 +568,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     // when user clicks on the workout, mark it as seen
                     setReceivedWorkoutSeen(receivedWorkout.getWorkoutId());
                     receivedWorkout.setSeen(true);
-                    workoutNameTV.setText(receivedWorkout.getWorkoutName());
+                    // remove unseen indicator, doing it this way vs notifyDataChanged avoids weird flash
+                    dateSentTv.setText(DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent()));
                 }
 
                 bottomSheetDialog = new BottomSheetDialog(getActivity());
