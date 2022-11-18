@@ -76,9 +76,11 @@
                 android:longClickable="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-            android:id="@+id/sign_in_forgot_password"
-            android:layout_width="wrap_content"
+    <Button
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:textColor="@color/color_accent"
+            android:id="@+id/sign_in_forgot_password_btn"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/sign_in_password_input_layout"
             android:layout_centerHorizontal="true"
@@ -89,7 +91,7 @@
             android:id="@+id/sign_in_primary_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sign_in_forgot_password"
+            android:layout_below="@id/sign_in_forgot_password_btn"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="@color/semi_transparent"

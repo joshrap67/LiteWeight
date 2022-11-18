@@ -594,6 +594,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void copyDayAsNew() {
+        // todo allow to copy as new day to a specific week?
         final RoutineDay dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
         currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
         pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);

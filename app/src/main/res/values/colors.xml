@@ -10,6 +10,7 @@
     <color name="divider_color">#75FFFFFF</color>
     <color name="nav_item_selected">#02F88F</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="subtitle_color">#CDCDCD</color>
 
     <color name="row_activated">#303030</color>
     <color name="options_background">#303030</color>

@@ -40,14 +40,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textSize="32sp"
+                    android:fontFamily="@font/roboto_thin"
+                    android:textSize="34sp"
                     tools:text="Week 10 Day 7" />
 
             <TextView
                     android:id="@+id/day_tag_tv"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:textStyle="italic"
+                    android:textColor="@color/subtitle_color"
                     tools:text="Shoulders Day" />
         </LinearLayout>
 

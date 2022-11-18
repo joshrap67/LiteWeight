@@ -18,23 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <Space
-                android:id="@+id/placeholder_icon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true" />
-
         <TextView
                 android:id="@+id/day_title_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="8dp"
                 android:layout_toStartOf="@id/day_more_icon_btn"
-                android:layout_toEndOf="@id/placeholder_icon"
                 android:background="?android:selectableItemBackground"
-                android:textAlignment="center"
-                android:textSize="36sp"
+                android:fontFamily="@font/roboto_thin"
+                android:textSize="40sp"
                 tools:text="Week 1 Day 1" />
 
         <TextView
@@ -42,8 +36,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/day_title_tv"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center"
+                android:layout_marginHorizontal="8dp"
+                android:textColor="@color/subtitle_color"
                 android:textSize="13sp"
                 android:textStyle="italic"
                 tools:text="Shoulders Day " />

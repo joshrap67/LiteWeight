@@ -159,8 +159,8 @@ public class SignInActivity extends AppCompatActivity {
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
         });
 
-        TextView resetPasswordTV = findViewById(R.id.sign_in_forgot_password);
-        resetPasswordTV.setOnClickListener(view -> {
+        Button resetPasswordButton = findViewById(R.id.sign_in_forgot_password_btn);
+        resetPasswordButton.setOnClickListener(view -> {
             usernameInputSignIn.setText(null);
             passwordInputSignIn.setText(null);
             // erase any errors before switching to the sign up page

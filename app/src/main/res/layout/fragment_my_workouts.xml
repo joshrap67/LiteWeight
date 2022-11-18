@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/current_workout"
                     android:textAllCaps="true"
-                    android:textColor="#BDBDBD"
+                    android:textColor="@color/subtitle_color"
                     android:textStyle="italic" />
         </LinearLayout>
 
@@ -86,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/times_completed"
                         android:textAllCaps="true"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/subtitle_color"
                         android:textSize="12sp"
                         android:textStyle="italic" />
             </LinearLayout>
@@ -108,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/total_days"
                         android:textAllCaps="true"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/subtitle_color"
                         android:textSize="12sp"
                         android:textStyle="italic" />
             </LinearLayout>
@@ -137,7 +137,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/average_completion_rate"
                         android:textAllCaps="true"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/subtitle_color"
                         android:textSize="12sp"
                         android:textStyle="italic" />
             </LinearLayout>
@@ -159,7 +159,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/most_frequent_focus"
                         android:textAllCaps="true"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/subtitle_color"
                         android:textSize="12sp"
                         android:textStyle="italic" />
             </LinearLayout>
