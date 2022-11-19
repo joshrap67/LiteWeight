@@ -2,6 +2,8 @@ package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
 import android.content.Context;
@@ -62,7 +64,6 @@ public class SignInActivity extends AppCompatActivity {
     private static final int CONFIRM_EMAIL_VIEW = 2;
     private static final int RESET_PASSWORD_VIEW = 3;
     private static final String passwordNotMatchingMsg = "Passwords do not match.";
-    private static final int RC_SIGN_IN = 69;
 
     private EditText usernameInputSignIn, passwordInputSignIn, emailInputSignUp, passwordConfirmInputSignUp,
             usernameInputSignUp, passwordInputSignUp;
@@ -159,8 +160,8 @@ public class SignInActivity extends AppCompatActivity {
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
         });
 
-        Button resetPasswordButton = findViewById(R.id.sign_in_forgot_password_btn);
-        resetPasswordButton.setOnClickListener(view -> {
+        TextView resetPasswordTV = findViewById(R.id.sign_in_forgot_password_tv);
+        resetPasswordTV.setOnClickListener(view -> {
             usernameInputSignIn.setText(null);
             passwordInputSignIn.setText(null);
             // erase any errors before switching to the sign up page
@@ -202,19 +203,21 @@ public class SignInActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    handleGoogleSignInResult(task);
+                }
+            });
+
     private void googleSignIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_OK) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleGoogleSignInResult(task);
-        }
+        googleSignInLauncher.launch(signInIntent);
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -241,7 +244,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewFlipper.getDisplayedChild() == SIGN_UP_VIEW) {
+        if (viewFlipper.getDisplayedChild() == SIGN_UP_VIEW || viewFlipper.getDisplayedChild() == RESET_PASSWORD_VIEW) {
             resetViewsToSignInFromSignUp();
             viewFlipper.setInAnimation(this, android.R.anim.slide_in_left);
             viewFlipper.setOutAnimation(this, android.R.anim.slide_out_right);

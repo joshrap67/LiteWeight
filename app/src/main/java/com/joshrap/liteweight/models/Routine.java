@@ -164,6 +164,14 @@ public class Routine implements Model, Iterable<RoutineWeek> {
         this.getDay(week, day).deleteExercise(exerciseId);
     }
 
+    public void deleteExerciseFromRoutine(final String exerciseId) {
+        for (RoutineWeek week : this) {
+            for (RoutineDay day : week) {
+                day.deleteExercise(exerciseId);
+            }
+        }
+    }
+
     public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
         this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
     }

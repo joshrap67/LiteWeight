@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.graphics.Typeface;
@@ -38,7 +39,6 @@ import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -371,7 +371,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     // deleted successfully, so delete everything
                     user.getOwnedExercises().remove(exerciseId);
                     if (userWithWorkout.getWorkout() != null) {
-                        WorkoutUtils.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
+                        userWithWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
                     }
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {

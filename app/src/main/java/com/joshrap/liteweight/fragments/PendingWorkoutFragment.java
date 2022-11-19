@@ -68,9 +68,11 @@ import com.joshrap.liteweight.utils.WorkoutUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -81,7 +83,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private RecyclerView weekRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
     private AlertDialog alertDialog;
     private TextView routineDayTitleTV, exerciseNotFoundTV, emptyDayTV, routineDayTagTV;
-    private String spinnerFocus;
+    private String selectedFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
     private User user;
@@ -98,6 +100,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private RoutineDayAdapter routineDayAdapter;
     private Workout pendingWorkout;
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
+
+    private final String AllFocus = "All"; // bit of a hack for sure
 
     @Inject
     AlertDialog loadingDialog;
@@ -771,7 +775,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
         allOwnedExercises = new HashMap<>();
-        List<String> focusList = Variables.FOCUS_LIST;
+        List<String> focusList = new ArrayList<>(Variables.FOCUS_LIST);
         for (String focus : focusList) {
             allOwnedExercises.put(focus, new ArrayList<>());
         }
@@ -829,11 +833,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         });
 
         focusList.sort(String.CASE_INSENSITIVE_ORDER);
+        focusList.add(0, AllFocus);
+
         ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new PendingWorkoutFragment.FocusSpinnerListener());
         // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
-        focusSpinner.setSelection((spinnerFocus == null) ? 0 : focusList.indexOf(spinnerFocus));
+        focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
 
         alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Add Exercises")
@@ -847,7 +853,17 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
      * Displays all the exercises associated with the currently selected focus.
      */
     private void updateExerciseChoices() {
-        ArrayList<OwnedExercise> sortedExercises = new ArrayList<>(allOwnedExercises.get(spinnerFocus));
+        List<OwnedExercise> sortedExercises = new ArrayList<>();
+        if (selectedFocus.equals(AllFocus)) {
+            Set<OwnedExercise> ownedExercisesSet = new HashSet<>();
+            for (String focus : allOwnedExercises.keySet()) {
+                List<OwnedExercise> exercises = allOwnedExercises.get(focus);
+                ownedExercisesSet.addAll(exercises);
+            }
+            sortedExercises.addAll(ownedExercisesSet);
+        } else {
+            sortedExercises.addAll(allOwnedExercises.get(selectedFocus));
+        }
         Collections.sort(sortedExercises);
         addExerciseAdapter = new PendingWorkoutFragment.AddExerciseAdapter(sortedExercises);
         pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
@@ -859,7 +875,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private class FocusSpinnerListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            spinnerFocus = parent.getItemAtPosition(pos).toString();
+            selectedFocus = parent.getItemAtPosition(pos).toString();
             updateExerciseChoices(); // update choices for exercise based on this newly selected focus
         }
 

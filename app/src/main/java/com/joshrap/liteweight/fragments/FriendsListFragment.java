@@ -49,7 +49,6 @@ import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.DateUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -63,7 +62,6 @@ import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

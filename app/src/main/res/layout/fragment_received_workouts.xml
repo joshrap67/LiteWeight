@@ -14,9 +14,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:textColor="@color/color_accent"
             android:contentDescription="@string/mark_all_seen"
             android:text="@string/mark_all_seen"
+            android:textColor="@color/color_accent"
             app:icon="@drawable/mark_all_read_icon" />
 
     <TextView
@@ -26,6 +26,7 @@
             android:layout_centerVertical="true"
             android:layout_marginHorizontal="16dp"
             android:text="@string/empty_received_workouts_msg"
+            android:textAlignment="center"
             android:textSize="24sp"
             tools:visibility="gone" />
 

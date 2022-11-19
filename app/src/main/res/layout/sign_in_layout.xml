@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/sign_in_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -76,22 +75,24 @@
                 android:longClickable="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:textColor="@color/color_accent"
-            android:id="@+id/sign_in_forgot_password_btn"
+    <TextView
+            android:id="@+id/sign_in_forgot_password_tv"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/sign_in_password_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="@string/forgot_password_link" />
+            android:background="?selectableItemBackground"
+            android:text="@string/forgot_password_link"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/color_accent" />
 
     <Button
             android:id="@+id/sign_in_primary_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sign_in_forgot_password_btn"
+            android:layout_below="@id/sign_in_forgot_password_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="@color/semi_transparent"

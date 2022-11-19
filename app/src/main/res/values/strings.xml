@@ -29,7 +29,6 @@
     <string name="search_exercise_hint">Search exercise…</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
-    <string name="workout_list_title">Select to switch current workout</string>
     <string name="nav_workout_icon_title">Current Workout</string>
     <string name="nav_list_icon_title">My Workouts</string>
     <string name="nav_user_settings">App Settings</string>
@@ -60,7 +59,6 @@
     <string name="add_day_msg">ADD DAY</string>
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
     <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
-    <string name="done_msg">Done</string>
     <string name="done_sorting_msg">Done Sorting</string>
     <string name="empty_friend_list_msg">Your friends list is empty</string>
     <string name="empty_friends_request_msg">No pending requests</string>
@@ -110,7 +108,7 @@
     <string name="faq_transfer_title">I’m getting a new phone - do I need to transfer my data over to it?</string>
     <string name="faq_transfer">Nope, all data (except local app settings) is stored in the cloud!</string>
     <string name="faq_shared_workout_tv">I shared a workout to my friend and then changed it and they didn’t get the changes. What gives?</string>
-    <string name="empty_received_workouts_msg">You have not yet received any workouts</string>
+    <string name="empty_received_workouts_msg">No received workouts</string>
     <string name="new_workout_name">New Workout name</string>
     <string name="workout_name">Workout name</string>
     <string name="workout_name_exists_msg">You already have a workout with this name. In order to accept it you must enter a new name below.</string>
@@ -153,7 +151,6 @@
     <string name="add_exercises">Add Exercises</string>
     <string name="accept_friend_request">Accept Friend Request</string>
     <string name="decline_friend_request">Decline Friend Request</string>
-    <string name="click_to_respond">Click to respond…</string>
     <string name="create_workout">Create workout</string>
     <string name="watch_video">Watch Video</string>
     <string name="delete_exercise">Delete exercise</string>
@@ -177,7 +174,6 @@
     <string name="most_frequent_focus">Most frequent focus</string>
     <string name="day_details">Day Details</string>
     <string name="launch_video_msg">Launch this video using an external application?</string>
-    <string name="save_and_return">Return</string>
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
 </resources>

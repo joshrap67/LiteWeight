@@ -151,11 +151,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     @Override
                     public void onSuccess() {
                         changePictureButton.setVisibility(View.VISIBLE);
-                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        profilePicture.setImageDrawable(imageDrawable);
+                        setCircularImage(profilePicture);
                     }
 
                     @Override
@@ -164,6 +160,14 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     }
                 });
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    private void setCircularImage(ImageView profilePictureImageView) {
+        Bitmap imageBitmap = ((BitmapDrawable) profilePictureImageView.getDrawable()).getBitmap();
+        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+        imageDrawable.setCircular(true);
+        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+        profilePictureImageView.setImageDrawable(imageDrawable);
     }
 
     @Override
@@ -218,6 +222,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     final Uri uri = UCrop.getOutput(result.getData());
                     if (uri != null) {
                         profilePicture.setImageURI(uri);
+                        setCircularImage(profilePicture);
                         ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
                         try {
                             InputStream iStream = getActivity().getContentResolver().openInputStream(uri);

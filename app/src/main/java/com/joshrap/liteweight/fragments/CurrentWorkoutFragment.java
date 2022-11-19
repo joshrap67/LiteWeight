@@ -390,8 +390,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         String dayTag = routine.getDay(currentWeekIndex, currentDayIndex).getTag();
-        dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
-        dayTagTV.setText(dayTag + " "); // android cuts off italics on wrap content without trailing whitespace
+        dayTagTV.setVisibility(dayTag == null || dayTag.isEmpty() ? View.GONE : View.VISIBLE);
+        dayTagTV.setText(dayTag);
         updateButtonViews();
     }
 
@@ -590,11 +590,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         @NonNull
         @Override
         public RoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            long startTime = System.currentTimeMillis();
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
             View exerciseView = inflater.inflate(R.layout.row_exercise_active_workout, parent, false);
-            System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
             return new RoutineAdapter.ViewHolder(exerciseView);
         }
 

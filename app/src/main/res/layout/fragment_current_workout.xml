@@ -8,14 +8,14 @@
 
     <TextView
             android:id="@+id/day_title_tv"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:background="?android:selectableItemBackground"
             android:fontFamily="@font/roboto_thin"
             android:textSize="40sp"
-            app:layout_constraintBottom_toTopOf="@+id/workout_progress_container"
-            app:layout_constraintEnd_toStartOf="@id/day_tag_tv"
+            app:layout_constraintBottom_toTopOf="@+id/day_tag_tv"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Week 1 Day 1" />
@@ -30,8 +30,8 @@
             android:textStyle="italic"
             app:layout_constraintBottom_toTopOf="@+id/workout_progress_container"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/day_title_tv"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/day_title_tv"
             tools:text="Shoulders Day" />
 
     <FrameLayout
@@ -44,7 +44,7 @@
             app:layout_constraintBottom_toTopOf="@+id/routine_recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/day_title_tv">
+            app:layout_constraintTop_toBottomOf="@+id/day_tag_tv">
 
         <ProgressBar
                 android:id="@+id/workout_progress_bar"

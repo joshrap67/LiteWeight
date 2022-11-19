@@ -8,22 +8,8 @@ import com.joshrap.liteweight.models.User;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringJoiner;
 
 public class WorkoutUtils {
-
-    // todo move this to routine class... not sure why i made it static here. also unit test
-    public static void deleteExerciseFromRoutine(final String exerciseId, final Routine routine) {
-        if (routine == null) {
-            return;
-        }
-        for (RoutineWeek week : routine) {
-            for (RoutineDay day : week) {
-                day.deleteExercise(exerciseId);
-            }
-        }
-    }
-
     /**
      * Generates a day title in a standard format. E.g. W1:D2
      *
@@ -57,7 +43,7 @@ public class WorkoutUtils {
             }
         }
 
-        StringJoiner retVal = new StringJoiner(",", "", "");
+        String retVal = "";
         int max = 0;
         for (String focus : focusCount.keySet()) {
             int count = focusCount.get(focus);
@@ -68,9 +54,11 @@ public class WorkoutUtils {
         for (String focus : focusCount.keySet()) {
             int count = focusCount.get(focus);
             if (count == max) {
-                retVal.add(focus);
+                // previously I was merging all that matched the count but looks bad on UI so just return first occurrence of the max
+                retVal = focus;
+                break;
             }
         }
-        return retVal.toString();
+        return retVal;
     }
 }
