@@ -131,7 +131,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         // send broadcast to any fragments waiting on this model update
                         Intent broadcastIntent = new Intent();
                         broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, friendRequest.getUsername());
                         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
                         localBroadcastManager.sendBroadcast(broadcastIntent);
                     } catch (IOException e) {

@@ -111,26 +111,25 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             if (action == null) {
                 return;
             }
+            NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
             switch (action) {
                 case Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST:
-                    try {
-                        FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        friendRequests.add(0, friendRequest);
-                        sortFriendRequestList();
-                        friendRequestsAdapter.notifyDataSetChanged();
-                        checkEmptyList(tabLayout.getSelectedTabPosition());
+                    String friendRequestUsername = (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA);
+                    // bit of a hack but need to do this to ensure the memory addresses are the same. in general should not new anything up in these receivers
+                    FriendRequest newFriendRequest = user.getFriendRequests().get(friendRequestUsername);
+                    friendRequests.add(0, newFriendRequest);
+                    sortFriendRequestList();
+                    friendRequestsAdapter.notifyDataSetChanged();
+                    checkEmptyList(tabLayout.getSelectedTabPosition());
 
-                        Toast.makeText(getContext(), friendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
-                        tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests (!)");
+                    Toast.makeText(getContext(), newFriendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
+                    tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests (!)");
 
-                        // user is on this page, so no need to show a push notification
-                        NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                        if (mNotificationManager != null) {
-                            mNotificationManager.cancel(friendRequest.getUsername().hashCode());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    // user is on this page, so no need to show a push notification
+                    if (mNotificationManager != null) {
+                        mNotificationManager.cancel(newFriendRequest.getUsername().hashCode());
                     }
+
                     break;
                 case Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST: {
                     FriendRequest friendRequestToRemove = null;
@@ -172,7 +171,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
                     // user is on this page, so no need to show a push notification
                     for (String username : user.getFriends().keySet()) {
-                        NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                         if (mNotificationManager != null) {
                             mNotificationManager.cancel(username.hashCode());
                         }
@@ -225,14 +223,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         floatingActionButton.setOnClickListener(v -> sendFriendRequestPopup());
         tabLayout = view.findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Friends"), FRIENDS_POSITION);
-        boolean requestsUnseen = false;
-        for (FriendRequest friendRequest : friendRequests) {
-            if (!friendRequest.isSeen()) {
-                requestsUnseen = true;
-                break;
-            }
-        }
-        tabLayout.addTab(tabLayout.newTab().setText(requestsUnseen ? "Friend Requests (!)" : "Friend Requests"), REQUESTS_POSITION);
+        tabLayout.addTab(tabLayout.newTab().setText("Friend Requests"), REQUESTS_POSITION);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -323,6 +314,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void switchToFriendsList() {
+        boolean requestsUnseen = false;
+        for (FriendRequest friendRequest : friendRequests) {
+            if (!friendRequest.isSeen()) {
+                requestsUnseen = true;
+                break;
+            }
+        }
+        tabLayout.getTabAt(REQUESTS_POSITION).setText(requestsUnseen ? "Friend Requests (!)" : "Friend Requests");
         floatingActionButton.show();
         checkEmptyList(FRIENDS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
