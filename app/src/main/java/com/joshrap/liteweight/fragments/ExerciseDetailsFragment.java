@@ -332,7 +332,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                         originalExercise = user.getOwnedExercises().get(exerciseId);
                         initViews();
                     } else {
-                        AndroidUtils.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });
@@ -375,7 +375,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     }
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
-                    AndroidUtils.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
 
                 }
             });

@@ -100,7 +100,7 @@ public class AccountPreferencesFragment extends Fragment {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });

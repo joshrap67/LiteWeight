@@ -14,74 +14,70 @@
             android:layout_marginVertical="10dp"
             android:fadeScrollbars="true">
 
-        <LinearLayout
+        <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <RelativeLayout
+                    android:id="@+id/profile_picture_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="16dp"
-                    app:layout_constraintBottom_toTopOf="@+id/settings_scroll_view"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_marginHorizontal="16dp">
 
-                <TextView
-                        android:id="@+id/username_tv"
+                <ImageView
+                        android:id="@+id/profile_picture_image"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="8dp"
+                        android:contentDescription="@string/profile_picture"
+                        android:scaleType="fitXY"
+                        app:srcCompat="@mipmap/app_logo" />
+
+                <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="30sp"
-                        app:layout_constraintBottom_toTopOf="@+id/profile_picture_card_view"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="Username" />
-
-                <androidx.cardview.widget.CardView
-                        android:id="@+id/profile_picture_card_view"
-                        android:layout_width="250dp"
-                        android:layout_height="250dp"
-                        android:layout_marginVertical="8dp"
-                        app:cardCornerRadius="8dp"
-                        app:cardUseCompatPadding="true"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/username_tv">
-
-                    <ImageView
-                            android:id="@+id/profile_picture_image"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center"
-                            android:contentDescription="@string/profile_picture"
-                            android:scaleType="fitXY"
-                            app:srcCompat="@mipmap/app_logo" />
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/profile_picture_image"
+                        android:orientation="vertical">
 
                     <TextView
-                            android:id="@+id/change_picture_tv"
-                            android:layout_width="match_parent"
+                            android:id="@+id/username_tv"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal|bottom"
-                            android:layout_marginBottom="4dp"
-                            android:background="@drawable/gradient"
-                            android:text="@string/change"
-                            android:textAlignment="center"
-                            android:textColor="@android:color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                </androidx.cardview.widget.CardView>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                            android:layout_marginHorizontal="8dp"
+                            android:textSize="26sp"
+                            tools:text="Username" />
+
+                    <TextView
+                            android:id="@+id/email_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="8dp"
+                            android:textColor="@color/subtitle_color"
+                            android:textSize="13sp"
+                            tools:text="mikeoxhard@gmail.com" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <Button
+                    android:id="@+id/change_picture_btn"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/profile_picture_container"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/change" />
 
             <TextView
                     android:id="@+id/account_preferences_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_below="@id/change_picture_btn"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
@@ -94,8 +90,9 @@
                     android:id="@+id/blocked_list_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_below="@id/account_preferences_tv"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
@@ -108,8 +105,9 @@
                     android:id="@+id/friends_list_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_below="@id/blocked_list_tv"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
@@ -117,8 +115,7 @@
                     android:text="@string/friends_list"
                     android:textSize="25sp"
                     app:drawableEndCompat="@drawable/friends_icon" />
-        </LinearLayout>
-
+        </RelativeLayout>
     </ScrollView>
 
 

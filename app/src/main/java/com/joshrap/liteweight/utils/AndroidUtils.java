@@ -49,12 +49,12 @@ public class AndroidUtils {
         return shake;
     }
 
-    public static void showErrorDialog(String title, String msg, Context context) {
+    public static void showErrorDialog(String msg, Context context) {
         if (context == null) {
             return;
         }
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(title)
+                .setTitle("Error")
                 .setMessage(msg)
                 .setPositiveButton("Ok", null)
                 .create();

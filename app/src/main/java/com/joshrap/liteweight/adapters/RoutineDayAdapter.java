@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,7 +36,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final TextView exerciseTV;
         final Button expandButton;
         final ImageButton deleteButton;
-        final LinearLayout extraInfoContainer;
+        final RelativeLayout extraInfoContainer;
 
         final EditText detailsInput;
         final EditText weightInput;

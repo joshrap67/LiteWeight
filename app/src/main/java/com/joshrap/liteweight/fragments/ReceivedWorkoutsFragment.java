@@ -253,7 +253,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         receivedWorkoutsAdapter.refresh(receivedWorkouts);
                         updateAllSeenButton();
                     } else {
-                        AndroidUtils.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });
@@ -335,7 +335,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.getFriendRequests().remove(username);
                     user.getFriends().remove(username);
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -373,7 +373,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     updateAllSeenButton();
                     ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -400,7 +400,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
                     receivedWorkoutsAdapter.notifyDataSetChanged();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

@@ -274,7 +274,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                         user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
                         ((WorkoutActivity) getActivity()).finishFragment();
                     } else {
-                        AndroidUtils.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });

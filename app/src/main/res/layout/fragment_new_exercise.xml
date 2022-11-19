@@ -16,6 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:fadeScrollbars="true"
+            android:fillViewport="true"
             app:layout_constraintBottom_toTopOf="@id/save_fab"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

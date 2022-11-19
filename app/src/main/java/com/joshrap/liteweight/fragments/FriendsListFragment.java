@@ -475,7 +475,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     sortFriendsList();
                     friendsAdapter.notifyDataSetChanged();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -534,7 +534,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                         checkEmptyList(REQUESTS_POSITION);
                     }
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -569,7 +569,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
                     user.getFriends().remove(username);
                     friends.remove(friend);
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -597,7 +597,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     friendRequestsAdapter.notifyDataSetChanged();
                     checkEmptyList(REQUESTS_POSITION);
 
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -624,7 +624,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     sortFriendsList();
                     friendsAdapter.notifyDataSetChanged();
                     checkEmptyList(REQUESTS_POSITION);
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -638,7 +638,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 // not critical to show any type of loading dialog/handle errors for this action
                 if (!resultStatus.isSuccess()) {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -698,7 +698,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     Toast.makeText(getContext(), "Please select a workout to share.", Toast.LENGTH_LONG).show();
                 } else {
                     if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        AndroidUtils.showErrorDialog("Too many workouts shared", "You have reached the maximum amount of workouts allowed to share.", getContext());
+                        AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
                     } else {
                         shareWorkout(friendUsername, workoutNameToId.get(selectedName));
                     }
@@ -721,7 +721,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                     Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
                     user.setWorkoutsSent(user.getWorkoutsSent() + 1);
                 } else {
-                    AndroidUtils.showErrorDialog("Share Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -936,8 +936,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             ImageView profilePicture = holder.profilePicture;
             TextView unseenTV = holder.unseenTV;
 
-
             holder.rootLayout.setOnClickListener(v -> {
+                friendRequest.setSeen(true);
+                unseenTV.setVisibility(View.GONE);
+
                 bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend_request, null);
                 TextView acceptFriendRequestTV = sheetView.findViewById(R.id.accept_friend_request_tv);
@@ -948,16 +950,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 dateReceivedTV.setText(DateUtils.getFormattedLocalDateTime(friendRequest.getRequestTimeStamp()));
 
                 acceptFriendRequestTV.setOnClickListener(view -> {
-                    acceptFriendRequest(friendRequest.getUsername());
                     bottomSheetDialog.dismiss();
+                    acceptFriendRequest(friendRequest.getUsername());
                 });
                 declineFriendRequestTV.setOnClickListener(view -> {
-                    declineFriendRequest(friendRequest.getUsername());
                     bottomSheetDialog.dismiss();
+                    declineFriendRequest(friendRequest.getUsername());
                 });
                 blockUserTV.setOnClickListener(view -> {
-                    blockUserPopup(friendRequest.getUsername());
                     bottomSheetDialog.dismiss();
+                    blockUserPopup(friendRequest.getUsername());
                 });
 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
@@ -995,7 +997,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             unseenTV.setVisibility(friendRequest.isSeen() ? View.GONE : View.VISIBLE);
             profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
             usernameTV.setText(friendRequest.getUsername());
-
 
             Picasso.get()
                     .load(ImageUtils.getIconUrl(friendRequest.getIcon()))

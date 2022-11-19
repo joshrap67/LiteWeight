@@ -27,7 +27,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/workout_name_title"
-                    android:textSize="30sp" />
+                    android:fontFamily="@font/roboto_thin"
+                    android:textSize="32sp" />
 
             <TextView
                     android:id="@+id/current_workout_tv"

@@ -172,7 +172,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
                 if (resultStatus.isSuccess()) {
                     Toast.makeText(getContext(), "Feedback successfully sent. Thank you!", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog("Send Feedback Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

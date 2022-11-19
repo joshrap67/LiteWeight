@@ -82,10 +82,10 @@ public class MyExercisesFragment extends Fragment {
         createBtn.setOnClickListener(v -> {
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
-                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
+                AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
             } else if (user.getPremiumToken() != null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
-                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
+                AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise
                 ((WorkoutActivity) getActivity()).goToNewExercise();

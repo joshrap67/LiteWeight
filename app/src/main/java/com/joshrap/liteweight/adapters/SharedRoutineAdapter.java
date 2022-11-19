@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,7 +24,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     static class ViewHolder extends RecyclerView.ViewHolder {
         final CheckBox exerciseName; // checkbox just to make layout easier
         final Button expandButton;
-        final LinearLayout extraInfoContainer;
+        final RelativeLayout extraInfoContainer;
 
         final EditText detailsInput;
         final EditText weightInput;

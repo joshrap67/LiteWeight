@@ -19,18 +19,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
+                android:fontFamily="@font/roboto_thin"
                 android:text="@string/focus_label"
                 android:textAlignment="center"
-                android:textSize="30sp" />
+                android:textSize="32sp" />
 
         <TextView
                 android:id="@+id/exercise_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
+                android:fontFamily="@font/roboto_thin"
                 android:text="@string/exercise_label"
                 android:textAlignment="center"
-                android:textSize="30sp" />
+                android:textSize="32sp" />
     </LinearLayout>
 
     <LinearLayout

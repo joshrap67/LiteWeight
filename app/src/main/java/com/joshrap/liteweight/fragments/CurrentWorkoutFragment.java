@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -422,7 +423,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                     updateWorkoutProgressBar();
                 } else {
-                    AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -540,6 +541,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         class ViewHolder extends RecyclerView.ViewHolder {
             final CheckBox exerciseCheckbox;
             final Button expandButton;
+            final RelativeLayout bottomContainer;
 
             final EditText detailsInput;
             final EditText weightInput;
@@ -558,6 +560,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
                 expandButton = itemView.findViewById(R.id.expand_btn);
                 videoButton = itemView.findViewById(R.id.launch_video_btn);
+
+                bottomContainer = itemView.findViewById(R.id.bottom_container);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
                 detailsInput = itemView.findViewById(R.id.details_input);
@@ -586,9 +590,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         @NonNull
         @Override
         public RoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            long startTime = System.currentTimeMillis();
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
             View exerciseView = inflater.inflate(R.layout.row_exercise_active_workout, parent, false);
+            System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
             return new RoutineAdapter.ViewHolder(exerciseView);
         }
 
@@ -700,10 +706,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.weightInputLayout.setVisibility(View.VISIBLE);
-            holder.setsInputLayout.setVisibility(View.VISIBLE);
-            holder.repsInputLayout.setVisibility(View.VISIBLE);
-            holder.detailsInputLayout.setVisibility(View.VISIBLE);
+            holder.bottomContainer.setVisibility(View.VISIBLE);
             holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
             holder.expandButton.setText(R.string.done_all_caps);
@@ -713,11 +716,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setCollapsedViews(ViewHolder holder, RoutineExercise exercise) {
-            holder.weightInputLayout.setVisibility(View.GONE);
-            holder.setsInputLayout.setVisibility(View.GONE);
-            holder.repsInputLayout.setVisibility(View.GONE);
-            holder.detailsInputLayout.setVisibility(View.GONE);
-            holder.videoButton.setVisibility(View.GONE);
+            holder.bottomContainer.setVisibility(View.GONE);
 
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);

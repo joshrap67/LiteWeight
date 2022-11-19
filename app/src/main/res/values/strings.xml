@@ -78,7 +78,7 @@
     <string name="empty_blocked_list_msg">You are not blocking any users</string>
     <string name="create">Create</string>
     <string name="workout_progress_description">Displays a progress bar in the current workout page showing the percentage of exercises completed in the workout.</string>
-    <string name="app_purpose">LiteWeight is used for creating and tracking custom workouts. The \"Current Workout\" tab contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed that day by checking the checkbox, and can update the weight, sets, or reps by expanding the row.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! Go to the \"My Workouts\" tab to edit an existing workout or to create a new one. The \"My Exercises\" tab contains a collection of all your exercises and the default values associated with them.\n\nAdd friends by going to the Friend\'s List in the \"My Account\" tab. There you can send a friend request to any LiteWeight user. You can send your workout to any existing LiteWeight user either directly from your friend\'s list or from the \"My Workouts\" tab.</string>
+    <string name="app_purpose">LiteWeight is used for creating and tracking custom workouts. The \"Current Workout\" page contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed that day by checking the checkbox, and can update the weight, sets, or reps by expanding the row.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! Go to the \"My Workouts\" page to edit an existing workout or to create a new one. The \"My Exercises\" page contains a collection of all your exercises and the default values associated with them.\n\nAdd friends by going to the Friend\'s List in the \"My Account\" page. There you can send a friend request to any LiteWeight user. You can send your workout to any user either directly from your friend\'s list or from the \"My Workouts\" page.</string>
     <string name="restart_workout_explanation">At this time, you are not able to see previous states of workouts. Previous progress of a workout can be inferred from the exercise completion average of the workout.</string>
     <string name="share_workout_explanation">When you share a workout to another user, it makes a copy of the workout at the time of you sharing it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
     <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will take the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account preferences, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
@@ -171,7 +171,7 @@
     <string name="sort_exercises">Sort Exercises</string>
     <string name="drag_to_sort">Drag to sort</string>
     <string name="my_account">My Account</string>
-    <string name="times_completed">Times Completed</string>
+    <string name="times_completed">Total Restarts</string>
     <string name="total_days">Total Days</string>
     <string name="average_completion_rate">Exercise Completion Average</string>
     <string name="most_frequent_focus">Most frequent focus</string>
@@ -179,4 +179,5 @@
     <string name="launch_video_msg">Launch this video using an external application?</string>
     <string name="save_and_return">Return</string>
     <string name="respond">Respond</string>
+    <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
 </resources>

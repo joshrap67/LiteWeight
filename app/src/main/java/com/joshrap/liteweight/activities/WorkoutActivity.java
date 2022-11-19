@@ -95,11 +95,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private boolean activityFinishing;
     private ImageView profilePicture;
     private Workout lastSyncedWorkout;
+    private User user;
 
     @Getter
     private UserWithWorkout userWithWorkout;
-    @Getter
-    private User user;
     @Getter
     private Timer timer;
     @Getter

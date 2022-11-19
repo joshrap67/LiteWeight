@@ -174,7 +174,7 @@ public class SignInActivity extends AppCompatActivity {
         if (getIntent().getExtras() != null) {
             String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
             if (errorMessage != null) {
-                AndroidUtils.showErrorDialog("Error", errorMessage, this);
+                AndroidUtils.showErrorDialog(errorMessage, this);
             }
         }
     }
@@ -229,7 +229,7 @@ public class SignInActivity extends AppCompatActivity {
             }
             googleSignOut();
         } catch (ApiException e) {
-            AndroidUtils.showErrorDialog("Error", "There was an error verifying your email.", this);
+            AndroidUtils.showErrorDialog("There was an error verifying your email.", this);
         }
     }
 
@@ -483,7 +483,7 @@ public class SignInActivity extends AppCompatActivity {
                     signInSuccess(resultStatus);
                 } else {
                     loadingDialog.dismiss();
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
@@ -511,7 +511,7 @@ public class SignInActivity extends AppCompatActivity {
                     Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
                     launchWorkoutActivity(resultStatus.getData());
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
@@ -543,7 +543,7 @@ public class SignInActivity extends AppCompatActivity {
                     attemptSignIn(usernameInputSignUp.getText().toString().trim(),
                             passwordInputSignUp.getText().toString().trim());
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
@@ -647,7 +647,7 @@ public class SignInActivity extends AppCompatActivity {
                     if (resultStatus.isSuccess()) {
                         Toast.makeText(this, "Code successfully sent to your email.", Toast.LENGTH_LONG).show();
                     } else {
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                     }
                 });
             });
@@ -669,9 +669,9 @@ public class SignInActivity extends AppCompatActivity {
                     if (resultStatus.getErrorMessage().equals(CognitoResponse.expiredCodeErrorMsg) ||
                             resultStatus.getErrorMessage().equals(CognitoResponse.incorrectCodeErrorMsg)) {
                         // don't kick user off this view if these errors occur
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                     } else {
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                         codeInput.setText(null);
                         viewFlipper.showPrevious();
                     }
@@ -784,7 +784,7 @@ public class SignInActivity extends AppCompatActivity {
                             if (resultStatus.isSuccess()) {
                                 attemptSignIn(usernameInput.getText().toString().trim(), newPassword);
                             } else {
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                                AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                             }
                         });
                     });
@@ -828,7 +828,7 @@ public class SignInActivity extends AppCompatActivity {
                                 passwordContainer.setVisibility(View.VISIBLE);
                                 usernameContainer.setVisibility(View.GONE);
                             } else {
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                                AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                             }
                         });
                     });

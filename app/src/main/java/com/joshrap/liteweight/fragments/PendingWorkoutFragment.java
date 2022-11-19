@@ -199,10 +199,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), routineDayMoreIcon);
         Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
         final int deleteDayId = 0;
-        final int copyDayAsNewId = 1;
+        final int copyDayToWeekId = 1;
         final int copyDayToExistingId = 2;
         final int setDayTagId = 3;
-        routineDayMenu.add(0, copyDayAsNewId, 0, "Copy As New Day");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
         routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
         routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
@@ -215,12 +215,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 case copyDayToExistingId:
                     promptCopyToExistingDay();
                     return true;
-                case copyDayAsNewId:
-                    if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
-                        Toast.makeText(getContext(), "Copy would exceed maximum number of days allowed in week.", Toast.LENGTH_LONG).show();
-                        return true;
-                    }
-                    copyDayAsNew();
+                case copyDayToWeekId:
+                    copyDayToWeek();
                     return true;
                 case setDayTagId:
                     promptSetDayTag();
@@ -593,16 +589,50 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private void copyDayAsNew() {
-        // todo allow to copy as new day to a specific week?
-        final RoutineDay dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
-        currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
-        pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);
+    private void copyDayToWeek() {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_to_week, null);
+        int totalWeeks = pendingRoutine.getNumberOfWeeks();
 
-        // needed so the original day in the week list is updated
-        weekAdapter.notifyItemChanged(currentWeekIndex, 0);
+        String[] weekDisplays = new String[totalWeeks];
+        for (int i = 0; i < totalWeeks; i++) {
+            weekDisplays[i] = String.format(Locale.US, "Week %d", i + 1);
+        }
+        NumberPicker weekPicker = popupView.findViewById(R.id.week_picker);
+        weekPicker.setMinValue(0);
+        weekPicker.setMaxValue(totalWeeks - 1);
+        weekPicker.setValue(currentWeekIndex);
+        weekPicker.setWrapSelectorWheel(false);
+        weekPicker.setDisplayedValues(weekDisplays);
 
-        updateRoutineDayExerciseList();
+        alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex)))
+                .setView(popupView)
+                .setPositiveButton("Copy", (dialog, which) -> {
+                    int targetWeek = weekPicker.getValue();
+
+                    if (pendingRoutine.getWeek(targetWeek).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                        alertDialog.dismiss();
+                        Toast.makeText(getContext(), "Copy would exceed maximum number of days allowed in week.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    int originalWeekIndex = currentWeekIndex;
+                    currentWeekIndex = targetWeek;
+
+                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(originalWeekIndex, currentDayIndex).clone();
+                    currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
+                    pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);
+
+                    // needed so the copied day in the week list is updated (in case it was copied outside the original week)
+                    weekAdapter.notifyItemChanged(originalWeekIndex, 0);
+                    weekAdapter.notifyItemChanged(currentWeekIndex, 0);
+
+                    updateRoutineDayExerciseList();
+                    alertDialog.dismiss();
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.show();
     }
 
     private void promptCopyToExistingWeek(int selectedWeek) {
@@ -692,10 +722,16 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
-                    backPressedCallback.remove();
-                    ((WorkoutActivity) getActivity()).finishFragment();
+
+                    // once created, treat it as an existing workout
+                    isExistingWorkout = true;
+                    pendingWorkout = new Workout(userWithWorkout.getWorkout());
+                    pendingRoutine = pendingWorkout.getRoutine();
+                    setToolbarTitle();
+                    setWeekAdapter(); // since adapter holds old references to weeks
+                    saveWorkoutButton.setText(R.string.save);
                 } else {
-                    AndroidUtils.showErrorDialog("Create Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -718,7 +754,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     setWeekAdapter(); // since adapter holds old references to weeks
                     Toast.makeText(getContext(), "Workout saved.", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog("Save Workout Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

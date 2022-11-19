@@ -295,7 +295,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                     ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -341,7 +341,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                         setupButtons();
                         updateRoutineListUI(AnimationDirection.NONE);
                     } else {
-                        AndroidUtils.showErrorDialog("Load Workout Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });

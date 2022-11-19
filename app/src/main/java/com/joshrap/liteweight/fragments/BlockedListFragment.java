@@ -196,7 +196,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -222,7 +222,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +26,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -32,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -48,6 +52,8 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -65,6 +71,8 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private TextView friendsListTV;
     @Inject
     UserRepository userRepository;
+    @Inject
+    Tokens tokens;
 
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
@@ -98,8 +106,28 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView usernameTV = view.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
-        TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
-        changePictureTv.setVisibility(View.GONE);
+        Button changePictureButton = view.findViewById(R.id.change_picture_btn);
+        changePictureButton.setVisibility(View.GONE);
+        changePictureButton.setOnClickListener(v -> launchPhotoPicker());
+
+        String email = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            // yes this is a war crime but it beats refactoring the database to add emails to it
+            String[] jwtParts = tokens.getIdToken().split("\\.");
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+            String payloadJson = new String(decoder.decode(jwtParts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Map<String, String> map = mapper.readValue(payloadJson, Map.class);
+                email = map.get("email");
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        TextView emailTV = view.findViewById(R.id.email_tv);
+        emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);
+        emailTV.setText(email);
 
         friendsListTV = view.findViewById(R.id.friends_list_tv);
         friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
@@ -122,12 +150,17 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        changePictureButton.setVisibility(View.VISIBLE);
+                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        profilePicture.setImageDrawable(imageDrawable);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        changePictureButton.setVisibility(View.VISIBLE);
                     }
                 });
         super.onViewCreated(view, savedInstanceState);
@@ -222,7 +255,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {
-                        AndroidUtils.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             } catch (JsonProcessingException e) {

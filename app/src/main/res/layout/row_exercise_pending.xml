@@ -54,7 +54,7 @@
             android:textAllCaps="false"
             tools:text="12345 lb" />
 
-    <LinearLayout
+    <RelativeLayout
             android:id="@+id/extra_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,82 +63,75 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-        <RelativeLayout
-                android:id="@+id/weight_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/sets_input_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:hint="@string/sets"
+                app:autoSizeTextType="uniform"
+                tools:style="@style/TextInputLayoutStyle">
 
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/sets_input_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:hint="@string/sets"
-                    app:autoSizeTextType="uniform"
-                    tools:style="@style/TextInputLayoutStyle">
-
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/sets_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:minWidth="75dp"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true"
-                        app:autoSizeTextType="uniform" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/weight_input_layout"
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sets_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
-                    android:layout_toStartOf="@+id/reps_input_layout"
-                    android:layout_toEndOf="@+id/sets_input_layout"
-                    tools:hint="Weight (lbs)"
-                    tools:style="@style/TextInputLayoutStyle">
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:minWidth="75dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/weight_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true"
-                        app:autoSizeTextType="uniform" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/weight_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_toStartOf="@+id/reps_input_layout"
+                android:layout_toEndOf="@+id/sets_input_layout"
+                tools:hint="Weight (lbs)"
+                tools:style="@style/TextInputLayoutStyle">
 
-            <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/reps_input_layout"
-                    android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/weight_input"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:hint="@string/reps"
-                    tools:style="@style/TextInputLayoutStyle">
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/reps_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:maxLines="1"
-                        android:minWidth="75dp"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reps_input_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:hint="@string/reps"
+                tools:style="@style/TextInputLayoutStyle">
 
-        </RelativeLayout>
-
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reps_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:minWidth="75dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/details_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/weight_input_layout"
                 android:layout_marginTop="4dp"
                 android:hint="@string/details"
                 app:autoSizeTextType="uniform"
@@ -153,5 +146,5 @@
                     android:scrollbars="vertical"
                     app:autoSizeTextType="uniform" />
         </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>
