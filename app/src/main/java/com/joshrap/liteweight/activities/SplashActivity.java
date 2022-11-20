@@ -88,9 +88,7 @@ public class SplashActivity extends AppCompatActivity {
             Toast.makeText(this, "There was a problem loading your data.", Toast.LENGTH_SHORT).show();
             launchSignInActivity(errorMessage);
         }
-
     }
-
 }
 
 

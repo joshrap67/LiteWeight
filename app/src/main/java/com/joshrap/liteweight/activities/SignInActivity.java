@@ -228,7 +228,7 @@ public class SignInActivity extends AppCompatActivity {
                 attemptSignUp(usernameInputSignUp.getText().toString().trim(),
                         passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), account.getIdToken());
             } else {
-                Toast.makeText(this, "The email you signed in with did not match the email you put for your new LiteWeight account.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Selected email does not match inputted email", Toast.LENGTH_LONG).show();
             }
             googleSignOut();
         } catch (ApiException e) {
