@@ -1,20 +1,18 @@
 # LiteWeight - Simple Workout Manager
 
-This app is a lightweight workout manager that allows for workouts to be created and managed. The application interacts with a Java backend hosted on AWS: [LiteWeight_Webservice](https://github.com/joshrap67/LiteWeight_WebService). LiteWeight is currently compatible with versions 1.x.x of the web service.
+This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a Java backend hosted on AWS: [LiteWeight_Webservice](https://github.com/joshrap67/LiteWeight_WebService). LiteWeight is currently compatible with versions 2.x.x of the web service.
 
-Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out. Additionally, each exercise also tracks the most recent amount of weight that was used.
+Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out.
 
 Friend requests can be sent to any other LiteWeight user and workouts can additionally be shared to any user.
 
-[Demo of LiteWeight version 2.0.0](https://youtu.be/2qwGRo8YSXg)
+[Demo of v2.2.0](https://youtu.be/JLHczjjNDcw)
 
-[Changes in v2.1.0](https://youtu.be/YlttwMJ_iwo)
-
-Refer to the Wiki for details on the application logic.
+Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on the application logic.
 
 ## Prerequisites
 
-This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 21. The targeted SDK for this application is: 29.
+This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 24. The targeted SDK for this application is: 32.
 
 An internet connection is required to run this application.
 
@@ -29,8 +27,7 @@ If pulling from this repository, open the project in Android Studio and run it. 
 ## Built With
 
 - [Android](https://www.android.com/) - Framework that this app was built with
-- [Java](https://docs.oracle.com/en/java/) - Used for the backend of the application
-- [Android Room Persistence Library](https://developer.android.com/topic/libraries/architecture/room) - Library used to store data locally on the Android device in a SQLite database
+- [Java](https://docs.oracle.com/en/java/) - Language that this app was written in
 - [Android Studio](https://developer.android.com/studio) - IDE that was used to build this application. All frontend development was done in Android Studio
 
 ## Authors
