@@ -1,8 +1,8 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -43,6 +42,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.DateUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.JsonUtils;
@@ -64,7 +64,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -81,8 +80,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private List<SharedWorkoutMeta> receivedWorkouts;
     private ProgressBar listLoadingIcon;
     private RecyclerView receivedWorkoutsRecyclerView;
-    private ImageButton markAllReceivedWorkoutsSeen;
-    private TextView emptyView;
+    private Button markAllReceivedWorkoutsSeenButton;
+    private TextView emptyViewTV;
     private BottomSheetDialog bottomSheetDialog;
     private AlertDialog alertDialog;
     private ReceivedWorkoutsAdapter receivedWorkoutsAdapter;
@@ -90,7 +89,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private UserWithWorkout userWithWorkout;
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
@@ -136,19 +135,15 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         isGettingNextBatch = false;
         receivedWorkouts = new ArrayList<>();
 
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
-
         View view = inflater.inflate(R.layout.fragment_received_workouts, container, false);
 
-        listLoadingIcon = view.findViewById(R.id.loading_icon_list);
+        listLoadingIcon = view.findViewById(R.id.loading_progress_bar);
         listLoadingIcon.setVisibility(View.INVISIBLE);
-        receivedWorkoutsRecyclerView = view.findViewById(R.id.recycler_view);
-        emptyView = view.findViewById(R.id.empty_view);
-        markAllReceivedWorkoutsSeen = view.findViewById(R.id.mark_all_read_btn);
+        receivedWorkoutsRecyclerView = view.findViewById(R.id.received_workouts_recycler_view);
+        emptyViewTV = view.findViewById(R.id.empty_view_tv);
+        markAllReceivedWorkoutsSeenButton = view.findViewById(R.id.mark_all_seen_btn);
         updateAllSeenButton();
-        markAllReceivedWorkoutsSeen.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
+        markAllReceivedWorkoutsSeenButton.setOnClickListener(view1 -> setAllReceivedWorkoutsSeen());
 
         receivedWorkouts = new ArrayList<>(user.getReceivedWorkouts().values());
         sortReceivedWorkouts();
@@ -156,7 +151,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         displayReceivedWorkouts();
         receivedWorkoutsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     if (!isGettingNextBatch && receivedWorkouts.size() < user.getTotalReceivedWorkouts()) {
@@ -181,9 +176,17 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
     @Override
     public void onPause() {
+        super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
-        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
     }
 
     @Override
@@ -250,7 +253,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                         receivedWorkoutsAdapter.refresh(receivedWorkouts);
                         updateAllSeenButton();
                     } else {
-                        AndroidUtils.showErrorDialog("Load Received Workouts Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 }
             });
@@ -294,12 +297,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             isGettingNextBatch = true;
             getNextBatch();
         } else {
-            emptyView.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
+            emptyViewTV.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
         }
     }
 
     private void updateAllSeenButton() {
-        markAllReceivedWorkoutsSeen.setVisibility(user.getUnseenReceivedWorkouts() > 0 ? View.VISIBLE : View.GONE);
+        markAllReceivedWorkoutsSeenButton.setVisibility(user.getUnseenReceivedWorkouts() > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void blockUserPopup(String username) {
@@ -310,7 +313,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Block User")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
@@ -332,7 +335,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.getFriendRequests().remove(username);
                     user.getFriends().remove(username);
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -370,7 +373,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     updateAllSeenButton();
                     ((WorkoutActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -397,7 +400,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() - 1);
                     receivedWorkoutsAdapter.notifyDataSetChanged();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -421,7 +424,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -467,21 +470,19 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         updateAllSeenButton();
         displayReceivedWorkouts(); // to remove any unseen indicators
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            this.workoutRepository.setAllReceivedWorkoutsSeen();
-        });
+        executor.execute(() -> this.workoutRepository.setAllReceivedWorkoutsSeen());
     }
 
     private void showBlownUpProfilePic(String username, String iconUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
-        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(iconUrl))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -491,12 +492,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
     private class ReceivedWorkoutsAdapter extends RecyclerView.Adapter<ReceivedWorkoutsAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView workoutNameTV;
-            TextView dateSentTV;
-            TextView senderTV;
-            Button acceptButton;
-            Button declineButton;
-            RelativeLayout rootLayout;
+            final TextView workoutNameTV;
+            final TextView dateSentTV;
+            final TextView senderTV;
+            final Button acceptButton;
+            final Button declineButton;
+            final RelativeLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -516,6 +517,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         }
 
 
+        @NonNull
         @Override
         public ReceivedWorkoutsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
@@ -551,24 +553,14 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 }
             });
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSender()));
-
-            DateFormat dateFormatInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
-            dateFormatInput.setTimeZone(TimeZone.getTimeZone("UTC"));
-            try {
-                Date date = dateFormatInput.parse(receivedWorkout.getDateSent());
-
-                // we have the date as a proper object, so now format it to the user's local timezone
-                DateFormat dateFormatOutput = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.ENGLISH);
-                dateFormatOutput.setTimeZone(TimeZone.getDefault());
-                dateSentTv.setText(dateFormatOutput.format(date));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            String workoutName = receivedWorkout.getWorkoutName();
+            String dateSent = DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent());
             if (!receivedWorkout.isSeen()) {
-                // if unseen, add ! to catch user's attention
-                workoutName += "  (!)";
+                dateSent += "   *";
+                dateSentTv.setTypeface(dateSentTv.getTypeface(), Typeface.BOLD);
             }
+            dateSentTv.setText(dateSent);
+
+            String workoutName = receivedWorkout.getWorkoutName();
             workoutNameTV.setText(workoutName);
             RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
@@ -576,10 +568,11 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     // when user clicks on the workout, mark it as seen
                     setReceivedWorkoutSeen(receivedWorkout.getWorkoutId());
                     receivedWorkout.setSeen(true);
-                    workoutNameTV.setText(receivedWorkout.getWorkoutName());
+                    // remove unseen indicator, doing it this way vs notifyDataChanged avoids weird flash
+                    dateSentTv.setText(DateUtils.getFormattedLocalDateTime(receivedWorkout.getDateSent()));
                 }
 
-                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_received_workout, null);
                 TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
                 TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);
@@ -610,7 +603,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(receivedWorkout.getSender(), receivedWorkout.getSenderIcon()));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
-                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 usernameTV.setText(receivedWorkout.getSender());
 
                 Picasso.get()

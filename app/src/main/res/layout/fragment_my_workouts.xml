@@ -3,119 +3,215 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="4dp">
 
     <RelativeLayout
-            android:id="@+id/relative_layout"
+            android:id="@+id/workout_name_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/stat_text_view"
+            app:layout_constraintBottom_toTopOf="@+id/statistics_container"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.486"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-                android:id="@+id/selected_workout_text_view"
-                android:layout_width="wrap_content"
+        <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
-                android:paddingEnd="16dp"
-                android:paddingStart="16dp"
-                android:layout_centerHorizontal="true"
-                android:text="@string/workout_name_title"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+                android:layout_margin="8dp"
+                android:layout_toStartOf="@id/workout_options_btn"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/selected_workout_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/workout_name_title"
+                    android:fontFamily="@font/roboto_thin"
+                    android:textSize="32sp" />
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/current_workout"
+                    android:textAllCaps="true"
+                    android:textColor="@color/subtitle_color"
+                    android:textStyle="italic" />
+        </LinearLayout>
 
         <ImageButton
                 android:id="@+id/workout_options_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:paddingEnd="8dp"
-                android:paddingStart="8dp"
+                android:layout_margin="8dp"
                 android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/more_options"
                 android:src="@drawable/more_icon" />
-
     </RelativeLayout>
 
+    <LinearLayout
+            android:id="@+id/statistics_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/workout_name_container">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:orientation="vertical"
+                android:paddingHorizontal="8dp">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/times_completed_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        tools:text="6" />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/times_completed"
+                        android:textAllCaps="true"
+                        android:textColor="@color/subtitle_color"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/total_days_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        tools:text="16" />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/total_days"
+                        android:textAllCaps="true"
+                        android:textColor="@color/subtitle_color"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/completion_rate_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        tools:text="65%" />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/average_completion_rate"
+                        android:textAllCaps="true"
+                        android:textColor="@color/subtitle_color"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/most_frequent_focus_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        tools:text="Shoulders" />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/most_frequent_focus"
+                        android:textAllCaps="true"
+                        android:textColor="@color/subtitle_color"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
     <TextView
-            android:id="@+id/stat_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/border"
+            android:layout_margin="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/workout_name_container"
+            tools:text="Times Completed: 26\nAverage Percentage of Exercises Completed: 65%\nTotal Number of Days in Workout: 6\nMost Worked Focus: Biceps" />
 
     <View
-            android:id="@+id/border"
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginHorizontal="8dp"
             android:layout_marginTop="15dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@color/colorAccent"
-            app:layout_constraintBottom_toTopOf="@+id/workout_list_title"
+            android:background="@color/color_accent"
+            app:layout_constraintBottom_toTopOf="@+id/workout_list_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/stat_text_view" />
-
-    <TextView
-            android:id="@+id/workout_list_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:text="@string/workout_list_title"
-            app:layout_constraintBottom_toTopOf="@+id/workout_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/border" />
+            app:layout_constraintTop_toBottomOf="@+id/statistics_container" />
 
     <ListView
-            android:id="@+id/workout_list"
+            android:id="@+id/workout_list_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginHorizontal="8dp"
             android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workout_list_title" />
+            app:layout_constraintTop_toBottomOf="@+id/divider"
+            tools:listitem="@android:layout/simple_selectable_list_item" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/new_workout_btn"
+            android:id="@+id/new_workout_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
+            android:contentDescription="@string/create_workout"
             android:src="@drawable/add_icon"
             android:tooltipText="Create New Workout"
-            app:backgroundTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

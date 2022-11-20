@@ -1,12 +1,14 @@
 package com.joshrap.liteweight.injection;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.VersionModel;
 
 import javax.inject.Singleton;
 
@@ -42,9 +44,23 @@ class LiteWeightModule {
     }
 
     @Provides
-    ProgressDialog provideProgressDialog(final Context context) {
-        ProgressDialog progressDialog = new ProgressDialog(context, R.style.ProgressDialogStyle);
-        progressDialog.setCancelable(false);
-        return progressDialog;
+    AlertDialog provideAlertDialog(final Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setView(R.layout.popup_loading);
+        return builder.create();
+    }
+
+    @Provides
+    VersionModel provideVersionModel(final Context context) {
+        String versionName = null;
+        int versionCode = 0;
+        try {
+            versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new VersionModel(versionName, versionCode);
     }
 }

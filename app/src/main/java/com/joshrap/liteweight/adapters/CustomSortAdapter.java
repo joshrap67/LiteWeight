@@ -11,20 +11,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.List;
 import java.util.Map;
 
 public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseTV;
-        Button weightButton;
+        final TextView exerciseTV;
+        final Button weightButton;
 
         ViewHolder(View itemView) {
             super(itemView);
-            exerciseTV = itemView.findViewById(R.id.exercise_name);
+            exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
             weightButton = itemView.findViewById(R.id.weight_btn);
         }
     }

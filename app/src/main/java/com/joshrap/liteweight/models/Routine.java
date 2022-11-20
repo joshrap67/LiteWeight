@@ -2,6 +2,8 @@ package com.joshrap.liteweight.models;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.ArrayList;
@@ -9,44 +11,52 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import lombok.Data;
 
 @Data
 @SuppressLint("UseSparseArrays")
-public class Routine implements Model, Iterable<Integer> {
+public class Routine implements Model, Iterable<RoutineWeek> {
+    public static final String WEEKS = "weeks";
 
-    private Map<Integer, RoutineWeek> weeks;
+    private List<RoutineWeek> weeks;
 
     public Routine() {
-        this.weeks = new HashMap<>();
+        this.weeks = new ArrayList<>();
+    }
+
+    public static Routine emptyRoutine() {
+        Routine routine = new Routine();
+        routine.addWeek(RoutineWeek.EmptyWeek());
+        return routine;
     }
 
     Routine(Routine toBeCloned) {
         // copy constructor
-        this.weeks = new HashMap<>();
-        for (Integer week : toBeCloned) {
+        this.weeks = new ArrayList<>();
+        for (RoutineWeek week : toBeCloned) {
             RoutineWeek routineWeek = new RoutineWeek();
-            for (Integer day : toBeCloned.getWeek(week)) {
-                routineWeek.put(day, toBeCloned.getDay(week, day).clone());
+            for (RoutineDay day : week) {
+                routineWeek.addDay(day.clone());
             }
-            this.weeks.put(week, routineWeek);
+            this.weeks.add(routineWeek);
         }
     }
 
     Routine(Map<String, Object> json) {
         if (json == null) {
-            this.weeks = null;
+            this.weeks = new ArrayList<>();
         } else {
-            this.weeks = new HashMap<>();
-            for (String week : json.keySet()) {
-                RoutineWeek routineWeek = new RoutineWeek((Map<String, Object>) json.get(week));
-                this.weeks.put(Integer.parseInt(week), routineWeek);
+            this.weeks = new ArrayList<>();
+            List<Object> jsonWeeks = (List<Object>) json.get(WEEKS);
+            for (Object week : jsonWeeks) {
+                RoutineWeek routineWeek = new RoutineWeek((Map<String, Object>) week);
+                this.weeks.add(routineWeek);
             }
         }
     }
 
+    // assumes both routines are sorted
     public static boolean routinesDifferent(Routine routine1, Routine routine2) {
         if (routine1.getTotalNumberOfDays() != routine2.getTotalNumberOfDays()) {
             // one routine has more total days than the other, so not equal
@@ -57,14 +67,21 @@ public class Routine implements Model, Iterable<Integer> {
             // one routine has more or less weeks than the other, so not equal
             return true;
         }
-        for (Integer week : routine1) {
-            if (routine1.getWeek(week).getNumberOfDays() != routine2.getWeek(week).getNumberOfDays()) {
+
+        for (RoutineWeek week : routine1) {
+            int weekPosition = routine1.getWeeks().indexOf(week);
+            RoutineWeek otherWeek = routine2.getWeek(weekPosition);
+            if (week.getNumberOfDays() != otherWeek.getNumberOfDays()) {
                 // one routine has more or less days in a week than the other, so not equal
                 return true;
             }
-            for (Integer day : routine1.getWeek(week)) {
-                List<RoutineExercise> exercises1 = routine1.getExerciseListForDay(week, day);
-                List<RoutineExercise> exercises2 = routine2.getExerciseListForDay(week, day);
+
+            for (RoutineDay day : week) {
+                int dayPosition = week.getDays().indexOf(day);
+                RoutineDay otherDay = otherWeek.getDay(dayPosition);
+
+                List<RoutineExercise> exercises1 = day.getExercises();
+                List<RoutineExercise> exercises2 = otherDay.getExercises();
                 if (exercises1.size() != exercises2.size()) {
                     // one routine has more or less exercises in a day than the other, so the two routines are different
                     return true;
@@ -79,46 +96,84 @@ public class Routine implements Model, Iterable<Integer> {
         return false;
     }
 
-    public List<RoutineExercise> getExerciseListForDay(int week, int day) {
-        List<RoutineExercise> exerciseList = new ArrayList<>();
-        TreeMap<Integer, RoutineExercise> sorted = new TreeMap<>(this.getWeek(week).getDay(day).getExercises());
-        for (Integer sortVal : sorted.keySet()) {
-            exerciseList.add(this.getDay(week, day).getExercise(sortVal));
-        }
-        return exerciseList;
+
+    public RoutineWeek getWeek(int weekPosition) {
+        return this.weeks.get(weekPosition);
     }
 
-    public RoutineWeek getWeek(int week) {
-        return this.weeks.get(week);
+    public void addWeek(RoutineWeek week) {
+        this.weeks.add(week);
     }
 
-    public RoutineDay getDay(int week, int day) {
-        return this.weeks.get(week).getDay(day);
+    public void addEmptyWeek() {
+        this.weeks.add(RoutineWeek.EmptyWeek());
     }
 
-    public void appendNewDay(int week, int day) {
+    public void putWeek(int index, RoutineWeek week) {
+        this.weeks.set(index, week);
+    }
+
+    public void deleteWeek(int weekIndex) {
+        this.weeks.remove(weekIndex);
+    }
+
+    public RoutineDay getDay(int weekIndex, int dayIndex) {
+        return this.weeks.get(weekIndex).getDay(dayIndex);
+    }
+
+    public void appendEmptyDay(int weekIndex) {
         RoutineDay routineDay = new RoutineDay();
-        if (this.getWeeks().get(week) == null) {
+        if (this.getWeeks().get(weekIndex) == null) {
             // week with this index doesn't exist yet, so create it before appending the day
-            this.putWeek(week, new RoutineWeek());
+            this.addWeek(new RoutineWeek());
         }
-        this.getWeek(week).put(day, routineDay);
+        this.getWeek(weekIndex).addDay(routineDay);
     }
 
-    public void putWeek(int weekIndex, RoutineWeek week) {
-        this.weeks.put(weekIndex, week);
+    public void appendDay(int weekIndex, RoutineDay day) {
+        if (this.getWeeks().get(weekIndex) == null) {
+            // week with this index doesn't exist yet, so create it before appending the day
+            this.addWeek(new RoutineWeek());
+        }
+        this.getWeek(weekIndex).addDay(day);
     }
 
     public void putDay(int weekIndex, int dayIndex, RoutineDay day) {
-        this.getWeek(weekIndex).put(dayIndex, day);
+        this.getWeek(weekIndex).putDay(dayIndex, day);
     }
 
-    public boolean removeExercise(int week, int day, String exerciseId) {
-        return this.getDay(week, day).deleteExercise(exerciseId);
+    public void deleteDay(int weekIndex, int dayIndex) {
+        this.getWeek(weekIndex).deleteDay(dayIndex);
     }
 
-    public void sortDay(int week, int day, int sortVal, Map<String, String> idToName) {
-        this.getDay(week, day).sortDay(sortVal, idToName);
+
+    public void sortDay(int weekIndex, int dayIndex, int sortMode, Map<String, String> idToName) {
+        this.getDay(weekIndex, dayIndex).sortDay(sortMode, idToName);
+    }
+
+
+    public List<RoutineExercise> getExerciseListForDay(int weekPosition, int dayPosition) {
+        return new ArrayList<>(this.weeks.get(weekPosition).getDay(dayPosition).getExercises());
+    }
+
+    public void addExercise(int week, int day, final RoutineExercise routineExercise) {
+        this.getDay(week, day).insertNewExercise(routineExercise);
+    }
+
+    public void removeExercise(int week, int day, String exerciseId) {
+        this.getDay(week, day).deleteExercise(exerciseId);
+    }
+
+    public void deleteExerciseFromRoutine(final String exerciseId) {
+        for (RoutineWeek week : this) {
+            for (RoutineDay day : week) {
+                day.deleteExercise(exerciseId);
+            }
+        }
+    }
+
+    public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
+        this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
     }
 
     public int getNumberOfWeeks() {
@@ -127,46 +182,26 @@ public class Routine implements Model, Iterable<Integer> {
 
     public int getTotalNumberOfDays() {
         int days = 0;
-        for (Integer week : this.weeks.keySet()) {
-            days += this.weeks.get(week).getNumberOfDays();
+        for (RoutineWeek week : this) {
+            days += week.getNumberOfDays();
         }
         return days;
-    }
-
-    public void addExercise(int week, int day, final RoutineExercise routineExercise) {
-        this.getDay(week, day).insertNewExercise(routineExercise);
-    }
-
-    public void deleteWeek(int week) {
-        this.weeks.remove(week);
-        int i = 0;
-        Map<Integer, RoutineWeek> temp = new HashMap<>();
-        for (Integer weekIndex : this.weeks.keySet()) {
-            temp.put(i, this.weeks.get(weekIndex));
-            i++;
-        }
-        this.weeks = temp;
-    }
-
-    public void deleteDay(int week, int day) {
-        this.getWeek(week).deleteDay(day);
-    }
-
-    public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
-        this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        for (Integer week : this.weeks.keySet()) {
-            retVal.put(week.toString(), this.getWeek(week).asMap());
+        List<Object> jsonWeeks = new ArrayList<>();
+        for (RoutineWeek week : this) {
+            jsonWeeks.add(week.asMap());
         }
+        retVal.put(WEEKS, jsonWeeks);
         return retVal;
     }
 
+    @NonNull
     @Override
-    public Iterator<Integer> iterator() {
-        return this.weeks.keySet().iterator();
+    public Iterator<RoutineWeek> iterator() {
+        return this.weeks.iterator();
     }
 }

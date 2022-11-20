@@ -3,7 +3,6 @@ package com.joshrap.liteweight.models;
 import com.joshrap.liteweight.interfaces.Model;
 import com.joshrap.liteweight.network.RequestFields;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

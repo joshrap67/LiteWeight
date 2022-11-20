@@ -1,38 +1,49 @@
 package com.joshrap.liteweight.models;
 
-import android.annotation.SuppressLint;
+import androidx.annotation.NonNull;
 
 import com.joshrap.liteweight.interfaces.Model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
 
 @Data
-@SuppressLint("UseSparseArrays")
-public class RoutineWeek implements Iterable<Integer>, Model {
+public class RoutineWeek implements Iterable<RoutineDay>, Model {
+    public static final String DAYS = "days";
 
-    private Map<Integer, RoutineDay> days;
+    private List<RoutineDay> days;
 
     RoutineWeek() {
-        this.days = new HashMap<>();
+        this.days = new ArrayList<>();
     }
 
-    RoutineWeek(Map<String, Object> daysForWeek) {
-        this.days = new HashMap<>();
-        for (String day : daysForWeek.keySet()) {
-            RoutineDay routineDay = new RoutineDay((Map<String, Object>) daysForWeek.get(day));
-            this.days.put(Integer.parseInt(day), routineDay);
+    public static RoutineWeek EmptyWeek() {
+        RoutineWeek week = new RoutineWeek();
+        week.addDay(new RoutineDay());
+        return week;
+    }
+
+    RoutineWeek(Map<String, Object> json) {
+        this.days = new ArrayList<>();
+
+        List<Object> jsonDays = (List<Object>) json.get(DAYS);
+        for (Object day : jsonDays) {
+            RoutineDay routineDay = new RoutineDay((Map<String, Object>) day);
+            this.days.add(routineDay);
         }
     }
 
+    @NonNull
     public RoutineWeek clone() {
         RoutineWeek retVal = new RoutineWeek();
-        for (Integer day : this.days.keySet()) {
-            RoutineDay dayToBeCloned = this.days.get(day).clone();
-            retVal.put(day, dayToBeCloned);
+        for (RoutineDay day : this) {
+            RoutineDay dayToBeCloned = day.clone();
+            retVal.addDay(dayToBeCloned);
         }
         return retVal;
     }
@@ -41,40 +52,37 @@ public class RoutineWeek implements Iterable<Integer>, Model {
         return this.days.size();
     }
 
-    RoutineDay getDay(int day) {
-        return this.days.get(day);
+    RoutineDay getDay(int dayPosition) {
+        return this.days.get(dayPosition);
     }
 
-    void deleteDay(int day) {
-        this.days.remove(day);
-        balanceMap();
+    void deleteDay(int dayPosition) {
+        this.days.remove(dayPosition);
     }
 
-    public void put(int dayIndex, RoutineDay routineDay) {
-        this.days.put(dayIndex, routineDay);
+    public void addDay(RoutineDay routineDay) {
+        this.days.add(routineDay);
     }
 
-    private void balanceMap() {
-        int i = 0;
-        Map<Integer, RoutineDay> temp = new HashMap<>();
-        for (Integer day : this.days.keySet()) {
-            temp.put(i, this.days.get(day));
-            i++;
-        }
-        this.days = temp;
+    public void putDay(int dayPosition, RoutineDay routineDay) {
+        this.days.set(dayPosition, routineDay);
     }
 
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();
-        for (Integer day : this) {
-            retVal.put(day.toString(), this.getDay(day).asMap());
+        List<Object> jsonDays = new ArrayList<>();
+        for (RoutineDay day : this) {
+            jsonDays.add(day.asMap());
         }
+        retVal.put(DAYS, jsonDays);
+
         return retVal;
     }
 
+    @NonNull
     @Override
-    public Iterator<Integer> iterator() {
-        return this.days.keySet().iterator();
+    public Iterator<RoutineDay> iterator() {
+        return this.days.iterator();
     }
 }

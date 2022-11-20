@@ -22,8 +22,14 @@
                 app:actionLayout="@layout/menu_counter" />
     </group>
     <group
-            android:id="@+id/unique-id-547653"
+            android:id="@+id/unique-id-5487653"
             android:checkableBehavior="single">
+        <item
+                android:id="@+id/nav_my_account"
+                android:icon="@drawable/my_account_icon"
+                android:title="@string/my_account"
+                app:actionLayout="@layout/menu_counter"/>
+
         <item
                 android:id="@+id/nav_user_settings"
                 android:icon="@drawable/user_settings_icon"

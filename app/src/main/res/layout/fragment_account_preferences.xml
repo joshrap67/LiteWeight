@@ -20,7 +20,7 @@
                 android:orientation="vertical">
 
             <LinearLayout
-                    android:id="@+id/metric_layout"
+                    android:id="@+id/metric_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bottom_border_selectable"
@@ -28,7 +28,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/metric_switch"
@@ -46,7 +47,7 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:id="@+id/private_layout"
+                    android:id="@+id/private_account_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bottom_border_selectable"
@@ -54,10 +55,11 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/private_switch"
+                        android:id="@+id/private_account_switch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
@@ -72,7 +74,7 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:id="@+id/update_on_restart_layout"
+                    android:id="@+id/update_on_restart_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bottom_border_selectable"
@@ -80,7 +82,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/update_on_restart_switch"
@@ -98,7 +101,7 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:id="@+id/update_on_save_layout"
+                    android:id="@+id/update_on_save_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bottom_border_selectable"
@@ -106,7 +109,8 @@
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
 
                 <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/update_on_save_switch"

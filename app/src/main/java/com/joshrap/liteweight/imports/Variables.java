@@ -10,6 +10,7 @@ public class Variables {
     public static final int WORKOUT_MAX_NUMBER_OF_DAYS = 7;
     public static final int MAX_NUMBER_OF_WEEKS = 10;
     public static final int MAX_WORKOUT_NAME = 40;
+    public static final int MAX_DAY_TAG_LENGTH = 25;
     public static final int MAX_EXERCISE_NAME = 40;
     public static final int MAX_WEIGHT = 99999;
     public static final int MAX_WEIGHT_DIGITS = Integer.toString(MAX_WEIGHT).length();
@@ -47,12 +48,10 @@ public class Variables {
     public static final double KG_PER_LB = 0.45359237; // (kg / 1 lb)
 
     public static final String SHARED_PREF_SETTINGS = "userSettings";
-    public static final String DATABASE_NAME = "workout_db";
-    public static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
 
     public static final String CURRENT_WORKOUT_TITLE = "Current Workout";
     public static final String MY_WORKOUT_TITLE = "My Workouts";
-    public static final String NEW_WORKOUT_TITLE = "Create Workout";
+    public static final String CREATE_WORKOUT_TITLE = "Create Workout";
     public static final String EDIT_WORKOUT_TITLE = "Edit Workout";
     public static final String MY_EXERCISES_TITLE = "My Exercises";
     public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
@@ -63,7 +62,7 @@ public class Variables {
     public static final String BLOCKED_LIST_TITLE = "Blocked List";
     public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";
-    public static final String SETTINGS_TITLE = "Settings";
+    public static final String SETTINGS_TITLE = "App Settings";
     public static final String ABOUT_TITLE = "About";
     public static final String FAQ_TITLE = "FAQ";
 
@@ -78,6 +77,7 @@ public class Variables {
     public static final String NOTIFICATION_CLICKED = "NotificationClicked";
     public static final String NOTIFICATION_ACTION = "NotificationAction";
     public static final String EXERCISE_ID = "exerciseId";
+    public static final String EXISTING_WORKOUT = "existingWorkout";
 
     public static final String ID_TOKEN_KEY = "IdToken";
     public static final String REFRESH_TOKEN_KEY = "RefreshToken";
@@ -97,11 +97,11 @@ public class Variables {
     public static final String INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
     public static final String INTENT_ID_TOKEN = "idToken";
     public static final String INTENT_REFRESH_TOKEN = "refreshToken";
-    public static final String USER_WITH_WORKOUT_DATA = "userWithWorkoutData";
     public static final String NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked";
     public static final String ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked";
     public static final String INTENT_NOTIFICATION_DATA = "Notification_Data";
     public static final String RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked";
+    public static final String ERROR_MESSAGE = "Error_Message";
 
 
     public static final String CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest";

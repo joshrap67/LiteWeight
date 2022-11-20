@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.utils;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +8,6 @@ import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.joshrap.liteweight.R;
 
 public class AndroidUtils {
 
@@ -39,7 +37,7 @@ public class AndroidUtils {
         };
     }
 
-    public static void showLoadingDialog(ProgressDialog loadingDialog, String message) {
+    public static void showLoadingDialog(AlertDialog loadingDialog, String message) {
         loadingDialog.setMessage(message);
         loadingDialog.show();
     }
@@ -51,12 +49,12 @@ public class AndroidUtils {
         return shake;
     }
 
-    public static void showErrorDialog(String title, String msg, Context context) {
+    public static void showErrorDialog(String msg, Context context) {
         if (context == null) {
             return;
         }
-        AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogTheme)
-                .setTitle(title)
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Error")
                 .setMessage(msg)
                 .setPositiveButton("Ok", null)
                 .create();

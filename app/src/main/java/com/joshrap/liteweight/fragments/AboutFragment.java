@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,10 +52,11 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
     private int acknowledgementsRotationAngle;
+
     @Inject
     UserRepository userRepository;
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
 
     @Nullable
     @Override
@@ -69,13 +69,12 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         String version = null;
         try {
-            version = getContext().getPackageManager()
-                    .getPackageInfo(getContext().getPackageName(), 0).versionName;
+            version = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
         } catch (Exception e) {
             e.printStackTrace();
         }
         if (version != null) {
-            TextView versionTV = view.findViewById(R.id.version_number);
+            TextView versionTV = view.findViewById(R.id.version_number_tv);
             String displayText = getResources().getString(R.string.version_number) + " " + version;
             versionTV.setText(displayText);
         }
@@ -93,9 +92,9 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             startActivity(browserIntent);
         });
 
-        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_layout);
-        TextView acknowledgements = view.findViewById(R.id.acknowledgements);
-        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon);
+        RelativeLayout acknowledgementsLayout = view.findViewById(R.id.acknowledgements_container);
+        TextView acknowledgements = view.findViewById(R.id.acknowledgements_tv);
+        ImageButton acknowledgementIcon = view.findViewById(R.id.acknowledgements_icon_btn);
         acknowledgements.setMovementMethod(LinkMovementMethod.getInstance()); // makes links clickable
 
         View.OnClickListener acknowledgementLayoutClicked = v -> {
@@ -117,7 +116,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
             feedbackInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(feedbackInputLayout));
             feedbackInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_FEEDBACK)});
-            alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+            alertDialog = new AlertDialog.Builder(getContext())
                     .setTitle("Send Feedback")
                     .setView(popupView)
                     .setPositiveButton("Send", null)
@@ -154,8 +153,8 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     private void sendFeedback(String feedback) {
@@ -173,7 +172,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
                 if (resultStatus.isSuccess()) {
                     Toast.makeText(getContext(), "Feedback successfully sent. Thank you!", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog("Send Feedback Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });

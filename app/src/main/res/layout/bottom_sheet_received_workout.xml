@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="340dp"
         android:orientation="vertical"
@@ -14,7 +13,7 @@
             android:id="@+id/workout_name_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bottom_border_selectable"
@@ -45,25 +44,27 @@
                 android:id="@+id/username_pic_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_below="@id/workout_meta_tv"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
+                android:background="?android:selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
 
             <ImageView
-                    android:id="@+id/profile_picture"
+                    android:id="@+id/profile_picture_image"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:layout_alignParentStart="true" />
+                    android:layout_alignParentStart="true"
+                    android:contentDescription="@string/profile_picture" />
 
             <TextView
                     android:id="@+id/username_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:paddingStart="16dp"
-                    android:layout_toEndOf="@+id/profile_picture"
+                    android:layout_toEndOf="@+id/profile_picture_image"
+                    android:paddingHorizontal="16dp"
                     android:textSize="18sp"
                     tools:text="Testing" />
         </RelativeLayout>
@@ -75,12 +76,13 @@
             android:layout_height="60dp"
             android:background="?android:selectableItemBackground"
             android:clickable="true"
-            android:drawableStart="@drawable/browse_workout_icon"
             android:drawablePadding="16dp"
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="@string/browse_workout" />
+            android:paddingEnd="16dp"
+            android:text="@string/browse_workout"
+            app:drawableStartCompat="@drawable/browse_workout_icon" />
 
     <TextView
             android:id="@+id/block_user_tv"
@@ -88,10 +90,11 @@
             android:layout_height="60dp"
             android:background="?android:selectableItemBackground"
             android:clickable="true"
-            android:drawableStart="@drawable/block_user_icon"
             android:drawablePadding="16dp"
             android:focusable="true"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:text="@string/block_user" />
+            android:paddingEnd="16dp"
+            android:text="@string/block_user"
+            app:drawableStartCompat="@drawable/block_user_icon" />
 </LinearLayout>

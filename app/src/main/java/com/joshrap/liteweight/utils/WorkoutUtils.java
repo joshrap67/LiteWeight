@@ -1,27 +1,15 @@
 package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.models.Routine;
+import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 
 public class WorkoutUtils {
-
-    public static void deleteExerciseFromRoutine(final String exerciseId, final Routine routine) {
-        if (routine == null) {
-            return;
-        }
-        for (int week : routine) {
-            for (int day : routine.getWeek(week)) {
-                routine.removeExercise(week, day, exerciseId);
-            }
-        }
-    }
-
     /**
      * Generates a day title in a standard format. E.g. W1:D2
      *
@@ -30,9 +18,10 @@ public class WorkoutUtils {
      * @return formatted day title.
      */
     public static String generateDayTitle(int currentWeekIndex, int currentDayIndex) {
-        return "W" + (currentWeekIndex + 1) + ":D" + (currentDayIndex + 1);
+        return "Week " + (currentWeekIndex + 1) + " Day " + (currentDayIndex + 1);
     }
 
+    // todo unit test
 
     /**
      * Gets the most frequent focus for a given routine.
@@ -43,10 +32,9 @@ public class WorkoutUtils {
      */
     public static String getMostFrequentFocus(final User user, final Routine routine) {
         Map<String, Integer> focusCount = new HashMap<>();
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                List<RoutineExercise> exerciseListForDay = routine.getExerciseListForDay(week, day);
-                for (RoutineExercise routineExercise : exerciseListForDay) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     String exerciseId = routineExercise.getExerciseId();
                     for (String focus : user.getOwnedExercises().get(exerciseId).getFocuses()) {
                         focusCount.merge(focus, 1, Integer::sum);
@@ -55,7 +43,7 @@ public class WorkoutUtils {
             }
         }
 
-        StringJoiner retVal = new StringJoiner(",", "", "");
+        String retVal = "";
         int max = 0;
         for (String focus : focusCount.keySet()) {
             int count = focusCount.get(focus);
@@ -66,9 +54,11 @@ public class WorkoutUtils {
         for (String focus : focusCount.keySet()) {
             int count = focusCount.get(focus);
             if (count == max) {
-                retVal.add(focus);
+                // previously I was merging all that matched the count but looks bad on UI so just return first occurrence of the max
+                retVal = focus;
+                break;
             }
         }
-        return retVal.toString();
+        return retVal;
     }
 }

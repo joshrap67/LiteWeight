@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/sign_in_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -14,11 +13,10 @@
         tools:background="@drawable/login_gradient">
 
     <TextView
-            android:id="@+id/sign_in_app_title"
+            android:id="@+id/sign_in_app_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:fontFamily="@font/roboto"
             android:text="@string/app_name"
             android:textSize="36sp"
             android:textStyle="bold" />
@@ -27,10 +25,10 @@
             android:id="@+id/sign_in_app_logo"
             android:layout_width="185dp"
             android:layout_height="140dp"
-            android:layout_below="@+id/sign_in_app_title"
+            android:layout_below="@+id/sign_in_app_title_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:contentDescription="App Logo"
+            android:contentDescription="@string/app_logo"
             app:srcCompat="@mipmap/app_logo_round" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -40,7 +38,8 @@
             android:layout_below="@+id/sign_in_app_logo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:hint="@string/username_and_email_hint">
+            android:hint="@string/username_and_email_hint"
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_username_input"
@@ -49,8 +48,7 @@
                 android:layout_centerHorizontal="true"
                 android:drawableStart="@drawable/user_icon_login"
                 android:drawablePadding="5dp"
-                android:inputType="textEmailAddress"
-                android:textCursorDrawable="@null" />
+                android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -63,7 +61,8 @@
             android:layout_marginTop="20dp"
             android:hint="@string/password_hint"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/colorAccent">
+            app:passwordToggleTint="@color/color_accent"
+            tools:style="@style/SignInTextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/sign_in_password_input"
@@ -73,46 +72,50 @@
                 android:drawableStart="@drawable/password_icon"
                 android:drawablePadding="5dp"
                 android:inputType="textPassword"
-                android:longClickable="false"
-                android:textCursorDrawable="@null" />
+                android:longClickable="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
-            android:id="@+id/sign_in_forgot_password"
-            android:layout_width="wrap_content"
+            android:id="@+id/sign_in_forgot_password_tv"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/sign_in_password_input_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:text="@string/forgot_pssword_link" />
+            android:background="?selectableItemBackground"
+            android:text="@string/forgot_password_link"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/color_accent" />
+
     <Button
             android:id="@+id/sign_in_primary_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sign_in_forgot_password"
+            android:layout_below="@id/sign_in_forgot_password_tv"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#50000000"
+            android:background="@color/semi_transparent"
             android:foreground="?android:selectableItemBackground"
             android:text="@string/sign_in" />
 
     <View
-            android:id="@+id/divider"
+            android:id="@+id/sign_in_divider"
             android:layout_width="300dp"
             android:layout_height="2dp"
             android:layout_below="@id/sign_in_primary_btn"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#c0c0c0" />
+            android:background="@color/login_divider_color" />
 
     <Button
             android:id="@+id/sign_in_change_mode_btn"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/divider"
+            android:layout_below="@id/sign_in_divider"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="#50000000"
+            android:background="@color/semi_transparent"
             android:foreground="?android:selectableItemBackground"
             android:text="@string/sign_up" />
 </RelativeLayout>

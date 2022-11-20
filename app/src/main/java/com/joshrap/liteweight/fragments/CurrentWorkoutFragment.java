@@ -1,19 +1,15 @@
 package com.joshrap.liteweight.fragments;
 
-import android.animation.LayoutTransition;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
+
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
@@ -22,20 +18,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.models.RoutineDay;
+import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
@@ -57,6 +57,7 @@ import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -66,10 +67,8 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class CurrentWorkoutFragment extends Fragment implements FragmentWithDialog {
-    private TextView dayTV;
-    private ImageButton forwardButton, backButton;
-    private int currentDayIndex;
-    private int currentWeekIndex;
+    private Button forwardButton, backButton;
+    private int currentDayIndex, currentWeekIndex;
     private Timer timer;
     private Stopwatch stopwatch;
     private Workout currentWorkout;
@@ -78,10 +77,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
     private ProgressBar workoutProgressBar;
-    private TextView workoutProgressTV;
+    private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV, dayTagTV;
     private UserWithWorkout userWithWorkout;
+    private ClockBottomFragment clockBottomFragment;
+
+    private enum AnimationDirection {NONE, FROM_LEFT, FROM_RIGHT}
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -116,8 +119,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!userWithWorkout.isWorkoutPresent()) {
-            FloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_btn);
-            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToNewWorkout());
+            ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
+            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
             return;
         }
 
@@ -127,50 +130,114 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         timer = ((WorkoutActivity) getActivity()).getTimer();
         stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+        clockBottomFragment = ClockBottomFragment.newInstance();
 
-        recyclerView = view.findViewById(R.id.recycler_view);
-        forwardButton = view.findViewById(R.id.next_day_button);
-        backButton = view.findViewById(R.id.previous_day_button);
-        dayTV = view.findViewById(R.id.day_text_view);
+        recyclerView = view.findViewById(R.id.routine_recycler_view);
+        forwardButton = view.findViewById(R.id.next_day_btn);
+        backButton = view.findViewById(R.id.previous_day_btn);
+        dayTV = view.findViewById(R.id.day_title_tv);
+        dayTagTV = view.findViewById(R.id.day_tag_tv);
 
-        workoutProgressBar = view.findViewById(R.id.progress_bar);
-        workoutProgressTV = view.findViewById(R.id.progress_bar_TV);
+        ImageButton clockButton = view.findViewById(R.id.timer_icon_btn);
+        clockButton.setOnClickListener(v -> clockBottomFragment.show(getActivity().getSupportFragmentManager(), ClockBottomFragment.TAG));
+        clockButton.setOnLongClickListener(v -> {
+            boolean useTimer = false;
+
+            // determine what this long press does - start timer/stopwatch depending on what is in shared prefs
+            boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
+            boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (timerEnabled && stopwatchEnabled) {
+                // both are enabled, so use whatever was last used
+                String lastMode = sharedPreferences.getString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
+                useTimer = lastMode.equals(Variables.TIMER);
+            } else if (timerEnabled) {
+                // only the timer is enabled, hide the stopwatch
+                editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
+                editor.apply();
+
+                useTimer = true;
+            } else if (stopwatchEnabled) {
+                // only the stopwatch is enabled, hide the timer
+                editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
+                editor.apply();
+            } else {
+                // shouldn't be reached, but none are enabled so don't show anything
+                return true;
+            }
+
+            if (useTimer) {
+                if (timer.isTimerRunning()) {
+                    stopTimer();
+                } else {
+                    startTimer();
+                }
+            } else {
+                if (stopwatch.isStopwatchRunning()) {
+                    stopStopwatch();
+                } else {
+                    startStopwatch();
+                }
+            }
+            return true;
+        });
+
+        secondaryTimerTV = view.findViewById(R.id.secondary_timer_tv);
+        secondaryStopwatchTV = view.findViewById(R.id.secondary_stopwatch_tv);
+
+        workoutProgressBar = view.findViewById(R.id.workout_progress_bar);
+        workoutProgressTV = view.findViewById(R.id.progress_bar_tv);
         if (!sharedPreferences.getBoolean(Variables.WORKOUT_PROGRESS_KEY, true)) {
-            RelativeLayout progressBarLayout = view.findViewById(R.id.relative_layout_progress);
+            FrameLayout progressBarLayout = view.findViewById(R.id.workout_progress_container);
             progressBarLayout.setVisibility(View.GONE);
         }
 
-        setupChronometer(view);
-        setupButtons();
-        updateRoutineListUI();
+        setupDayButtons();
+        updateRoutineListUI(AnimationDirection.NONE);
         updateWorkoutProgressBar();
+
+        // setup clock UI
+        boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
+        boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
+        if (!timerEnabled && !stopwatchEnabled) {
+            // neither are enabled so hide button, invisible as to not mess up layout
+            clockButton.setVisibility(View.INVISIBLE);
+        }
+
+        timer.displayTime.observe(getViewLifecycleOwner(), this::updateTimerDisplay);
+
+        stopwatch.displayTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplay);
+
+        timer.timerRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryTimerTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
+        stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryStopwatchTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
     }
 
     @Override
     public void onResume() {
+        super.onResume();
         // when this fragment is visible again, the timer/stopwatch service is no longer needed so cancel it
         if (timer != null && timer.isTimerRunning()) {
-            timer.cancelService();
+            ((WorkoutActivity) getActivity()).cancelTimerService();
         }
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            stopwatch.cancelService();
+            ((WorkoutActivity) getActivity()).cancelStopwatchService();
         }
-        super.onResume();
     }
 
     @Override
     public void onPause() {
+        super.onPause();
+
         hideAllDialogs();
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
-            timer.startService();
+            ((WorkoutActivity) getActivity()).startTimerService();
         }
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            stopwatch.startService();
+            ((WorkoutActivity) getActivity()).startStopwatchService();
         }
-        super.onPause();
     }
 
     @Override
@@ -181,71 +248,64 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
+        if (clockBottomFragment != null && clockBottomFragment.isVisible()) {
+            clockBottomFragment.dismiss();
+        }
     }
 
-    /**
-     * Sets up whether the stopwatch or timer are displayed.
-     *
-     * @param view fragment view.
-     */
-    private void setupChronometer(View view) {
-        RelativeLayout stopwatchContainer = view.findViewById(R.id.stopwatch_container);
-        RelativeLayout timerContainer = view.findViewById(R.id.timer_container);
+    private void startStopwatch() {
+        stopwatch.startStopwatch();
+    }
 
-        boolean timerEnabled = sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true);
-        boolean stopwatchEnabled = sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (timerEnabled && stopwatchEnabled) {
-            // both are enabled, so use whatever was last used
-            timer.initTimerUI(view, getActivity(), true);
-            stopwatch.initStopwatchUI(view, getActivity(), true);
-            String lastMode = sharedPreferences.getString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-            switch (lastMode) {
-                case Variables.TIMER:
-                    stopwatchContainer.setVisibility(View.GONE);
-                    break;
-                case Variables.STOPWATCH:
-                    timerContainer.setVisibility(View.GONE);
-                    break;
-            }
-        } else if (timerEnabled) {
-            // only the timer is enabled, hide the stopwatch
-            editor.putString(Variables.LAST_CLOCK_MODE, Variables.TIMER);
-            editor.apply();
+    private void startTimer() {
+        timer.startTimer();
+    }
 
-            timerContainer.setVisibility(View.VISIBLE);
-            stopwatchContainer.setVisibility(View.GONE);
-            timer.initTimerUI(view, getActivity(), false);
-        } else if (stopwatchEnabled) {
-            // only the stopwatch is enabled, hide the timer
-            editor.putString(Variables.LAST_CLOCK_MODE, Variables.STOPWATCH);
-            editor.apply();
+    private void stopTimer() {
+        timer.stopTimer();
+    }
 
-            timerContainer.setVisibility(View.GONE);
-            stopwatchContainer.setVisibility(View.VISIBLE);
-            stopwatch.initStopwatchUI(view, getActivity(), false);
-        } else {
-            // none are enabled so don't show any
-            stopwatchContainer.setVisibility(View.GONE);
-            timerContainer.setVisibility(View.GONE);
+    private void stopStopwatch() {
+        stopwatch.stopStopwatch();
+    }
+
+
+    private void updateTimerDisplay(long elapsedTime) {
+        int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));
+        int seconds = (int) (elapsedTime / Timer.timeUnit) % 60;
+        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+
+        if (secondaryTimerTV != null) {
+            secondaryTimerTV.setText(timeRemaining);
+        }
+    }
+
+    private void updateStopwatchDisplay(long elapsedTime) {
+        int minutes = (int) (elapsedTime / (60 * Stopwatch.timeUnit));
+        int seconds = (int) (elapsedTime / Stopwatch.timeUnit) % 60;
+        String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+
+        if (secondaryStopwatchTV != null) {
+            secondaryStopwatchTV.setText(timeFormatted);
         }
     }
 
     /**
      * Setup button listeners for moving forward and backwards throughout the routine.
      */
-    private void setupButtons() {
+    private void setupDayButtons() {
         dayTV.setOnClickListener(v -> showJumpDaysPopup());
+        dayTagTV.setOnClickListener(v -> showJumpDaysPopup());
         backButton.setOnClickListener(v -> {
             if (currentDayIndex > 0) {
                 // if on this week there are more days, just decrease the current day index
                 currentDayIndex--;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_LEFT);
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
                 currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_LEFT);
             }
             currentWorkout.setCurrentDay(currentDayIndex);
             currentWorkout.setCurrentWeek(currentWeekIndex);
@@ -254,12 +314,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_RIGHT);
             } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
                 // there are more weeks, so go to the next week
                 currentDayIndex = 0;
                 currentWeekIndex++;
-                updateRoutineListUI();
+                updateRoutineListUI(AnimationDirection.FROM_RIGHT);
             } else {
                 // on last week, prompt user to restart the workout
                 showRestartPopup();
@@ -277,40 +337,61 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             // it's the first day in the entire routine, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
+            forwardButton.setText(R.string.next_day);
             if (currentWeekIndex + 1 == routine.getNumberOfWeeks() && routine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout, must show the restart button
-                forwardButton.setImageResource(R.drawable.restart_icon);
+                forwardButton.setText(R.string.restart_workout);
             }
         } else if (currentWeekIndex + 1 == routine.getNumberOfWeeks()
                 && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so show reset icon
             backButton.setVisibility(View.VISIBLE);
-            // lil hacky, but don't want the ripple showing when the icons switch
-            forwardButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
-            forwardButton.setImageResource(R.drawable.restart_icon);
+            forwardButton.setText(R.string.restart_workout);
         } else if (currentWeekIndex < routine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            forwardButton.setImageResource(R.drawable.next_icon);
+            forwardButton.setText(R.string.next_day);
         }
     }
 
     /**
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
-    private void updateRoutineListUI() {
+    private void updateRoutineListUI(AnimationDirection animationDirection) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
         boolean metricUnits = user.getUserPreferences().isMetricUnits();
-        RoutineAdapter routineAdapter = new RoutineAdapter(routine.getExerciseListForDay(currentWeekIndex, currentDayIndex),
-                user.getOwnedExercises(), metricUnits, videosEnabled);
+
+        List<RoutineRowModel> routineRowModels = new ArrayList<>();
+        for (RoutineExercise exercise : routine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+            RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
+            routineRowModels.add(exerciseRowModel);
+        }
+        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, user.getOwnedExercises(), metricUnits, videosEnabled);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        LayoutAnimationController animation = null;
+        switch (animationDirection) {
+            case FROM_LEFT:
+                animation = AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_from_left);
+                break;
+            case FROM_RIGHT:
+                animation = AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_from_right);
+                break;
+        }
+
+        if (animation != null) {
+            recyclerView.setLayoutAnimation(animation);
+        }
+
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
+        String dayTag = routine.getDay(currentWeekIndex, currentDayIndex).getTag();
+        dayTagTV.setVisibility(dayTag == null || dayTag.isEmpty() ? View.GONE : View.VISIBLE);
+        dayTagTV.setText(dayTag);
         updateButtonViews();
     }
 
@@ -339,10 +420,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
 
-                    updateRoutineListUI();
+                    updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                     updateWorkoutProgressBar();
                 } else {
-                    AndroidUtils.showErrorDialog("Restart Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -354,9 +435,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void updateWorkoutProgressBar() {
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     totalExercises++;
                     if (routineExercise.isCompleted()) {
                         exercisesCompleted++;
@@ -365,7 +446,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
-        workoutProgressBar.setProgress(percentage);
+        workoutProgressBar.setProgress(percentage, true);
         workoutProgressTV.setText(String.format("Workout Progress - %d %%", percentage));
     }
 
@@ -376,21 +457,21 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                if (week == currentWeekIndex && day == currentDayIndex) {
+        for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
+            RoutineWeek week = routine.getWeek(weekIndex);
+            for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+                if (weekIndex == currentWeekIndex && dayIndex == currentDayIndex) {
                     // for highlighting what day the user is currently on
                     selectedVal = totalDays;
                 }
-                String dayTitle = WorkoutUtils.generateDayTitle(week, day);
+                String dayTitle = WorkoutUtils.generateDayTitle(weekIndex, dayIndex);
                 days.add(dayTitle);
                 totalDays++;
             }
         }
         String[] daysAsArray = new String[totalDays];
-        for (int i = 0; i < totalDays; i++) {
-            daysAsArray[i] = days.get(i);
-        }
+        days.toArray(daysAsArray);
+
         View popupView = getLayoutInflater().inflate(R.layout.popup_jump_days, null);
         NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
@@ -399,23 +480,24 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (Integer week : routine) {
-                        for (Integer day : routine.getWeek(week)) {
+                    for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
+                        RoutineWeek week = routine.getWeek(weekIndex);
+                        for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
                             if (count == dayPicker.getValue()) {
-                                currentWeekIndex = week;
-                                currentDayIndex = day;
+                                currentWeekIndex = weekIndex;
+                                currentDayIndex = dayIndex;
                             }
                             count++;
                         }
                     }
                     currentWorkout.setCurrentDay(currentDayIndex);
                     currentWorkout.setCurrentWeek(currentWeekIndex);
-                    updateRoutineListUI();
+                    updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                 })
                 .create();
         alertDialog.show();
@@ -427,9 +509,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void showRestartPopup() {
         int exercisesCompleted = 0;
         int totalExercises = 0;
-        for (Integer week : routine) {
-            for (Integer day : routine.getWeek(week)) {
-                for (RoutineExercise routineExercise : routine.getExerciseListForDay(week, day)) {
+        for (RoutineWeek week : routine) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
                     totalExercises++;
                     if (routineExercise.isCompleted()) {
                         exercisesCompleted++;
@@ -440,34 +522,15 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
 
         View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
-        ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
+        ProgressBar progressBar = popupView.findViewById(R.id.workout_progress_bar);
         progressBar.setProgress(percentage);
-        TextView progressTV = popupView.findViewById(R.id.progress_percentage_TV);
+        TextView progressTV = popupView.findViewById(R.id.progress_bar_tv);
         progressTV.setText(String.format("%d %%", percentage));
-        // color the percentage/percentage bar based on how much has been done
-        int color;
-        if (percentage <= 20) {
-            color = R.color.workout_very_low_percentage;
-        } else if (percentage <= 40) {
-            color = R.color.workout_low_percentage;
-        } else if (percentage <= 60) {
-            color = R.color.workout_medium_percentage;
-        } else if (percentage <= 80) {
-            color = R.color.workout_high_percentage;
-        } else {
-            color = R.color.workout_very_high_percentage;
-        }
-        ;
-        progressBar.setProgressTintList(ColorStateList.valueOf(getResources().getColor(color)));
-        progressTV.setTextColor(ContextCompat.getColor(getContext(), color));
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Restart Workout")
                 .setView(popupView)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    restartWorkout();
-                    updateRoutineListUI();
-                })
+                .setPositiveButton("Yes", (dialog, which) -> restartWorkout())
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
@@ -476,33 +539,29 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            CheckBox exerciseCheckbox;
-            Button weightButton;
-            ImageButton saveButton;
-            ImageButton videoButton;
-            LinearLayout extraInfo;
+            final CheckBox exerciseCheckbox;
+            final Button expandButton;
+            final RelativeLayout bottomContainer;
 
-            EditText detailsInput;
-            EditText weightInput;
-            EditText setsInput;
-            EditText repsInput;
+            final EditText detailsInput;
+            final EditText weightInput;
+            final EditText setsInput;
+            final EditText repsInput;
+            final Button videoButton;
 
-            TextInputLayout weightInputLayout;
-            TextInputLayout setsInputLayout;
-            TextInputLayout repsInputLayout;
-            TextInputLayout detailsInputLayout;
-            LinearLayout rootLayout;
+            final TextInputLayout weightInputLayout;
+            final TextInputLayout setsInputLayout;
+            final TextInputLayout repsInputLayout;
+            final TextInputLayout detailsInputLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
 
-                rootLayout = itemView.findViewById(R.id.root_layout);
+                exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
+                expandButton = itemView.findViewById(R.id.expand_btn);
+                videoButton = itemView.findViewById(R.id.launch_video_btn);
 
-                exerciseCheckbox = itemView.findViewById(R.id.exercise_name);
-                weightButton = itemView.findViewById(R.id.weight_btn);
-                extraInfo = itemView.findViewById(R.id.extra_info_layout);
-                saveButton = itemView.findViewById(R.id.save_button);
-                videoButton = itemView.findViewById(R.id.launch_video);
+                bottomContainer = itemView.findViewById(R.id.bottom_container);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
                 detailsInput = itemView.findViewById(R.id.details_input);
@@ -516,13 +575,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        private final List<RoutineExercise> exercises;
+        private final List<RoutineRowModel> routineRowModels;
         private final Map<String, OwnedExercise> exerciseUserMap;
         private final boolean metricUnits;
         private final boolean videosEnabled;
 
-        RoutineAdapter(List<RoutineExercise> routineExercises, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
-            this.exercises = routineExercises;
+        RoutineAdapter(List<RoutineRowModel> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
+            this.routineRowModels = routineRowModels;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
             this.videosEnabled = videosEnabled;
@@ -538,36 +597,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
-        public long getItemId(int position) {
-            // not using the real power of recycler views since it's extremely cumbersome to deal with the "recycling" in this case...
-            return position;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            // not using the real power of recycler views since it's extremely cumbersome to deal with the "recycling" in this case...
-            return position;
-        }
-
-        @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-            // imma be real i have no idea why using this overload fixes the weird animation bugs
+            // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
             if (!payloads.isEmpty()) {
-                // this exercise has been updated, clear errors, set values, and animate back to single row
-                final RoutineExercise exercise = exercises.get(position);
+                final RoutineRowModel routineRowModel = routineRowModels.get(position);
+                final RoutineExercise exercise = routineRowModel.routineExercise;
+                boolean isExpanded = routineRowModel.isExpanded;
 
-                // remove any errors
-                holder.weightInputLayout.setError(null);
-                holder.setsInputLayout.setError(null);
-                holder.repsInputLayout.setError(null);
-                holder.detailsInput.setError(null);
-                // hide extra layout
-                holder.weightButton.setVisibility(View.VISIBLE);
-                holder.extraInfo.setVisibility(View.GONE);
-                holder.saveButton.setVisibility(View.GONE);
-                holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
-
-                setInputs(holder, exercise);
+                if (isExpanded) {
+                    setExpandedViews(holder, exercise);
+                } else {
+                    setCollapsedViews(holder, exercise);
+                }
             } else {
                 super.onBindViewHolder(holder, position, payloads);
             }
@@ -575,32 +616,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final RoutineExercise exercise = exercises.get(position);
-
-            LinearLayout rootLayout = holder.rootLayout;
-            LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
-            layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-                @Override
-                public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                    RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(getContext()) {
-                        @Override
-                        protected int getVerticalSnapPreference() {
-                            return LinearSmoothScroller.SNAP_TO_START;
-                        }
-                    };
-
-                    if (transitionType == LayoutTransition.CHANGE_APPEARING &&
-                            holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                        // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
-                        smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                    }
-                }
-
-                @Override
-                public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                }
-            });
+            final RoutineRowModel rowModel = routineRowModels.get(position);
+            final RoutineExercise exercise = rowModel.routineExercise;
+            boolean isExpanded = rowModel.isExpanded;
 
             String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;
@@ -611,7 +629,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 updateWorkoutProgressBar();
             });
 
-            Button weightButton = holder.weightButton;
+            Button expandButton = holder.expandButton;
             EditText weightInput = holder.weightInput;
             EditText detailsInput = holder.detailsInput;
             EditText repsInput = holder.repsInput;
@@ -622,9 +640,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             TextInputLayout repsInputLayout = holder.repsInputLayout;
             TextInputLayout weightInputLayout = holder.weightInputLayout;
 
-            LinearLayout extraInfo = holder.extraInfo;
-            ImageButton saveButton = holder.saveButton;
-            ImageButton videoButton = holder.videoButton;
+            Button videoButton = holder.videoButton;
             videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
             weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
@@ -632,44 +648,82 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
             detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-            setInputs(holder, exercise);
+            weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightInputLayout));
+            setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsInputLayout));
+            repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsInputLayout));
+            detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsInputLayout));
 
-            weightButton.setOnClickListener((v) -> {
-                // show all the extra details for this exercise so the user can edit/read them
-                weightButton.setVisibility(View.INVISIBLE);
-                videoButton.setVisibility(View.GONE);
-                extraInfo.setVisibility(View.VISIBLE);
-                saveButton.setVisibility(View.VISIBLE);
-            });
+            if (isExpanded) {
+                setExpandedViews(holder, exercise);
+            } else {
+                setCollapsedViews(holder, exercise);
+            }
 
-            saveButton.setOnClickListener(view -> {
-                // first check if input on all fields is valid
-                boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
-                        weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+            expandButton.setOnClickListener((v) -> {
+                ((WorkoutActivity) getActivity()).hideKeyboard();
 
-                if (validInput) {
-                    double newWeight = Double.parseDouble(weightInput.getText().toString());
-                    if (metricUnits) {
-                        // convert back to imperial if in metric since weight is stored in imperial on backend
-                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                if (rowModel.isExpanded) {
+                    boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
+                            weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+
+                    if (validInput) {
+                        double newWeight = Double.parseDouble(weightInput.getText().toString());
+                        if (metricUnits) {
+                            // convert back to imperial if in metric since weight is stored in imperial on backend
+                            newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                        }
+
+                        exercise.setWeight(newWeight);
+                        exercise.setDetails(detailsInput.getText().toString().trim());
+                        exercise.setReps(Integer.parseInt(repsInput.getText().toString().trim()));
+                        exercise.setSets(Integer.parseInt(setsInput.getText().toString().trim()));
+
+                        rowModel.isExpanded = false;
+
+                        notifyItemChanged(position, true);
+                        ((WorkoutActivity) getActivity()).hideKeyboard();
                     }
 
-                    exercise.setWeight(newWeight);
-                    exercise.setDetails(detailsInput.getText().toString().trim());
-                    exercise.setReps(Integer.valueOf(repsInput.getText().toString().trim()));
-                    exercise.setSets(Integer.valueOf(setsInput.getText().toString().trim()));
-
+                } else {
+                    // show all the extra details for this exercise so the user can edit/read them
+                    rowModel.isExpanded = true;
                     notifyItemChanged(position, true);
+                    setExpandedViews(holder, exercise); // this prevents weird flashing on expanded animation
                 }
             });
-            videoButton.setOnClickListener(v ->
-                    ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()));
+
+            videoButton.setOnClickListener(v -> {
+                alertDialog = new AlertDialog.Builder(getContext())
+                        .setTitle("Launch Video")
+                        .setMessage(R.string.launch_video_msg)
+                        .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()))
+                        .setNegativeButton("No", null)
+                        .create();
+                alertDialog.show();
+            });
+        }
+
+        private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
+            holder.bottomContainer.setVisibility(View.VISIBLE);
+            holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
+
+            holder.expandButton.setText(R.string.done_all_caps);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+
+            setInputs(holder, exercise);
+        }
+
+        private void setCollapsedViews(ViewHolder holder, RoutineExercise exercise) {
+            holder.bottomContainer.setVisibility(View.GONE);
+
+            double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+            String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
+            holder.expandButton.setText(formattedWeight);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
         }
 
         private void setInputs(ViewHolder holder, RoutineExercise exercise) {
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
-            String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-            holder.weightButton.setText(formattedWeight);
             holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
             holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
@@ -684,9 +738,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             boolean valid = true;
             if (weightInput.getText().toString().trim().isEmpty()) {
                 valid = false;
-                weightLayout.setError("Weight cannot be empty.");
+                weightLayout.setError("Weight cannot be empty");
             } else if (weightInput.getText().toString().trim().length() > Variables.MAX_WEIGHT_DIGITS) {
-                weightLayout.setError("Weight is too large.");
+                weightLayout.setError("Weight too large");
                 valid = false;
             }
 
@@ -702,8 +756,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 valid = false;
             }
 
-            if (detailsInput.getText().toString().length() > Variables.MAX_DETAILS_LENGTH) {
-                detailsLayout.setError("Too many characters.");
+            if (detailsInput.getText().toString().trim().length() > Variables.MAX_DETAILS_LENGTH) {
+                detailsLayout.setError("Too many characters");
                 valid = false;
             }
 
@@ -712,7 +766,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public int getItemCount() {
-            return exercises.size();
+            return routineRowModels.size();
+        }
+    }
+
+    // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
+    private static class RoutineRowModel {
+        private final RoutineExercise routineExercise;
+        private boolean isExpanded;
+
+        public RoutineRowModel(RoutineExercise routineExercise, boolean isExpanded) {
+            this.routineExercise = routineExercise;
+            this.isExpanded = isExpanded;
         }
     }
 }

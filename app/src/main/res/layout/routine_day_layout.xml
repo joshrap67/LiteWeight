@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="4dp"
+        android:animateLayoutChanges="true">
+
+    <RelativeLayout
+            android:id="@+id/title_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_view_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+                android:id="@+id/sort_icon_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="4dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/sort_exercises"
+                android:src="@drawable/sort_icon" />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toStartOf="@id/day_more_icon_btn"
+                android:layout_toEndOf="@id/sort_icon_button"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/day_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/roboto_thin"
+                    android:textSize="34sp"
+                    tools:text="Week 10 Day 7" />
+
+            <TextView
+                    android:id="@+id/day_tag_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:textStyle="italic"
+                    android:textColor="@color/subtitle_color"
+                    tools:text="Shoulders Day" />
+        </LinearLayout>
+
+        <ImageButton
+                android:id="@+id/day_more_icon_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="4dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/more_options"
+                android:src="@drawable/more_icon" />
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:id="@+id/recycler_view_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_container">
+
+        <TextView
+                android:id="@+id/empty_view_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="16dp"
+                android:text="@string/empty_workout_day"
+                android:textAlignment="center"
+                android:textSize="24sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/exercises_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/buttons_container"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="4dp"
+                android:scrollbarStyle="outsideInset"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/row_exercise_pending" />
+
+        <RelativeLayout
+                android:id="@+id/buttons_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="16dp">
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/done_sorting_fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/done_sorting_msg"
+                    android:textColor="@color/color_accent"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/color_primary"
+                    app:icon="@drawable/check_icon"
+                    app:iconTint="@color/color_accent"
+                    tools:visibility="gone" />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/add_exercises_fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end|bottom"
+                    android:text="@string/add_exercises"
+                    android:textColor="@color/color_accent"
+                    app:backgroundTint="@color/color_primary"
+                    app:icon="@drawable/add_icon"
+                    app:iconTint="@color/color_accent" />
+        </RelativeLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

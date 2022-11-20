@@ -3,111 +3,95 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="8dp">
 
     <ProgressBar
-            android:id="@+id/loading_icon"
+            android:id="@+id/loading_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            tools:visibility="gone" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_layout"
+    <RelativeLayout
+            android:id="@+id/browse_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp">
+            android:layout_height="match_parent">
 
-        <RelativeLayout
-                android:id="@+id/relative_layout"
-                android:layout_width="0dp"
+        <TextView
+                android:id="@+id/day_title_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/middle_container"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginHorizontal="8dp"
+                android:layout_toStartOf="@id/respond_btn"
+                android:background="?android:selectableItemBackground"
+                android:fontFamily="@font/roboto_thin"
+                android:textSize="40sp"
+                tools:text="Week 1 Day 1" />
 
-            <ImageButton
-                    android:id="@+id/previous_day_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/back_icon" />
-
-            <TextView
-                    android:id="@+id/day_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:background="?android:selectableItemBackground"
-                    android:textSize="36sp"
-                    tools:text="W1:D1" />
-
-            <ImageButton
-                    android:id="@+id/next_day_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/next_icon" />
-        </RelativeLayout>
-
-        <LinearLayout
-                android:id="@+id/middle_container"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toTopOf="@+id/bottom_container"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/relative_layout">
-
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintBottom_toTopOf="@+id/timer_container"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
-
-        </LinearLayout>
-
-        <LinearLayout
-                android:id="@+id/bottom_container"
-                android:layout_width="match_parent"
+        <TextView
+                android:id="@+id/day_tag_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="40dp"
-                android:paddingEnd="40dp"
-                android:weightSum="2"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/middle_container">
+                android:layout_below="@id/day_title_tv"
+                android:layout_marginHorizontal="8dp"
+                android:textColor="@color/subtitle_color"
+                android:textSize="13sp"
+                android:textStyle="italic"
+                tools:text="Shoulders Day " />
 
-            <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/decline_workout_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight="1"
-                    android:text="@string/decline"
-                    android:textColor="@color/colorAccent"
-                    app:backgroundTint="@color/deny_color" />
+        <Button
+                android:id="@+id/respond_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:contentDescription="@string/more_options"
+                android:src="@drawable/more_icon"
+                android:text="@string/respond" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/accept_workout_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/accept"
-                    android:textColor="@color/colorAccent"
-                    app:backgroundTint="@color/colorPrimary" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/browse_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/previous_day_btn"
+                android:layout_below="@id/day_tag_tv"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:paddingHorizontal="4dp"
+                android:scrollbarStyle="outsideInset"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/row_exercise_read_only" />
+
+        <Button
+                android:id="@+id/previous_day_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="8dp"
+                android:layout_toStartOf="@id/space"
+                android:text="@string/previous_day"
+                app:shapeAppearance="@style/roundedButton" />
+
+        <Space
+                android:id="@+id/space"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
+
+        <Button
+                android:id="@+id/next_day_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="8dp"
+                android:layout_toEndOf="@id/space"
+                android:text="@string/next_day"
+                app:shapeAppearance="@style/roundedButton" />
+    </RelativeLayout>
 </RelativeLayout>

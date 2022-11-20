@@ -1,13 +1,17 @@
 package com.joshrap.liteweight.models;
 
+import androidx.annotation.NonNull;
+
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class RoutineExercise implements Model, Cloneable {
 
     public static final String COMPLETED = "completed";
@@ -24,6 +28,7 @@ public class RoutineExercise implements Model, Cloneable {
     private int reps;
     private String details;
 
+    @NonNull
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -56,7 +61,7 @@ public class RoutineExercise implements Model, Cloneable {
         this.details = ownedExercise.getDefaultDetails();
     }
 
-    static boolean exercisesDifferent(RoutineExercise exercise1, RoutineExercise exercise2) {
+    public static boolean exercisesDifferent(RoutineExercise exercise1, RoutineExercise exercise2) {
         boolean retVal = false;
         if (exercise1.isCompleted() != exercise2.isCompleted()) {
             retVal = true;

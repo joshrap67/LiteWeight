@@ -15,7 +15,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorPrimary"
+                android:background="@color/color_primary"
                 android:elevation="4dp"
                 android:theme="@style/ToolbarStyle">
 
@@ -23,10 +23,8 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="@string/workout_name_title"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
+                    android:textSize="24sp"
                     app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform" />
         </androidx.appcompat.widget.Toolbar>
@@ -44,7 +42,6 @@
             android:layout_gravity="start"
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header"
-            app:itemBackground="@drawable/nav_item_background"
             app:itemIconTint="@drawable/nav_item_icon"
             app:itemTextColor="@drawable/nav_item_text"
             app:menu="@menu/draw_menu" />

@@ -32,9 +32,9 @@ public class FaqFragment extends Fragment {
         ((WorkoutActivity) getActivity()).toggleBackButton(true);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FAQ_TITLE);
 
-        RelativeLayout faq0Layout = view.findViewById(R.id.faq_0_layout);
-        TextView faq0 = view.findViewById(R.id.faq_0);
-        ImageButton faq0Icon = view.findViewById(R.id.faq_0_icon);
+        RelativeLayout faq0Layout = view.findViewById(R.id.faq_0_container);
+        TextView faq0 = view.findViewById(R.id.faq_0_tv);
+        ImageButton faq0Icon = view.findViewById(R.id.faq_0_icon_btn);
         View.OnClickListener faq0Clicked = v -> {
             boolean visible = faq0.getVisibility() == View.VISIBLE;
             faq0.setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -45,9 +45,9 @@ public class FaqFragment extends Fragment {
         faq0Layout.setOnClickListener(faq0Clicked);
         faq0Icon.setOnClickListener(faq0Clicked);
 
-        RelativeLayout faq1Layout = view.findViewById(R.id.faq_1_layout);
-        TextView faq1 = view.findViewById(R.id.faq_1);
-        ImageButton faq1Icon = view.findViewById(R.id.faq_1_icon);
+        RelativeLayout faq1Layout = view.findViewById(R.id.faq_1_container);
+        TextView faq1 = view.findViewById(R.id.faq_1_tv);
+        ImageButton faq1Icon = view.findViewById(R.id.faq_1_icon_btn);
         View.OnClickListener faq1Clicked = v -> {
             boolean visible = faq1.getVisibility() == View.VISIBLE;
             faq1.setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -58,9 +58,9 @@ public class FaqFragment extends Fragment {
         faq1Layout.setOnClickListener(faq1Clicked);
         faq1Icon.setOnClickListener(faq1Clicked);
 
-        RelativeLayout faq2Layout = view.findViewById(R.id.faq_2_layout);
-        TextView faq2 = view.findViewById(R.id.faq_2);
-        ImageButton faq2Icon = view.findViewById(R.id.faq_2_icon);
+        RelativeLayout faq2Layout = view.findViewById(R.id.faq_2_container);
+        TextView faq2 = view.findViewById(R.id.faq_2_tv);
+        ImageButton faq2Icon = view.findViewById(R.id.faq_2_icon_btn);
         View.OnClickListener faq2Clicked = v -> {
             boolean visible = faq2.getVisibility() == View.VISIBLE;
             faq2.setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -71,9 +71,9 @@ public class FaqFragment extends Fragment {
         faq2Layout.setOnClickListener(faq2Clicked);
         faq2Icon.setOnClickListener(faq2Clicked);
 
-        RelativeLayout faq3Layout = view.findViewById(R.id.faq_3_layout);
-        TextView faq3 = view.findViewById(R.id.faq_3);
-        ImageButton faq3Icon = view.findViewById(R.id.faq_3_icon);
+        RelativeLayout faq3Layout = view.findViewById(R.id.faq_3_container);
+        TextView faq3 = view.findViewById(R.id.faq_3_tv);
+        ImageButton faq3Icon = view.findViewById(R.id.faq_3_icon_btn);
         View.OnClickListener faq3Clicked = v -> {
             boolean visible = faq3.getVisibility() == View.VISIBLE;
             faq3.setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -84,9 +84,9 @@ public class FaqFragment extends Fragment {
         faq3Layout.setOnClickListener(faq3Clicked);
         faq3Icon.setOnClickListener(faq3Clicked);
 
-        RelativeLayout faq4Layout = view.findViewById(R.id.faq_4_layout);
-        TextView faq4 = view.findViewById(R.id.faq_4);
-        ImageButton faq4Icon = view.findViewById(R.id.faq_4_icon);
+        RelativeLayout faq4Layout = view.findViewById(R.id.faq_4_container);
+        TextView faq4 = view.findViewById(R.id.faq_4_tv);
+        ImageButton faq4Icon = view.findViewById(R.id.faq_4_icon_btn);
         View.OnClickListener faq4Clicked = v -> {
             boolean visible = faq4.getVisibility() == View.VISIBLE;
             faq4.setVisibility(visible ? View.GONE : View.VISIBLE);

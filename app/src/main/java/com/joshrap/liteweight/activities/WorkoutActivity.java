@@ -1,27 +1,27 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
@@ -38,11 +38,9 @@ import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -87,23 +85,20 @@ import lombok.Getter;
 
 public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-    private AlertDialog alertDialog;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
-    private TextView toolbarTitleTV, accountNotificationTV;
+    private TextView toolbarTitleTV;
     private NavigationView nav;
     private FragmentManager fragmentManager;
-    private boolean showPopupFlag;
     private ArrayList<String> fragmentStack; // stack of fragment ids
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private boolean activityFinishing;
     private ImageView profilePicture;
     private Workout lastSyncedWorkout;
+    private User user;
 
     @Getter
     private UserWithWorkout userWithWorkout;
-    @Getter
-    private User user;
     @Getter
     private Timer timer;
     @Getter
@@ -116,7 +111,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
 
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
@@ -136,7 +131,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         // send broadcast to any fragments waiting on this model update
                         Intent broadcastIntent = new Intent();
                         broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
+                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, friendRequest.getUsername());
                         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
                         localBroadcastManager.sendBroadcast(broadcastIntent);
                     } catch (IOException e) {
@@ -203,9 +198,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         }
 
                         // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
-                        boolean updateUnseen =
-                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
-                                        user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
+                        boolean updateUnseen = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
+                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
                         // no npe since Java will see the first part is true and then immediately return true
                         if (updateUnseen) {
                             // workout has not been seen yet so increase the unseen count
@@ -253,9 +247,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             jsonNotificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
 
-        if (userWithWorkout == null) {
+        if (userWithWorkout == null && Globals.userWithWorkout != null) {
             userWithWorkout = Globals.userWithWorkout;
             Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
+        } else if (userWithWorkout == null) {
+            // ughhhh. if app is eventually killed by OS, static vars get nulled out. so in that case just restart app for user to avoid crash
+            Intent intent = new Intent(this, SplashActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         user = userWithWorkout.getUser();
@@ -277,10 +276,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
-        timer = new Timer(this, sharedPreferences);
-        stopwatch = new Stopwatch(this, sharedPreferences);
+        long timerDuration = sharedPreferences.getLong(Variables.TIMER_DURATION, Variables.DEFAULT_TIMER_VALUE);
+        timer = new Timer(timerDuration);
+        stopwatch = new Stopwatch();
         fragmentStack = new ArrayList<>();
-        showPopupFlag = true;
         fragmentSavedStatesMap = new HashMap<>();
         drawerListenerIsRegistered = false;
         fragmentManager = getSupportFragmentManager();
@@ -295,8 +294,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             getSupportActionBar().setDisplayShowTitleEnabled(false); // removes the app title from the toolbar
         }
 
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.nav_draw_open, R.string.nav_draw_close);
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         if (savedInstanceState == null) {
@@ -307,15 +305,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             nav.setCheckedItem(R.id.nav_current_workout);
         }
         View headerView = nav.getHeaderView(0);
-        ConstraintLayout headerLayout = headerView.findViewById(R.id.nav_header);
-        headerLayout.setOnClickListener(view -> {
-            goToAccountSettings();
+        ConstraintLayout navHeaderLayout = headerView.findViewById(R.id.nav_header_layout);
+        navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
+        navHeaderLayout.setOnClickListener(view -> {
+            goToMyAccount();
             drawer.closeDrawer(GravityCompat.START);
+            nav.setCheckedItem(R.id.nav_my_account);
         });
         TextView usernameTV = headerView.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
-        accountNotificationTV = headerView.findViewById(R.id.notification_tv);
-        profilePicture = headerView.findViewById(R.id.profile_picture);
+        profilePicture = headerView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(user.getIcon()))
                 .error(R.drawable.picture_load_error)
@@ -343,6 +342,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
             navigateToFragmentFromNotification(action);
         }
+        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
     private void launchSplashActivity(String jsonData, String action) {
@@ -451,74 +451,63 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.nav_current_workout:
-                if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
-                    goToCurrentWorkout();
-                }
-                break;
-            case R.id.nav_my_workouts:
-                if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
-                    goToMyWorkouts();
-                }
-                break;
-            case R.id.nav_my_exercises:
-                if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
-                    goToMyExercises();
-                }
-                break;
-            case R.id.nav_received_workouts:
-                if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
-                    goToReceivedWorkouts();
-                }
-                break;
-            case R.id.nav_user_settings:
-                if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
-                    goToAppSettings();
-                }
-                break;
-            case R.id.nav_about:
-                if (!(getVisibleFragment() instanceof AboutFragment)) {
-                    goToAbout();
-                }
-                break;
+        hideKeyboard();
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.nav_current_workout) {
+            if (!(getVisibleFragment() instanceof CurrentWorkoutFragment)) {
+                goToCurrentWorkout();
+            }
+        } else if (itemId == R.id.nav_my_workouts) {
+            if (!(getVisibleFragment() instanceof MyWorkoutsFragment)) {
+                goToMyWorkouts();
+            }
+        } else if (itemId == R.id.nav_my_exercises) {
+            if (!(getVisibleFragment() instanceof MyExercisesFragment)) {
+                goToMyExercises();
+            }
+        } else if (itemId == R.id.nav_received_workouts) {
+            if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
+                goToReceivedWorkouts();
+            }
+        } else if (itemId == R.id.nav_user_settings) {
+            if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
+                goToAppSettings();
+            }
+        } else if (itemId == R.id.nav_about) {
+            if (!(getVisibleFragment() instanceof AboutFragment)) {
+                goToAbout();
+            }
+        } else if (itemId == R.id.nav_my_account) {
+            if (!(getVisibleFragment() instanceof MyAccountFragment)) {
+                goToMyAccount();
+            }
         }
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        Fragment visibleFragment = getVisibleFragment();
-        boolean modified = isFragmentModified(visibleFragment);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            // if the user clicked the navigation panel, allow back press to close it.
-            drawer.closeDrawer(GravityCompat.START);
-            return;
-        } else if (visibleFragment instanceof NewWorkoutFragment) {
-            if (modified && showPopupFlag) {
-                // workout is being made, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesPopup(Variables.NEW_WORKOUT_TITLE);
+    final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        // no longer overriding on back pressed. Using this callback means I can handle back presses in the fragments
+        @Override
+        public void handleOnBackPressed() {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                // if the user clicked the navigation panel, allow back press to close it.
+                drawer.closeDrawer(GravityCompat.START);
                 return;
             }
-        } else if (visibleFragment instanceof EditWorkoutFragment) {
-            if (modified && showPopupFlag) {
-                // workout is being edited, so give user option to prevent fragment from closing from back press
-                showUnsavedChangesPopup(Variables.EDIT_WORKOUT_TITLE);
-                return;
-            }
-        }
 
-        if (fragmentStack.size() > 1) {
-            // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
-            popFragStack();
-        } else {
-            super.onBackPressed();
+            hideKeyboard();
+            if (fragmentStack.size() > 1) {
+                // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
+                popFragStack();
+            } else {
+                ActivityCompat.finishAffinity(WorkoutActivity.this);
+            }
+
         }
-    }
+    };
 
     private void syncCurrentWorkout() {
-        if (userWithWorkout.isWorkoutPresent()
-                && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
+        if (userWithWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
             // we assume it always succeeds
             lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
             Intent intent = new Intent(this, SyncWorkoutService.class);
@@ -540,7 +529,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             The frag stack will only have one instance of the fragments in it at all times, handled by the
             navigation methods.
          */
-        showPopupFlag = true;
         fragmentStack.remove(0);
 
         String currentFrag = fragmentStack.get(0);
@@ -566,7 +554,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 nav.setCheckedItem(R.id.nav_about);
                 break;
             case Variables.ACCOUNT_TITLE:
-                goToAccountSettings();
+                nav.setCheckedItem(R.id.nav_my_account);
+                goToMyAccount();
                 break;
             case Variables.BLOCKED_LIST_TITLE:
                 goToBlockedList();
@@ -636,6 +625,37 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 finish();
             });
         });
+    }
+
+    // service that continues the stopwatch's progress
+    public void startStopwatchService() {
+        Intent serviceIntent = new Intent(this, StopwatchService.class);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, stopwatch.initialTimeOnClock);
+        startService(serviceIntent);
+    }
+
+    public void cancelStopwatchService() {
+        stopService(new Intent(this, StopwatchService.class));
+        // get rid of any notifications that are still showing now that the stopwatch is on the screen
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(StopwatchService.stopwatchRunningId);
+    }
+
+    public void startTimerService() {
+        Intent serviceIntent = new Intent(this, TimerService.class);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, timer.initialTimeOnClock);
+        startService(serviceIntent);
+    }
+
+    public void cancelTimerService() {
+        stopService(new Intent(this, TimerService.class));
+
+        // get rid of any notifications that are still showing now that the timer is on the screen
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(TimerService.timerRunningId);
+        notificationManager.cancel(TimerService.timerFinishedId);
     }
 
     /**
@@ -720,10 +740,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (currentFragment instanceof FragmentWithDialog) {
             ((FragmentWithDialog) currentFragment).hideAllDialogs();
         }
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
-        timer.hideDialog();
     }
 
     /**
@@ -751,73 +767,22 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        /*
-            Found on SO. Hides keyboard when clicking outside editText.
-            https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
-         */
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (v instanceof EditText) {
-                Rect viewRect = new Rect();
-                v.getGlobalVisibleRect(viewRect);
-                if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                    boolean touchTargetIsEditText = false;
-                    //Check if another editText has been touched
-                    for (View vi : v.getRootView().getTouchables()) {
-                        if (vi instanceof EditText) {
-                            Rect clickedViewRect = new Rect();
-                            vi.getGlobalVisibleRect(clickedViewRect);
-                            //Bounding box is to big, reduce it just a little bit
-                            if (clickedViewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                                touchTargetIsEditText = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!touchTargetIsEditText) {
-                        v.clearFocus();
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    }
-                }
-            }
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        View view = getCurrentFocus();
+        if (view != null) {
+            view.clearFocus();
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        return super.dispatchTouchEvent(event);
-    }
-
-    /**
-     * Shows a popup whenever user has unfinished work in either the new workout fragment or edit workout one.
-     *
-     * @param fragmentTitle title of the fragment that is unfinished.
-     */
-    private void showUnsavedChangesPopup(String fragmentTitle) {
-        String message = "";
-        if (fragmentTitle.equals(Variables.EDIT_WORKOUT_TITLE)) {
-            message = getString(R.string.popup_message_edit_workout);
-        } else if (fragmentTitle.equals(Variables.NEW_WORKOUT_TITLE)) {
-            message = getString(R.string.unsaved_workout_msg);
-        }
-        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Unsaved Changes")
-                .setMessage(message)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    showPopupFlag = false;
-                    onBackPressed();
-                })
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
     }
 
     /**
      * Called by other fragments to change the string that the toolbar displays.
      *
-     * @param aTitle new title for the toolbar.
+     * @param title new title for the toolbar.
      */
-    public void updateToolbarTitle(String aTitle) {
-        toolbarTitleTV.setText(aTitle);
+    public void updateToolbarTitle(String title) {
+        toolbarTitleTV.setText(title);
     }
 
     public void updateUserIcon(Uri uri) {
@@ -828,16 +793,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         imageDrawable.setCircular(true);
         imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
         profilePicture.setImageDrawable(imageDrawable);
-    }
-
-    private boolean isFragmentModified(Fragment aFragment) {
-        boolean retVal = false;
-        if (aFragment instanceof NewWorkoutFragment) {
-            retVal = ((NewWorkoutFragment) aFragment).isModified();
-        } else if (aFragment instanceof EditWorkoutFragment) {
-            retVal = ((EditWorkoutFragment) aFragment).isModified();
-        }
-        return retVal;
     }
 
     private Fragment getVisibleFragment() {
@@ -854,19 +809,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
      * the back stack appropriately.
      */
     public void finishFragment() {
-        showPopupFlag = false;
         onBackPressed();
     }
 
     public void updateAccountNotificationIndicator() {
         // check if there are any unseen notifications for friend requests
-        boolean showAlert = false;
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        view.setText(null);
         for (String username : user.getFriendRequests().keySet()) {
             if (!user.getFriendRequests().get(username).isSeen()) {
-                showAlert = true;
+                view.setText(R.string.alert);
+                return;
             }
         }
-        accountNotificationTV.setVisibility(showAlert ? View.VISIBLE : View.GONE);
     }
 
     public void updateReceivedWorkoutNotificationIndicator() {
@@ -914,14 +869,19 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         closeDrawerFromNavigation();
     }
 
-    public void goToNewWorkout() {
+    public void goToCreateWorkout() {
         saveCurrentFragmentState();
-        fragmentStack.remove(Variables.NEW_WORKOUT_TITLE);
-        fragmentStack.add(0, Variables.NEW_WORKOUT_TITLE);
+        fragmentStack.remove(Variables.CREATE_WORKOUT_TITLE);
+        fragmentStack.add(0, Variables.CREATE_WORKOUT_TITLE);
+
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(Variables.EXISTING_WORKOUT, false);
+        Fragment fragment = new PendingWorkoutFragment();
+        fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.fragment_container, new NewWorkoutFragment(), Variables.NEW_WORKOUT_TITLE)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .replace(R.id.fragment_container, fragment, Variables.CREATE_WORKOUT_TITLE)
                 .commit();
     }
 
@@ -930,8 +890,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
 
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new EditWorkoutFragment(), Variables.EDIT_WORKOUT_TITLE)
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(Variables.EXISTING_WORKOUT, true);
+        Fragment fragment = new PendingWorkoutFragment();
+        fragment.setArguments(arguments);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .replace(R.id.fragment_container, fragment, Variables.EDIT_WORKOUT_TITLE)
                 .commit();
     }
 
@@ -959,7 +925,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
                 .commit();
     }
@@ -972,12 +938,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         Fragment fragment = new NewExerciseFragment();
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
                 .commit();
     }
 
-    public void goToAccountSettings() {
+    public void goToMyAccount() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.ACCOUNT_TITLE);
         fragmentStack.add(0, Variables.ACCOUNT_TITLE);
@@ -994,7 +960,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
                 .commit();
     }
@@ -1009,7 +975,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragment.setArguments(extras);
         }
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
@@ -1020,7 +986,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
                 .commit();
     }
@@ -1050,7 +1016,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }
@@ -1083,7 +1049,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.FAQ_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
                 .replace(R.id.fragment_container, new FaqFragment(), Variables.FAQ_TITLE)
                 .commit();
     }

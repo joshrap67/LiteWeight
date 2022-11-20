@@ -2,7 +2,6 @@ package com.joshrap.liteweight.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -48,11 +47,11 @@ public class AppSettingsFragment extends Fragment {
         SwitchCompat workoutProgressSwitch = view.findViewById(R.id.workout_progress_switch);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_layout);
+        LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_container);
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());
         stopwatchSwitch.setChecked(sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true));
         stopwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((WorkoutActivity) getActivity()).getStopwatch().cancelService();
+            ((WorkoutActivity) getActivity()).cancelStopwatchService();
             ((WorkoutActivity) getActivity()).getStopwatch().stopStopwatch();
             editor.putBoolean(Variables.STOPWATCH_ENABLED, isChecked);
             editor.apply();
@@ -61,7 +60,7 @@ public class AppSettingsFragment extends Fragment {
         timerLayout.setOnClickListener(view1 -> timerSwitch.performClick());
         timerSwitch.setChecked(sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true));
         timerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((WorkoutActivity) getActivity()).getTimer().cancelService();
+            ((WorkoutActivity) getActivity()).cancelTimerService();
             ((WorkoutActivity) getActivity()).getTimer().stopTimer();
             editor.putBoolean(Variables.TIMER_ENABLED, isChecked);
             editor.apply();

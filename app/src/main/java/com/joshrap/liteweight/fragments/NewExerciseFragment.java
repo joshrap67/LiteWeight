@@ -3,7 +3,6 @@ package com.joshrap.liteweight.fragments;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.os.Looper.getMainLooper;
 
-import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.res.Resources;
@@ -24,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -66,10 +66,11 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private int focusRotationAngle;
     private RelativeLayout focusRelativeLayout;
     private TextView focusCountTV;
+    private AlertDialog alertDialog;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -139,30 +140,39 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
         urlInput.setText("");
 
-        Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        Button previewBtn = view.findViewById(R.id.preview_btn);
-        previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
+        Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
+        Button previewBtn = view.findViewById(R.id.preview_video_btn);
+        previewBtn.setOnClickListener(v -> {
+            alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle("Launch Video")
+                    .setMessage(R.string.launch_video_msg)
+                    .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
+                    .setNegativeButton("No", null)
+                    .create();
+            alertDialog.show();
+        });
         clipboardBtn.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             String url = urlInput.getText().toString().trim();
-            if (url.isEmpty()) {
-                Toast.makeText(getContext(), "No url to copy", Toast.LENGTH_SHORT).show();
-            } else {
-                clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
-                Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
-            }
+            clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
+            Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
-        Button saveButton = view.findViewById(R.id.save_btn);
-        saveButton.setOnClickListener(v -> createExercise());
+        Button saveButton = view.findViewById(R.id.save_fab);
+        saveButton.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            createExercise();
+        });
 
         RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        ImageButton focusRowIcon = view.findViewById(R.id.focus_image_btn);
+        ImageButton focusRowIcon = view.findViewById(R.id.focus_icon_btn);
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -178,14 +188,17 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override
     public void hideAllDialogs() {
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
     }
 
@@ -261,7 +274,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                         user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
                         ((WorkoutActivity) getActivity()).finishFragment();
                     } else {
-                        AndroidUtils.showErrorDialog("Create Exercise Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });

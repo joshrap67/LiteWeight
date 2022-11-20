@@ -5,11 +5,13 @@ import com.joshrap.liteweight.interfaces.Model;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class SharedWorkoutMeta implements Model {
 
     public static final String WORKOUT_NAME = "workoutName";

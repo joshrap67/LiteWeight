@@ -13,25 +13,25 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:spinnerMode="dropdown"
-            app:layout_constraintBottom_toTopOf="@+id/scroll_view"
-            app:layout_constraintEnd_toStartOf="@+id/search_input"
+            app:layout_constraintBottom_toTopOf="@+id/pick_exercises_recycler_view"
+            app:layout_constraintEnd_toStartOf="@+id/exercise_search_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     <SearchView
-            android:id="@+id/search_input"
+            android:id="@+id/exercise_search_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
             android:queryHint="@string/search_exercise_hint"
-            app:layout_constraintBottom_toTopOf="@+id/scroll_view"
+            app:layout_constraintBottom_toTopOf="@+id/pick_exercises_recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/focus_spinner"
             app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
-            android:id="@+id/scroll_view"
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pick_exercises_recycler_view"
             android:layout_width="0dp"
             android:layout_height="345dp"
             android:layout_marginStart="16dp"
@@ -40,16 +40,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/focus_spinner">
-
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/pick_exercises_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-    </ScrollView>
+            app:layout_constraintTop_toBottomOf="@+id/focus_spinner" />
 
     <TextView
-            android:id="@+id/search_not_found_TV"
+            android:id="@+id/exercise_not_found_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -60,7 +54,7 @@
             android:textSize="25sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/search_input"
+            app:layout_constraintEnd_toEndOf="@+id/exercise_search_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/focus_spinner"
             tools:visibility="visible" />

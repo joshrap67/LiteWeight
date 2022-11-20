@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 
 public class ValidatorUtils {
 
-    private static Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
+    // todo unit test all these
+    private static final Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
 
     /**
      * Ensures that a URL has the correct format.
@@ -204,7 +205,7 @@ public class ValidatorUtils {
         if (!Pattern.compile("^.*\\d.*").matcher(password).find()) {
             errorMsg += "Must have at least one number.\n";
         }
-        if (!Pattern.compile("^.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><\\’:;|_~`+=].*").matcher(password).find()) {
+        if (!Pattern.compile("^.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=].*").matcher(password).find()) {
             errorMsg += "Must have at least one special character.\n";
         }
         // invalid checks
@@ -214,7 +215,7 @@ public class ValidatorUtils {
         if (Pattern.compile("\\s").matcher(password).find()) {
             errorMsg += "Cannot have any whitespace.\n";
         }
-        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><\\’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
+        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
             // sanity check to make sure no invalid characters.
             errorMsg += "Invalid character detected.";
         }

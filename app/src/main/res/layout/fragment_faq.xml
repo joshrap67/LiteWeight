@@ -27,35 +27,36 @@
                     android:padding="16dp">
 
                 <RelativeLayout
-                        android:id="@+id/faq_0_layout"
+                        android:id="@+id/faq_0_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toStartOf="@id/faq_0_icon"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:layout_toStartOf="@id/faq_0_icon_btn"
+                            android:paddingHorizontal="4dp"
                             android:text="@string/purpose_title"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/faq_0_icon"
+                            android:id="@+id/faq_0_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
                 <TextView
-                        android:id="@+id/faq_0"
+                        android:id="@+id/faq_0_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -73,40 +74,40 @@
                     android:padding="16dp">
 
                 <RelativeLayout
-                        android:id="@+id/faq_1_layout"
+                        android:id="@+id/faq_1_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toStartOf="@id/faq_1_icon"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:layout_toStartOf="@id/faq_1_icon_btn"
+                            android:paddingHorizontal="4dp"
                             android:text="@string/faq_progress_title"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/faq_1_icon"
+                            android:id="@+id/faq_1_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
                 <TextView
-                        android:id="@+id/faq_1"
+                        android:id="@+id/faq_1_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp"
+                        android:paddingHorizontal="4dp"
                         android:text="@string/restart_workout_explanation"
                         android:visibility="gone"
                         tools:visibility="visible" />
@@ -119,40 +120,40 @@
                     android:padding="16dp">
 
                 <RelativeLayout
-                        android:id="@+id/faq_2_layout"
+                        android:id="@+id/faq_2_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp">
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toStartOf="@id/faq_2_icon"
+                            android:layout_toStartOf="@id/faq_2_icon_btn"
                             android:text="@string/faq_transfer_title"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/faq_2_icon"
+                            android:id="@+id/faq_2_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
                 <TextView
-                        android:id="@+id/faq_2"
+                        android:id="@+id/faq_2_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp"
+                        android:paddingHorizontal="4dp"
                         android:text="@string/faq_transfer"
                         android:visibility="gone"
                         tools:visibility="visible" />
@@ -165,40 +166,40 @@
                     android:padding="16dp">
 
                 <RelativeLayout
-                        android:id="@+id/faq_3_layout"
+                        android:id="@+id/faq_3_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toStartOf="@id/faq_3_icon"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:layout_toStartOf="@id/faq_3_icon_btn"
+                            android:paddingHorizontal="4dp"
                             android:text="@string/faq_shared_workout_tv"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/faq_3_icon"
+                            android:id="@+id/faq_3_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
                 <TextView
-                        android:id="@+id/faq_3"
+                        android:id="@+id/faq_3_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp"
+                        android:paddingHorizontal="4dp"
                         android:text="@string/share_workout_explanation"
                         android:visibility="gone"
                         tools:visibility="visible" />
@@ -211,40 +212,40 @@
                     android:padding="16dp">
 
                 <RelativeLayout
-                        android:id="@+id/faq_4_layout"
+                        android:id="@+id/faq_4_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?android:selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:paddingVertical="10dp">
 
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toStartOf="@id/faq_4_icon"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="4dp"
+                            android:layout_toStartOf="@id/faq_4_icon_btn"
+                            android:paddingHorizontal="4dp"
                             android:text="@string/faq_default_values_tv"
                             android:textSize="20sp" />
 
                     <ImageButton
-                            android:id="@+id/faq_4_icon"
+                            android:id="@+id/faq_4_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
                 </RelativeLayout>
 
                 <TextView
-                        android:id="@+id/faq_4"
+                        android:id="@+id/faq_4_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="4dp"
+                        android:paddingHorizontal="4dp"
                         android:text="@string/default_explanation"
                         android:visibility="gone"
                         tools:visibility="visible" />

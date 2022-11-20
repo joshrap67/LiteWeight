@@ -10,8 +10,8 @@ import androidx.annotation.Nullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.models.VersionModel;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.CognitoGateway;
@@ -31,11 +31,6 @@ public class SyncWorkoutService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         String refreshToken = intent.getStringExtra(Variables.INTENT_REFRESH_TOKEN);
         String idToken = intent.getStringExtra(Variables.INTENT_ID_TOKEN);
@@ -46,8 +41,16 @@ public class SyncWorkoutService extends Service {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        String versionName = null;
+        int versionCode = 0;
+        try {
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()));
+        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()), new VersionModel(versionName, versionCode));
         WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;

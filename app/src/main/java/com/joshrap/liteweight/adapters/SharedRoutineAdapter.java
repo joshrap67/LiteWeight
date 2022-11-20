@@ -1,18 +1,16 @@
 package com.joshrap.liteweight.adapters;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -24,30 +22,23 @@ import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseName;
-        Button weightButton;
-        ImageButton doneButton;
-        LinearLayout extraInfo;
-        LinearLayout rootLayout;
+        final CheckBox exerciseName; // checkbox just to make layout easier
+        final Button expandButton;
+        final RelativeLayout extraInfoContainer;
 
-        EditText detailsInput;
-        EditText weightInput;
-        EditText setsInput;
-        EditText repsInput;
+        final EditText detailsInput;
+        final EditText weightInput;
+        final EditText setsInput;
+        final EditText repsInput;
 
-        TextInputLayout weightInputLayout;
-        TextInputLayout setsInputLayout;
-        TextInputLayout repsInputLayout;
-        TextInputLayout detailsInputLayout;
+        final TextInputLayout weightInputLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
-            rootLayout = itemView.findViewById(R.id.root_layout);
 
-            exerciseName = itemView.findViewById(R.id.exercise_name);
-            weightButton = itemView.findViewById(R.id.weight_btn);
-            extraInfo = itemView.findViewById(R.id.extra_info_layout);
-            doneButton = itemView.findViewById(R.id.save_button);
+            exerciseName = itemView.findViewById(R.id.exercise_checkbox);
+            expandButton = itemView.findViewById(R.id.expand_btn);
+            extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
 
             weightInput = itemView.findViewById(R.id.weight_input);
             detailsInput = itemView.findViewById(R.id.details_input);
@@ -55,23 +46,15 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
             repsInput = itemView.findViewById(R.id.reps_input);
 
             weightInputLayout = itemView.findViewById(R.id.weight_input_layout);
-            setsInputLayout = itemView.findViewById(R.id.sets_input_layout);
-            repsInputLayout = itemView.findViewById(R.id.reps_input_layout);
-            detailsInputLayout = itemView.findViewById(R.id.details_input_layout);
         }
     }
 
-    private final List<SharedExercise> exercises;
+    private final List<SharedRoutineRowModel> sharedRoutineRowModels;
     private final boolean metricUnits;
-    private final RecyclerView recyclerView;
-    private final Context context;
 
-    public SharedRoutineAdapter(List<SharedExercise> routineExercises, boolean metricUnits, RecyclerView recyclerView,
-                                Context context) {
-        this.exercises = routineExercises;
+    public SharedRoutineAdapter(List<SharedRoutineRowModel> sharedRoutineRowModels, boolean metricUnits) {
+        this.sharedRoutineRowModels = sharedRoutineRowModels;
         this.metricUnits = metricUnits;
-        this.recyclerView = recyclerView;
-        this.context = context;
     }
 
 
@@ -85,22 +68,18 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
+        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            // hide extra layout
-            holder.weightButton.setVisibility(View.VISIBLE);
-            holder.extraInfo.setVisibility(View.GONE);
-            holder.doneButton.setVisibility(View.GONE);
+            final SharedRoutineRowModel routineRowModel = sharedRoutineRowModels.get(position);
+            final SharedExercise exercise = routineRowModel.sharedExercise;
+            boolean isExpanded = routineRowModel.isExpanded;
+
+            if (isExpanded) {
+                setExpandedViews(holder, exercise);
+            } else {
+                setCollapsedViews(holder, exercise);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -108,76 +87,78 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     @Override
     public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
-        final SharedExercise exercise = exercises.get(position);
-
-        LinearLayout rootLayout = holder.rootLayout;
-        LayoutTransition layoutTransition = rootLayout.getLayoutTransition();
-        layoutTransition.addTransitionListener(new LayoutTransition.TransitionListener() {
-            @Override
-            public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(context) {
-                    @Override
-                    protected int getVerticalSnapPreference() {
-                        return LinearSmoothScroller.SNAP_TO_START;
-                    }
-                };
-
-                if (transitionType == LayoutTransition.CHANGE_APPEARING &&
-                        holder.itemView.getY() > recyclerView.getHeight() * .60) {
-                    // start to scroll down if the view being expanded is a certain amount of distance from the top of the recycler view
-                    smoothScroller.setTargetPosition(holder.getLayoutPosition());
-                    recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-                }
-            }
-
-            @Override
-            public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-            }
-        });
+        final SharedRoutineRowModel rowModel = sharedRoutineRowModels.get(position);
+        final SharedExercise exercise = rowModel.sharedExercise;
+        boolean isExpanded = rowModel.isExpanded;
 
         final String currentExercise = exercise.getExerciseName();
         final TextView exerciseName = holder.exerciseName;
         exerciseName.setText(currentExercise);
 
-        final Button weightButton = holder.weightButton;
+        final Button expandButton = holder.expandButton;
         final EditText weightInput = holder.weightInput;
         final EditText detailsInput = holder.detailsInput;
         final EditText repsInput = holder.repsInput;
         final EditText setsInput = holder.setsInput;
-
-        final TextInputLayout weightInputLayout = holder.weightInputLayout;
-
-        final LinearLayout extraInfo = holder.extraInfo;
-        final ImageButton doneButton = holder.doneButton;
 
         weightInput.setEnabled(false);
         setsInput.setEnabled(false);
         repsInput.setEnabled(false);
         detailsInput.setEnabled(false);
 
+        if (isExpanded) {
+            setExpandedViews(holder, exercise);
+        } else {
+            setCollapsedViews(holder, exercise);
+        }
+
+        expandButton.setOnClickListener((v) -> {
+            rowModel.isExpanded = !rowModel.isExpanded;
+            notifyItemChanged(position, true);
+            setExpandedViews(holder, exercise);
+        });
+    }
+
+    private void setInputs(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
+        holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
+
+        holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
+        holder.setsInput.setText(Integer.toString(exercise.getSets()));
+        holder.repsInput.setText(Integer.toString(exercise.getReps()));
+        holder.detailsInput.setText(exercise.getDetails());
+
+    }
+
+    private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        holder.extraInfoContainer.setVisibility(View.VISIBLE);
+        holder.expandButton.setText(R.string.done_all_caps);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        setInputs(holder, exercise);
+    }
+
+    private void setCollapsedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+        holder.extraInfoContainer.setVisibility(View.GONE);
+
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-        weightButton.setText(formattedWeight);
-        weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
-
-        setsInput.setText(Integer.toString(exercise.getSets()));
-        repsInput.setText(Integer.toString(exercise.getReps()));
-        detailsInput.setText(exercise.getDetails());
-
-        weightButton.setOnClickListener((v) -> {
-            // show all the extra details for this exercise
-            weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight())));
-            weightButton.setVisibility(View.INVISIBLE);
-            extraInfo.setVisibility(View.VISIBLE);
-            doneButton.setVisibility(View.VISIBLE);
-        });
-        doneButton.setOnClickListener(v -> {
-            notifyItemChanged(position, true);
-        });
+        holder.expandButton.setText(formattedWeight);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
     }
 
     @Override
     public int getItemCount() {
-        return exercises.size();
+        return sharedRoutineRowModels.size();
+    }
+
+    // separate class that wraps the shared exercise and holds data about the state of the row in the recycler view
+    public static class SharedRoutineRowModel {
+        private final SharedExercise sharedExercise;
+        private boolean isExpanded;
+
+        public SharedRoutineRowModel(SharedExercise sharedExercise, boolean isExpanded) {
+            this.sharedExercise = sharedExercise;
+            this.isExpanded = isExpanded;
+        }
     }
 }

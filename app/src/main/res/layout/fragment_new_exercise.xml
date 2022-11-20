@@ -12,11 +12,12 @@
         android:orientation="vertical">
 
     <ScrollView
-            android:id="@+id/scroll_view_main"
+            android:id="@+id/scroll_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:fadeScrollbars="true"
-            app:layout_constraintBottom_toTopOf="@id/save_btn"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@id/save_fab"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -27,13 +28,11 @@
                 android:animateLayoutChanges="true">
 
             <LinearLayout
-                    android:id="@+id/top_container"
+                    android:id="@+id/exercise_name_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="8dp"
                     android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -41,7 +40,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/name_hint"
-                        app:autoSizeTextType="uniform">
+                        app:autoSizeTextType="uniform"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/exercise_name_input"
@@ -61,7 +62,7 @@
                     android:id="@+id/focus_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/top_container"
+                    android:layout_below="@id/exercise_name_container"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
@@ -69,13 +70,13 @@
                     android:animateLayoutChanges="true">
 
                 <RelativeLayout
-                        android:id="@+id/focus_relative_layout"
+                        android:id="@+id/focus_title_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bottom_border_selectable">
 
                     <TextView
-                            android:id="@+id/focus_text_view"
+                            android:id="@+id/focus_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
@@ -88,21 +89,21 @@
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="8dp"
-                            android:layout_toStartOf="@id/focus_image_btn"
-                            android:layout_toEndOf="@id/focus_text_view"
+                            android:layout_toStartOf="@id/focus_icon_btn"
+                            android:layout_toEndOf="@id/focus_tv"
                             android:text="@string/focus_selected_count"
                             android:textSize="12sp" />
 
                     <ImageButton
-                            android:id="@+id/focus_image_btn"
+                            android:id="@+id/focus_icon_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:background="?android:selectableItemBackgroundBorderless"
                             android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_icon" />
-
                 </RelativeLayout>
 
 
@@ -110,7 +111,7 @@
                         android:id="@+id/pick_focuses_recycler_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/focus_relative_layout"
+                        android:layout_below="@+id/focus_title_container"
                         android:visibility="gone"
                         tools:itemCount="1"
                         tools:listitem="@android:layout/simple_selectable_list_item"
@@ -122,17 +123,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/focus_container"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="8dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/default_weight_input_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        tools:hint="Default Weight (lb)">
+                        app:expandedHintEnabled="false"
+                        tools:hint="Default Weight (lb)"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_weight_input"
@@ -152,16 +153,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/default_weight_input_layout"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginVertical="8dp"
                         android:baselineAligned="false">
 
                     <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/default_sets_input_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
                             android:layout_weight=".67"
-                            android:hint="@string/default_sets_hint">
+                            android:hint="@string/default_sets_hint"
+                            app:expandedHintEnabled="false"
+                            tools:style="@style/TextInputLayoutStyle">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_sets_input"
@@ -181,7 +184,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight=".67"
-                            android:hint="@string/default_reps_hint">
+                            android:hint="@string/default_reps_hint"
+                            app:expandedHintEnabled="false"
+                            tools:style="@style/TextInputLayoutStyle">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_reps_input"
@@ -204,7 +209,9 @@
                         android:layout_below="@id/sets_reps_container"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
-                        android:hint="@string/default_details_hint">
+                        android:hint="@string/default_details_hint"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_details_input"
@@ -227,7 +234,9 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/url_hint"
-                        app:autoSizeTextType="uniform">
+                        app:autoSizeTextType="uniform"
+                        app:expandedHintEnabled="false"
+                        tools:style="@style/TextInputLayoutStyle">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/url_input"
@@ -249,43 +258,41 @@
                         android:weightSum="2">
 
                     <Button
-                            android:id="@+id/clipboard_btn"
+                            android:id="@+id/copy_clipboard_btn"
                             style="?android:attr/buttonBarButtonStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
-                            android:drawableStart="@drawable/copy_icon"
                             android:text="@string/copy_url"
-                            android:textColor="@color/colorAccent"
-                            app:backgroundTint="@color/deny_color" />
+                            android:textColor="@color/color_accent"
+                            app:icon="@drawable/copy_icon" />
 
                     <Button
-                            android:id="@+id/preview_btn"
+                            android:id="@+id/preview_video_btn"
                             style="?android:attr/buttonBarButtonStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:drawableStart="@drawable/preview_icon"
                             android:text="@string/preview_url"
-                            android:textColor="@color/colorAccent"
-                            app:backgroundTint="@color/colorPrimary" />
+                            android:textColor="@color/color_accent"
+                            app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
 
 
-    <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/save_btn"
+    <Button
+            android:id="@+id/save_fab"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/save"
-            android:textColor="@color/colorAccent"
-            app:backgroundTint="@color/colorPrimary"
+            android:textColor="@color/color_accent"
+            app:backgroundTint="@color/color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_main" />
+            app:layout_constraintTop_toBottomOf="@id/scroll_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

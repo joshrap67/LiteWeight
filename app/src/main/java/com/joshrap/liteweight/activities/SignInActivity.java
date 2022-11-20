@@ -1,15 +1,17 @@
 package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -42,7 +44,6 @@ import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.CognitoResponse;
@@ -63,7 +64,6 @@ public class SignInActivity extends AppCompatActivity {
     private static final int CONFIRM_EMAIL_VIEW = 2;
     private static final int RESET_PASSWORD_VIEW = 3;
     private static final String passwordNotMatchingMsg = "Passwords do not match.";
-    private static final int RC_SIGN_IN = 69;
 
     private EditText usernameInputSignIn, passwordInputSignIn, emailInputSignUp, passwordConfirmInputSignUp,
             usernameInputSignUp, passwordInputSignUp;
@@ -73,8 +73,9 @@ public class SignInActivity extends AppCompatActivity {
     private TextView passwordAttributesTV;
     private GoogleSignInClient googleSignInClient;
     private AlertDialog alertDialog;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     Tokens tokens;
     @Inject
@@ -112,8 +113,8 @@ public class SignInActivity extends AppCompatActivity {
         usernameLayoutSignUp = findViewById(R.id.sign_up_username_input_layout);
         passwordInputSignUp = findViewById(R.id.sign_up_password_input);
         passwordLayoutSignUp = findViewById(R.id.sign_up_password_input_layout);
-        passwordConfirmInputSignUp = findViewById(R.id.sign_up_password_input_confirm);
-        passwordConfirmLayoutSignUp = findViewById(R.id.sign_up_password_confirm_layout);
+        passwordConfirmInputSignUp = findViewById(R.id.sign_up_password_confirm_input);
+        passwordConfirmLayoutSignUp = findViewById(R.id.sign_up_password_confirm_input_layout);
         passwordAttributesTV = findViewById(R.id.sign_up_password_attributes_tv);
         Button signUpButton = findViewById(R.id.sign_up_primary_btn);
 
@@ -159,7 +160,7 @@ public class SignInActivity extends AppCompatActivity {
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
         });
 
-        TextView resetPasswordTV = findViewById(R.id.sign_in_forgot_password);
+        TextView resetPasswordTV = findViewById(R.id.sign_in_forgot_password_tv);
         resetPasswordTV.setOnClickListener(view -> {
             usernameInputSignIn.setText(null);
             passwordInputSignIn.setText(null);
@@ -171,16 +172,22 @@ public class SignInActivity extends AppCompatActivity {
             resetPassword();
         });
         initEditTexts();
+        if (getIntent().getExtras() != null) {
+            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            if (errorMessage != null) {
+                AndroidUtils.showErrorDialog(errorMessage, this);
+            }
+        }
     }
 
     private void showGmailDetectedPopup() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_gmail_detected, null);
-        SignInButton signInButton = popupView.findViewById(R.id.google_sign_in_button);
+        SignInButton signInButton = popupView.findViewById(R.id.google_sign_in_btn);
         signInButton.setOnClickListener(view -> {
             alertDialog.dismiss();
             googleSignIn();
         });
-        alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Gmail Detected")
                 .setView(popupView)
                 .setPositiveButton("Send Code", null)
@@ -196,19 +203,21 @@ public class SignInActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    handleGoogleSignInResult(task);
+                }
+            });
+
     private void googleSignIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_OK) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleGoogleSignInResult(task);
-        }
+        googleSignInLauncher.launch(signInIntent);
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -219,11 +228,11 @@ public class SignInActivity extends AppCompatActivity {
                 attemptSignUp(usernameInputSignUp.getText().toString().trim(),
                         passwordInputSignUp.getText().toString().trim(), emailInputSignUp.getText().toString().trim(), account.getIdToken());
             } else {
-                Toast.makeText(this, "The email you signed in with did not match the email you put for your new LiteWeight account.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Selected email does not match inputted email", Toast.LENGTH_LONG).show();
             }
             googleSignOut();
         } catch (ApiException e) {
-            AndroidUtils.showErrorDialog("Error", "There was an error verifying your email.", this);
+            AndroidUtils.showErrorDialog("There was an error verifying your email.", this);
         }
     }
 
@@ -235,7 +244,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewFlipper.getDisplayedChild() == SIGN_UP_VIEW) {
+        if (viewFlipper.getDisplayedChild() == SIGN_UP_VIEW || viewFlipper.getDisplayedChild() == RESET_PASSWORD_VIEW) {
             resetViewsToSignInFromSignUp();
             viewFlipper.setInAnimation(this, android.R.anim.slide_in_left);
             viewFlipper.setOutAnimation(this, android.R.anim.slide_out_right);
@@ -477,7 +486,7 @@ public class SignInActivity extends AppCompatActivity {
                     signInSuccess(resultStatus);
                 } else {
                     loadingDialog.dismiss();
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
@@ -502,20 +511,16 @@ public class SignInActivity extends AppCompatActivity {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    try {
-                        Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
-                        launchWorkoutActivity(resultStatus.getData());
-                    } catch (JsonProcessingException e) {
-                        AndroidUtils.showErrorDialog("Error", "Error loading data.", this);
-                    }
+                    Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
+                    launchWorkoutActivity(resultStatus.getData());
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
     }
 
-    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) throws JsonProcessingException {
+    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) {
         Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         if (userWithWorkout != null) {
@@ -541,7 +546,7 @@ public class SignInActivity extends AppCompatActivity {
                     attemptSignIn(usernameInputSignUp.getText().toString().trim(),
                             passwordInputSignUp.getText().toString().trim());
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                 }
             });
         });
@@ -645,7 +650,7 @@ public class SignInActivity extends AppCompatActivity {
                     if (resultStatus.isSuccess()) {
                         Toast.makeText(this, "Code successfully sent to your email.", Toast.LENGTH_LONG).show();
                     } else {
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                     }
                 });
             });
@@ -667,9 +672,9 @@ public class SignInActivity extends AppCompatActivity {
                     if (resultStatus.getErrorMessage().equals(CognitoResponse.expiredCodeErrorMsg) ||
                             resultStatus.getErrorMessage().equals(CognitoResponse.incorrectCodeErrorMsg)) {
                         // don't kick user off this view if these errors occur
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                     } else {
-                        AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                         codeInput.setText(null);
                         viewFlipper.showPrevious();
                     }
@@ -684,11 +689,11 @@ public class SignInActivity extends AppCompatActivity {
         viewFlipper.setDisplayedChild(RESET_PASSWORD_VIEW);
 
         final boolean[] codeSent = {false};
-        RelativeLayout forgotContainer = findViewById(R.id.reset_password_username_layout);
-        RelativeLayout resetContainer = findViewById(R.id.reset_password_layout);
-        TextInputLayout forgotLayout = findViewById(R.id.forgot_password_input_layout);
-        EditText forgotInput = findViewById(R.id.forgot_password_input);
-        forgotInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(forgotLayout));
+        RelativeLayout usernameContainer = findViewById(R.id.reset_password_username_container);
+        RelativeLayout passwordContainer = findViewById(R.id.reset_password_container);
+        TextInputLayout usernameInputLayout = findViewById(R.id.reset_password_username_input_layout);
+        EditText usernameInput = findViewById(R.id.reset_password_username_input);
+        usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(usernameInputLayout));
         Button primaryButton = findViewById(R.id.reset_password_primary_btn);
         Button backButton = findViewById(R.id.reset_password_back_btn);
 
@@ -775,14 +780,14 @@ public class SignInActivity extends AppCompatActivity {
                     AndroidUtils.showLoadingDialog(loadingDialog, "Resetting password...");
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
-                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.confirmForgotPassword(forgotInput.getText().toString().trim(), newPassword, confirmationCode);
+                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.confirmForgotPassword(usernameInput.getText().toString().trim(), newPassword, confirmationCode);
                         Handler handler = new Handler(getMainLooper());
                         handler.post(() -> {
                             loadingDialog.dismiss();
                             if (resultStatus.isSuccess()) {
-                                attemptSignIn(forgotInput.getText().toString().trim(), newPassword);
+                                attemptSignIn(usernameInput.getText().toString().trim(), newPassword);
                             } else {
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                                AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                             }
                         });
                     });
@@ -812,27 +817,27 @@ public class SignInActivity extends AppCompatActivity {
 
             } else {
                 // code hasn't been sent, so this button should send a code to the right email when clicked
-                if (!forgotInput.getText().toString().trim().isEmpty()) {
+                if (!usernameInput.getText().toString().trim().isEmpty()) {
                     AndroidUtils.showLoadingDialog(loadingDialog, "Sending code...");
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
-                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.forgotPassword(forgotInput.getText().toString().trim());
+                        ResultStatus<Boolean> resultStatus = this.cognitoRepository.forgotPassword(usernameInput.getText().toString().trim());
                         Handler handler = new Handler(getMainLooper());
                         handler.post(() -> {
                             loadingDialog.dismiss();
                             if (resultStatus.isSuccess()) {
                                 codeSent[0] = true;
                                 primaryButton.setText(R.string.reset_password_btn_msg);
-                                resetContainer.setVisibility(View.VISIBLE);
-                                forgotContainer.setVisibility(View.GONE);
+                                passwordContainer.setVisibility(View.VISIBLE);
+                                usernameContainer.setVisibility(View.GONE);
                             } else {
-                                AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), this);
+                                AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
                             }
                         });
                     });
                 } else {
-                    forgotLayout.setError("Cannot be empty");
-                    forgotLayout.startAnimation(AndroidUtils.shakeError(2));
+                    usernameInputLayout.setError("Cannot be empty");
+                    usernameInputLayout.startAnimation(AndroidUtils.shakeError(2));
                 }
             }
         });
@@ -846,18 +851,18 @@ public class SignInActivity extends AppCompatActivity {
             newPasswordLayout.setErrorEnabled(false);
             confirmNewPasswordLayout.setError(null);
             confirmNewPasswordLayout.setErrorEnabled(false);
-            forgotLayout.setError(null);
-            forgotLayout.setErrorEnabled(false);
+            usernameInputLayout.setError(null);
+            usernameInputLayout.setErrorEnabled(false);
 
             resetCode.setText(null);
             newPasswordInput.setText(null);
             confirmNewPasswordInput.setText(null);
-            forgotInput.setText(null);
+            usernameInput.setText(null);
             resetPasswordAttributesTV.setText(null);
             passwordAttributesTV.setVisibility(View.GONE);
 
-            resetContainer.setVisibility(View.GONE);
-            forgotContainer.setVisibility(View.VISIBLE);
+            passwordContainer.setVisibility(View.GONE);
+            usernameContainer.setVisibility(View.VISIBLE);
             viewFlipper.setDisplayedChild(SIGN_IN_VIEW);
         });
     }

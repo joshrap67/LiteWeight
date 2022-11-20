@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -61,8 +60,9 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     private BottomSheetDialog bottomSheetDialog;
     private List<String> blocked;
     private BlockedAdapter blockedAdapter;
+
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -87,7 +87,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         Collections.sort(blocked);
         blockedAdapter = new BlockedAdapter(blocked, user.getBlocked());
 
-        emptyView = view.findViewById(R.id.empty_view);
+        emptyView = view.findViewById(R.id.empty_view_tv);
         RecyclerView recyclerView = view.findViewById(R.id.blocked_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         blockedAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -113,15 +113,15 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         recyclerView.setAdapter(blockedAdapter);
         checkEmptyList();
 
-        FloatingActionButton floatingActionButton = view.findViewById(R.id.floating_action_btn);
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.block_user_fab);
         floatingActionButton.setOnClickListener(v -> blockUserPopup());
         super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override
@@ -147,11 +147,11 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void blockUserPopup() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_add_friend, null);
-        TextInputLayout friendNameLayout = popupView.findViewById(R.id.friend_name_input_layout);
-        EditText usernameInput = popupView.findViewById(R.id.friend_name_input);
+        TextInputLayout friendNameLayout = popupView.findViewById(R.id.username_input_layout);
+        EditText usernameInput = popupView.findViewById(R.id.username_input);
         usernameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Block User")
                 .setView(popupView)
                 .setPositiveButton("Block", null)
@@ -160,7 +160,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.setOnShowListener(dialogInterface -> {
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
-                String username = usernameInput.getText().toString().trim();
+                // usernames are case insensitive!
+                String username = usernameInput.getText().toString().trim().toLowerCase();
                 List<String> blockedUsers = new ArrayList<>(blocked);
                 String errorMsg = ValidatorUtils.validUserToBlock(user.getUsername(), username, blockedUsers);
                 if (errorMsg != null) {
@@ -195,7 +196,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
                 } else {
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -221,7 +222,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();
-                    AndroidUtils.showErrorDialog("Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });
         });
@@ -229,14 +230,14 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void showBlownUpProfilePic(String username, String icon) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
-        ImageView profilePicture = popupView.findViewById(R.id.profile_picture);
+        ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(icon))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -247,15 +248,15 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     // region Adapters
     private class BlockedAdapter extends RecyclerView.Adapter<BlockedAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView usernameTV;
-            ImageView profilePicture;
-            RelativeLayout rootLayout;
+            final TextView usernameTV;
+            final ImageView profilePicture;
+            final RelativeLayout rootLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
                 rootLayout = itemView.findViewById(R.id.username_pic_container);
                 usernameTV = itemView.findViewById(R.id.username_tv);
-                profilePicture = itemView.findViewById(R.id.profile_picture);
+                profilePicture = itemView.findViewById(R.id.profile_picture_image);
             }
         }
 
@@ -267,6 +268,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             this.blockedList = blockedList;
         }
 
+        @NonNull
         @Override
         public BlockedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
@@ -293,7 +295,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
                 // sets up a bottom dialog that is shown whenever a user clicks on the row
-                bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
+                bottomSheetDialog = new BottomSheetDialog(getActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_blocked_list, null);
                 TextView unblockTV = sheetView.findViewById(R.id.unblock_tv);
                 unblockTV.setOnClickListener(view -> {
@@ -304,7 +306,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
                 relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(blockedUser, icon));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
-                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture);
+                ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 usernameTV.setText(blockedUser);
                 Picasso.get()
                         .load(ImageUtils.getIconUrl(icon))

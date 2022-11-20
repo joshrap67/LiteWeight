@@ -1,12 +1,17 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +26,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -28,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -44,6 +52,8 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -54,7 +64,6 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class MyAccountFragment extends Fragment implements FragmentWithDialog {
-    private static final int PICK_PHOTO_FOR_AVATAR = 1;
     private User user;
     private ImageView profilePicture;
     private String profilePicUrl;
@@ -62,6 +71,8 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private TextView friendsListTV;
     @Inject
     UserRepository userRepository;
+    @Inject
+    Tokens tokens;
 
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
@@ -84,12 +95,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         Injector.getInjector(getContext()).inject(this);
         ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
-
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
+        ((WorkoutActivity) getActivity()).toggleBackButton(false);
 
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
@@ -100,8 +106,28 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView usernameTV = view.findViewById(R.id.username_tv);
         usernameTV.setText(user.getUsername());
-        TextView changePictureTv = view.findViewById(R.id.change_picture_tv);
-        changePictureTv.setVisibility(View.GONE);
+        Button changePictureButton = view.findViewById(R.id.change_picture_btn);
+        changePictureButton.setVisibility(View.GONE);
+        changePictureButton.setOnClickListener(v -> launchPhotoPicker());
+
+        String email = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            // yes this is a war crime but it beats refactoring the database to add emails to it
+            String[] jwtParts = tokens.getIdToken().split("\\.");
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+            String payloadJson = new String(decoder.decode(jwtParts[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Map<String, String> map = mapper.readValue(payloadJson, Map.class);
+                email = map.get("email");
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        TextView emailTV = view.findViewById(R.id.email_tv);
+        emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);
+        emailTV.setText(email);
 
         friendsListTV = view.findViewById(R.id.friends_list_tv);
         friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
@@ -112,7 +138,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
-        profilePicture = view.findViewById(R.id.profile_image);
+        profilePicture = view.findViewById(R.id.profile_picture_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
         updateFriendsTvNotification();
 
@@ -124,22 +150,40 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 .into(profilePicture, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        changePictureButton.setVisibility(View.VISIBLE);
+                        setCircularImage(profilePicture);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        changePictureTv.setVisibility(View.VISIBLE);
+                        changePictureButton.setVisibility(View.VISIBLE);
                     }
                 });
         super.onViewCreated(view, savedInstanceState);
     }
 
+    private void setCircularImage(ImageView profilePictureImageView) {
+        Bitmap imageBitmap = ((BitmapDrawable) profilePictureImageView.getDrawable()).getBitmap();
+        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+        imageDrawable.setCircular(true);
+        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+        profilePictureImageView.setImageDrawable(imageDrawable);
+    }
+
     @Override
     public void onPause() {
+        super.onPause();
         hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
-        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter receiverActions = new IntentFilter();
+        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
+        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
     }
 
     @Override
@@ -149,34 +193,47 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                // a picture was successfully picked, so no immediately send it to be cropped
-                try {
-                    final Uri selectedUri = data.getData();
-                    performCrop(selectedUri);
-                } catch (Exception e) {
-                    e.printStackTrace();
+    private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null) {
+                        // a picture was successfully picked, so immediately send it to be cropped
+                        try {
+                            final Uri selectedUri = result.getData().getData();
+                            performCrop(selectedUri);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-            }
-        } else if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            final Uri uri = UCrop.getOutput(data);
-            if (uri != null) {
-                profilePicture.setImageURI(uri);
-                ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
-                try {
-                    InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
-                    updateIcon(ImageUtils.getImageByteArray(iStream));
-                } catch (IOException e) {
-                    e.printStackTrace();
+            });
+
+    private final ActivityResultLauncher<Intent> cropPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    final Uri uri = UCrop.getOutput(result.getData());
+                    if (uri != null) {
+                        profilePicture.setImageURI(uri);
+                        setCircularImage(profilePicture);
+                        ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
+                        try {
+                            InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
+                            updateIcon(ImageUtils.getImageByteArray(iStream));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Picasso.get().invalidate(profilePicUrl); // since upload was successful,
+                    }
                 }
-                Picasso.get().invalidate(profilePicUrl); // since upload was successful,
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+            });
 
     /**
      * Updates whether an indicator should be shown on the view that takes users to their friend's list.
@@ -203,7 +260,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (!resultStatus.isSuccess()) {
-                        AndroidUtils.showErrorDialog("Upload Profile Picture Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             } catch (JsonProcessingException e) {
@@ -215,7 +272,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private void launchPhotoPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);
+        pickPhotoLauncher.launch(intent);
     }
 
     private void performCrop(Uri picUri) {
@@ -227,19 +284,19 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         UCrop.Options options = new UCrop.Options();
         options.setHideBottomControls(true);
 
-        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
-        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
-        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.notification_color));
+        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
+        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
+        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.color_accent));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        options.setCompressionQuality(100);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);
-        cropper.start(getActivity().getApplicationContext(), getActivity().getSupportFragmentManager().findFragmentByTag(Variables.ACCOUNT_TITLE));
+        cropper.getIntent(getContext());
+        cropPhotoLauncher.launch(cropper.getIntent(getContext()));
     }
 
     private void promptLogout() {
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
                 .setPositiveButton("Yes", (dialog, which) -> ((WorkoutActivity) getActivity()).logout())

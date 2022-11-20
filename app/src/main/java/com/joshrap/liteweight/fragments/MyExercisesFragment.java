@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,8 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -26,30 +23,22 @@ import com.joshrap.liteweight.adapters.ExerciseAdapter;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.inject.Inject;
-
-public class MyExercisesFragment extends Fragment implements FragmentWithDialog {
+public class MyExercisesFragment extends Fragment {
 
     private static final String SELECTED_FOCUS_KEY = "selectedFocus";
     private String selectedFocus;
     private User user;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private List<String> focusList;
-    @Inject
-    ProgressDialog loadingDialog;
-    @Inject
-    UserRepository userRepository;
 
     @Nullable
     @Override
@@ -89,15 +78,14 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_btn);
+        FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_fab);
         createBtn.setOnClickListener(v -> {
-
             if (user.getPremiumToken() == null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
-                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
+                AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
             } else if (user.getPremiumToken() != null
                     && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
-                AndroidUtils.showErrorDialog("Too many exercises", "You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
+                AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise
                 ((WorkoutActivity) getActivity()).goToNewExercise();
@@ -119,28 +107,14 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
         outState.putString(SELECTED_FOCUS_KEY, selectedFocus);
     }
 
-    @Override
-    public void onPause() {
-        hideAllDialogs();
-        super.onPause();
-    }
-
-    @Override
-    public void hideAllDialogs() {
-    }
-
     private void populateFocusListView() {
-        ListView listView = getView().findViewById(R.id.focus_list);
-        ArrayAdapter arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
+        ListView listView = getView().findViewById(R.id.focus_list_view);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
         listView.setAdapter(arrayAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             selectedFocus = listView.getItemAtPosition(position).toString();
             populateExercisesListView();
-            // provide a "clicking" animation
-            Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
-            animation1.setDuration(50);
-            view.startAnimation(animation1);
         });
         // programmatically select selected focus
         listView.setItemChecked(focusList.indexOf(selectedFocus), true);
@@ -150,7 +124,7 @@ public class MyExercisesFragment extends Fragment implements FragmentWithDialog 
      * Populates the exercise list view based on the selected focus
      */
     private void populateExercisesListView() {
-        ListView listView = getView().findViewById(R.id.exercise_list);
+        ListView listView = getView().findViewById(R.id.exercise_list_view);
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }

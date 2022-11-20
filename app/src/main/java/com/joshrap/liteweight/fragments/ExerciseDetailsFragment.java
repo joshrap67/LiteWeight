@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import androidx.appcompat.app.AlertDialog;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.graphics.Typeface;
@@ -39,7 +39,6 @@ import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -77,7 +76,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
 
     @Inject
-    ProgressDialog loadingDialog;
+    AlertDialog loadingDialog;
     @Inject
     UserRepository userRepository;
 
@@ -116,8 +115,11 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
 
-        Button deleteExercise = view.findViewById(R.id.delete_exercise);
-        deleteExercise.setOnClickListener(v -> promptDelete());
+        Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
+        deleteExercise.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            promptDelete();
+        });
 
         exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
         weightLayout = view.findViewById(R.id.default_weight_input_layout);
@@ -151,10 +153,19 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
 
-        Button clipboardBtn = view.findViewById(R.id.clipboard_btn);
-        Button previewBtn = view.findViewById(R.id.preview_btn);
-        previewBtn.setOnClickListener(v -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()));
+        Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
+        Button previewBtn = view.findViewById(R.id.preview_video_btn);
+        previewBtn.setOnClickListener(v -> {
+            alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle("Launch Video")
+                    .setMessage(R.string.launch_video_msg)
+                    .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
+                    .setNegativeButton("No", null)
+                    .create();
+            alertDialog.show();
+        });
         clipboardBtn.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
@@ -183,18 +194,22 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             workoutListTv.setText(workouts.toString());
         }
 
-        Button saveButton = view.findViewById(R.id.save_btn);
-        saveButton.setOnClickListener(v -> saveExercise());
+        Button saveButton = view.findViewById(R.id.save_fab);
+        saveButton.setOnClickListener(v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
+            saveExercise();
+        });
 
         RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
         FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
 
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        ImageButton focusRowIcon = view.findViewById(R.id.focus_image_btn);
-        focusRelativeLayout = view.findViewById(R.id.focus_relative_layout);
+        ImageButton focusRowIcon = view.findViewById(R.id.focus_icon_btn);
+        focusRelativeLayout = view.findViewById(R.id.focus_title_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
+            ((WorkoutActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -220,8 +235,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
     @Override
     public void onPause() {
-        hideAllDialogs();
         super.onPause();
+        hideAllDialogs();
     }
 
     @Override
@@ -317,7 +332,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                         originalExercise = user.getOwnedExercises().get(exerciseId);
                         initViews();
                     } else {
-                        AndroidUtils.showErrorDialog("Exercise Update Error", resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
             });
@@ -335,7 +350,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme)
+        alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Exercise")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> deleteExercise())
@@ -356,11 +371,11 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     // deleted successfully, so delete everything
                     user.getOwnedExercises().remove(exerciseId);
                     if (userWithWorkout.getWorkout() != null) {
-                        WorkoutUtils.deleteExerciseFromRoutine(exerciseId, userWithWorkout.getWorkout().getRoutine());
+                        userWithWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
                     }
                     ((WorkoutActivity) getActivity()).finishFragment();
                 } else {
-                    AndroidUtils.showErrorDialog("Delete Exercise Error", resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
 
                 }
             });
