@@ -69,7 +69,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
+        // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
             final SharedRoutineRowModel routineRowModel = sharedRoutineRowModels.get(position);
             final SharedExercise exercise = routineRowModel.sharedExercise;
@@ -115,7 +115,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         expandButton.setOnClickListener((v) -> {
             rowModel.isExpanded = !rowModel.isExpanded;
             notifyItemChanged(position, true);
-            setExpandedViews(holder, exercise);
         });
     }
 

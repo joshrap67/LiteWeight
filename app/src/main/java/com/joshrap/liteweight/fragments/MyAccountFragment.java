@@ -53,6 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -119,7 +120,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Map<String, String> map = mapper.readValue(payloadJson, Map.class);
-                email = map.get("email");
+                email = map.get("email").toLowerCase(Locale.ROOT);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

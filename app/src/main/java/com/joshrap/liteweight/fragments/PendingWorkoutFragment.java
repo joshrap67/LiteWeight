@@ -1174,6 +1174,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
             if (day.getTag() != null) {
                 dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+            } else {
+                dayTagTV.setText(null); // important as otherwise when recycled days without tags may have a tag shown
             }
         }
 

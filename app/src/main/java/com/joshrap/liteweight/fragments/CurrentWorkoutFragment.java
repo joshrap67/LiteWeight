@@ -598,7 +598,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-            // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
+            // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
             if (!payloads.isEmpty()) {
                 final RoutineRowModel routineRowModel = routineRowModels.get(position);
                 final RoutineExercise exercise = routineRowModel.routineExercise;
@@ -688,7 +688,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     // show all the extra details for this exercise so the user can edit/read them
                     rowModel.isExpanded = true;
                     notifyItemChanged(position, true);
-                    setExpandedViews(holder, exercise); // this prevents weird flashing on expanded animation
                 }
             });
 
