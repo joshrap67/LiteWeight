@@ -68,6 +68,20 @@ public class RoutineWeek implements Iterable<RoutineDay>, Model {
         this.days.set(dayPosition, routineDay);
     }
 
+    public void removeDay(RoutineDay routineDay) {
+        int index = -1;
+        for (int i = 0; i < this.days.size(); i++) {
+            RoutineDay day = this.days.get(i);
+            if (day == routineDay) {
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) {
+            this.days.remove(index);
+        }
+    }
+
     @Override
     public Map<String, Object> asMap() {
         HashMap<String, Object> retVal = new HashMap<>();

@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -37,6 +39,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final Button expandButton;
         final ImageButton deleteButton;
         final RelativeLayout extraInfoContainer;
+        final RelativeLayout rootLayout;
 
         final EditText detailsInput;
         final EditText weightInput;
@@ -50,6 +53,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
         ViewHolder(View itemView) {
             super(itemView);
+
+            rootLayout = itemView.findViewById(R.id.root_layout);
 
             deleteButton = itemView.findViewById(R.id.delete_exercise_icon_btn);
             exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
@@ -201,6 +206,12 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             } else {
                 // show all the extra details for this exercise so the user can edit/read them
                 rowModel.isExpanded = true;
+
+                // wait for recycler view to stop animating before changing the visibility
+                AutoTransition autoTransition = new AutoTransition();
+                autoTransition.setDuration(100);
+                TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
+
                 notifyItemChanged(position, true);
             }
         });

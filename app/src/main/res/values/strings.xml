@@ -176,4 +176,5 @@
     <string name="launch_video_msg">Launch this video using an external application?</string>
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
+    <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can go back to the routine view and drag the day to a different position within the new week.</string>
 </resources>

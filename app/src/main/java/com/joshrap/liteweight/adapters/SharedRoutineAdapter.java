@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -22,9 +24,10 @@ import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final CheckBox exerciseName; // checkbox just to make layout easier
+        final CheckBox exerciseName; // checkbox just to make layout consistent
         final Button expandButton;
         final RelativeLayout extraInfoContainer;
+        final RelativeLayout rootLayout;
 
         final EditText detailsInput;
         final EditText weightInput;
@@ -35,6 +38,8 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
         ViewHolder(View itemView) {
             super(itemView);
+
+            rootLayout = itemView.findViewById(R.id.root_layout);
 
             exerciseName = itemView.findViewById(R.id.exercise_checkbox);
             expandButton = itemView.findViewById(R.id.expand_btn);
@@ -114,6 +119,14 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
         expandButton.setOnClickListener((v) -> {
             rowModel.isExpanded = !rowModel.isExpanded;
+
+            if (rowModel.isExpanded) {
+                // wait for recycler view to stop animating before changing the visibility (only for expand since otherwise wierd flicker is shown)
+                AutoTransition autoTransition = new AutoTransition();
+                autoTransition.setDuration(100);
+                TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
+            }
+
             notifyItemChanged(position, true);
         });
     }
@@ -126,7 +139,6 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         holder.setsInput.setText(Integer.toString(exercise.getSets()));
         holder.repsInput.setText(Integer.toString(exercise.getReps()));
         holder.detailsInput.setText(exercise.getDetails());
-
     }
 
     private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
