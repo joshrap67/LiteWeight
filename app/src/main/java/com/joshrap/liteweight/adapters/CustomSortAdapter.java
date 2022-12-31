@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
@@ -18,14 +20,26 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
         final TextView exerciseTV;
         final Button weightButton;
+        final RelativeLayout rootLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
             exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
             weightButton = itemView.findViewById(R.id.weight_btn);
+            rootLayout = itemView.findViewById(R.id.root_layout);
+        }
+
+        @Override
+        public void onItemSelected() {
+            rootLayout.setBackgroundResource(R.drawable.exercise_row_sorting_selected_background);
+        }
+
+        @Override
+        public void onItemCleared() {
+            rootLayout.setBackgroundResource(R.drawable.exercise_row_sorting_background);
         }
     }
 

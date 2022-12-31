@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -50,6 +51,7 @@ import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.RoutineDayAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -208,7 +210,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final int setDayTagId = 3;
         final int moveDayId = 4;
         routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
-        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
         routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
         routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
@@ -329,8 +331,22 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            // last flag is important to prevent highlight when a day is being dragged. kind of a hack but couldn't find a better solution
+            if (viewHolder instanceof DraggableViewHolder && actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemSelected();
+            }
+        }
+
+        @Override
         public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemCleared();
+            }
             recyclerView.getAdapter().notifyItemRangeChanged(0, pendingRoutine.getNumberOfWeeks(), WeekAdapter.PAYLOAD_UPDATE_ONLY_WEEK_LABEL); // ensure week numbers are updated
         }
 
@@ -338,7 +354,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
             // allows for dragging speed to start off faster when dragging outside bounds of list
             final int direction = (int) Math.signum(viewSizeOutOfBounds);
-            return 20 * direction;
+            if (msSinceStartScroll <= 800) {
+                // allow for smooth scroll at first to not be as jarring
+                return 5 * direction;
+            } else {
+                return 15 * direction;
+            }
         }
 
         @Override
@@ -508,6 +529,39 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        }
+
+        @Override
+        public void onSelectedChanged(@Nullable @org.jetbrains.annotations.Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+            super.onSelectedChanged(viewHolder, actionState);
+
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemSelected();
+            }
+        }
+
+        @Override
+        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+            // allows for dragging speed to start off faster when dragging outside bounds of list
+
+            final int direction = (int) Math.signum(viewSizeOutOfBounds);
+            if (msSinceStartScroll <= 800) {
+                // allow for smooth scroll at first to not be as jarring
+                return 2 * direction;
+            } else {
+                return 15 * direction;
+            }
+        }
+
+        @Override
+        public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemCleared();
+            }
         }
     });
 
@@ -1078,12 +1132,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.WeekViewHolder> {
 
-        class WeekViewHolder extends RecyclerView.ViewHolder {
+        class WeekViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
 
             private final TextView weekTitle;
             private final RecyclerView dayRecyclerView;
             private final Button addDayButton;
             private final ImageButton weekMoreButton;
+            private final RelativeLayout rootLayout;
 
             WeekViewHolder(final View itemView) {
                 super(itemView);
@@ -1092,6 +1147,17 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayRecyclerView = itemView.findViewById(R.id.day_recycler_view);
                 addDayButton = itemView.findViewById(R.id.add_day_btn);
                 weekMoreButton = itemView.findViewById(R.id.week_more_icon_btn);
+                rootLayout = itemView.findViewById(R.id.week_card);
+            }
+
+            @Override
+            public void onItemSelected() {
+                rootLayout.setBackgroundResource(R.drawable.week_card_selected_background);
+            }
+
+            @Override
+            public void onItemCleared() {
+                rootLayout.setBackgroundResource(R.drawable.week_card_background);
             }
         }
 
@@ -1190,8 +1256,23 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 }
 
                 @Override
+                public void onSelectedChanged(@Nullable @org.jetbrains.annotations.Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                    super.onSelectedChanged(viewHolder, actionState);
+
+                    if (viewHolder instanceof DraggableViewHolder) {
+                        DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                        itemViewHolder.onItemSelected();
+                    }
+                }
+
+                @Override
                 public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                     super.clearView(recyclerView, viewHolder);
+                    if (viewHolder instanceof DraggableViewHolder) {
+                        DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                        itemViewHolder.onItemCleared();
+                    }
+
                     recyclerView.getAdapter().notifyDataSetChanged(); // ensure day numbers are updated
                 }
 
@@ -1199,7 +1280,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
                     // allows for dragging speed to start off faster when dragging outside bounds of list
                     final int direction = (int) Math.signum(viewSizeOutOfBounds);
-                    return 20 * direction;
+                    if (msSinceStartScroll <= 800) {
+                        // allow for smooth scroll at first to not be as jarring
+                        return 5 * direction;
+                    } else {
+                        return 10 * direction;
+                    }
                 }
 
                 @Override
@@ -1270,7 +1356,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayViewHolder> {
 
-        class DayViewHolder extends RecyclerView.ViewHolder {
+        class DayViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
 
             private final TextView dayTitleTV;
             private final TextView exerciseCountTV;
@@ -1283,6 +1369,16 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayCard = itemView.findViewById(R.id.day_card);
                 dayTagTV = itemView.findViewById(R.id.day_tag_tv);
                 exerciseCountTV = itemView.findViewById(R.id.exercise_count_tv);
+            }
+
+            @Override
+            public void onItemSelected() {
+                dayCard.setBackgroundResource(R.drawable.day_card_selected_background);
+            }
+
+            @Override
+            public void onItemCleared() {
+                dayCard.setBackgroundResource(R.drawable.day_card_background);
             }
         }
 
@@ -1317,7 +1413,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             if (day.getTag() != null) {
                 dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
             } else {
-                dayTagTV.setText(null); // important as otherwise when recycled days without tags may have a tag shown
+                dayTagTV.setText(null); // otherwise when recycled, days without tags may have a tag shown
             }
         }
 

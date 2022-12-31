@@ -346,9 +346,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="check_icon" />
-                            <entry key="sourceFile" value="C:\Users\Josh\Downloads\noun_Shoulder Press_149086.svg" />
+                            <entry key="outputName" value="_liteweight_svg" />
+                            <entry key="sourceFile" value="C:\Users\Josh\github\LiteWeight\_LiteWeight_SVG.svg" />
                           </map>
                         </option>
                       </PersistentState>

@@ -70,7 +70,8 @@
     </style>
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="android:colorBackground">@color/dialog_window_background</item>
+        <item name="dialogCornerRadius">6dp</item>
         <item name="colorPrimary">@color/color_control</item>
     </style>
 

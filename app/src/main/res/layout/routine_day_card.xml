@@ -6,10 +6,9 @@
         android:layout_width="140dp"
         android:layout_height="110dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/day_background"
+        android:background="@drawable/day_card_background"
         android:clickable="true"
-        android:focusable="true"
-        android:outlineProvider="bounds">
+        android:focusable="true">
 
     <TextView
             android:id="@+id/day_title_tv"

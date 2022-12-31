@@ -253,7 +253,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Intent intent = new Intent(this, LandingActivity.class);
             startActivity(intent);
             finish();
-            return; // todo?
+            return;
         }
 
         user = userWithWorkout.getUser();
@@ -881,7 +881,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.CREATE_WORKOUT_TITLE)
                 .commit();
     }
@@ -897,7 +897,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EDIT_WORKOUT_TITLE)
                 .commit();
     }
@@ -926,7 +926,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
                 .commit();
     }
@@ -939,7 +939,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         Fragment fragment = new NewExerciseFragment();
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
                 .commit();
     }
@@ -961,7 +961,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
                 .commit();
     }
@@ -976,7 +976,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragment.setArguments(extras);
         }
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
@@ -987,7 +987,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
                 .commit();
     }
@@ -1017,7 +1017,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }
@@ -1050,7 +1050,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.FAQ_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new FaqFragment(), Variables.FAQ_TITLE)
                 .commit();
     }
