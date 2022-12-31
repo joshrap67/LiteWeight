@@ -170,8 +170,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             ((WorkoutActivity) activity).hideKeyboard();
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
             routineRowModels.remove(rowModel);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, getItemCount());
+            notifyItemRemoved(holder.getAdapterPosition());
+            notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount(), true); // payload avoids flicker for items below removed one
         });
 
         expandButton.setOnClickListener((v) -> {
@@ -199,7 +199,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
                     rowModel.isExpanded = false;
 
-                    notifyItemChanged(position, true);
+                    notifyItemChanged(holder.getAdapterPosition(), true);
                     ((WorkoutActivity) activity).hideKeyboard();
                 }
 
@@ -212,7 +212,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
                 autoTransition.setDuration(100);
                 TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
 
-                notifyItemChanged(position, true);
+                notifyItemChanged(holder.getAdapterPosition(), true);
             }
         });
     }
