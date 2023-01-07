@@ -14,19 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Parcelable;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,17 +41,19 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
+import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.adapters.RoutineDayAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -62,6 +68,7 @@ import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -83,8 +90,8 @@ import javax.inject.Inject;
 public class PendingWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private RecyclerView weeksRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
-    private AlertDialog alertDialog;
-    private TextView routineDayTitleTV, exerciseNotFoundTV, emptyDayTV, routineDayTagTV;
+    private AlertDialog alertDialog, createExerciseDialog;
+    private TextView routineDayTitleTV, emptyDayTV, routineDayTagTV;
     private String selectedFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
@@ -93,7 +100,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
-    private boolean isRoutineDayViewShown, isSorting, isExistingWorkout, firstWorkout;
+    private boolean isRoutineDayViewShown, isSorting, isExistingWorkout, firstWorkout, isSearchingExercises;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
     private ExtendedFloatingActionButton saveWorkoutButton, addWeekButton, saveCustomSortButton, addExercisesButton;
@@ -101,6 +108,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
     private Workout pendingWorkout;
+    private EditText searchExerciseInput;
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
     private final String AllFocus = "All"; // bit of a hack for sure
@@ -109,6 +117,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
+    @Inject
+    UserRepository userRepository;
     @Inject
     SharedPreferences sharedPreferences;
 
@@ -393,7 +403,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onPause() {
         super.onPause();
-        hideAllDialogs();
         backPressedCallback.remove();
     }
 
@@ -404,6 +413,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+        if (createExerciseDialog != null && createExerciseDialog.isShowing()) {
+            createExerciseDialog.dismiss();
         }
     }
 
@@ -904,13 +916,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     /**
-     * Shows a popup that lists all exercises for a given exercise focus. Used to add exercises to a given day
-     * in the routine.
+     * Shows a popup that lists all exercises for a given exercise focus and an ability to search all exercises.
+     * Adds the exercises to a given day in the routine.
      */
     private void popupAddExercises() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
-        exerciseNotFoundTV = popupView.findViewById(R.id.exercise_not_found_tv);
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
         allOwnedExercises = new HashMap<>();
@@ -932,42 +943,68 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        SearchView searchExerciseView = popupView.findViewById(R.id.exercise_search_view);
-        searchExerciseView.setOnSearchClickListener(v -> {
-            // populate the list view with all exercises
-            ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
-            for (String focus : allOwnedExercises.keySet()) {
-                for (OwnedExercise exercise : allOwnedExercises.get(focus)) {
-                    if (!sortedExercises.contains(exercise)) {
-                        sortedExercises.add(exercise);
+        // albeit more verbose than SearchView, but this allows more granular control
+        searchExerciseInput = popupView.findViewById(R.id.search_exercises_input);
+        TextInputLayout searchExerciseInputLayout = popupView.findViewById(R.id.search_exercises_input_layout);
+        ImageButton searchButton = popupView.findViewById(R.id.search_icon_button);
+
+        searchButton.setOnClickListener(v -> {
+            isSearchingExercises = !isSearchingExercises;
+            if (isSearchingExercises) {
+                searchButton.setImageResource(R.drawable.close_icon);
+
+                // populate the list view with all exercises
+                ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
+                for (String focus : allOwnedExercises.keySet()) {
+                    for (OwnedExercise exercise : allOwnedExercises.get(focus)) {
+                        if (!sortedExercises.contains(exercise)) {
+                            sortedExercises.add(exercise);
+                        }
                     }
                 }
+                Collections.sort(sortedExercises);
+                addExerciseAdapter = new PendingWorkoutFragment.AddExerciseAdapter(sortedExercises);
+                pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
+                pickExerciseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                focusSpinner.setVisibility(View.INVISIBLE);
+                searchExerciseInputLayout.setVisibility(View.VISIBLE);
+                searchExerciseInput.requestFocus();
+
+                // android is so beautiful. Show keyboard after requesting focus
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(searchExerciseInput, 0);
+            } else {
+                // reset all search views
+                searchExerciseInput.clearFocus();
+
+                // can't use shared hide keyboard method since this is in an alertdialog apparently
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchExerciseInput.getWindowToken(), 0);
+
+                searchButton.setImageResource(R.drawable.search_icon);
+
+                focusSpinner.setVisibility(View.VISIBLE);
+                searchExerciseInputLayout.setVisibility(View.INVISIBLE);
+                updateExerciseChoices();
             }
-            Collections.sort(sortedExercises);
-            addExerciseAdapter = new PendingWorkoutFragment.AddExerciseAdapter(sortedExercises);
-            pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
-            pickExerciseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-            focusSpinner.setVisibility(View.GONE);
-        });
-        searchExerciseView.setOnCloseListener(() -> {
-            focusSpinner.setVisibility(View.VISIBLE);
-            exerciseNotFoundTV.setVisibility(View.GONE);
-            updateExerciseChoices();
-            return false;
         });
 
-        searchExerciseView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchExerciseView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        // todo show video button? that way if they are using app and have no idea what the default exercise is, they can see it
+        // my only concern is possible confusion that the url cannot be edited here
+        searchExerciseInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchExerciseInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                addExerciseAdapter.getFilter().filter(newText);
-                return false;
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                addExerciseAdapter.getFilter().filter(charSequence);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
 
@@ -981,11 +1018,130 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Add Exercises")
+                .setTitle("Add Exercises To Day")
                 .setView(popupView)
                 .setPositiveButton("Done", null)
+                .setOnDismissListener(dialogInterface -> isSearchingExercises = false)
                 .create();
+
         alertDialog.show();
+    }
+
+    /*
+        Shortcut to create an exercise. An argument could be made the new exercise fragment should instead be reused, but in
+        my opinion that would break the flow for creating a workout as it would take the user to a whole new page.
+     */
+    private void popupCreateExercise() {
+        if (user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+            Toast.makeText(getContext(), "You already have the maximum number of exercises allowed. To create more, delete some in the My Exercises page.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        View popupView = getLayoutInflater().inflate(R.layout.popup_create_exercise, null);
+
+        EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
+        TextInputLayout exerciseNameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
+        TextView focusTV = popupView.findViewById(R.id.focus_tv);
+        ProgressBar loadingBar = popupView.findViewById(R.id.loading_progress_bar);
+
+        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
+        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(exerciseNameLayout));
+        // nice little shortcut to not make the user type out a non-existent exercise they were looking for
+        String defaultName = searchExerciseInput != null ? searchExerciseInput.getText().toString().trim() : "";
+        exerciseNameInput.setText(defaultName);
+
+        exerciseNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // hack as usual to get android to show keyboard when input is focused
+                createExerciseDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
+        });
+
+        RecyclerView focusRecyclerView = popupView.findViewById(R.id.pick_focuses_recycler_view);
+
+        List<String> focusList = new ArrayList<>(Variables.FOCUS_LIST);
+        List<String> selectedFocuses = new ArrayList<>();
+        FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, null);
+        focusRecyclerView.setAdapter(addFocusAdapter);
+        focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
+        createExerciseDialog = new AlertDialog.Builder(getContext())
+                .setTitle("Create New Exercise")
+                .setView(popupView)
+                .setPositiveButton("Create and Add", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        createExerciseDialog.setOnShowListener(dialogInterface -> {
+            alertDialog.dismiss();
+            if (defaultName.isEmpty()) {
+                // if not pre-filling name, bring focus to name input to save user a click
+                exerciseNameInput.requestFocus();
+            }
+        });
+        createExerciseDialog.show();
+
+        createExerciseDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String nameError;
+            boolean focusError = false;
+
+            List<String> exerciseNames = new ArrayList<>();
+            for (String exerciseId : user.getOwnedExercises().keySet()) {
+                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            }
+            nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+            exerciseNameLayout.setError(nameError);
+
+            if (selectedFocuses.isEmpty()) {
+                focusError = true;
+                focusTV.startAnimation(AndroidUtils.shakeError(4));
+                Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+            }
+
+            if (nameError == null && !focusError) {
+                String exerciseName = exerciseNameInput.getText().toString().trim();
+
+                createExerciseDialog.setCancelable(false);
+                loadingBar.setVisibility(View.VISIBLE);
+                Executor executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(
+                            exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
+                    Handler handler = new Handler(getMainLooper());
+                    handler.post(() -> {
+                        loadingBar.setVisibility(View.GONE);
+                        createExerciseDialog.setCancelable(true);
+                        if (resultStatus.isSuccess()) {
+                            OwnedExercise newExercise = resultStatus.getData();
+                            user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
+
+                            exerciseIdToName.putIfAbsent(newExercise.getExerciseId(), newExercise.getExerciseName());
+                            exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getExerciseId(), newExercise.getDefaultWeight());
+                            addOwnedExerciseToRoutine(newExercise);
+
+                            createExerciseDialog.dismiss();
+                        } else {
+                            AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    private void addOwnedExerciseToRoutine(OwnedExercise ownedExercise) {
+        RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
+        pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
+
+        // shortcut for first users so their exercises don't all just have 0 for default weight even after creating a workout
+        if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
+            exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
+        }
+
+        int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
+        // adapter uses list of separate models to maintain expanded state, need to add it there too
+        routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
+        routineDayAdapter.notifyItemInserted(newPosition);
+        routineDayRecyclerView.scrollToPosition(newPosition);
     }
 
     /**
@@ -1022,13 +1178,24 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
     }
 
-    private class AddExerciseAdapter extends RecyclerView.Adapter<PendingWorkoutFragment.AddExerciseAdapter.ViewHolder> implements Filterable {
-        class ViewHolder extends RecyclerView.ViewHolder {
+    private class AddExerciseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
+        private static final int FOOTER_VIEW = 1;
+
+        class AddExerciseViewHolder extends RecyclerView.ViewHolder {
             private final CheckBox exerciseCheckbox;
 
-            ViewHolder(View itemView) {
+            AddExerciseViewHolder(View itemView) {
                 super(itemView);
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
+            }
+        }
+
+        class FooterViewHolder extends RecyclerView.ViewHolder {
+            private final Button createExerciseBtn;
+
+            FooterViewHolder(View itemView) {
+                super(itemView);
+                createExerciseBtn = itemView.findViewById(R.id.create_exercise_btn);
             }
         }
 
@@ -1043,53 +1210,68 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         @NonNull
         @Override
-        public PendingWorkoutFragment.AddExerciseAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View exerciseView = inflater.inflate(R.layout.row_add_exercise, parent, false);
-            return new PendingWorkoutFragment.AddExerciseAdapter.ViewHolder(exerciseView);
+            if (viewType == FOOTER_VIEW) {
+                View exerciseView = inflater.inflate(R.layout.exercise_not_found_footer, parent, false);
+                return new PendingWorkoutFragment.AddExerciseAdapter.FooterViewHolder(exerciseView);
+            } else {
+                View exerciseView = inflater.inflate(R.layout.row_add_exercise, parent, false);
+                return new AddExerciseViewHolder(exerciseView);
+            }
         }
 
         @Override
-        public void onBindViewHolder(PendingWorkoutFragment.AddExerciseAdapter.ViewHolder holder, int position) {
-            final OwnedExercise ownedExercise = displayList.get(position);
-            CheckBox exerciseCheckbox = holder.exerciseCheckbox;
-            exerciseCheckbox.setText(ownedExercise.getExerciseName());
-            // check if the exercise is already in this specific day
-            boolean isChecked = false;
-            for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-                if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
-                    isChecked = true;
-                    break;
-                }
+        public int getItemViewType(int position) {
+            if (position == displayList.size()) {
+                return FOOTER_VIEW;
             }
-            exerciseCheckbox.setChecked(isChecked);
 
-            exerciseCheckbox.setOnClickListener(v -> {
-                if (exerciseCheckbox.isChecked()) {
-                    RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
-                    pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
-                    if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
-                        exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
-                    }
-                    int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
-                    // adapter uses list of separate models to maintain expanded state, need to add it there too
-                    routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
-                    routineDayAdapter.notifyItemInserted(newPosition);
-                    routineDayRecyclerView.scrollToPosition(newPosition);
-                } else {
-                    pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
-                    // adapter uses list of separate models to maintain expanded state, need to remove it there too
-                    routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
-                    // too much of a pain to get the index in that adapter that this exercise could have been removed from
-                    routineDayAdapter.notifyDataSetChanged();
-                }
-            });
+            return super.getItemViewType(position);
         }
 
         @Override
         public int getItemCount() {
-            return displayList.size();
+            if (displayList.size() == 0) {
+                // always want one item for the footer
+                return 1;
+            }
+            return displayList.size() + 1;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof AddExerciseViewHolder) {
+                AddExerciseViewHolder viewHolder = (AddExerciseViewHolder) holder;
+                final OwnedExercise ownedExercise = displayList.get(position);
+                CheckBox exerciseCheckbox = viewHolder.exerciseCheckbox;
+                exerciseCheckbox.setText(ownedExercise.getExerciseName());
+                // check if the exercise is already in this specific day
+                boolean isChecked = false;
+                for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+                    if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
+                        isChecked = true;
+                        break;
+                    }
+                }
+                exerciseCheckbox.setChecked(isChecked);
+
+                exerciseCheckbox.setOnClickListener(v -> {
+                    if (exerciseCheckbox.isChecked()) {
+                        addOwnedExerciseToRoutine(ownedExercise);
+                    } else {
+                        pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
+                        // adapter uses list of separate models to maintain expanded state, need to remove it there too
+                        routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
+                        // too much of a pain to get the index in that adapter that this exercise could have been removed from
+                        routineDayAdapter.notifyDataSetChanged();
+                    }
+                });
+            } else if (holder instanceof FooterViewHolder) {
+                FooterViewHolder viewHolder = (FooterViewHolder) holder;
+                viewHolder.createExerciseBtn.setOnClickListener(view -> popupCreateExercise());
+            }
         }
 
         @Override
@@ -1120,11 +1302,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayList.clear();
                 displayList.addAll((List) results.values);
-                if (displayList.isEmpty()) {
-                    exerciseNotFoundTV.setVisibility(View.VISIBLE);
-                } else {
-                    exerciseNotFoundTV.setVisibility(View.GONE);
-                }
                 notifyDataSetChanged();
             }
         };

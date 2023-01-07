@@ -25,8 +25,7 @@
     <string name="focus_label">Focus</string>
     <string name="focuses">Focuses</string>
     <string name="version_number">Version </string>
-    <string name="exercise_not_found">Exercise not found.</string>
-    <string name="search_exercise_hint">Search exercise…</string>
+    <string name="search_exercise_hint">Search exercises</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
     <string name="nav_workout_icon_title">Current Workout</string>
@@ -145,7 +144,7 @@
     <string name="restart_workout">Restart</string>
     <string name="colon">:</string>
     <string name="back">BACK</string>
-    <string name="day_tag_description">Set an optional tag for this day. Tags can be used to easily distinguish one day from another. E.g. \"Bicep Day\"</string>
+    <string name="day_tag_description">Optional tag to distinguish this day from others. Example: <i>Bicep Day</i></string>
     <string name="day_tag_hint">Tag (leave empty for none)</string>
     <string name="new_workout_name_hint">New workout name</string>
     <string name="add_exercises">Add Exercises</string>
@@ -177,4 +176,6 @@
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
     <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can go back to the routine view and drag the day to a different position within the new week.</string>
+    <string name="search_exercises_description">Search Exercises</string>
+    <string name="dont_see_an_exercise">Don\'t see an exercise?</string>
 </resources>

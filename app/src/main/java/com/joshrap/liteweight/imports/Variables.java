@@ -32,6 +32,10 @@ public class Variables {
     public static final int MAX_FEEDBACK = 2000;
     public static final int BATCH_SIZE = 25;
 
+    public static final int DEFAULT_WEIGHT = 0;
+    public static final int DEFAULT_SETS = 3;
+    public static final int DEFAULT_REPS = 15;
+
     public static final List<String> FOCUS_LIST = Arrays.asList(
             "Back",
             "Biceps",

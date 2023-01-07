@@ -88,7 +88,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
-        focusList = Variables.FOCUS_LIST;
+        focusList = new ArrayList<>(Variables.FOCUS_LIST);
         selectedFocuses = new ArrayList<>();
 
         return inflater.inflate(R.layout.fragment_new_exercise, container, false);
@@ -118,17 +118,17 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightLayout));
-        weightInput.setText("0");
+        weightInput.setText(Integer.toString(Variables.DEFAULT_WEIGHT));
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsLayout));
-        setsInput.setText("3");
+        setsInput.setText(Integer.toString(Variables.DEFAULT_SETS));
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsLayout));
-        repsInput.setText("15");
+        repsInput.setText(Integer.toString(Variables.DEFAULT_REPS));
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
