@@ -189,7 +189,6 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Override
     public void onPause() {
         super.onPause();
-        hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
     }
 

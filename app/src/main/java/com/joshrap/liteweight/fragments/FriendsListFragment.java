@@ -263,7 +263,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
-        hideAllDialogs();
     }
 
     @Override

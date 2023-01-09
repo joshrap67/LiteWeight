@@ -174,7 +174,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Override
     public void onPause() {
         super.onPause();
-        hideAllDialogs();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
     }
 

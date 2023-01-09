@@ -232,7 +232,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onPause() {
         super.onPause();
 
-        hideAllDialogs();
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
             ((WorkoutActivity) getActivity()).startTimerService();

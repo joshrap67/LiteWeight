@@ -187,12 +187,6 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        hideAllDialogs();
-    }
-
-    @Override
     public void hideAllDialogs() {
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();

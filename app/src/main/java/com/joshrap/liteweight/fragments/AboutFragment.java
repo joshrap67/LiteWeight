@@ -151,12 +151,6 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        hideAllDialogs();
-    }
-
     private void sendFeedback(String feedback) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M-d-yyyy, HH:mm:ss z", Locale.US);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
