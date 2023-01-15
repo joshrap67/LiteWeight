@@ -48,8 +48,7 @@
                     android:text="@string/rearrange_hint"
                     android:textAlignment="center"
                     android:textColor="@color/subtitle_color"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
+                    android:visibility="gone" />
 
             <Button
                     android:id="@+id/rearrange_btn"
