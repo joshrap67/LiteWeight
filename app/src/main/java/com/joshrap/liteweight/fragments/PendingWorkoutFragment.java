@@ -311,7 +311,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     finishRearrangeMode();
                 } else if (isRoutineDayViewShown) {
                     ((WorkoutActivity) getActivity()).hideKeyboard();
-                    finishExerciseCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
@@ -469,7 +468,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
 
         CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
-        customSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
+        customExerciseSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
         routineDayRecyclerView.setAdapter(routineAdapter);
     }
 
@@ -481,7 +480,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         updateRoutineDayExerciseList();
         addExercisesButton.show();
-        customSortDispatcher.attachToRecyclerView(null);
+        customExerciseSortDispatcher.attachToRecyclerView(null);
     }
 
     private void enableRearrangeMode() {
@@ -511,7 +510,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         dragWeekDispatcher.attachToRecyclerView(null);
     }
 
-    private final ItemTouchHelper customSortDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+    private final ItemTouchHelper customExerciseSortDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragged, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = dragged.getAdapterPosition();
@@ -812,7 +811,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
                     pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);
 
-                    // needed so the copied day in the week list is updated (in case it was copied outside the original week)
                     weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
                     weekAdapter.notifyItemChanged(currentWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
 
