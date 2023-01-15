@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -22,9 +24,10 @@ import java.util.List;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final CheckBox exerciseName; // checkbox just to make layout easier
+        final CheckBox exerciseName; // checkbox just to make layout consistent
         final Button expandButton;
         final RelativeLayout extraInfoContainer;
+        final RelativeLayout rootLayout;
 
         final EditText detailsInput;
         final EditText weightInput;
@@ -35,6 +38,8 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
         ViewHolder(View itemView) {
             super(itemView);
+
+            rootLayout = itemView.findViewById(R.id.root_layout);
 
             exerciseName = itemView.findViewById(R.id.exercise_checkbox);
             expandButton = itemView.findViewById(R.id.expand_btn);
@@ -69,7 +74,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
+        // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
             final SharedRoutineRowModel routineRowModel = sharedRoutineRowModels.get(position);
             final SharedExercise exercise = routineRowModel.sharedExercise;
@@ -114,8 +119,15 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
         expandButton.setOnClickListener((v) -> {
             rowModel.isExpanded = !rowModel.isExpanded;
+
+            if (rowModel.isExpanded) {
+                // wait for recycler view to stop animating before changing the visibility (only for expand since otherwise wierd flicker is shown)
+                AutoTransition autoTransition = new AutoTransition();
+                autoTransition.setDuration(100);
+                TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
+            }
+
             notifyItemChanged(position, true);
-            setExpandedViews(holder, exercise);
         });
     }
 
@@ -127,13 +139,12 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         holder.setsInput.setText(Integer.toString(exercise.getSets()));
         holder.repsInput.setText(Integer.toString(exercise.getReps()));
         holder.detailsInput.setText(exercise.getDetails());
-
     }
 
     private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
         setInputs(holder, exercise);
     }
 
@@ -143,7 +154,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         holder.expandButton.setText(formattedWeight);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down_arrow_small, 0);
     }
 
     @Override

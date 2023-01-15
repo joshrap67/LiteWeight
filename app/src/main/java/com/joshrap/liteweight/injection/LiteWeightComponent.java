@@ -1,7 +1,7 @@
 package com.joshrap.liteweight.injection;
 
+import com.joshrap.liteweight.activities.LandingActivity;
 import com.joshrap.liteweight.activities.SignInActivity;
-import com.joshrap.liteweight.activities.SplashActivity;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.fragments.AboutFragment;
 import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
@@ -31,7 +31,7 @@ public interface LiteWeightComponent {
 
     void inject(WorkoutActivity workoutActivity);
 
-    void inject(SplashActivity splashActivity);
+    void inject(LandingActivity landingActivity);
 
     void inject(SignInActivity signInActivity);
 

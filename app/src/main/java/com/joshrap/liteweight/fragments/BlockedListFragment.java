@@ -119,12 +119,6 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        hideAllDialogs();
-    }
-
-    @Override
     public void hideAllDialogs() {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();

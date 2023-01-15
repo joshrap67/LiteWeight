@@ -76,7 +76,7 @@
                 android:text="@string/previous_day"
                 app:shapeAppearance="@style/roundedButton" />
 
-        <Space
+        <View
                 android:id="@+id/space"
                 android:layout_width="48dp"
                 android:layout_height="48dp"

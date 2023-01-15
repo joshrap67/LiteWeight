@@ -10,7 +10,7 @@ public class Variables {
     public static final int WORKOUT_MAX_NUMBER_OF_DAYS = 7;
     public static final int MAX_NUMBER_OF_WEEKS = 10;
     public static final int MAX_WORKOUT_NAME = 40;
-    public static final int MAX_DAY_TAG_LENGTH = 25;
+    public static final int MAX_DAY_TAG_LENGTH = 50;
     public static final int MAX_EXERCISE_NAME = 40;
     public static final int MAX_WEIGHT = 99999;
     public static final int MAX_WEIGHT_DIGITS = Integer.toString(MAX_WEIGHT).length();
@@ -31,6 +31,10 @@ public class Variables {
     public static final int MAX_WORKOUTS = 20;
     public static final int MAX_FEEDBACK = 2000;
     public static final int BATCH_SIZE = 25;
+
+    public static final int DEFAULT_WEIGHT = 0;
+    public static final int DEFAULT_SETS = 3;
+    public static final int DEFAULT_REPS = 15;
 
     public static final List<String> FOCUS_LIST = Arrays.asList(
             "Back",

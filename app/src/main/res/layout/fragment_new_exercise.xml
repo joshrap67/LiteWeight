@@ -103,7 +103,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
 
@@ -117,7 +117,6 @@
                         tools:listitem="@android:layout/simple_selectable_list_item"
                         tools:visibility="visible" />
             </RelativeLayout>
-
 
             <RelativeLayout
                     android:layout_width="match_parent"

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -13,19 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Parcelable;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -36,8 +41,8 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,9 +52,11 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
+import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.adapters.RoutineDayAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
@@ -60,6 +67,7 @@ import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -80,9 +88,9 @@ import javax.inject.Inject;
 
 public class PendingWorkoutFragment extends Fragment implements FragmentWithDialog {
 
-    private RecyclerView weekRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
-    private AlertDialog alertDialog;
-    private TextView routineDayTitleTV, exerciseNotFoundTV, emptyDayTV, routineDayTagTV;
+    private RecyclerView weeksRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
+    private AlertDialog alertDialog, createExerciseDialog;
+    private TextView routineDayTitleTV, emptyDayTV, routineDayTagTV, rearrangeHintTV;
     private String selectedFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
@@ -91,14 +99,16 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
     private UserWithWorkout userWithWorkout;
-    private boolean isRoutineDayViewShown, isSorting, isExistingWorkout, firstWorkout;
+    private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
-    private ExtendedFloatingActionButton saveWorkoutButton, addWeekButton, saveCustomSortButton, addExercisesButton;
+    private Button addWeekButton, saveWorkoutButton, rearrangeButton, doneRearrangingButton;
+    private ExtendedFloatingActionButton saveCustomSortButton, addExercisesButton;
     private AddExerciseAdapter addExerciseAdapter;
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
     private Workout pendingWorkout;
+    private EditText searchExerciseInput;
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
     private final String AllFocus = "All"; // bit of a hack for sure
@@ -107,6 +117,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     AlertDialog loadingDialog;
     @Inject
     WorkoutRepository workoutRepository;
+    @Inject
+    UserRepository userRepository;
     @Inject
     SharedPreferences sharedPreferences;
 
@@ -160,7 +172,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         routineDayTagTV = view.findViewById(R.id.day_tag_tv);
 
         saveCustomSortButton = view.findViewById(R.id.done_sorting_fab);
-        saveCustomSortButton.setOnClickListener(v -> finishCustomSortMode());
+        saveCustomSortButton.setOnClickListener(v -> finishExerciseCustomSortMode());
 
         // set up sorting options
         sortExercisesButton = view.findViewById(R.id.sort_icon_button);
@@ -191,7 +203,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     updateRoutineDayExerciseList();
                     return true;
                 case RoutineDay.customSort:
-                    enableCustomSortMode();
+                    enableExerciseCustomSortMode();
                     return true;
             }
             return false;
@@ -206,24 +218,33 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final int copyDayToWeekId = 1;
         final int copyDayToExistingId = 2;
         final int setDayTagId = 3;
-        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
+        final int moveDayId = 4;
         routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
+        routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
         routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
         dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case deleteDayId:
-                    promptDeleteDay();
+                    promptDeleteDay(currentWeekIndex, currentDayIndex);
                     return true;
                 case copyDayToExistingId:
-                    promptCopyToExistingDay();
+                    promptCopyToExistingDay(currentWeekIndex, currentDayIndex);
                     return true;
                 case copyDayToWeekId:
-                    copyDayToWeek();
+                    copyDayToWeek(currentWeekIndex, currentDayIndex);
                     return true;
                 case setDayTagId:
-                    promptSetDayTag();
+                    promptSetDayTag(currentWeekIndex, currentDayIndex);
+                    return true;
+                case moveDayId:
+                    if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() <= 1) {
+                        Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    promptMoveDay(currentWeekIndex, currentDayIndex);
                     return true;
             }
             return false;
@@ -241,10 +262,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         //endregion
 
         //region Views for routine
-        weekRecyclerView = view.findViewById(R.id.week_recycler_view);
+        weeksRecyclerView = view.findViewById(R.id.week_recycler_view);
         setWeekAdapter();
 
-        addWeekButton = view.findViewById(R.id.add_week_fab);
+        addWeekButton = view.findViewById(R.id.add_week_btn);
         addWeekButton.setOnClickListener(v -> {
             if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                 // otherwise user can bypass by clicking quickly
@@ -253,16 +274,23 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             pendingRoutine.addEmptyWeek();
             weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
             if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
-                addWeekButton.hide();
+                addWeekButton.setVisibility(View.GONE);
             }
 
             // scroll to end when new week is added
-            weekRecyclerView.post(() -> weekRecyclerView.scrollToPosition(weekAdapter.getItemCount() - 1));
+            weeksRecyclerView.post(() -> weeksRecyclerView.scrollToPosition(weekAdapter.getItemCount() - 1));
         });
 
-        saveWorkoutButton = view.findViewById(R.id.save_fab);
+        rearrangeButton = view.findViewById(R.id.rearrange_btn);
+        rearrangeButton.setOnClickListener(v -> enableRearrangeMode());
+        rearrangeHintTV = view.findViewById(R.id.rearrange_hint_tv);
+
+        doneRearrangingButton = view.findViewById(R.id.done_rearranging_btn);
+        doneRearrangingButton.setOnClickListener(v -> finishRearrangeMode());
+
+        saveWorkoutButton = view.findViewById(R.id.save_btn);
         if (!isExistingWorkout) {
-            saveWorkoutButton.setText(R.string.create);
+            saveWorkoutButton.setText(R.string.create_workout);
         }
         saveWorkoutButton.setOnClickListener(v -> {
             if (isExistingWorkout) {
@@ -277,11 +305,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         backPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (isSorting) {
-                    finishCustomSortMode();
+                if (isSortingExercises) {
+                    finishExerciseCustomSortMode();
+                } else if (isRearranging) {
+                    finishRearrangeMode();
                 } else if (isRoutineDayViewShown) {
                     ((WorkoutActivity) getActivity()).hideKeyboard();
-                    finishCustomSortMode(); // in case user was custom sorting need to reset day layout
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
@@ -312,8 +341,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void setWeekAdapter() {
         LinearLayoutManager weekLayoutManager = new LinearLayoutManager(getActivity());
         weekAdapter = new WeekAdapter(pendingRoutine);
-        weekRecyclerView.setAdapter(weekAdapter);
-        weekRecyclerView.setLayoutManager(weekLayoutManager);
+        weeksRecyclerView.setAdapter(weekAdapter);
+        weeksRecyclerView.setLayoutManager(weekLayoutManager);
     }
 
     private void setToolbarTitle() {
@@ -333,7 +362,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onPause() {
         super.onPause();
-        hideAllDialogs();
         backPressedCallback.remove();
     }
 
@@ -344,6 +372,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+        if (createExerciseDialog != null && createExerciseDialog.isShowing()) {
+            createExerciseDialog.dismiss();
         }
     }
 
@@ -367,7 +398,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         setToolbarTitle();
 
         // this is required to get the exercise count to update
-        weekAdapter.notifyItemChanged(currentWeekIndex, true);
+        weekAdapter.notifyItemChanged(currentWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
     }
 
     private boolean isRoutineModified() {
@@ -429,35 +460,57 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 ? View.VISIBLE : View.GONE);
     }
 
-    /**
-     * Allows the user to drag specific exercises within a day to the position of their liking.
-     */
-    private void enableCustomSortMode() {
-        isSorting = true;
+    private void enableExerciseCustomSortMode() {
+        isSortingExercises = true;
         addExercisesButton.hide();
         saveCustomSortButton.show();
-        saveWorkoutButton.hide();
         sortExercisesButton.setVisibility(View.INVISIBLE);
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
 
         CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
-        customSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
+        customExerciseSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
         routineDayRecyclerView.setAdapter(routineAdapter);
     }
 
-    private void finishCustomSortMode() {
-        isSorting = false;
+    private void finishExerciseCustomSortMode() {
+        isSortingExercises = false;
         saveCustomSortButton.hide();
-        saveWorkoutButton.show();
         sortExercisesButton.setVisibility(View.VISIBLE);
         routineDayMoreIcon.setVisibility(View.VISIBLE);
+
         updateRoutineDayExerciseList();
         addExercisesButton.show();
-        // needed to avoid weird bug that happens when user tries to sort again by dragging
-        customSortDispatcher.attachToRecyclerView(null);
+        customExerciseSortDispatcher.attachToRecyclerView(null);
     }
 
-    private final ItemTouchHelper customSortDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+    private void enableRearrangeMode() {
+        isRearranging = true;
+        saveWorkoutButton.setVisibility(View.GONE);
+        addWeekButton.setVisibility(View.INVISIBLE);
+        rearrangeButton.setVisibility(View.INVISIBLE);
+
+        doneRearrangingButton.setVisibility(View.VISIBLE);
+        rearrangeHintTV.setVisibility(View.VISIBLE);
+
+        dragWeekDispatcher.attachToRecyclerView(weeksRecyclerView);
+        weekAdapter.notifyDataSetChanged();
+    }
+
+    private void finishRearrangeMode() {
+        isRearranging = false;
+        saveWorkoutButton.setVisibility(View.VISIBLE);
+        addWeekButton.setVisibility(View.VISIBLE);
+        rearrangeButton.setVisibility(View.VISIBLE);
+
+        rearrangeHintTV.setVisibility(View.GONE);
+        doneRearrangingButton.setVisibility(View.GONE);
+
+        weekAdapter.clearItemTouchHelperMap();
+        weekAdapter.notifyDataSetChanged();
+        dragWeekDispatcher.attachToRecyclerView(null);
+    }
+
+    private final ItemTouchHelper customExerciseSortDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragged, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = dragged.getAdapterPosition();
@@ -470,8 +523,87 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         }
+
+        @Override
+        public void onSelectedChanged(@Nullable @org.jetbrains.annotations.Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+            super.onSelectedChanged(viewHolder, actionState);
+
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemSelected();
+            }
+        }
+
+        @Override
+        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+            // allows for dragging speed to start off faster when dragging outside bounds of list
+
+            final int direction = (int) Math.signum(viewSizeOutOfBounds);
+            if (msSinceStartScroll <= 800) {
+                // allow for smooth scroll at first to not be as jarring
+                return 2 * direction;
+            } else {
+                return 15 * direction;
+            }
+        }
+
+        @Override
+        public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemCleared();
+            }
+        }
     });
 
+    private final ItemTouchHelper dragWeekDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragged, @NonNull RecyclerView.ViewHolder target) {
+            int fromPosition = dragged.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
+            pendingRoutine.swapWeeksOrder(fromPosition, toPosition);
+            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition); // this causes the animation of weeks being pushed over
+            return true;
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            // last flag is important to prevent unwanted highlight when a day is being dragged. kind of a hack but couldn't find a better solution
+            if (viewHolder instanceof DraggableViewHolder && actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemSelected();
+            }
+        }
+
+        @Override
+        public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+            if (viewHolder instanceof DraggableViewHolder) {
+                DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                itemViewHolder.onItemCleared();
+            }
+            recyclerView.getAdapter().notifyItemRangeChanged(0, pendingRoutine.getNumberOfWeeks(), WeekAdapter.PAYLOAD_UPDATE_ONLY_WEEK_LABEL); // ensure week numbers are updated
+        }
+
+        @Override
+        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+            // allows for dragging speed to start off faster when dragging outside bounds of list
+            final int direction = (int) Math.signum(viewSizeOutOfBounds);
+            if (msSinceStartScroll <= 800) {
+                // allow for smooth scroll at first to not be as jarring
+                return 5 * direction;
+            } else {
+                return 15 * direction;
+            }
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        }
+    });
 
     private void promptDeleteWeek(int weekIndex) {
         alertDialog = new AlertDialog.Builder(getContext())
@@ -494,17 +626,17 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         pendingRoutine.deleteWeek(weekIndex);
         weekAdapter.notifyItemRemoved(weekIndex);
         weekAdapter.notifyItemRangeChanged(weekIndex, weekAdapter.getItemCount());
-        addWeekButton.show();
+        addWeekButton.setVisibility(View.VISIBLE);
     }
 
-    private void promptSetDayTag() {
+    private void promptSetDayTag(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_set_routine_day_tag, null);
         EditText dayTagInput = popupView.findViewById(R.id.day_tag_input);
         TextInputLayout dayTagInputLayout = popupView.findViewById(R.id.day_tag_input_layout);
         dayTagInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DAY_TAG_LENGTH)});
         dayTagInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(dayTagInputLayout));
 
-        RoutineDay currentDay = pendingRoutine.getDay(currentWeekIndex, currentDayIndex);
+        RoutineDay currentDay = pendingRoutine.getDay(weekIndex, dayIndex);
         dayTagInput.setText(currentDay.getTag());
 
         alertDialog = new AlertDialog.Builder(getContext())
@@ -513,20 +645,70 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 .setPositiveButton("Save", (dialog, which) -> {
                     String dayTag = dayTagInput.getText().toString().trim();
                     currentDay.setTag(dayTag);
-                    setRoutineDayTagTV(currentWeekIndex, currentDayIndex);
+                    if (isRoutineDayViewShown) {
+                        setRoutineDayTagTV(weekIndex, dayIndex);
+                    } else {
+                        weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
+                    }
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.show();
     }
 
-    private void promptDeleteDay() {
+    private void promptMoveDay(final int weekIndex, final int dayIndex) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_move_routine_day, null);
+
+        int totalWeeks = pendingRoutine.getNumberOfWeeks();
+
+        String[] weekDisplays = new String[totalWeeks];
+        for (int i = 0; i < totalWeeks; i++) {
+            weekDisplays[i] = String.format(Locale.US, "Week %d", i + 1);
+        }
+        NumberPicker weekPicker = popupView.findViewById(R.id.week_picker);
+        weekPicker.setMinValue(0);
+        weekPicker.setMaxValue(totalWeeks - 1);
+        weekPicker.setValue(weekIndex);
+        weekPicker.setWrapSelectorWheel(false);
+        weekPicker.setDisplayedValues(weekDisplays);
+
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Delete Day " + (currentDayIndex + 1))
+                .setTitle("Move " + WorkoutUtils.generateDayTitle(weekIndex, dayIndex))
+                .setView(popupView)
+                .setPositiveButton("Move", (dialog, which) -> {
+                    int targetWeekIndex = weekPicker.getValue();
+                    if (targetWeekIndex == weekIndex) {
+                        Toast.makeText(getContext(), "Day is already in that week", Toast.LENGTH_LONG).show();
+                    } else if (pendingRoutine.getWeek(targetWeekIndex).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                        Toast.makeText(getContext(), "That week is full", Toast.LENGTH_LONG).show();
+                    } else {
+                        RoutineDay currentDay = pendingRoutine.getDay(weekIndex, dayIndex);
+                        int targetDayIndex = pendingRoutine.getWeek(targetWeekIndex).getNumberOfDays();
+                        pendingRoutine.getWeek(targetWeekIndex).addDay(currentDay);
+                        pendingRoutine.getWeek(weekIndex).removeDay(currentDay);
+
+                        weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
+                        weekAdapter.notifyItemChanged(targetWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
+
+                        currentWeekIndex = targetWeekIndex;
+                        currentDayIndex = targetDayIndex;
+
+                        updateRoutineDayExerciseList();
+                        alertDialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.show();
+    }
+
+    private void promptDeleteDay(int weekIndex, int dayIndex) {
+        alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle("Delete " + (WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setMessage(R.string.remove_day_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() > 1) {
-                        deleteDay();
+                    if (pendingRoutine.getWeek(weekIndex).getNumberOfDays() > 1) {
+                        deleteDay(weekIndex, dayIndex);
                     } else {
                         Toast.makeText(getContext(), "Cannot delete only day from week.", Toast.LENGTH_LONG).show();
                     }
@@ -537,18 +719,22 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private void deleteDay() {
-        pendingRoutine.deleteDay(currentWeekIndex, currentDayIndex);
-        switchToRoutineView();
+    private void deleteDay(final int weekIndex, final int dayIndex) {
+        pendingRoutine.deleteDay(weekIndex, dayIndex);
+        if (isRoutineDayViewShown) {
+            switchToRoutineView();
+        } else {
+            weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
+        }
     }
 
-    private void promptCopyToExistingDay() {
+    private void promptCopyToExistingDay(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_to_existing, null);
         List<String> dayLabels = new ArrayList<>();
-        for (int weekIndex = 0; weekIndex < pendingRoutine.getNumberOfWeeks(); weekIndex++) {
-            RoutineWeek week = pendingRoutine.getWeek(weekIndex);
-            for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
-                String dayTitle = WorkoutUtils.generateDayTitle(weekIndex, dayIndex);
+        for (int weekPosition = 0; weekPosition < pendingRoutine.getNumberOfWeeks(); weekPosition++) {
+            RoutineWeek week = pendingRoutine.getWeek(weekPosition);
+            for (int dayPosition = 0; dayPosition < week.getNumberOfDays(); dayPosition++) {
+                String dayTitle = WorkoutUtils.generateDayTitle(weekPosition, dayPosition);
                 dayLabels.add(dayTitle);
             }
         }
@@ -563,27 +749,26 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setDisplayedValues(dayLabelsArray);
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex)))
+                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
-                    int originalWeekIndex = currentWeekIndex;
 
-                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(currentWeekIndex, currentDayIndex).clone();
+                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(weekIndex, dayIndex).clone();
                     int count = 0;
-                    for (int weekIndex = 0; weekIndex < pendingRoutine.getNumberOfWeeks(); weekIndex++) {
-                        RoutineWeek week = pendingRoutine.getWeek(weekIndex);
-                        for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+                    for (int weekPosition = 0; weekPosition < pendingRoutine.getNumberOfWeeks(); weekPosition++) {
+                        RoutineWeek week = pendingRoutine.getWeek(weekPosition);
+                        for (int dayPosition = 0; dayPosition < week.getNumberOfDays(); dayPosition++) {
                             if (count == dayPicker.getValue()) {
-                                currentWeekIndex = weekIndex;
-                                currentDayIndex = dayIndex;
+                                currentWeekIndex = weekPosition;
+                                currentDayIndex = dayPosition;
                             }
                             count++;
                         }
                     }
 
                     pendingRoutine.putDay(currentWeekIndex, currentDayIndex, dayToBeCopied);
-                    // needed so the original day in the week list is updated
-                    weekAdapter.notifyItemChanged(originalWeekIndex, 0);
+
+                    weekAdapter.notifyItemChanged(currentWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
 
                     updateRoutineDayExerciseList();
                     alertDialog.dismiss();
@@ -593,7 +778,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private void copyDayToWeek() {
+    private void copyDayToWeek(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_to_week, null);
         int totalWeeks = pendingRoutine.getNumberOfWeeks();
 
@@ -604,12 +789,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         NumberPicker weekPicker = popupView.findViewById(R.id.week_picker);
         weekPicker.setMinValue(0);
         weekPicker.setMaxValue(totalWeeks - 1);
-        weekPicker.setValue(currentWeekIndex);
+        weekPicker.setValue(weekIndex);
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex)))
+                .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
                     int targetWeek = weekPicker.getValue();
@@ -620,16 +805,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         return;
                     }
 
-                    int originalWeekIndex = currentWeekIndex;
                     currentWeekIndex = targetWeek;
 
-                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(originalWeekIndex, currentDayIndex).clone();
+                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(weekIndex, dayIndex).clone();
                     currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
                     pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);
 
-                    // needed so the copied day in the week list is updated (in case it was copied outside the original week)
-                    weekAdapter.notifyItemChanged(originalWeekIndex, 0);
-                    weekAdapter.notifyItemChanged(currentWeekIndex, 0);
+                    weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
+                    weekAdapter.notifyItemChanged(currentWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
 
                     updateRoutineDayExerciseList();
                     alertDialog.dismiss();
@@ -639,7 +822,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private void promptCopyToExistingWeek(int selectedWeek) {
+    private void promptCopyToExistingWeek(int currentWeek) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_week_to_existing, null);
         int totalWeeks = pendingRoutine.getNumberOfWeeks();
 
@@ -650,17 +833,17 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         NumberPicker weekPicker = popupView.findViewById(R.id.week_picker);
         weekPicker.setMinValue(0);
         weekPicker.setMaxValue(totalWeeks - 1);
-        weekPicker.setValue(selectedWeek);
+        weekPicker.setValue(currentWeek);
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle(String.format(Locale.US, "Copy Week %d", selectedWeek + 1))
+                .setTitle(String.format(Locale.US, "Copy Week %d", currentWeek + 1))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
                     int targetWeek = weekPicker.getValue();
 
-                    final RoutineWeek weekToBeCopied = pendingRoutine.getWeek(selectedWeek);
+                    final RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeek);
                     pendingRoutine.putWeek(targetWeek, weekToBeCopied.clone());
                     weekAdapter.notifyItemChanged(targetWeek);
 
@@ -671,8 +854,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private void copyWeekAsNew(int weekIndex) {
-        RoutineWeek weekToBeCopied = pendingRoutine.getWeek(weekIndex);
+    private void copyWeekAsNew(int currentWeek) {
+        RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeek);
         pendingRoutine.addWeek(weekToBeCopied.clone());
         weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
     }
@@ -733,7 +916,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     pendingRoutine = pendingWorkout.getRoutine();
                     setToolbarTitle();
                     setWeekAdapter(); // since adapter holds old references to weeks
-                    saveWorkoutButton.setText(R.string.save);
+                    saveWorkoutButton.setText(R.string.save_workout);
                 } else {
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
@@ -765,13 +948,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     /**
-     * Shows a popup that lists all exercises for a given exercise focus. Used to add exercises to a given day
-     * in the routine.
+     * Shows a popup that lists all exercises for a given exercise focus and an ability to search all exercises.
+     * Adds the exercises to a given day in the routine.
      */
     private void popupAddExercises() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
         pickExerciseRecyclerView = popupView.findViewById(R.id.pick_exercises_recycler_view);
-        exerciseNotFoundTV = popupView.findViewById(R.id.exercise_not_found_tv);
         Spinner focusSpinner = popupView.findViewById(R.id.focus_spinner);
 
         allOwnedExercises = new HashMap<>();
@@ -793,42 +975,66 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        SearchView searchExerciseView = popupView.findViewById(R.id.exercise_search_view);
-        searchExerciseView.setOnSearchClickListener(v -> {
-            // populate the list view with all exercises
-            ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
-            for (String focus : allOwnedExercises.keySet()) {
-                for (OwnedExercise exercise : allOwnedExercises.get(focus)) {
-                    if (!sortedExercises.contains(exercise)) {
-                        sortedExercises.add(exercise);
+        // albeit more verbose than SearchView, but this allows more granular control
+        searchExerciseInput = popupView.findViewById(R.id.search_exercises_input);
+        TextInputLayout searchExerciseInputLayout = popupView.findViewById(R.id.search_exercises_input_layout);
+        ImageButton searchButton = popupView.findViewById(R.id.search_icon_button);
+
+        searchButton.setOnClickListener(v -> {
+            isSearchingExercises = !isSearchingExercises;
+            if (isSearchingExercises) {
+                searchButton.setImageResource(R.drawable.close_icon);
+
+                // populate the list view with all exercises
+                ArrayList<OwnedExercise> sortedExercises = new ArrayList<>();
+                for (String focus : allOwnedExercises.keySet()) {
+                    for (OwnedExercise exercise : allOwnedExercises.get(focus)) {
+                        if (!sortedExercises.contains(exercise)) {
+                            sortedExercises.add(exercise);
+                        }
                     }
                 }
+                Collections.sort(sortedExercises);
+                addExerciseAdapter = new PendingWorkoutFragment.AddExerciseAdapter(sortedExercises);
+                pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
+                pickExerciseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                focusSpinner.setVisibility(View.INVISIBLE);
+                searchExerciseInputLayout.setVisibility(View.VISIBLE);
+                searchExerciseInput.requestFocus();
+
+                // android is so beautiful. Show keyboard after requesting focus
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(searchExerciseInput, 0);
+            } else {
+                // reset all search views
+                searchExerciseInput.clearFocus();
+
+                // can't use shared hide keyboard method since this is in an alertdialog apparently
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchExerciseInput.getWindowToken(), 0);
+
+                searchButton.setImageResource(R.drawable.search_icon);
+
+                focusSpinner.setVisibility(View.VISIBLE);
+                searchExerciseInputLayout.setVisibility(View.INVISIBLE);
+                updateExerciseChoices();
             }
-            Collections.sort(sortedExercises);
-            addExerciseAdapter = new PendingWorkoutFragment.AddExerciseAdapter(sortedExercises);
-            pickExerciseRecyclerView.setAdapter(addExerciseAdapter);
-            pickExerciseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-            focusSpinner.setVisibility(View.GONE);
-        });
-        searchExerciseView.setOnCloseListener(() -> {
-            focusSpinner.setVisibility(View.VISIBLE);
-            exerciseNotFoundTV.setVisibility(View.GONE);
-            updateExerciseChoices();
-            return false;
         });
 
-        searchExerciseView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchExerciseView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchExerciseInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchExerciseInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                addExerciseAdapter.getFilter().filter(newText);
-                return false;
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                addExerciseAdapter.getFilter().filter(charSequence);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
 
@@ -842,11 +1048,130 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Add Exercises")
+                .setTitle("Add Exercises To Day")
                 .setView(popupView)
                 .setPositiveButton("Done", null)
+                .setOnDismissListener(dialogInterface -> isSearchingExercises = false)
                 .create();
+
         alertDialog.show();
+    }
+
+    /*
+        Shortcut to create an exercise. An argument could be made the new exercise fragment should instead be reused, but in
+        my opinion that would break the flow for creating a workout as it would take the user to a whole new page.
+     */
+    private void popupCreateExercise() {
+        if (user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+            Toast.makeText(getContext(), "You already have the maximum number of exercises allowed. To create more, delete some in the My Exercises page.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        View popupView = getLayoutInflater().inflate(R.layout.popup_create_exercise, null);
+
+        EditText exerciseNameInput = popupView.findViewById(R.id.exercise_name_input);
+        TextInputLayout exerciseNameLayout = popupView.findViewById(R.id.exercise_name_input_layout);
+        TextView focusTV = popupView.findViewById(R.id.focus_tv);
+        ProgressBar loadingBar = popupView.findViewById(R.id.loading_progress_bar);
+
+        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
+        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(exerciseNameLayout));
+        // nice little shortcut to not make the user type out a non-existent exercise they were looking for
+        String defaultName = searchExerciseInput != null ? searchExerciseInput.getText().toString().trim() : "";
+        exerciseNameInput.setText(defaultName);
+
+        exerciseNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // hack as usual to get android to show keyboard when input is focused
+                createExerciseDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
+        });
+
+        RecyclerView focusRecyclerView = popupView.findViewById(R.id.pick_focuses_recycler_view);
+
+        List<String> focusList = new ArrayList<>(Variables.FOCUS_LIST);
+        List<String> selectedFocuses = new ArrayList<>();
+        FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, null);
+        focusRecyclerView.setAdapter(addFocusAdapter);
+        focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
+        createExerciseDialog = new AlertDialog.Builder(getContext())
+                .setTitle("Create New Exercise")
+                .setView(popupView)
+                .setPositiveButton("Create and Add", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        createExerciseDialog.setOnShowListener(dialogInterface -> {
+            alertDialog.dismiss();
+            if (defaultName.isEmpty()) {
+                // if not pre-filling name, bring focus to name input to save user a click
+                exerciseNameInput.requestFocus();
+            }
+        });
+        createExerciseDialog.show();
+
+        createExerciseDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String nameError;
+            boolean focusError = false;
+
+            List<String> exerciseNames = new ArrayList<>();
+            for (String exerciseId : user.getOwnedExercises().keySet()) {
+                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            }
+            nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+            exerciseNameLayout.setError(nameError);
+
+            if (selectedFocuses.isEmpty()) {
+                focusError = true;
+                focusTV.startAnimation(AndroidUtils.shakeError(4));
+                Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+            }
+
+            if (nameError == null && !focusError) {
+                String exerciseName = exerciseNameInput.getText().toString().trim();
+
+                createExerciseDialog.setCancelable(false);
+                loadingBar.setVisibility(View.VISIBLE);
+                Executor executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(
+                            exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
+                    Handler handler = new Handler(getMainLooper());
+                    handler.post(() -> {
+                        loadingBar.setVisibility(View.GONE);
+                        createExerciseDialog.setCancelable(true);
+                        if (resultStatus.isSuccess()) {
+                            OwnedExercise newExercise = resultStatus.getData();
+                            user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
+
+                            exerciseIdToName.putIfAbsent(newExercise.getExerciseId(), newExercise.getExerciseName());
+                            exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getExerciseId(), newExercise.getDefaultWeight());
+                            addOwnedExerciseToRoutine(newExercise);
+
+                            createExerciseDialog.dismiss();
+                        } else {
+                            AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    private void addOwnedExerciseToRoutine(OwnedExercise ownedExercise) {
+        RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
+        pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
+
+        // shortcut for first users so their exercises don't all just have 0 for default weight even after creating a workout
+        if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
+            exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
+        }
+
+        int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
+        // adapter uses list of separate models to maintain expanded state, need to add it there too
+        routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
+        routineDayAdapter.notifyItemInserted(newPosition);
+        routineDayRecyclerView.scrollToPosition(newPosition);
     }
 
     /**
@@ -883,13 +1208,24 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
     }
 
-    private class AddExerciseAdapter extends RecyclerView.Adapter<PendingWorkoutFragment.AddExerciseAdapter.ViewHolder> implements Filterable {
-        class ViewHolder extends RecyclerView.ViewHolder {
+    private class AddExerciseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
+        private static final int FOOTER_VIEW = 1;
+
+        class AddExerciseViewHolder extends RecyclerView.ViewHolder {
             private final CheckBox exerciseCheckbox;
 
-            ViewHolder(View itemView) {
+            AddExerciseViewHolder(View itemView) {
                 super(itemView);
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
+            }
+        }
+
+        class FooterViewHolder extends RecyclerView.ViewHolder {
+            private final Button createExerciseBtn;
+
+            FooterViewHolder(View itemView) {
+                super(itemView);
+                createExerciseBtn = itemView.findViewById(R.id.create_exercise_btn);
             }
         }
 
@@ -904,53 +1240,68 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         @NonNull
         @Override
-        public PendingWorkoutFragment.AddExerciseAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View exerciseView = inflater.inflate(R.layout.row_add_exercise, parent, false);
-            return new PendingWorkoutFragment.AddExerciseAdapter.ViewHolder(exerciseView);
+            if (viewType == FOOTER_VIEW) {
+                View exerciseView = inflater.inflate(R.layout.exercise_not_found_footer, parent, false);
+                return new PendingWorkoutFragment.AddExerciseAdapter.FooterViewHolder(exerciseView);
+            } else {
+                View exerciseView = inflater.inflate(R.layout.row_add_exercise, parent, false);
+                return new AddExerciseViewHolder(exerciseView);
+            }
         }
 
         @Override
-        public void onBindViewHolder(PendingWorkoutFragment.AddExerciseAdapter.ViewHolder holder, int position) {
-            final OwnedExercise ownedExercise = displayList.get(position);
-            CheckBox exerciseCheckbox = holder.exerciseCheckbox;
-            exerciseCheckbox.setText(ownedExercise.getExerciseName());
-            // check if the exercise is already in this specific day
-            boolean isChecked = false;
-            for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-                if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
-                    isChecked = true;
-                    break;
-                }
+        public int getItemViewType(int position) {
+            if (position == displayList.size()) {
+                return FOOTER_VIEW;
             }
-            exerciseCheckbox.setChecked(isChecked);
 
-            exerciseCheckbox.setOnClickListener(v -> {
-                if (exerciseCheckbox.isChecked()) {
-                    RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
-                    pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
-                    if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
-                        exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
-                    }
-                    int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
-                    // adapter uses list of separate models to maintain expanded state, need to add it there too
-                    routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
-                    routineDayAdapter.notifyItemInserted(newPosition);
-                    routineDayRecyclerView.scrollToPosition(newPosition);
-                } else {
-                    pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
-                    // adapter uses list of separate models to maintain expanded state, need to remove it there too
-                    routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
-                    // too much of a pain to get the index in that adapter that this exercise could have been removed from
-                    routineDayAdapter.notifyDataSetChanged();
-                }
-            });
+            return super.getItemViewType(position);
         }
 
         @Override
         public int getItemCount() {
-            return displayList.size();
+            if (displayList.size() == 0) {
+                // always want one item for the footer
+                return 1;
+            }
+            return displayList.size() + 1;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof AddExerciseViewHolder) {
+                AddExerciseViewHolder viewHolder = (AddExerciseViewHolder) holder;
+                final OwnedExercise ownedExercise = displayList.get(position);
+                CheckBox exerciseCheckbox = viewHolder.exerciseCheckbox;
+                exerciseCheckbox.setText(ownedExercise.getExerciseName());
+                // check if the exercise is already in this specific day
+                boolean isChecked = false;
+                for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+                    if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
+                        isChecked = true;
+                        break;
+                    }
+                }
+                exerciseCheckbox.setChecked(isChecked);
+
+                exerciseCheckbox.setOnClickListener(v -> {
+                    if (exerciseCheckbox.isChecked()) {
+                        addOwnedExerciseToRoutine(ownedExercise);
+                    } else {
+                        pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
+                        // adapter uses list of separate models to maintain expanded state, need to remove it there too
+                        routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
+                        // too much of a pain to get the index in that adapter that this exercise could have been removed from
+                        routineDayAdapter.notifyDataSetChanged();
+                    }
+                });
+            } else if (holder instanceof FooterViewHolder) {
+                FooterViewHolder viewHolder = (FooterViewHolder) holder;
+                viewHolder.createExerciseBtn.setOnClickListener(view -> popupCreateExercise());
+            }
         }
 
         @Override
@@ -981,11 +1332,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayList.clear();
                 displayList.addAll((List) results.values);
-                if (displayList.isEmpty()) {
-                    exerciseNotFoundTV.setVisibility(View.VISIBLE);
-                } else {
-                    exerciseNotFoundTV.setVisibility(View.GONE);
-                }
                 notifyDataSetChanged();
             }
         };
@@ -993,12 +1339,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.WeekViewHolder> {
 
-        class WeekViewHolder extends RecyclerView.ViewHolder {
+        class WeekViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
 
             private final TextView weekTitle;
             private final RecyclerView dayRecyclerView;
             private final Button addDayButton;
             private final ImageButton weekMoreButton;
+            private final RelativeLayout rootLayout;
 
             WeekViewHolder(final View itemView) {
                 super(itemView);
@@ -1007,15 +1354,28 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayRecyclerView = itemView.findViewById(R.id.day_recycler_view);
                 addDayButton = itemView.findViewById(R.id.add_day_btn);
                 weekMoreButton = itemView.findViewById(R.id.week_more_icon_btn);
+                rootLayout = itemView.findViewById(R.id.week_card);
+            }
+
+            @Override
+            public void onItemSelected() {
+                rootLayout.setBackgroundResource(R.drawable.week_card_selected_background);
+            }
+
+            @Override
+            public void onItemCleared() {
+                rootLayout.setBackgroundResource(R.drawable.week_card_background);
             }
         }
 
         private final Routine routine;
         private final Map<Integer, Parcelable> weekScrollStates;
+        private final Map<RecyclerView, ItemTouchHelper> recyclerViewItemTouchHelperMap;
 
         WeekAdapter(Routine routine) {
             this.routine = routine;
             weekScrollStates = new HashMap<>();
+            recyclerViewItemTouchHelperMap = new HashMap<>();
         }
 
         @NonNull
@@ -1027,53 +1387,127 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onViewRecycled(@NonNull WeekViewHolder holder) {
-            // when week row is recycled, store the scroll state of the day list
+            // when week row is recycled, store the scroll state of its day list
             final int position = holder.getAdapterPosition();
             if (holder.dayRecyclerView.getLayoutManager() != null) {
                 Parcelable layoutState = holder.dayRecyclerView.getLayoutManager().onSaveInstanceState();
                 weekScrollStates.put(position, layoutState);
             }
 
+            if (recyclerViewItemTouchHelperMap.containsKey(holder.dayRecyclerView)) {
+                // prevents memory leak happening when day recycler is recycled. the original dispatcher is still attached to old list once the viewholder is created, causing weird graphical bugs
+                ItemTouchHelper dispatcher = recyclerViewItemTouchHelperMap.get(holder.dayRecyclerView);
+                if (dispatcher != null)
+                    dispatcher.attachToRecyclerView(null);
+            }
+
             super.onViewRecycled(holder);
+        }
+
+        public static final String PAYLOAD_UPDATE_ONLY_WEEK_LABEL = "UPDATE_ONLY_WEEK_LABEL";
+        public static final String PAYLOAD_UPDATE_DAYS = "PAYLOAD_UPDATE";
+
+        public void clearItemTouchHelperMap() {
+            for (ItemTouchHelper view : recyclerViewItemTouchHelperMap.values()) {
+                view.attachToRecyclerView(null);
+            }
+            recyclerViewItemTouchHelperMap.clear();
         }
 
         @Override
         public void onBindViewHolder(@NonNull WeekViewHolder weekViewHolder, int position, List<Object> payloads) {
             if (!payloads.isEmpty()) {
-                RoutineWeek week = this.routine.getWeek(position);
-                setAddDayButtonVisibility(week, weekViewHolder.addDayButton);
-                // need to update all because no way of knowing which one had its number of exercises change
-                weekViewHolder.dayRecyclerView.getAdapter().notifyDataSetChanged();
-
+                final RoutineWeek week = this.routine.getWeek(position);
+                for (final Object payload : payloads) {
+                    if (payload.equals(PAYLOAD_UPDATE_ONLY_WEEK_LABEL)) {
+                        // very important to only update label. if day recycler view is refreshed then the day drag dispatcher won't work on it
+                        setWeekLabel(weekViewHolder);
+                    } else if (payload.equals(PAYLOAD_UPDATE_DAYS)) {
+                        setWeekCardButtonsVisibility(week, weekViewHolder);
+                        // need to update all because no clean way of knowing which one had its displayed data change
+                        weekViewHolder.dayRecyclerView.getAdapter().notifyDataSetChanged();
+                    }
+                }
             } else {
                 super.onBindViewHolder(weekViewHolder, position, payloads);
             }
         }
 
-        private void setAddDayButtonVisibility(RoutineWeek week, Button addDayButton) {
-            if (week.getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
-                addDayButton.setVisibility(View.INVISIBLE);
-            } else {
-                addDayButton.setVisibility(View.VISIBLE);
-            }
-        }
-
         @Override
         public void onBindViewHolder(@NonNull WeekViewHolder weekViewHolder, int weekPosition) {
-            RoutineWeek week = this.routine.getWeek(weekPosition);
-            weekViewHolder.weekTitle.setText("Week " + (weekPosition + 1));
+            // as a warning don't use weekPosition var since when dragging that variable can be outdated and can cause weird bugs
+            final RoutineWeek week = this.routine.getWeek(weekViewHolder.getAdapterPosition());
+            setWeekLabel(weekViewHolder);
             Button addDayButton = weekViewHolder.addDayButton;
-            setAddDayButtonVisibility(week, addDayButton);
+            setWeekCardButtonsVisibility(week, weekViewHolder);
 
-            RecyclerView dayRecyclerView = weekViewHolder.dayRecyclerView;
-            DaysAdapter daysAdapter = new DaysAdapter(weekPosition, week.getDays());
+            // might be confusing to user if week card looks clickable but it does nothing in non rearrange mode
+            weekViewHolder.rootLayout.setClickable(isRearranging);
+            weekViewHolder.rootLayout.setFocusable(isRearranging);
+
+            RecyclerView daysRecyclerView = weekViewHolder.dayRecyclerView;
+            DaysAdapter daysAdapter = new DaysAdapter(week.getDays());
             LinearLayoutManager layoutManager = new LinearLayoutManager(weekViewHolder.dayRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
-            dayRecyclerView.setLayoutManager(layoutManager);
-            dayRecyclerView.setAdapter(daysAdapter);
+            daysRecyclerView.setLayoutManager(layoutManager);
+            daysRecyclerView.setAdapter(daysAdapter);
 
-            if (weekScrollStates.containsKey(weekPosition)) {
-                // maintain scroll once this view is re bound from the recycler pool
-                layoutManager.onRestoreInstanceState(weekScrollStates.get(weekPosition));
+            if (isRearranging) {
+                final ItemTouchHelper dragDayDispatcher = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragged, @NonNull RecyclerView.ViewHolder target) {
+                        int fromPosition = dragged.getAdapterPosition();
+                        int toPosition = target.getAdapterPosition();
+                        pendingRoutine.swapDaysOrder(weekViewHolder.getAdapterPosition(), fromPosition, toPosition);
+                        recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition); // this causes the animation of days being pushed over
+                        return true;
+                    }
+
+                    @Override
+                    public void onSelectedChanged(@Nullable @org.jetbrains.annotations.Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                        super.onSelectedChanged(viewHolder, actionState);
+
+                        if (viewHolder instanceof DraggableViewHolder) {
+                            DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                            itemViewHolder.onItemSelected();
+                        }
+                    }
+
+                    @Override
+                    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                        super.clearView(recyclerView, viewHolder);
+                        if (viewHolder instanceof DraggableViewHolder) {
+                            DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
+                            itemViewHolder.onItemCleared();
+                        }
+
+                        recyclerView.getAdapter().notifyDataSetChanged(); // ensure day numbers are updated
+                    }
+
+                    @Override
+                    public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+                        // allows for dragging speed to start off faster when dragging outside bounds of list
+                        final int direction = (int) Math.signum(viewSizeOutOfBounds);
+                        if (msSinceStartScroll <= 800) {
+                            // allow for smooth scroll at first to not be as jarring
+                            return 5 * direction;
+                        } else {
+                            return 10 * direction;
+                        }
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    }
+                });
+
+                dragDayDispatcher.attachToRecyclerView(daysRecyclerView);
+                recyclerViewItemTouchHelperMap.put(weekViewHolder.dayRecyclerView, dragDayDispatcher);
+            }
+
+
+            if (weekScrollStates.containsKey(weekViewHolder.getAdapterPosition())) {
+                // maintain scroll position once this view is re bound from the recycler pool
+                layoutManager.onRestoreInstanceState(weekScrollStates.get(weekViewHolder.getAdapterPosition()));
             }
 
             addDayButton.setOnClickListener(v -> {
@@ -1082,14 +1516,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     return;
                 }
 
-                this.routine.appendEmptyDay(weekPosition);
-                setAddDayButtonVisibility(week, addDayButton);
+                this.routine.appendEmptyDay(weekViewHolder.getAdapterPosition());
                 daysAdapter.notifyItemInserted(week.getNumberOfDays());
 
-                setAddDayButtonVisibility(week, addDayButton);
+                setWeekCardButtonsVisibility(week, weekViewHolder);
 
                 // scroll to end when new day is added
-                dayRecyclerView.post(() -> dayRecyclerView.scrollToPosition(daysAdapter.getItemCount() - 1));
+                daysRecyclerView.post(() -> daysRecyclerView.scrollToPosition(daysAdapter.getItemCount() - 1));
             });
 
             // set up more details for this week
@@ -1105,22 +1538,40 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             dropDownWeekMenu.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case deleteWeekId:
-                        promptDeleteWeek(weekPosition);
+                        promptDeleteWeek(weekViewHolder.getAdapterPosition());
                         return true;
                     case copyAsNewWeekId:
                         if (this.routine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                             Toast.makeText(getContext(), "Copy would exceed maximum number of weeks allowed in workout.", Toast.LENGTH_LONG).show();
                             return true;
                         }
-                        copyWeekAsNew(weekPosition);
+                        copyWeekAsNew(weekViewHolder.getAdapterPosition());
                         return true;
                     case copyToExistingWeekId:
-                        promptCopyToExistingWeek(weekPosition);
+                        promptCopyToExistingWeek(weekViewHolder.getAdapterPosition());
                         return true;
                 }
                 return false;
             });
             weekViewHolder.weekMoreButton.setOnClickListener(v -> dropDownWeekMenu.show());
+        }
+
+        private void setWeekCardButtonsVisibility(RoutineWeek week, WeekViewHolder weekViewHolder) {
+            if (isRearranging) {
+                weekViewHolder.addDayButton.setVisibility(View.INVISIBLE);
+                weekViewHolder.weekMoreButton.setVisibility(View.INVISIBLE);
+            } else {
+                weekViewHolder.addDayButton.setVisibility(View.VISIBLE);
+                weekViewHolder.weekMoreButton.setVisibility(View.VISIBLE);
+            }
+
+            if (week.getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                weekViewHolder.addDayButton.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        private void setWeekLabel(@NonNull WeekViewHolder weekViewHolder) {
+            weekViewHolder.weekTitle.setText("Week " + (weekViewHolder.getAdapterPosition() + 1));
         }
 
         @Override
@@ -1131,7 +1582,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.DayViewHolder> {
 
-        class DayViewHolder extends RecyclerView.ViewHolder {
+        class DayViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
 
             private final TextView dayTitleTV;
             private final TextView exerciseCountTV;
@@ -1145,13 +1596,21 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayTagTV = itemView.findViewById(R.id.day_tag_tv);
                 exerciseCountTV = itemView.findViewById(R.id.exercise_count_tv);
             }
+
+            @Override
+            public void onItemSelected() {
+                dayCard.setBackgroundResource(R.drawable.day_card_selected_background);
+            }
+
+            @Override
+            public void onItemCleared() {
+                dayCard.setBackgroundResource(R.drawable.day_card_background);
+            }
         }
 
-        private final int weekPosition;
         private final List<RoutineDay> days;
 
-        DaysAdapter(int weekPosition, List<RoutineDay> days) {
-            this.weekPosition = weekPosition;
+        DaysAdapter(List<RoutineDay> days) {
             this.days = days;
         }
 
@@ -1163,17 +1622,77 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
-        public void onBindViewHolder(@NonNull DayViewHolder dayViewHolder, int dayPosition) {
-            RoutineDay day = days.get(dayPosition);
-            String dayText = "Day " + (dayPosition + 1);
+        public void onBindViewHolder(@NonNull DayViewHolder dayViewHolder, int dayIndex) {
+            final RoutineDay day = days.get(dayIndex);
+            String dayText = "Day " + (dayIndex + 1);
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
             TextView dayTagTV = dayViewHolder.dayTagTV;
             exerciseCountTV.setText(Integer.toString(day.getNumberOfExercises()));
             dayViewHolder.dayTitleTV.setText(dayText);
-            dayViewHolder.dayCard.setOnClickListener(v -> switchToRoutineDayView(weekPosition, dayPosition));
+
 
             if (day.getTag() != null) {
                 dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+            } else {
+                dayTagTV.setText(null); // otherwise when recycled, days without tags may have a tag shown
+            }
+
+            PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), dayViewHolder.exerciseCountTV);
+            Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
+
+            final int deleteDayId = 0;
+            final int copyDayToWeekId = 1;
+            final int copyDayToExistingId = 2;
+            final int setDayTagId = 3;
+            final int moveDayId = 4;
+            routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
+            routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
+            routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
+            routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
+            routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
+
+            dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
+                int weekPosition = pendingRoutine.getWeekIndexOfDay(day);
+                int dayPosition = dayViewHolder.getAdapterPosition();
+                switch (item.getItemId()) {
+                    case deleteDayId:
+                        promptDeleteDay(weekPosition, dayPosition);
+                        return true;
+                    case copyDayToExistingId:
+                        promptCopyToExistingDay(weekPosition, dayPosition);
+                        return true;
+                    case copyDayToWeekId:
+                        copyDayToWeek(weekPosition, dayPosition);
+                        return true;
+                    case setDayTagId:
+                        promptSetDayTag(weekPosition, dayPosition);
+                        return true;
+                    case moveDayId:
+                        if (pendingRoutine.getWeek(weekPosition).getNumberOfDays() <= 1) {
+                            Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                            return true;
+                        }
+                        promptMoveDay(weekPosition, dayPosition);
+                        return true;
+                }
+                return false;
+            });
+
+            if (isRearranging) {
+                // disable listeners for dragging to prevent accidental clicks
+                dayViewHolder.dayCard.setOnClickListener(null);
+                dayViewHolder.dayCard.setOnLongClickListener(null);
+            } else {
+                dayViewHolder.dayCard.setOnClickListener(v -> {
+                    int weekPosition = pendingRoutine.getWeekIndexOfDay(day);
+                    int dayPosition = dayViewHolder.getAdapterPosition();
+                    if (weekPosition >= 0)
+                        switchToRoutineDayView(weekPosition, dayPosition);
+                });
+                dayViewHolder.dayCard.setOnLongClickListener(view -> {
+                    dropDownRoutineDayMenu.show();
+                    return true;
+                });
             }
         }
 

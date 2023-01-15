@@ -234,12 +234,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        hideAllDialogs();
-    }
-
-    @Override
     public void hideAllDialogs() {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();

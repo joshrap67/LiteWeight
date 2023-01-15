@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -37,6 +39,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final Button expandButton;
         final ImageButton deleteButton;
         final RelativeLayout extraInfoContainer;
+        final RelativeLayout rootLayout;
 
         final EditText detailsInput;
         final EditText weightInput;
@@ -50,6 +53,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
         ViewHolder(View itemView) {
             super(itemView);
+
+            rootLayout = itemView.findViewById(R.id.root_layout);
 
             deleteButton = itemView.findViewById(R.id.delete_exercise_icon_btn);
             exerciseTV = itemView.findViewById(R.id.exercise_name_tv);
@@ -106,7 +111,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-        // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
+        // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
             final RoutineRowModel routineRowModel = routineRowModels.get(position);
             final RoutineExercise exercise = routineRowModel.routineExercise;
@@ -165,8 +170,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             ((WorkoutActivity) activity).hideKeyboard();
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
             routineRowModels.remove(rowModel);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, getItemCount());
+            notifyItemRemoved(holder.getAdapterPosition());
+            notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount(), true); // payload avoids flicker for items below removed one
         });
 
         expandButton.setOnClickListener((v) -> {
@@ -194,15 +199,20 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
                     rowModel.isExpanded = false;
 
-                    notifyItemChanged(position, true);
+                    notifyItemChanged(holder.getAdapterPosition(), true);
                     ((WorkoutActivity) activity).hideKeyboard();
                 }
 
             } else {
                 // show all the extra details for this exercise so the user can edit/read them
                 rowModel.isExpanded = true;
-                notifyItemChanged(position, true);
-                setExpandedViews(holder, exercise);
+
+                // wait for recycler view to stop animating before changing the visibility
+                AutoTransition autoTransition = new AutoTransition();
+                autoTransition.setDuration(100);
+                TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
+
+                notifyItemChanged(holder.getAdapterPosition(), true);
             }
         });
     }
@@ -210,7 +220,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private void setExpandedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
 
         setInputs(holder, exercise);
     }
@@ -221,7 +231,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         holder.expandButton.setText(formattedWeight);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down_arrow_small, 0);
     }
 
     private void setInputs(ViewHolder holder, RoutineExercise exercise) {

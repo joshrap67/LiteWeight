@@ -131,12 +131,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        hideAllDialogs();
-    }
-
-    @Override
     public void hideAllDialogs() {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
@@ -297,7 +291,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         // workout name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to reset the statistics for ");
         SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
-        SpannableString span3 = new SpannableString("?\n\nDoing so will reset the times completed and the percentage of exercises completed.");
+        SpannableString span3 = new SpannableString("?\n\nDoing so will reset the total restarts and the exercise completion average.");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
@@ -402,7 +396,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         // workout name is italicized
         SpannableString span1 = new SpannableString("Copy ");
         SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
-        SpannableString span3 = new SpannableString(" as new workout");
+        SpannableString span3 = new SpannableString(" as a new workout");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 

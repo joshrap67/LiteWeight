@@ -2,11 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/week_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:background="@drawable/week_card_background"
-        android:outlineProvider="bounds">
+        android:clickable="true"
+        android:focusable="true">
 
     <RelativeLayout
             android:id="@+id/week_title_container"
@@ -35,11 +37,11 @@
                 android:layout_toEndOf="@id/week_tv"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="@string/more_options"
-                app:srcCompat="@drawable/more_icon_white" />
+                app:srcCompat="@drawable/more_icon_small" />
 
         <Button
                 android:id="@+id/add_day_btn"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"

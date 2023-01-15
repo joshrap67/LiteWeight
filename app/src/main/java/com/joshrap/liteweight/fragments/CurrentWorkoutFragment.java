@@ -8,9 +8,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import android.os.Handler;
 import android.text.InputFilter;
@@ -229,7 +232,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onPause() {
         super.onPause();
 
-        hideAllDialogs();
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
             ((WorkoutActivity) getActivity()).startTimerService();
@@ -542,6 +544,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final CheckBox exerciseCheckbox;
             final Button expandButton;
             final RelativeLayout bottomContainer;
+            final ConstraintLayout rootLayout;
 
             final EditText detailsInput;
             final EditText weightInput;
@@ -556,6 +559,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             ViewHolder(View itemView) {
                 super(itemView);
+
+                rootLayout = itemView.findViewById(R.id.root_layout);
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
                 expandButton = itemView.findViewById(R.id.expand_btn);
@@ -598,8 +603,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
-            // this overload is needed since if you rebind with the intention to only collapse, the linear layout is overridden causing weird animation bugs
             if (!payloads.isEmpty()) {
+                // needed to prevent weird flicker on visibility changes
                 final RoutineRowModel routineRowModel = routineRowModels.get(position);
                 final RoutineExercise exercise = routineRowModel.routineExercise;
                 boolean isExpanded = routineRowModel.isExpanded;
@@ -687,8 +692,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
                     rowModel.isExpanded = true;
+
+                    // wait for recycler view to stop animating before changing the visibility
+                    AutoTransition autoTransition = new AutoTransition();
+                    autoTransition.setDuration(100);
+                    TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
+
                     notifyItemChanged(position, true);
-                    setExpandedViews(holder, exercise); // this prevents weird flashing on expanded animation
                 }
             });
 
@@ -708,7 +718,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
             holder.expandButton.setText(R.string.done_all_caps);
-            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
 
             setInputs(holder, exercise);
         }
@@ -719,7 +729,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
             String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
             holder.expandButton.setText(formattedWeight);
-            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+            holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down_arrow_small, 0);
         }
 
         private void setInputs(ViewHolder holder, RoutineExercise exercise) {

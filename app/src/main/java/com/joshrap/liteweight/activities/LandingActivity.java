@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -20,10 +21,11 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-public class SplashActivity extends AppCompatActivity {
+public class LandingActivity extends AppCompatActivity {
 
     private String notificationData;
     private String notificationAction;
+
     @Inject
     public Tokens tokens;
     @Inject
@@ -32,11 +34,14 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_landing);
+
         Injector.getInjector(this).inject(this);
         if (getIntent().getExtras() != null && getIntent().getAction() != null) {
             notificationAction = getIntent().getAction();
             notificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
         }
+
         if (tokens.getRefreshToken() == null || tokens.getIdToken() == null) {
             // no tokens exist, so user is not logged in
             launchSignInActivity(null);

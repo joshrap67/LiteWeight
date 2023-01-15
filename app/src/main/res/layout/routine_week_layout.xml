@@ -3,58 +3,93 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="4dp">
+        android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/week_recycler_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginHorizontal="4dp"
+            android:layout_marginHorizontal="8dp"
             android:layout_marginVertical="8dp"
-            android:paddingHorizontal="4dp"
             android:scrollbarStyle="outsideInset"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/routine_week_card">
+            tools:listitem="@layout/routine_week_card" />
 
-    </androidx.recyclerview.widget.RecyclerView>
-
-    <RelativeLayout
+    <LinearLayout
             android:id="@+id/bottom_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/week_recycler_view">
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/save_fab"
-                android:layout_width="wrap_content"
+        <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_margin="16dp"
-                android:text="@string/save"
-                android:textColor="@color/color_accent"
-                app:backgroundTint="@color/color_primary"
-                app:icon="@drawable/check_icon"
-                app:iconTint="@color/color_accent" />
+                android:layout_marginVertical="4dp"
+                android:paddingHorizontal="8dp"
+                app:layout_constraintBottom_toTopOf="@id/week_recycler_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/add_week_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="16dp"
-                android:text="@string/add_week_msg"
-                android:textColor="@color/color_accent"
-                app:backgroundTint="@color/color_primary"
-                app:icon="@drawable/add_icon"
-                app:iconTint="@color/color_accent"
-                tools:ignore="RelativeOverlap" />
-    </RelativeLayout>
+            <TextView
+                    android:id="@+id/rearrange_hint_tv"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="center"
+                    android:text="@string/rearrange_hint"
+                    android:textAlignment="center"
+                    android:textColor="@color/subtitle_color"
+                    android:visibility="gone" />
+
+            <Button
+                    android:id="@+id/rearrange_btn"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/rearrange"
+                    android:textColor="@color/color_accent"
+                    app:icon="@drawable/move_icon"
+                    app:iconTint="@color/color_accent" />
+
+            <Button
+                    android:id="@+id/add_week_btn"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="5dp"
+                    android:text="@string/add_week_msg"
+                    android:textColor="@color/color_accent"
+                    app:icon="@drawable/add_icon"
+                    app:iconTint="@color/color_accent" />
+        </RelativeLayout>
+
+        <Button
+                android:id="@+id/save_btn"
+                android:layout_width="300dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:text="@string/save_workout" />
+
+        <Button
+                android:id="@+id/done_rearranging_btn"
+                android:layout_width="300dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:text="@string/done_rearranging"
+                android:visibility="gone"
+                tools:visibility="visible" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

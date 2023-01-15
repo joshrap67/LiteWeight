@@ -28,7 +28,7 @@
             android:layout_height="0dp"
             android:layout_alignParentEnd="true"
             android:background="?android:selectableItemBackground"
-            android:drawableEnd="@drawable/small_down_arrow"
+            android:drawableEnd="@drawable/down_arrow_small"
             android:paddingHorizontal="2dp"
             android:textAllCaps="false"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"

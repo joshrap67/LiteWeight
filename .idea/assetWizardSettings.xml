@@ -8,6 +8,17 @@
             <PersistentState>
               <option name="children">
                 <map>
+                  <entry key="confirmationStep">
+                    <value>
+                      <PersistentState>
+                        <option name="values">
+                          <map>
+                            <entry key="resourceDirectory" value="main" />
+                          </map>
+                        </option>
+                      </PersistentState>
+                    </value>
+                  </entry>
                   <entry key="imageAssetPanel">
                     <value>
                       <PersistentState>
@@ -88,7 +99,7 @@
                                               <map>
                                                 <entry key="color" value="000000" />
                                                 <entry key="imagePath" value="C:\Users\Josh\github\LiteWeight\foreground.png" />
-                                                <entry key="scalingPercent" value="94" />
+                                                <entry key="scalingPercent" value="90" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -336,7 +347,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/check/baseline_check_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/drag_indicator/baseline_drag_indicator_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -347,8 +358,8 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="check_icon" />
-                            <entry key="sourceFile" value="C:\Users\Josh\Downloads\noun_Shoulder Press_149086.svg" />
+                            <entry key="outputName" value="drag_icon_vertical" />
+                            <entry key="sourceFile" value="C:\Users\Josh\github\LiteWeight\_LiteWeight_SVG.svg" />
                           </map>
                         </option>
                       </PersistentState>

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.joshrap.liteweight.interfaces.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -174,6 +175,33 @@ public class Routine implements Model, Iterable<RoutineWeek> {
 
     public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
         this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
+    }
+
+    public void swapDaysOrder(int week, int fromPosition, int toPosition) {
+        Collections.swap(this.getWeek(week).getDays(), fromPosition, toPosition);
+    }
+
+    public void swapWeeksOrder(int fromPosition, int toPosition) {
+        Collections.swap(this.getWeeks(), fromPosition, toPosition);
+    }
+
+    public int getWeekIndexOfDay(RoutineDay day) {
+        int weekPosition = -1;
+        for (int weekIndex = 0; weekIndex < this.getNumberOfWeeks(); weekIndex++) {
+            RoutineWeek week = this.getWeek(weekIndex);
+            boolean found = false;
+            for (RoutineDay day1 : week) {
+                if (day1 == day) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                weekPosition = weekIndex;
+                break;
+            }
+        }
+        return weekPosition;
     }
 
     public int getNumberOfWeeks() {

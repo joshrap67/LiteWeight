@@ -1,61 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <Spinner
-            android:id="@+id/focus_spinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:spinnerMode="dropdown"
-            app:layout_constraintBottom_toTopOf="@+id/pick_exercises_recycler_view"
-            app:layout_constraintEnd_toStartOf="@+id/exercise_search_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <RelativeLayout
+            android:id="@+id/top_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <SearchView
-            android:id="@+id/exercise_search_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:queryHint="@string/search_exercise_hint"
-            app:layout_constraintBottom_toTopOf="@+id/pick_exercises_recycler_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/focus_spinner"
-            app:layout_constraintTop_toTopOf="parent" />
+        <Spinner
+                android:id="@+id/focus_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_toStartOf="@id/search_icon_button"
+                android:spinnerMode="dropdown"
+                tools:visibility="invisible" />
+
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_exercises_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_toStartOf="@id/search_icon_button"
+                android:hint="@string/search_exercise_hint"
+                android:visibility="invisible"
+                app:endIconMode="clear_text"
+                app:expandedHintEnabled="false"
+                tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_exercises_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+                android:id="@+id/search_icon_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="16dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/search_exercises_description"
+                android:src="@drawable/search_icon" />
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pick_exercises_recycler_view"
-            android:layout_width="0dp"
-            android:layout_height="345dp"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_below="@id/top_container"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/focus_spinner" />
-
-    <TextView
-            android:id="@+id/exercise_not_found_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/exercise_not_found"
-            android:textSize="25sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/exercise_search_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/focus_spinner"
-            tools:visibility="visible" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:scrollbarStyle="outsideInset"
+            android:scrollbars="vertical"
+            tools:listitem="@layout/row_add_exercise" />
+</RelativeLayout>

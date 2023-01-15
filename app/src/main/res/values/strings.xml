@@ -25,8 +25,7 @@
     <string name="focus_label">Focus</string>
     <string name="focuses">Focuses</string>
     <string name="version_number">Version </string>
-    <string name="exercise_not_found">Exercise not found.</string>
-    <string name="search_exercise_hint">Search exercise…</string>
+    <string name="search_exercise_hint">Search exercises</string>
     <string name="my_exercises">My Exercises</string>
     <string name="exercise_label">Exercise</string>
     <string name="nav_workout_icon_title">Current Workout</string>
@@ -58,7 +57,7 @@
     <string name="add_week_msg">ADD WEEK</string>
     <string name="add_day_msg">ADD DAY</string>
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
-    <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
+    <string name="remove_day_warning_msg">Are you sure you wish to delete this day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
     <string name="done_sorting_msg">Done Sorting</string>
     <string name="empty_friend_list_msg">Your friends list is empty</string>
     <string name="empty_friends_request_msg">No pending requests</string>
@@ -78,8 +77,8 @@
     <string name="workout_progress_description">Displays a progress bar in the current workout page showing the percentage of exercises completed in the workout.</string>
     <string name="app_purpose">LiteWeight is used for creating and tracking custom workouts. The \"Current Workout\" page contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed that day by checking the checkbox, and can update the weight, sets, or reps by expanding the row.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! Go to the \"My Workouts\" page to edit an existing workout or to create a new one. The \"My Exercises\" page contains a collection of all your exercises and the default values associated with them.\n\nAdd friends by going to the Friend\'s List in the \"My Account\" page. There you can send a friend request to any LiteWeight user. You can send your workout to any user either directly from your friend\'s list or from the \"My Workouts\" page.</string>
     <string name="restart_workout_explanation">At this time, you are not able to see previous states of workouts. Previous progress of a workout can be inferred from the exercise completion average of the workout.</string>
-    <string name="share_workout_explanation">When you share a workout to another user, it makes a copy of the workout at the time of you sharing it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
-    <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will take the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account preferences, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
+    <string name="share_workout_explanation">When you share a workout to another user, it sends a copy of the workout at the time of you sharing it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
+    <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will default to the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account preferences, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_msg">Use this form to send any feedback you have about the app. Be it concerns, bugs, or success stories!</string>
     <string name="unblock_user">Unblock user</string>
@@ -145,13 +144,14 @@
     <string name="restart_workout">Restart</string>
     <string name="colon">:</string>
     <string name="back">BACK</string>
-    <string name="day_tag_description">Set an optional tag for this day. Tags can be used to easily distinguish one day from another. E.g. \"Bicep Day\"</string>
+    <string name="day_tag_description">Optional tag to distinguish this day from others. Example: <i>Bicep Day</i></string>
     <string name="day_tag_hint">Tag (leave empty for none)</string>
     <string name="new_workout_name_hint">New workout name</string>
     <string name="add_exercises">Add Exercises</string>
     <string name="accept_friend_request">Accept Friend Request</string>
     <string name="decline_friend_request">Decline Friend Request</string>
     <string name="create_workout">Create workout</string>
+    <string name="save_workout">Save workout</string>
     <string name="watch_video">Watch Video</string>
     <string name="delete_exercise">Delete exercise</string>
     <string name="done_all_caps">DONE</string>
@@ -176,4 +176,10 @@
     <string name="launch_video_msg">Launch this video using an external application?</string>
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
+    <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can rearrange the routine to move the day within its new week.</string>
+    <string name="search_exercises_description">Search Exercises</string>
+    <string name="dont_see_an_exercise">Don\'t see an exercise?</string>
+    <string name="rearrange">Rearrange</string>
+    <string name="done_rearranging">Done rearranging</string>
+    <string name="rearrange_hint">Press and hold a day or a week to drag it to its desired position.</string>
 </resources>

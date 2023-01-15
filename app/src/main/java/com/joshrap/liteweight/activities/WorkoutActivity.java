@@ -200,7 +200,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                         // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
                         boolean updateUnseen = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
                                 user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
-                        // no npe since Java will see the first part is true and then immediately return true
                         if (updateUnseen) {
                             // workout has not been seen yet so increase the unseen count
                             user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
@@ -234,12 +233,11 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             action = getIntent().getAction();
             if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
                 /*
-                    So freaking hacky. Essentially if user clicked a notification while app is terminated, we immediately finish this
-                    activity and start the splash activity. This is due to android being awful and their flags
-                    aren't working properly so this is the only way i can avoid this activity needlessly being destroyed twice.
+                    So freaking hacky. Essentially if user clicked a notification while app was terminated, we immediately finish this
+                    activity and start the landing activity. Avoids this activity needlessly being destroyed twice.
                  */
                 activityFinishing = true;
-                launchSplashActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
+                launchLandingActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
                         getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION));
                 finish();
                 return;
@@ -252,9 +250,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
         } else if (userWithWorkout == null) {
             // ughhhh. if app is eventually killed by OS, static vars get nulled out. so in that case just restart app for user to avoid crash
-            Intent intent = new Intent(this, SplashActivity.class);
+            Intent intent = new Intent(this, LandingActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         user = userWithWorkout.getUser();
@@ -345,8 +344,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
-    private void launchSplashActivity(String jsonData, String action) {
-        Intent intent = new Intent(this, SplashActivity.class);
+    private void launchLandingActivity(String jsonData, String action) {
+        Intent intent = new Intent(this, LandingActivity.class);
         intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(action);
@@ -398,7 +397,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     /**
      * This is called whenever user opens notification while app was terminated.
-     * No need to update any models since that would have been taken care of from the splash screen load
+     * No need to update any models since that would have been taken care of from the landing screen load
      *
      * @param action informs which route to take.
      */
@@ -439,12 +438,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
                 notificationManager.cancel(TimerService.timerFinishedId);
             }
-            // update tokens just in case they changed in apps life cycle
             LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
-            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
-            editor.apply();
+            if (sharedPreferences != null) {
+                // update tokens just in case they changed in apps life cycle
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
+                editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
+                editor.apply();
+            }
         }
         super.onDestroy();
     }
@@ -853,7 +854,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.CURRENT_WORKOUT_TITLE);
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
+                        new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE)
                 .commit();
         closeDrawerFromNavigation();
     }
@@ -864,7 +865,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.MY_WORKOUT_TITLE);
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
+                        new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE)
                 .commit();
         closeDrawerFromNavigation();
     }
@@ -880,7 +881,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.CREATE_WORKOUT_TITLE)
                 .commit();
     }
@@ -896,7 +897,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EDIT_WORKOUT_TITLE)
                 .commit();
     }
@@ -909,7 +910,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         myExercisesFragment.setInitialSavedState(fragmentSavedStatesMap.get(Variables.MY_EXERCISES_TITLE));
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                myExercisesFragment, Variables.MY_EXERCISES_TITLE)
+                        myExercisesFragment, Variables.MY_EXERCISES_TITLE)
                 .commit();
         closeDrawerFromNavigation();
     }
@@ -925,7 +926,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
                 .commit();
     }
@@ -938,7 +939,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         Fragment fragment = new NewExerciseFragment();
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.NEW_EXERCISE_TITLE)
                 .commit();
     }
@@ -960,7 +961,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
                 .commit();
     }
@@ -975,7 +976,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             fragment.setArguments(extras);
         }
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
     }
@@ -986,7 +987,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
                 .commit();
     }
@@ -1016,7 +1017,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragment.setArguments(arguments);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
     }
@@ -1027,7 +1028,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.SETTINGS_TITLE);
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new AppSettingsFragment(), Variables.SETTINGS_TITLE)
+                        new AppSettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
         closeDrawerFromNavigation();
     }
@@ -1038,7 +1039,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.ABOUT_TITLE);
 
         fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                new AboutFragment(), Variables.ABOUT_TITLE)
+                        new AboutFragment(), Variables.ABOUT_TITLE)
                 .commit();
         closeDrawerFromNavigation();
     }
@@ -1049,7 +1050,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         fragmentStack.add(0, Variables.FAQ_TITLE);
 
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.fade_out)
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new FaqFragment(), Variables.FAQ_TITLE)
                 .commit();
     }

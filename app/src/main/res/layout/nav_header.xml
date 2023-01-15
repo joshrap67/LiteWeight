@@ -38,7 +38,7 @@
                 android:layout_marginVertical="16dp"
                 android:shadowRadius="1"
                 android:layout_toEndOf="@id/profile_picture_image"
-                android:textColor="@android:color/white"
+                android:textColor="@color/color_accent"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:text="joshrap67" />

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
-        android:background="@drawable/exercise_row_background"
+        android:background="@drawable/exercise_row_sorting_background"
         android:clickable="true"
         android:focusable="true"
-        android:orientation="horizontal"
         android:padding="6dp">
 
     <ImageView
@@ -16,9 +16,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:contentDescription="@string/drag_to_sort"
-            android:src="@drawable/drag_icon" />
+            android:src="@drawable/drag_icon_vertical" />
 
     <TextView
             android:id="@+id/exercise_name_tv"
@@ -29,7 +29,6 @@
             android:layout_toEndOf="@id/drag_icon_image"
             android:clickable="true"
             android:focusable="true"
-            android:paddingHorizontal="15dp"
             android:textSize="18sp"
             tools:text="Exercise Name" />
 
