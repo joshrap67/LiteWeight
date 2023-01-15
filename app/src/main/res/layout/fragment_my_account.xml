@@ -128,8 +128,5 @@
             android:layout_marginBottom="20dp"
             android:background="#70000000"
             android:foreground="?android:selectableItemBackground"
-            android:text="@string/log_out"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:text="@string/log_out" />
 </RelativeLayout>

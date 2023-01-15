@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="?android:selectableItemBackground"
-            android:drawableEnd="@drawable/small_down_arrow"
+            android:drawableEnd="@drawable/down_arrow_small"
             android:paddingHorizontal="2dp"
             android:textAllCaps="false"
             tools:text="12345 lb" />

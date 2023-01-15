@@ -37,7 +37,7 @@
                 android:layout_toEndOf="@id/week_tv"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="@string/more_options"
-                app:srcCompat="@drawable/more_icon_white" />
+                app:srcCompat="@drawable/more_icon_small" />
 
         <Button
                 android:id="@+id/add_day_btn"
@@ -49,6 +49,7 @@
                 android:text="@string/add_day_msg"
                 android:textColor="@color/color_accent"
                 app:icon="@drawable/add_icon"
+                app:iconTint="@color/color_accent"
                 tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 

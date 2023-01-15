@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="color_primary">#2B8366</color>
-    <color name="color_accent">#fff</color>
-    <color name="default_text_color">#fff</color>
+    <color name="color_accent">#FFFFFF</color>
+    <color name="default_text_color">#FFFFFF</color>
     <color name="hint_color">#BEFFFFFF</color>
     <color name="deny_color">#2d4440</color>
     <color name="color_control">#02F88F</color>
@@ -12,6 +12,10 @@
     <color name="transparent">#00FFFFFF</color>
     <color name="subtitle_color">#CDCDCD</color>
 
+    <color name="workout_progress_background">#41C6C6C6</color>
+    <color name="workout_progress_gradient_start">#216541</color>
+    <color name="workout_progress_gradient_end">#3fdf9a</color>
+
     <color name="row_activated">#414141</color>
     <color name="options_background">#303030</color>
     <color name="exercise_row_background">#202020</color>
@@ -20,6 +24,7 @@
     <color name="week_card_selected_background">#595959</color>
     <color name="day_card_background">#424242</color>
     <color name="day_card_selected_background">#686868</color>
+    <color name="routine_button_container_background">#262626</color>
     <color name="window_background">#121212</color>
     <color name="dialog_window_background">#424242</color>
     <color name="logo_background">#0b2027</color>

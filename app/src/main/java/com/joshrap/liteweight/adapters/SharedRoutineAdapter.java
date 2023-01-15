@@ -144,7 +144,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
         setInputs(holder, exercise);
     }
 
@@ -154,7 +154,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         holder.expandButton.setText(formattedWeight);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down_arrow_small, 0);
     }
 
     @Override

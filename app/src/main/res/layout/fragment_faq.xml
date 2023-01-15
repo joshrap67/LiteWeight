@@ -52,7 +52,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView
@@ -99,7 +99,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView
@@ -145,7 +145,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView
@@ -191,7 +191,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView
@@ -237,7 +237,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView

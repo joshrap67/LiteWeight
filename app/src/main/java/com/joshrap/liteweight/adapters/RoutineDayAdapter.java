@@ -220,7 +220,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private void setExpandedViews(RoutineDayAdapter.ViewHolder holder, RoutineExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_up_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
 
         setInputs(holder, exercise);
     }
@@ -231,7 +231,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
         holder.expandButton.setText(formattedWeight);
-        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.small_down_arrow, 0);
+        holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down_arrow_small, 0);
     }
 
     private void setInputs(ViewHolder holder, RoutineExercise exercise) {

@@ -129,7 +129,7 @@
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:paddingHorizontal="4dp"
-                            android:src="@drawable/down_icon" />
+                            android:src="@drawable/down_arrow" />
                 </RelativeLayout>
 
                 <TextView

@@ -57,7 +57,7 @@
     <string name="add_week_msg">ADD WEEK</string>
     <string name="add_day_msg">ADD DAY</string>
     <string name="remove_week_warning_msg">Are you sure you wish to delete this week?\n\nDoing so will delete ALL days associated with this week, and this action cannot be reversed.</string>
-    <string name="remove_day_warning_msg">Are you sure you wish to delete day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
+    <string name="remove_day_warning_msg">Are you sure you wish to delete this day?\n\nDoing so will delete ALL exercises associated with this day, and this action cannot be reversed.</string>
     <string name="done_sorting_msg">Done Sorting</string>
     <string name="empty_friend_list_msg">Your friends list is empty</string>
     <string name="empty_friends_request_msg">No pending requests</string>
@@ -151,6 +151,7 @@
     <string name="accept_friend_request">Accept Friend Request</string>
     <string name="decline_friend_request">Decline Friend Request</string>
     <string name="create_workout">Create workout</string>
+    <string name="save_workout">Save workout</string>
     <string name="watch_video">Watch Video</string>
     <string name="delete_exercise">Delete exercise</string>
     <string name="done_all_caps">DONE</string>
@@ -175,7 +176,10 @@
     <string name="launch_video_msg">Launch this video using an external application?</string>
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
-    <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can go back to the routine view and drag the day to a different position within the new week.</string>
+    <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can rearrange the routine to move the day within its new week.</string>
     <string name="search_exercises_description">Search Exercises</string>
     <string name="dont_see_an_exercise">Don\'t see an exercise?</string>
+    <string name="rearrange">Rearrange</string>
+    <string name="done_rearranging">Done rearranging</string>
+    <string name="rearrange_hint">Press and hold a day or a week to drag it to its desired position.</string>
 </resources>

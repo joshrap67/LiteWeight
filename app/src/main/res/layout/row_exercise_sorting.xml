@@ -16,9 +16,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:contentDescription="@string/drag_to_sort"
-            android:src="@drawable/drag_icon" />
+            android:src="@drawable/drag_icon_vertical" />
 
     <TextView
             android:id="@+id/exercise_name_tv"
@@ -29,7 +29,6 @@
             android:layout_toEndOf="@id/drag_icon_image"
             android:clickable="true"
             android:focusable="true"
-            android:paddingHorizontal="15dp"
             android:textSize="18sp"
             tools:text="Exercise Name" />
 
