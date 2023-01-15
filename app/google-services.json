@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:990471046455:android:9b65266b14af27c7c706b2",
         "android_client_info": {
-          "package_name": "com.joshrap.liteweightt"
+          "package_name": "com.joshrap.liteweight"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "990471046455-c0c2pbnqg2fohrrskslemuqr4iq1lgbv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.joshrap.liteweightt",
+            "package_name": "com.joshrap.liteweight",
             "certificate_hash": "5b0934f45f12fe05c4461c2dd9b9214c644fd2df"
           }
         },
@@ -26,7 +26,7 @@
           "client_id": "990471046455-fui30jiai6m1mi0lfir0pupoleichc9g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.joshrap.liteweightt",
+            "package_name": "com.joshrap.liteweight",
             "certificate_hash": "ccfa291f1148a4fb8810c58e484df457cac0d90b"
           }
         },
