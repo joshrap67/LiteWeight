@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.activities;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -13,6 +14,8 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,6 +46,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.joshrap.liteweight.R;
@@ -96,6 +100,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private ImageView profilePicture;
     private Workout lastSyncedWorkout;
     private User user;
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
 
     @Getter
     private UserWithWorkout userWithWorkout;
@@ -263,6 +268,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             lastSyncedWorkout = null;
         }
 
+        requestNotificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                createNotificationChannel();
+            } else {
+                Toast.makeText(this, "Certain features of this app will not work without notifications.", Toast.LENGTH_LONG).show();
+            }
+        });
+
         Injector.getInjector(this).inject(this);
 
         IntentFilter receiverActions = new IntentFilter();
@@ -333,7 +346,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     }
                 });
 
-        createNotificationChannel();
+        setupNotifications();
         updateEndpointToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
@@ -342,6 +355,16 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             navigateToFragmentFromNotification(action);
         }
         getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+    }
+
+    private void setupNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        } else {
+            createNotificationChannel();
+        }
     }
 
     private void launchLandingActivity(String jsonData, String action) {
