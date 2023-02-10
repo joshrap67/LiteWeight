@@ -12,7 +12,7 @@ Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on
 
 ## Prerequisites
 
-This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 24. The targeted SDK for this application is: 32.
+This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 24. The targeted SDK for this application is: 33.
 
 An internet connection is required to run this application.
 
