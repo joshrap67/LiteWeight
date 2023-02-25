@@ -2,6 +2,7 @@ package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineWeek;
+import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
@@ -222,6 +224,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         if (timer != null && timer.isTimerRunning()) {
             ((WorkoutActivity) getActivity()).cancelTimerService();
         }
+        // remove timer finished notification if user comes back to this page
+        NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(TimerService.timerFinishedId);
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
             ((WorkoutActivity) getActivity()).cancelStopwatchService();
@@ -270,7 +275,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private void stopStopwatch() {
         stopwatch.stopStopwatch();
     }
-
 
     private void updateTimerDisplay(long elapsedTime) {
         int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));

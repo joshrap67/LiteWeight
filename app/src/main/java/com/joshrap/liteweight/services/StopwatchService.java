@@ -47,7 +47,7 @@ public class StopwatchService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
-        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, 0);
+        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, 0);
 
         stopwatch = new Timer();
         stopwatch.scheduleAtFixedRate(new TimerTask() {
@@ -87,8 +87,7 @@ public class StopwatchService extends Service {
     private void updateStopwatchRunningNotificationMessage(long aTime) {
         int minutes = (int) (aTime / 60000);
         int seconds = (int) (aTime / 1000) % 60;
-        String timeRemaining = String.format(Locale.getDefault(),
-                "%02d:%02d", minutes, seconds);
+        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
 
         Notification notification = stopwatchRunningNotification(timeRemaining);
 
@@ -107,8 +106,7 @@ public class StopwatchService extends Service {
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
-        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
+
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.STOPWATCH_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -131,7 +129,6 @@ public class StopwatchService extends Service {
                     .setOnlyAlertOnce(true) // only the first notification sent has a sound
                     .build();
         }
-
     }
 
     /**
@@ -142,8 +139,7 @@ public class StopwatchService extends Service {
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
-        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
+
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.STOPWATCH_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.STOPWATCH_RUNNING_CHANNEL)

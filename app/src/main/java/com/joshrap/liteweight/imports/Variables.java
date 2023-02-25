@@ -70,6 +70,7 @@ public class Variables {
     public static final String ABOUT_TITLE = "About";
     public static final String FAQ_TITLE = "FAQ";
 
+    // notification channels
     public static final String TIMER_RUNNING_CHANNEL = "timer_running_channel";
     public static final String TIMER_FINISHED_CHANNEL = "timer_finished_channel";
     public static final String FRIEND_REQUEST_CHANNEL = "friend_request_channel";
@@ -83,6 +84,7 @@ public class Variables {
     public static final String EXERCISE_ID = "exerciseId";
     public static final String EXISTING_WORKOUT = "existingWorkout";
 
+    // shared pref keys/values
     public static final String ID_TOKEN_KEY = "IdToken";
     public static final String REFRESH_TOKEN_KEY = "RefreshToken";
     public static final String TIMER_ENABLED = "TimerEnabled";
@@ -93,10 +95,18 @@ public class Variables {
     public static final String TIMER = "Timer";
     public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
     public static final String TIMER_DURATION = "TimerValue";
+    public static final String INITIAL_TIME_ON_TIMER_KEY = "InitialTimeOnTimer";
+    public static final String START_TIME_ABSOLUTE_ON_TIMER_KEY = "StartTimeAbsoluteOnTimer";
+    public static final String IS_TIMER_RUNNING_KEY = "IsTimerRunning";
+    public static final String INITIAL_TIME_ON_STOPWATCH_KEY = "InitialTimeOnStopwatch";
+    public static final String START_TIME_ABSOLUTE_ON_STOPWATCH_KEY = "StartTimeAbsoluteOnStopwatch";
+    public static final String IS_STOPWATCH_RUNNING_KEY = "IsStopwatchRunning";
+
 
     // intent keys
     public static final String INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time";
-    public static final String INTENT_TIMER_TIME_ON_CLOCK = "Time_on_clock";
+    public static final String INTENT_TIMER_INIRIAL_TIME_ON_CLOCK = "Time_on_clock";
+    public static final String INTENT_TIMER_DURATION = "Timer_duration";
     public static final String INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked";
     public static final String INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
     public static final String INTENT_ID_TOKEN = "idToken";
@@ -114,6 +124,7 @@ public class Variables {
     public static final String DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest";
     public static final String NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
     public static final String RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast";
+    public static final String TIMER_RESTARTED_BROADCAST = "timerRestartedBroadcast";
 
     public static final String RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
     public static final String NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST = "newFriendRequestModelUpdatedBroadcast";

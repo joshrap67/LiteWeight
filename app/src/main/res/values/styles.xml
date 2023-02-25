@@ -15,6 +15,7 @@
         <item name="android:fontFamily">@font/roboto</item>
         <item name="android:navigationBarColor">@color/window_background</item>
         <item name="android:itemBackground">@drawable/item_background_drawable</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control</item>
@@ -57,12 +58,6 @@
         <item name="boxStrokeColor">@color/signin_activity_box_color</item>
         <item name="hintTextColor">@color/login_activity_outline_box_focused_color</item>
         <item name="android:textColorHint">@color/login_activity_outline_box_unfocused_color</item>
-    </style>
-
-    <style name="ToolbarStyle" parent="Theme.MaterialComponents">
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
-        <item name="actionMenuTextColor">@android:color/white</item>
     </style>
 
     <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">

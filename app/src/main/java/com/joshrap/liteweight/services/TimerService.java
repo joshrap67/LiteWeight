@@ -11,6 +11,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
@@ -29,8 +30,9 @@ public class TimerService extends Service {
 
     public static final int timerRunningId = 1;
     public static final int timerFinishedId = 2;
+    public static final String resetExtra = "reset";
 
-    private long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
+    private long startTimeAbsolute, initialTimeOnClock, timerDuration; // in SI units of milliseconds
     private Timer timer;
 
     @Nullable
@@ -50,8 +52,25 @@ public class TimerService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(timerFinishedId);
 
-        startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
-        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, 0);
+        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, 0);
+        timerDuration = intent.getLongExtra(Variables.INTENT_TIMER_DURATION, 0);
+        if (intent.hasExtra(resetExtra)) {
+            // if restarting from notification we always start the timer from the beginning
+            startTimeAbsolute = System.currentTimeMillis();
+            initialTimeOnClock = timerDuration;
+
+            // broadcast to workout activity so that it knows it needs to start the timer again
+            Intent i = new Intent();
+            i.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, startTimeAbsolute);
+            i.putExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, timerDuration);
+            i.setAction(Variables.TIMER_RESTARTED_BROADCAST);
+
+            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+            localBroadcastManager.sendBroadcast(i);
+            sendBroadcast(i);
+        } else {
+            startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
+        }
 
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -62,10 +81,10 @@ public class TimerService extends Service {
                 if (timeRemaining <= 0) {
                     timer.cancel();
                     stopSelf();
-                    showTimerFinishedNotification();
+                    showTimerFinishedNotification(timerDuration); // if we kill the initial service, we have to persist the timer duration for a potential restart
                 } else {
                     // timer still has time left to go
-                    updateTimerRunningNotificationMessage(timeRemaining);
+                    updateTimerRunningNotificationMessage(timeRemaining + 1000);
                 }
             }
         }, 0, 500);
@@ -92,8 +111,7 @@ public class TimerService extends Service {
     private void updateTimerRunningNotificationMessage(long aTime) {
         int minutes = (int) (aTime / 60000);
         int seconds = (int) (aTime / 1000) % 60;
-        String timeRemaining = String.format(Locale.getDefault(),
-                "%02d:%02d", minutes, seconds);
+        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
 
         Notification notification = timerRunningNotification(timeRemaining);
 
@@ -113,7 +131,6 @@ public class TimerService extends Service {
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -141,15 +158,20 @@ public class TimerService extends Service {
     /**
      * Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
      */
-    private void showTimerFinishedNotification() {
+    private void showTimerFinishedNotification(long timerDuration) {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, "Clicky-Doo");
+
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        Intent restartIntent = new Intent(this, TimerService.class);
+        restartIntent.putExtra(resetExtra, true);
+        restartIntent.putExtra(Variables.INTENT_TIMER_DURATION, timerDuration);
+        PendingIntent pendingRestartIntent = PendingIntent.getService(this, 0, restartIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         Notification notification = new NotificationCompat.Builder(this, Variables.TIMER_FINISHED_CHANNEL)
                 .setContentTitle("Timer")
                 .setContentText("Timer finished!")
@@ -157,6 +179,7 @@ public class TimerService extends Service {
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .setOngoing(false)
+                .addAction(R.drawable.restart_icon, "Restart Timer", pendingRestartIntent)
                 .setOnlyAlertOnce(true) // only the first notification sent has a sound
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

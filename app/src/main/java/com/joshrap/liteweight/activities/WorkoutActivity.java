@@ -193,6 +193,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     localBroadcastManager.sendBroadcast(broadcastIntent);
                     break;
                 }
+                case Variables.TIMER_RESTARTED_BROADCAST:
+                    // If user restarted from a notification we need capture the new values for the clock, and signal to app that the timer needs to be running
+                    timer.initialTimeOnClock = intent.getExtras().getLong(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK);
+                    timer.startTimeAbsolute = intent.getExtras().getLong(Variables.INTENT_TIMER_ABSOLUTE_START_TIME);
+                    // if receiving this we can assume the timer is running
+                    timer.startTimer();
+
+                    break;
                 case Variables.RECEIVED_WORKOUT_BROADCAST:
                     try {
                         SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
@@ -285,6 +293,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         receiverActions.addAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
         receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
+        receiverActions.addAction(Variables.TIMER_RESTARTED_BROADCAST);
         LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
 
         setContentView(R.layout.activity_workout);
@@ -655,7 +664,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     public void startStopwatchService() {
         Intent serviceIntent = new Intent(this, StopwatchService.class);
         serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, stopwatch.initialTimeOnClock);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, stopwatch.initialTimeOnClock);
         startService(serviceIntent);
     }
 
@@ -669,7 +678,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     public void startTimerService() {
         Intent serviceIntent = new Intent(this, TimerService.class);
         serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, timer.initialTimeOnClock);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, timer.initialTimeOnClock);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_DURATION, timer.timerDuration);
         startService(serviceIntent);
     }
 

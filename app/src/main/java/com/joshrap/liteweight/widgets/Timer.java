@@ -15,7 +15,7 @@ public class Timer {
         @Override
         public void run() {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
-            displayTime.setValue(initialTimeOnClock - elapsedTime);
+            displayTime.setValue(initialTimeOnClock - elapsedTime + timeUnit - 1); // don't want the timer to start counting down from duration-1 but rather duration
             if (displayTime.getValue() <= 0) {
                 timerRunning.setValue(false);
                 initialTimeOnClock = timerDuration;
@@ -36,13 +36,7 @@ public class Timer {
 
     public void startTimer() {
         if (!isTimerRunning()) {
-            if (initialTimeOnClock == timerDuration) {
-                // want the timer to start counting from timer duration, not duration - 1
-                startTimeAbsolute = System.currentTimeMillis() + timeUnit - 1; // -1 so when resetting it doesn't momentarily start above actual time
-
-            } else {
-                startTimeAbsolute = System.currentTimeMillis();
-            }
+            startTimeAbsolute = System.currentTimeMillis();
             timerHandler.post(timer);
             timerRunning.setValue(true);
         }
@@ -52,7 +46,6 @@ public class Timer {
         if (isTimerRunning()) {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
             initialTimeOnClock -= elapsedTime;
-            startTimeAbsolute = System.currentTimeMillis();
             timerHandler.removeCallbacks(timer);
             timerRunning.setValue(false);
         }

@@ -147,7 +147,6 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         timerDisplayLayout = view.findViewById(R.id.timer_display_container);
         timerButtonsLayout = view.findViewById(R.id.timer_buttons_container);
 
-        setTimerViewsVisibility();
         startTimerButton.setOnClickListener(v -> startTimer());
         stopTimerButton.setOnClickListener(v -> stopTimer());
         resetTimerButton.setOnClickListener(v -> timer.resetTimer());
@@ -164,15 +163,8 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             }
         });
 
-        timer.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime <= 0) {
-                // timer is done
-                updateTimerDisplays(elapsedTime);
-                setTimerViewsVisibility();
-            } else {
-                updateTimerDisplays(elapsedTime);
-            }
-        });
+        timer.displayTime.observe(getViewLifecycleOwner(), this::updateTimerDisplays);
+        timer.timerRunning.observe(getViewLifecycleOwner(), this::setTimerViewsVisibility);
         //endregion
 
         //region Stopwatch
@@ -182,20 +174,13 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         showTimerButton = view.findViewById(R.id.show_timer_btn);
         stopwatchTV = view.findViewById(R.id.stopwatch_tv);
 
-        setStopwatchViewsVisibility();
         startStopwatchButton.setOnClickListener(v -> startStopwatch());
         stopStopwatchButton.setOnClickListener(v -> stopStopwatch());
         resetStopwatchButton.setOnClickListener(v -> stopwatch.resetStopwatch());
         showTimerButton.setOnClickListener(v -> switchToTimer());
 
-        stopwatch.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime >= Variables.MAX_STOPWATCH_TIME) {
-                updateStopwatchDisplays(elapsedTime);
-                setStopwatchViewsVisibility();
-            } else {
-                updateStopwatchDisplays(elapsedTime);
-            }
-        });
+        stopwatch.displayTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplays);
+        stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), this::setStopwatchViewsVisibility);
 
         return view;
 
@@ -204,27 +189,22 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     private void startStopwatch() {
         stopwatch.startStopwatch();
         dismiss();
-        setStopwatchViewsVisibility();
     }
 
     private void startTimer() {
         timer.startTimer();
         dismiss();
-        setTimerViewsVisibility();
     }
 
     private void stopTimer() {
         timer.stopTimer();
-        setTimerViewsVisibility();
     }
 
     private void stopStopwatch() {
         stopwatch.stopStopwatch();
-        setStopwatchViewsVisibility();
     }
 
-    private void setTimerViewsVisibility() {
-        boolean timerRunning = timer.isTimerRunning();
+    private void setTimerViewsVisibility(boolean timerRunning) {
         setTimerDurationTV.setVisibility(timerRunning ? View.INVISIBLE : View.VISIBLE);
         stopTimerButton.setVisibility(timerRunning ? View.VISIBLE : View.GONE);
         startTimerButton.setVisibility(timerRunning ? View.GONE : View.VISIBLE);
@@ -236,8 +216,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private void setStopwatchViewsVisibility() {
-        boolean stopwatchRunning = stopwatch.isStopwatchRunning();
+    private void setStopwatchViewsVisibility(boolean stopwatchRunning) {
         stopStopwatchButton.setVisibility(stopwatchRunning ? View.VISIBLE : View.GONE);
         startStopwatchButton.setVisibility(stopwatchRunning ? View.GONE : View.VISIBLE);
 
