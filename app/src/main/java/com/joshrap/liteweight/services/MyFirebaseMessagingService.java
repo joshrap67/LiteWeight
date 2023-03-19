@@ -8,18 +8,25 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.NewFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.ReceivedWorkoutMessage;
+import com.joshrap.liteweight.messages.activitymessages.RemovedFriendMessage;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.PushNotification;
 import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.User;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.Map;
@@ -39,22 +46,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             PushNotification pushNotification = new PushNotification(jsonMap);
             switch (pushNotification.getAction()) {
                 case friendRequestAction:
-                    showNotificationFriendRequest(pushNotification.getJsonPayload());
+                    showNotificationNewFriendRequest(pushNotification.getJsonPayload());
                     break;
                 case canceledFriendRequestAction:
-                    // silent notification
-                    cancelFriendRequest(pushNotification.getJsonPayload());
+                    silentNotificationCancelFriendRequest(pushNotification.getJsonPayload());
                     break;
                 case acceptedFriendRequestAction:
                     showNotificationAcceptedFriendRequest(pushNotification.getJsonPayload());
                     break;
                 case removedAsFriendAction:
-                    // silent notification
-                    removedFriend(pushNotification.getJsonPayload());
+                    silentNotificationRemovedFriend(pushNotification.getJsonPayload());
                     break;
                 case declinedFriendRequestAction:
-                    // silent notification
-                    declinedFriendRequest(pushNotification.getJsonPayload());
+                    silentNotificationDeclinedFriendRequest(pushNotification.getJsonPayload());
                     break;
                 case receivedWorkoutNotificationAction:
                     showNotificationReceivedWorkout(pushNotification.getJsonPayload());
@@ -67,12 +71,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
-    private void showNotificationFriendRequest(final String jsonData) throws IOException {
+    private void showNotificationNewFriendRequest(final String jsonData) throws IOException {
         FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.NEW_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -89,63 +91,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (mNotificationManager != null) {
             mNotificationManager.notify(friendRequest.getUsername().hashCode(), notification);
         }
-        Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(broadcastIntent);
+        NewFriendRequestMessage message = new NewFriendRequestMessage(friendRequest);
+        EventBus.getDefault().post(message);
     }
 
-    private void cancelFriendRequest(final String jsonData) throws IOException {
+    private void silentNotificationCancelFriendRequest(final String jsonData) throws IOException {
         String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
-        notificationIntent.setAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             mNotificationManager.cancel(userToRemove.hashCode());
         }
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(notificationIntent);
+        CanceledFriendRequestMessage message = new CanceledFriendRequestMessage(userToRemove);
+        EventBus.getDefault().post(message);
     }
 
-    private void declinedFriendRequest(final String jsonData) throws IOException {
+    private void silentNotificationDeclinedFriendRequest(final String jsonData) throws IOException {
         String declinedUser = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, declinedUser);
-        notificationIntent.setAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             mNotificationManager.cancel(declinedUser.hashCode());
         }
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(notificationIntent);
+        DeclinedFriendRequestMessage message = new DeclinedFriendRequestMessage(declinedUser);
+        EventBus.getDefault().post(message);
     }
 
-    private void removedFriend(final String jsonData) throws IOException {
+    private void silentNotificationRemovedFriend(final String jsonData) throws IOException {
         String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userToRemove);
-        notificationIntent.setAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             // if user still has notification saying this user accepted their request, hide it if user removes them
             mNotificationManager.cancel(userToRemove.hashCode());
         }
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(notificationIntent);
+        RemovedFriendMessage message = new RemovedFriendMessage(userToRemove);
+        EventBus.getDefault().post(message);
     }
 
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
         String userAccepted = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -162,20 +150,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (mNotificationManager != null) {
             mNotificationManager.notify(userAccepted.hashCode(), notification);
         }
-        Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, userAccepted);
-        broadcastIntent.setAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(broadcastIntent);
+        AcceptedFriendRequestMessage message = new AcceptedFriendRequestMessage(userAccepted);
+        EventBus.getDefault().post(message);
     }
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
         final SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize(jsonData));
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
-        notificationIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this,
@@ -193,11 +176,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (mNotificationManager != null) {
             mNotificationManager.notify(sharedWorkoutMeta.getWorkoutId().hashCode(), notification);
         }
-        Intent broadcastIntent = new Intent(this, WorkoutActivity.class);
-        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_BROADCAST);
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.sendBroadcast(broadcastIntent);
+        ReceivedWorkoutMessage message = new ReceivedWorkoutMessage(sharedWorkoutMeta);
+        EventBus.getDefault().post(message);
     }
 }

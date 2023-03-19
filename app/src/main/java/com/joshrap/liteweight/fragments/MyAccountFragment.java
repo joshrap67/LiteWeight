@@ -6,10 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -29,12 +26,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
+import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -55,7 +54,6 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -63,6 +61,10 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private User user;
@@ -74,20 +76,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     UserRepository userRepository;
     @Inject
     Tokens tokens;
-
-    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-            if (action.equals(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST) ||
-                    action.equals(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST)) {
-                updateFriendsTvNotification();
-            }
-        }
-    };
 
     @Nullable
     @Override
@@ -141,7 +129,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         logoutButton.setOnClickListener(view1 -> promptLogout());
         profilePicture = view.findViewById(R.id.profile_picture_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
-        updateFriendsTvNotification();
+        updateFriendsTVNotification();
 
         profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
         Picasso.get()
@@ -174,16 +162,14 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
+        updateFriendsTVNotification();
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -191,6 +177,16 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleNewFriendRequestMessage(NewFriendRequestFragmentMessage message) {
+        updateFriendsTVNotification();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleCanceledFriendRequestMessage(CanceledFriendRequestFragmentMessage message) {
+        updateFriendsTVNotification();
     }
 
     private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
@@ -238,10 +234,10 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     /**
      * Updates whether an indicator should be shown on the view that takes users to their friend's list.
      */
-    private void updateFriendsTvNotification() {
+    private void updateFriendsTVNotification() {
         int requestUnseenCount = 0;
-        for (String username : user.getFriendRequests().keySet()) {
-            if (!Objects.requireNonNull(user.getFriendRequests().get(username)).isSeen()) {
+        for (FriendRequest friendRequest : user.getFriendRequests().values()) {
+            if (!friendRequest.isSeen()) {
                 requestUnseenCount++;
             }
         }

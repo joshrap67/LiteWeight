@@ -107,8 +107,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        List<String> workoutList = new ArrayList<>(user.getOwnedExercises().get(exerciseId).getWorkouts().values());
-        originalExercise = user.getOwnedExercises().get(exerciseId);
+        originalExercise = user.getExercise(exerciseId);
+        List<String> workoutList = new ArrayList<>(originalExercise.getWorkouts().values());
         selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
 
         focusesTV = view.findViewById(R.id.focus_list_tv);
@@ -264,8 +264,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (!exerciseNameInput.getText().toString().equals(originalExercise.getExerciseName())) {
             // make sure that if the user doesn't change the name that they can still update other fields
             List<String> exerciseNames = new ArrayList<>();
-            for (String exerciseId : user.getOwnedExercises().keySet()) {
-                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+                exerciseNames.add(exercise.getExerciseName());
             }
             renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(renameError);
@@ -321,9 +321,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-                        user.getOwnedExercises().put(exerciseId, resultStatus.getData().getOwnedExercises().get(exerciseId));
+                        user.addExercise(resultStatus.getData().getExercise(exerciseId));
 
-                        originalExercise = user.getOwnedExercises().get(exerciseId);
+                        originalExercise = user.getExercise(exerciseId);
                         initViews();
                     } else {
                         AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
@@ -363,7 +363,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     // deleted successfully, so delete everything
-                    user.getOwnedExercises().remove(exerciseId);
+                    user.removeExercise(exerciseId);
                     if (userWithWorkout.getWorkout() != null) {
                         userWithWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
                     }

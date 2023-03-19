@@ -59,16 +59,15 @@ public class MyExercisesFragment extends Fragment {
             totalExercises.put(focus, new ArrayList<>());
         }
 
-        for (String exerciseId : user.getOwnedExercises().keySet()) {
-            OwnedExercise ownedExercise = user.getOwnedExercises().get(exerciseId);
-            List<String> focusesOfExercise = new ArrayList<>(ownedExercise.getFocuses());
+        for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+            List<String> focusesOfExercise = new ArrayList<>(exercise.getFocuses());
             for (String focus : focusesOfExercise) {
                 if (!focusList.contains(focus)) {
                     // somehow found a new focus, so init the hash map with it (this should never happen but just in case)
                     focusList.add(focus);
                     totalExercises.put(focus, new ArrayList<>());
                 }
-                totalExercises.get(focus).add(ownedExercise);
+                totalExercises.get(focus).add(exercise);
             }
         }
         return inflater.inflate(R.layout.fragment_my_exercises, container, false);
@@ -80,11 +79,9 @@ public class MyExercisesFragment extends Fragment {
 
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_fab);
         createBtn.setOnClickListener(v -> {
-            if (user.getPremiumToken() == null
-                    && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
+            if (user.getPremiumToken() == null && user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
-            } else if (user.getPremiumToken() != null
-                    && user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+            } else if (user.getPremiumToken() != null && user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise

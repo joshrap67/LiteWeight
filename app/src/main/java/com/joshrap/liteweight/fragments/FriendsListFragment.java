@@ -1,12 +1,9 @@
 package com.joshrap.liteweight.fragments;
 
-import androidx.appcompat.app.AlertDialog;
+import static android.os.Looper.getMainLooper;
 
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,11 +28,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,22 +42,32 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.WorkoutActivity;
-import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.DateUtils;
-import com.joshrap.liteweight.utils.ImageUtils;
-import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.messages.fragmentmessages.AcceptedFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.DeclinedFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
 import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.DateUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,8 +81,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
-
-import static android.os.Looper.getMainLooper;
 
 public class FriendsListFragment extends Fragment implements FragmentWithDialog {
     private static final int FRIENDS_POSITION = 0;
@@ -93,6 +98,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FriendRequestsAdapter friendRequestsAdapter;
     private TabLayout tabLayout;
     private int currentIndex;
+    private NotificationManager notificationManager;
 
     @Inject
     AlertDialog loadingDialog;
@@ -100,83 +106,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     UserRepository userRepository;
     @Inject
     WorkoutRepository workoutRepository;
-
-
-    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-            NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-            switch (action) {
-                case Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST:
-                    String friendRequestUsername = (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA);
-                    // bit of a hack but need to do this to ensure the memory addresses are the same. in general should not new anything up in these receivers
-                    FriendRequest newFriendRequest = user.getFriendRequests().get(friendRequestUsername);
-                    friendRequests.add(0, newFriendRequest);
-                    sortFriendRequestList();
-                    friendRequestsAdapter.notifyDataSetChanged();
-                    checkEmptyList(tabLayout.getSelectedTabPosition());
-
-                    Toast.makeText(getContext(), newFriendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
-                    tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests (!)");
-
-                    // user is on this page, so no need to show a push notification
-                    if (mNotificationManager != null) {
-                        mNotificationManager.cancel(newFriendRequest.getUsername().hashCode());
-                    }
-
-                    break;
-                case Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST: {
-                    FriendRequest friendRequestToRemove = null;
-                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    for (FriendRequest friendRequest : friendRequests) {
-                        if (friendRequest.getUsername().equals(usernameToRemove)) {
-                            friendRequestToRemove = friendRequest;
-                            break;
-                        }
-                    }
-                    if (friendRequestToRemove != null) {
-                        friendRequests.remove(friendRequestToRemove);
-                        friendRequestsAdapter.notifyDataSetChanged();
-                        checkEmptyList(tabLayout.getSelectedTabPosition());
-                    }
-                    break;
-                }
-                case Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST:
-                case Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST: {
-                    Friend friendToRemove = null;
-                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    for (Friend friend : friends) {
-                        if (friend.getUsername().equals(usernameToRemove)) {
-                            friendToRemove = friend;
-                            break;
-                        }
-                    }
-                    if (friendToRemove != null) {
-                        friends.remove(friendToRemove);
-                        friendsAdapter.notifyDataSetChanged();
-                        checkEmptyList(tabLayout.getSelectedTabPosition());
-                    }
-                    break;
-                }
-                case Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST:
-                    sortFriendsList();
-                    friendsAdapter.notifyDataSetChanged();
-                    checkEmptyList(tabLayout.getSelectedTabPosition());
-
-                    // user is on this page, so no need to show a push notification
-                    for (String username : user.getFriends().keySet()) {
-                        if (mNotificationManager != null) {
-                            mNotificationManager.cancel(username.hashCode());
-                        }
-                    }
-                    break;
-            }
-        }
-    };
 
     @Nullable
     @Override
@@ -189,6 +118,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         user = userWithWorkout.getUser();
+        notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -205,10 +135,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         friends = new ArrayList<>();
         friendRequests = new ArrayList<>();
 
-        friends.addAll(user.getFriends().values());
-        friendRequests.addAll(user.getFriendRequests().values());
-        sortFriendsList();
-        sortFriendRequestList();
+        setAndSortFriendRequests();
+        setAndSortFriends();
 
         friendRequestsAdapter = new FriendRequestsAdapter(friendRequests);
         friendsAdapter = new FriendsAdapter(friends);
@@ -253,6 +181,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         super.onViewCreated(view, savedInstanceState);
     }
 
+    private void setAndSortFriendRequests() {
+        friendRequests.addAll(user.getFriendRequests().values());
+        sortFriendRequestList();
+    }
+
+    private void setAndSortFriends() {
+        friends.addAll(user.getFriends().values());
+        sortFriendsList();
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -262,19 +200,36 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         }
 
         ((WorkoutActivity) getActivity()).updateAccountNotificationIndicator();
-        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(notificationReceiver);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST);
-        receiverActions.addAction(Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(notificationReceiver, receiverActions);
+        // when resuming, a notification could have affected these data.
+        // resetting the entire fragment is no doubt a dirty hack. but there are so many different states
+        // that this fragment can be in that this is the simplest solution. especially given how unlikely this
+        // specific scenario is to happen in the first place
+        if (user.getFriendRequests().size() != friendRequests.size()) {
+            resetFragment();
+        }
+        if (user.getFriends().size() != friends.size()) {
+            resetFragment();
+        }
+        for (Friend friend : friends) {
+            Friend upToDateFriend = user.getFriend(friend.getUsername());
+            if (upToDateFriend != null && friend.isConfirmed() != upToDateFriend.isConfirmed()) {
+                // one friend is no longer pending, so update whole list
+                resetFragment();
+                break;
+            }
+        }
+        EventBus.getDefault().register(this);
+    }
+
+    private void resetFragment() {
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new FriendsListFragment(), Variables.FRIENDS_LIST_TITLE).commit();
     }
 
     @Override
@@ -290,8 +245,83 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleNewFriendRequestMessage(NewFriendRequestFragmentMessage message) {
+        FriendRequest newFriendRequest = message.getFriendRequest();
+        friendRequests.add(0, newFriendRequest);
+        sortFriendRequestList();
+        updateFriendsListView();
+
+        Toast.makeText(getContext(), newFriendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
+        tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests (!)");
+
+        // user is on this page, so no need to show a push notification
+        if (notificationManager != null) {
+            notificationManager.cancel(newFriendRequest.getUsername().hashCode());
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleCanceledFriendRequestMessage(CanceledFriendRequestFragmentMessage message) {
+        FriendRequest friendRequestToRemove = null;
+        String usernameToRemove = message.getUsernameToRemove();
+        for (FriendRequest friendRequest : friendRequests) {
+            if (friendRequest.getUsername().equals(usernameToRemove)) {
+                friendRequestToRemove = friendRequest;
+                break;
+            }
+        }
+
+        if (friendRequestToRemove != null) {
+            friendRequests.remove(friendRequestToRemove);
+            updateFriendsListView();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleDeclinedFriendRequestMessage(DeclinedFriendRequestFragmentMessage message) {
+        removeFriendFromList(message.getUsernameToRemove());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleRemovedFriendMessage(RemovedFriendFragmentMessage message) {
+        removeFriendFromList(message.getUsernameToRemove());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestFragmentMessage message) {
+        sortFriendsList();
+        updateFriendsListView();
+
+        // user is on this page, so no need to show a push notification
+        for (String username : user.getFriends().keySet()) {
+            if (notificationManager != null) {
+                notificationManager.cancel(username.hashCode());
+            }
+        }
+    }
+
+    private void removeFriendFromList(String usernameToRemove) {
+        Friend friendToRemove = null;
+        for (Friend friend : friends) {
+            if (friend.getUsername().equals(usernameToRemove)) {
+                friendToRemove = friend;
+                break;
+            }
+        }
+        if (friendToRemove != null) {
+            friends.remove(friendToRemove);
+            updateFriendsListView();
+        }
+    }
+
     private void sortFriendsList() {
         friends.sort(Comparator.comparing(friend -> friend.getUsername().toLowerCase()));
+    }
+
+    private void updateFriendsListView() {
+        friendsAdapter.notifyDataSetChanged();
+        checkEmptyList(tabLayout.getSelectedTabPosition());
     }
 
     private void sortFriendRequestList() {
@@ -322,7 +352,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         floatingActionButton.show();
         checkEmptyList(FRIENDS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override
             public void onChanged() {
                 super.onChanged();
@@ -349,7 +378,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         floatingActionButton.hide();
         checkEmptyList(REQUESTS_POSITION);
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override
             public void onChanged() {
                 super.onChanged();
@@ -391,7 +419,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         for (FriendRequest friendRequest : friendRequests) {
             if (!friendRequest.isSeen()) {
                 // get rid of any push notification that might be there for any friend requests
-                NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     notificationManager.cancel(friendRequest.getUsername().hashCode());
                 }
@@ -466,8 +493,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
-                    user.getFriends().put(resultStatus.getData().getUsername(), resultStatus.getData());
-                    friends.add(user.getFriends().get(username));
+                    user.addFriend(resultStatus.getData());
+                    friends.add(resultStatus.getData());
                     sortFriendsList();
                     friendsAdapter.notifyDataSetChanged();
                 } else {
@@ -504,10 +531,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
-                    user.getBlocked().put(username, resultStatus.getData());
+                    user.putBlocked(username, resultStatus.getData());
                     // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend a bit otherwise so oh well
-                    user.getFriendRequests().remove(username);
-                    user.getFriends().remove(username);
+                    user.removeFriendRequest(username);
+                    user.removeFriend(username);
                     if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
                         Friend friendToRemove = null;
                         for (Friend friend : friends) {
@@ -538,14 +565,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void acceptFriendRequest(String username) {
         // we assume it always succeeds
-        FriendRequest friendRequest = user.getFriendRequests().get(username);
-        user.getFriendRequests().remove(username);
+        FriendRequest friendRequest = user.getFriendRequest(username);
+        user.removeFriendRequest(username);
         friendRequests.remove(friendRequest);
         friendRequestsAdapter.notifyDataSetChanged();
         checkEmptyList(REQUESTS_POSITION);
 
         Friend friend = new Friend(friendRequest.getIcon(), true, username);
-        user.getFriends().put(username, friend);
+        user.addFriend(friend);
         friends.add(friend);
         sortFriendsList();
 
@@ -557,13 +584,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 // not critical to show any type of loading dialog for this action.
                 if (!resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
                     // put the request back
-                    user.getFriendRequests().put(username, friendRequest);
+                    user.addFriendRequest(friendRequest);
                     friendRequests.add(friendRequest);
                     sortFriendRequestList();
                     friendRequestsAdapter.notifyDataSetChanged();
                     checkEmptyList(REQUESTS_POSITION);
 
-                    user.getFriends().remove(username);
+                    user.removeFriend(username);
                     friends.remove(friend);
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
@@ -573,8 +600,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void declineFriendRequest(String username) {
         // we assume it always succeeds
-        FriendRequest friendRequest = user.getFriendRequests().get(username);
-        user.getFriendRequests().remove(username);
+        FriendRequest friendRequest = user.getFriendRequest(username);
+        user.removeFriendRequest(username);
         friendRequests.remove(friendRequest);
         friendRequestsAdapter.notifyDataSetChanged();
         checkEmptyList(REQUESTS_POSITION);
@@ -587,7 +614,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 // not critical to show any type of loading dialog for this action.
                 if (!resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
                     // put the request back since it failed to decline
-                    user.getFriendRequests().put(username, friendRequest);
+                    user.addFriendRequest(friendRequest);
                     friendRequests.add(friendRequest);
                     sortFriendRequestList();
                     friendRequestsAdapter.notifyDataSetChanged();
@@ -601,8 +628,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void removeFriend(String username) {
         // we assume it always succeeds
-        Friend friend = user.getFriends().get(username);
-        user.getFriends().remove(username);
+        Friend friend = user.getFriend(username);
+        user.removeFriend(username);
         friends.remove(friend);
         friendsAdapter.notifyDataSetChanged();
         checkEmptyList(FRIENDS_POSITION);
@@ -615,7 +642,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 // not critical to show any type of loading dialog/handle errors for this action.
                 if (!resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
                     // put the friend back since it failed to decline
-                    user.getFriends().put(username, friend);
+                    user.addFriend(friend);
                     friends.add(friend);
                     sortFriendsList();
                     friendsAdapter.notifyDataSetChanged();
@@ -652,9 +679,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
-        for (String workoutId : user.getWorkoutMetas().keySet()) {
-            workoutNameToId.put(user.getWorkoutMetas().get(workoutId).getWorkoutName(), workoutId);
-            workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
+        for (WorkoutMeta workoutMeta : user.getWorkoutMetas().values()) {
+            workoutNameToId.put(workoutMeta.getWorkoutName(), workoutMeta.getWorkoutId());
+            workoutNames.add(workoutMeta.getWorkoutName());
         }
         ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
         workoutSpinner.setAdapter(workoutsAdapter);
@@ -814,7 +841,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 cancelRequest.setOnClickListener(view -> {
                     cancelFriendRequest(friend.getUsername());
                     bottomSheetDialog.dismiss();
-                    user.getFriends().remove(friend.getUsername());
+                    user.removeFriend(friend.getUsername());
                     friends.remove(friend);
                     notifyDataSetChanged();
                 });
@@ -900,10 +927,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private final List<FriendRequest> friendRequests;
+        private final List<FriendRequest> allFriendRequests;
 
         FriendRequestsAdapter(List<FriendRequest> friends) {
-            this.friendRequests = friends;
+            this.allFriendRequests = friends;
         }
 
         @NonNull

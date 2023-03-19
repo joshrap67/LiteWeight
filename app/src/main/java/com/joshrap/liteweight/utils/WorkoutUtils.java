@@ -36,7 +36,7 @@ public class WorkoutUtils {
             for (RoutineDay day : week) {
                 for (RoutineExercise routineExercise : day) {
                     String exerciseId = routineExercise.getExerciseId();
-                    for (String focus : user.getOwnedExercises().get(exerciseId).getFocuses()) {
+                    for (String focus : user.getExercise(exerciseId).getFocuses()) {
                         focusCount.merge(focus, 1, Integer::sum);
                     }
                 }

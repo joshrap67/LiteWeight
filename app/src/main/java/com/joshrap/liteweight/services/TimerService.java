@@ -11,11 +11,13 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.joshrap.liteweight.activities.WorkoutActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.messages.activitymessages.TimerRestartMessage;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Locale;
 import java.util.Timer;
@@ -32,7 +34,7 @@ public class TimerService extends Service {
     public static final int timerFinishedId = 2;
     public static final String resetExtra = "reset";
 
-    private long startTimeAbsolute, initialTimeOnClock, timerDuration; // in SI units of milliseconds
+    private long startTimeAbsolute, initialTimeRemaining, timerDuration; // in SI units of milliseconds
     private Timer timer;
 
     @Nullable
@@ -52,22 +54,15 @@ public class TimerService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(timerFinishedId);
 
-        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, 0);
+        initialTimeRemaining = intent.getLongExtra(Variables.INTENT_TIMER_INITIAL_TIME_REMAINING, 0);
         timerDuration = intent.getLongExtra(Variables.INTENT_TIMER_DURATION, 0);
         if (intent.hasExtra(resetExtra)) {
             // if restarting from notification we always start the timer from the beginning
             startTimeAbsolute = System.currentTimeMillis();
-            initialTimeOnClock = timerDuration;
+            initialTimeRemaining = timerDuration;
 
-            // broadcast to workout activity so that it knows it needs to start the timer again
-            Intent i = new Intent();
-            i.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, startTimeAbsolute);
-            i.putExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, timerDuration);
-            i.setAction(Variables.TIMER_RESTARTED_BROADCAST);
-
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-            localBroadcastManager.sendBroadcast(i);
-            sendBroadcast(i);
+            // broadcast to workout activity so that it knows it needs to start its timer again
+            EventBus.getDefault().post(new TimerRestartMessage(startTimeAbsolute, initialTimeRemaining));
         } else {
             startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
         }
@@ -77,14 +72,15 @@ public class TimerService extends Service {
             @Override
             public void run() {
                 long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
-                long timeRemaining = initialTimeOnClock - elapsedTime;
+                long timeRemaining = initialTimeRemaining - elapsedTime;
+                System.out.println("huh " + timeRemaining); // todo this is fixing the service stopping intermittently bug...
                 if (timeRemaining <= 0) {
                     timer.cancel();
                     stopSelf();
                     showTimerFinishedNotification(timerDuration); // if we kill the initial service, we have to persist the timer duration for a potential restart
                 } else {
                     // timer still has time left to go
-                    updateTimerRunningNotificationMessage(timeRemaining + 1000);
+                    updateTimerRunningNotificationMessage(timeRemaining + 999); // don't want the timer to start counting down from duration-1 but rather duration
                 }
             }
         }, 0, 500);
@@ -127,7 +123,6 @@ public class TimerService extends Service {
      */
     private Notification timerRunningNotification(String content) {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
         // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
@@ -160,7 +155,6 @@ public class TimerService extends Service {
      */
     private void showTimerFinishedNotification(long timerDuration) {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
 

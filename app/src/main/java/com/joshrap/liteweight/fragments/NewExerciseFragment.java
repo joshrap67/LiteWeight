@@ -212,7 +212,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         List<String> exerciseNames = new ArrayList<>();
         for (String exerciseId : user.getOwnedExercises().keySet()) {
-            exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            exerciseNames.add(user.getExercise(exerciseId).getExerciseName());
         }
         nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
         exerciseNameLayout.setError(nameError);

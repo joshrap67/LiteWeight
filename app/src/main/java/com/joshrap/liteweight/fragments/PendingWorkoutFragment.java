@@ -67,6 +67,7 @@ import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -152,9 +153,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         exerciseIdToName = new HashMap<>();
         exerciseIdToCurrentMaxWeight = new HashMap<>();
-        for (String id : user.getOwnedExercises().keySet()) {
-            exerciseIdToName.put(id, user.getOwnedExercises().get(id).getExerciseName());
-            exerciseIdToCurrentMaxWeight.put(id, user.getOwnedExercises().get(id).getDefaultWeight());
+        for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+            exerciseIdToName.put(exercise.getExerciseId(), exercise.getExerciseName());
+            exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), exercise.getDefaultWeight());
         }
 
         return inflater.inflate(R.layout.fragment_pending_workout, container, false);
@@ -878,8 +879,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             createButton.setOnClickListener(view -> {
                 String workoutName = workoutNameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (String workoutId : user.getWorkoutMetas().keySet()) {
-                    workoutNames.add(user.getWorkoutMetas().get(workoutId).getWorkoutName());
+                for (WorkoutMeta workoutMeta : user.getWorkoutMetas().values()) {
+                    workoutNames.add(workoutMeta.getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
                 if (errorMsg != null) {
@@ -904,8 +905,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 if (resultStatus.isSuccess()) {
                     String newWorkoutId = resultStatus.getData().getWorkout().getWorkoutId();
                     user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
-                    user.getWorkoutMetas().put(newWorkoutId,
-                            resultStatus.getData().getUser().getWorkoutMetas().get(newWorkoutId));
+                    user.putWorkout(resultStatus.getData().getUser().getWorkout(newWorkoutId));
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
                     userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
@@ -962,16 +962,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             allOwnedExercises.put(focus, new ArrayList<>());
         }
 
-        for (String exerciseId : user.getOwnedExercises().keySet()) {
-            OwnedExercise ownedExercise = user.getOwnedExercises().get(exerciseId);
-            List<String> focusesOfExercise = ownedExercise.getFocuses();
+        for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+            List<String> focusesOfExercise = exercise.getFocuses();
             for (String focus : focusesOfExercise) {
                 if (!allOwnedExercises.containsKey(focus)) {
                     // focus somehow hasn't been added before
                     focusList.add(focus);
                     allOwnedExercises.put(focus, new ArrayList<>());
                 }
-                allOwnedExercises.get(focus).add(ownedExercise);
+                allOwnedExercises.get(focus).add(exercise);
             }
         }
 
@@ -1062,7 +1061,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         my opinion that would break the flow for creating a workout as it would take the user to a whole new page.
      */
     private void popupCreateExercise() {
-        if (user.getOwnedExercises().size() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+        if (user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
             Toast.makeText(getContext(), "You already have the maximum number of exercises allowed. To create more, delete some in the My Exercises page.", Toast.LENGTH_LONG).show();
             return;
         }
@@ -1115,8 +1114,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             boolean focusError = false;
 
             List<String> exerciseNames = new ArrayList<>();
-            for (String exerciseId : user.getOwnedExercises().keySet()) {
-                exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+                exerciseNames.add(exercise.getExerciseName());
             }
             nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(nameError);
@@ -1142,7 +1141,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         createExerciseDialog.setCancelable(true);
                         if (resultStatus.isSuccess()) {
                             OwnedExercise newExercise = resultStatus.getData();
-                            user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
+                            user.addExercise(newExercise);
 
                             exerciseIdToName.putIfAbsent(newExercise.getExerciseId(), newExercise.getExerciseName());
                             exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getExerciseId(), newExercise.getDefaultWeight());

@@ -180,10 +180,10 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
-                    user.getBlocked().put(username, resultStatus.getData());
+                    user.putBlocked(username, resultStatus.getData());
                     // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend return value so oh well
-                    user.getFriendRequests().remove(username);
-                    user.getFriends().remove(username);
+                    user.removeFriendRequest(username);
+                    user.removeFriend(username);
 
                     blocked.add(username);
                     Collections.sort(blocked);
@@ -198,8 +198,8 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void unblockUser(String username) {
         // assume it always succeeds
-        String icon = user.getBlocked().get(username); // preserve in case there was an error with unblocking
-        user.getBlocked().remove(username);
+        String icon = user.getBlockedIcon(username); // preserve in case there was an error with unblocking
+        user.removeBlockedUser(username);
         blocked.remove(username);
         blockedAdapter.notifyDataSetChanged();
         checkEmptyList();
@@ -212,7 +212,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
                 // not critical to show any type of loading dialog/handle errors for this action
                 if (!resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
                     // if it failed add the blocked user back to the list/model
-                    user.getBlocked().put(username, icon);
+                    user.putBlocked(username, icon);
                     blocked.add(username);
                     blockedAdapter.notifyDataSetChanged();
                     checkEmptyList();

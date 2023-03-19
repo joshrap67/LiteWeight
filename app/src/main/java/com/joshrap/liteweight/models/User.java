@@ -7,6 +7,7 @@ import java.util.Map;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 @Data
@@ -37,10 +38,12 @@ public class User implements Model {
     private int unseenReceivedWorkouts;
     private int totalReceivedWorkouts;
 
+    // todo i think what i should do is have a separate contract for the api that way for the app i can do my own thing (e.g. lists instead of maps)
+
     @Setter(AccessLevel.NONE)
     private Map<String, String> blocked;
     @Setter(AccessLevel.NONE)
-    private Map<String, WorkoutMeta> workoutMetas;
+    private Map<String, WorkoutMeta> workoutMetas; //todo rename this to workoutInfo? Or workoutDetails? anything other than meta lmfao
     @Setter(AccessLevel.NONE)
     private Map<String, OwnedExercise> ownedExercises;
     @Setter(AccessLevel.NONE)
@@ -74,6 +77,88 @@ public class User implements Model {
                 this.ownedExercises.put(exerciseId, exercises.get(exerciseId));
             }
         }
+    }
+
+    public boolean hasReceivedWorkout(String receivedWorkoutId) {
+        return this.receivedWorkouts.containsKey(receivedWorkoutId);
+    }
+
+    public SharedWorkoutMeta getReceivedWorkout(String workoutMetaId) {
+        return this.receivedWorkouts.get(workoutMetaId);
+    }
+
+    // todo store friends as a list instead of map? wouldn't change the backend side
+
+    public void removeExercise(String exerciseId) {
+        this.ownedExercises.remove(exerciseId);
+    }
+
+    public OwnedExercise getExercise(String exerciseId) {
+        return this.ownedExercises.get(exerciseId);
+    }
+
+    public void addExercise(OwnedExercise exercise) {
+        this.ownedExercises.put(exercise.getExerciseId(), exercise);
+    }
+
+    public int getTotalExerciseCount(){
+        return this.ownedExercises.size();
+    }
+
+    public void removeFriend(String username) {
+        this.friends.remove(username);
+    }
+
+    public Friend getFriend(String username) {
+        return this.friends.get(username);
+    }
+
+    public void addFriend(Friend friend) {
+        this.friends.put(friend.getUsername(), friend);
+    }
+
+    public void removeBlockedUser(String username) {
+        this.blocked.remove(username);
+    }
+
+    public String getBlockedIcon(String username) {
+        return this.blocked.get(username);
+    }
+
+    public boolean isBlocking(String username){
+        return this.blocked.containsKey(username);
+    }
+
+    public void putBlocked(String username, String icon) {
+        this.blocked.put(username, icon);
+    }
+
+    public void removeFriendRequest(String username) {
+        this.friendRequests.remove(username);
+    }
+
+    public FriendRequest getFriendRequest(String username) {
+        return this.friendRequests.get(username);
+    }
+
+    public void addFriendRequest(FriendRequest friendRequest) {
+        this.friendRequests.put(friendRequest.getUsername(), friendRequest);
+    }
+
+    public void putReceivedWorkout(SharedWorkoutMeta workoutMeta) {
+        this.receivedWorkouts.put(workoutMeta.getWorkoutId(), workoutMeta);
+    }
+
+    public void removeReceivedWorkout(String workoutId) {
+        this.receivedWorkouts.remove(workoutId);
+    }
+
+    public WorkoutMeta getWorkout(String workoutId) {
+        return this.workoutMetas.get(workoutId);
+    }
+
+    public void putWorkout(WorkoutMeta workoutMeta) {
+        this.workoutMetas.put(workoutMeta.getWorkoutId(), workoutMeta);
     }
 
     /**

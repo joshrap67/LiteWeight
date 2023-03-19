@@ -22,7 +22,6 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/workout_name_title"
                     android:textSize="24sp"
                     app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform" />
@@ -31,7 +30,14 @@
         <FrameLayout
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+            <ProgressBar
+                    android:id="@+id/loading_progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+        </FrameLayout>
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView

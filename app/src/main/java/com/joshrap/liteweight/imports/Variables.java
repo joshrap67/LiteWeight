@@ -30,8 +30,7 @@ public class Variables {
     public static final int MAX_FREE_WORKOUTS = 10;
     public static final int MAX_WORKOUTS = 20;
     public static final int MAX_FEEDBACK = 2000;
-    public static final int BATCH_SIZE = 25;
-
+    public static final int BATCH_SIZE = 25; // THIS MUST MATCH VALUE ON BACKEND
     public static final int DEFAULT_WEIGHT = 0;
     public static final int DEFAULT_SETS = 3;
     public static final int DEFAULT_REPS = 15;
@@ -78,8 +77,8 @@ public class Variables {
     public static final String RECEIVED_WORKOUT_CHANNEL = "received_workout_channel";
     public static final String STOPWATCH_RUNNING_CHANNEL = "stopwatch_running";
 
+    // values for navigation purposes
     public static final String FRIEND_LIST_POSITION = "friendsListPosition";
-    public static final String NOTIFICATION_CLICKED = "NotificationClicked";
     public static final String NOTIFICATION_ACTION = "NotificationAction";
     public static final String EXERCISE_ID = "exerciseId";
     public static final String EXISTING_WORKOUT = "existingWorkout";
@@ -95,17 +94,11 @@ public class Variables {
     public static final String TIMER = "Timer";
     public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
     public static final String TIMER_DURATION = "TimerValue";
-    public static final String INITIAL_TIME_ON_TIMER_KEY = "InitialTimeOnTimer";
-    public static final String START_TIME_ABSOLUTE_ON_TIMER_KEY = "StartTimeAbsoluteOnTimer";
-    public static final String IS_TIMER_RUNNING_KEY = "IsTimerRunning";
-    public static final String INITIAL_TIME_ON_STOPWATCH_KEY = "InitialTimeOnStopwatch";
-    public static final String START_TIME_ABSOLUTE_ON_STOPWATCH_KEY = "StartTimeAbsoluteOnStopwatch";
-    public static final String IS_STOPWATCH_RUNNING_KEY = "IsStopwatchRunning";
-
 
     // intent keys
     public static final String INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time";
-    public static final String INTENT_TIMER_INIRIAL_TIME_ON_CLOCK = "Time_on_clock";
+    public static final String INTENT_TIMER_INITIAL_TIME_REMAINING = "Initial_Time_Remaining";
+    public static final String INTENT_STOPWATCH_INITIAL_ELAPSED_TIME = "Initial_Elapsed_Time";
     public static final String INTENT_TIMER_DURATION = "Timer_duration";
     public static final String INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked";
     public static final String INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
@@ -113,25 +106,8 @@ public class Variables {
     public static final String INTENT_REFRESH_TOKEN = "refreshToken";
     public static final String NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked";
     public static final String ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked";
-    public static final String INTENT_NOTIFICATION_DATA = "Notification_Data";
     public static final String RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked";
     public static final String ERROR_MESSAGE = "Error_Message";
-
-
-    public static final String CANCELED_FRIEND_REQUEST_BROADCAST = "cancelFriendRequest";
-    public static final String ACCEPTED_FRIEND_REQUEST_BROADCAST = "acceptedFriendRequestBroadcast";
-    public static final String REMOVED_AS_FRIEND_BROADCAST = "removeFriendBroadcast";
-    public static final String DECLINED_FRIEND_REQUEST_BROADCAST = "declinedFriendRequest";
-    public static final String NEW_FRIEND_REQUEST_BROADCAST = "friendRequestBroadcast";
-    public static final String RECEIVED_WORKOUT_BROADCAST = "receivedWorkoutBroadcast";
-    public static final String TIMER_RESTARTED_BROADCAST = "timerRestartedBroadcast";
-
-    public static final String RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST = "receivedWorkoutModelUpdatedBroadcast";
-    public static final String NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST = "newFriendRequestModelUpdatedBroadcast";
-    public static final String CANCELED_REQUEST_MODEL_UPDATED_BROADCAST = "canceledRequestModelUpdatedBroadcast";
-    public static final String DECLINED_REQUEST_MODEL_UPDATED_BROADCAST = "declinedFriendRequestModelUpdatedBroadcast";
-    public static final String REMOVE_FRIEND_MODEL_UPDATED_BROADCAST = "removeFriendModelUpdateBroadcast";
-    public static final String ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST = "acceptedFriendRequestModelUpdateBroadcast";
 
     // request codes for pending intents. These values are arbitrary
     public static final int TIMER_RUNNING_REQUEST_CODE = 67;

@@ -1,10 +1,12 @@
 package com.joshrap.liteweight.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -121,6 +123,13 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         Button timerPickerBackButton = view.findViewById(R.id.timer_picker_back_btn);
         timerPickerBackButton.setOnClickListener(v -> setTimerDurationVisibility(false));
         saveTimeDurationButton.setOnClickListener(v -> {
+            // clear focus so if user inputted text it gets set to the number pickers
+            minutePicker.clearFocus();
+            secondPicker.clearFocus();
+            // hide keyboard
+            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+
             long minutes = minutePicker.getValue() * (60 * Timer.timeUnit);
             long seconds = secondPicker.getValue() * Timer.timeUnit;
             int totalTime = (int) (minutes + seconds);
@@ -163,7 +172,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             }
         });
 
-        timer.displayTime.observe(getViewLifecycleOwner(), this::updateTimerDisplays);
+        timer.timeRemaining.observe(getViewLifecycleOwner(), this::updateTimerDisplays);
         timer.timerRunning.observe(getViewLifecycleOwner(), this::setTimerViewsVisibility);
         //endregion
 
@@ -179,7 +188,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         resetStopwatchButton.setOnClickListener(v -> stopwatch.resetStopwatch());
         showTimerButton.setOnClickListener(v -> switchToTimer());
 
-        stopwatch.displayTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplays);
+        stopwatch.elapsedTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplays);
         stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), this::setStopwatchViewsVisibility);
 
         return view;

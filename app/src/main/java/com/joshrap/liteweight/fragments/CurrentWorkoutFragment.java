@@ -209,9 +209,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             clockButton.setVisibility(View.INVISIBLE);
         }
 
-        timer.displayTime.observe(getViewLifecycleOwner(), this::updateTimerDisplay);
-
-        stopwatch.displayTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplay);
+        timer.timeRemaining.observe(getViewLifecycleOwner(), this::updateTimerDisplay);
+        stopwatch.elapsedTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplay);
 
         timer.timerRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryTimerTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
         stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), isRunning -> secondaryStopwatchTV.setVisibility(isRunning ? View.VISIBLE : View.INVISIBLE));
@@ -414,8 +413,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     // update the statistics for this workout
-                    user.getWorkoutMetas().put(currentWorkout.getWorkoutId(),
-                            resultStatus.getData().getUser().getWorkoutMetas().get(currentWorkout.getWorkoutId()));
+                    user.putWorkout(resultStatus.getData().getUser().getWorkout(currentWorkout.getWorkoutId()));
                     // in case any default weights were updated
                     user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 

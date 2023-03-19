@@ -20,16 +20,11 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * This service, once created, is only used for showing the stopwatch progress. It currently does not
- * need to constantly communicate to any activities listening. In the future buttons could be provided in the
- * notification to stop/reset the stopwatch.
- */
 public class StopwatchService extends Service {
 
     public static final int stopwatchRunningId = 3;
 
-    private long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
+    private long startTimeAbsolute, initialElapsedTime; // in SI units of milliseconds
     private Timer stopwatch;
 
     @Nullable
@@ -47,21 +42,21 @@ public class StopwatchService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
-        initialTimeOnClock = intent.getLongExtra(Variables.INTENT_TIMER_INIRIAL_TIME_ON_CLOCK, 0);
+        initialElapsedTime = intent.getLongExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, 0);
 
         stopwatch = new Timer();
         stopwatch.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
-                long timeRemaining = initialTimeOnClock + elapsedTime;
-                if (timeRemaining > Variables.MAX_STOPWATCH_TIME) {
+                long elapsedTimeAbsolute = System.currentTimeMillis() - startTimeAbsolute;
+                long elapsedTime = initialElapsedTime + elapsedTimeAbsolute;
+                if (elapsedTime > Variables.MAX_STOPWATCH_TIME) {
                     stopwatch.cancel();
                     stopSelf();
                     showStopwatchFinishedNotification();
                 } else {
                     // stopwatch still has time left to go
-                    updateStopwatchRunningNotificationMessage(timeRemaining);
+                    updateStopwatchRunningNotificationMessage(elapsedTime);
                 }
             }
         }, 0, 500);
@@ -103,7 +98,6 @@ public class StopwatchService extends Service {
      */
     private Notification stopwatchRunningNotification(String content) {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
 
@@ -136,7 +130,6 @@ public class StopwatchService extends Service {
      */
     private void showStopwatchFinishedNotification() {
         Intent notificationIntent = new Intent(this, WorkoutActivity.class);
-        notificationIntent.setAction(Variables.NOTIFICATION_CLICKED);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
 
