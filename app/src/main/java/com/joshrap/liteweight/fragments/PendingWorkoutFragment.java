@@ -67,10 +67,10 @@ import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -100,7 +100,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
-    private UserAndWorkout userAndWorkout;
+    private CurrentUserAndWorkout currentUserAndWorkout;
     private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
@@ -124,7 +124,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -141,15 +141,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         currentDayIndex = 0;
         currentWeekIndex = 0;
         allOwnedExercises = new HashMap<>();
-        userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
-        user = userAndWorkout.getUser();
+        currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+        user = currentUserAndWorkout.getUser();
 
         if (isExistingWorkout) {
-            pendingWorkout = new Workout(userAndWorkout.getWorkout());
+            pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
             pendingRoutine = pendingWorkout.getRoutine();
         } else {
             pendingRoutine = Routine.emptyRoutine();
-            firstWorkout = !userAndWorkout.isWorkoutPresent();
+            firstWorkout = !currentUserAndWorkout.isWorkoutPresent();
         }
 
         setToolbarTitle();
@@ -407,7 +407,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private boolean isRoutineModified() {
         if (isExistingWorkout) {
-            return Routine.routinesDifferent(pendingRoutine, userAndWorkout.getWorkout().getRoutine());
+            return Routine.routinesDifferent(pendingRoutine, currentUserAndWorkout.getWorkout().getRoutine());
         }
 
         if (pendingRoutine.getTotalNumberOfDays() > 1) {
@@ -901,13 +901,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Creating...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
                     isExistingWorkout = true;
-                    pendingWorkout = new Workout(userAndWorkout.getWorkout());
+                    pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
                     setToolbarTitle();
                     setWeekAdapter(); // since adapter holds old references to weeks
@@ -923,12 +923,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    pendingWorkout = new Workout(userAndWorkout.getWorkout());
+                    pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
 
                     setWeekAdapter(); // since adapter holds old references to weeks

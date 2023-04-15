@@ -20,7 +20,7 @@ import android.widget.ListView;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -43,7 +43,7 @@ public class MyExercisesFragment extends Fragment {
     private List<String> focusList;
 
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -57,7 +57,7 @@ public class MyExercisesFragment extends Fragment {
 
         focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
-        user = userAndWorkoutProvider.provideUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         for (String focus : focusList) {
             // init the map of a specific focus to the list of exercises it contains
             totalExercises.put(focus, new ArrayList<>());

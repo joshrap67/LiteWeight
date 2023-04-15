@@ -6,11 +6,11 @@ import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.network.repos.WorkoutRepository;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 
 import java.util.List;
 
@@ -23,37 +23,37 @@ public class WorkoutManager {
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Inject
-    public WorkoutManager(WorkoutRepository workoutRepository, UserAndWorkoutProvider userAndWorkoutProvider) {
-        this.userAndWorkoutProvider = userAndWorkoutProvider;
+    public WorkoutManager(WorkoutRepository workoutRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider) {
+        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
         this.workoutRepository = workoutRepository;
     }
 
-    public ResultStatus<UserAndWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.createWorkout(routine, workoutName);
+    public ResultStatus<CurrentUserAndWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.createWorkout(routine, workoutName);
         if (resultStatus.isSuccess()) {
             String newWorkoutId = resultStatus.getData().getWorkout().getWorkoutId();
             user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
             user.putWorkout(resultStatus.getData().getUser().getWorkout(newWorkoutId));
             user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
-            userAndWorkout.setWorkout(resultStatus.getData().getWorkout());
+            currentUserAndWorkout.setWorkout(resultStatus.getData().getWorkout());
         }
         return resultStatus;
     }
 
-    public ResultStatus<UserAndWorkout> copyWorkout(@NonNull Workout workout, @NonNull String workoutName) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
+    public ResultStatus<CurrentUserAndWorkout> copyWorkout(@NonNull Workout workout, @NonNull String workoutName) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
 
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.copyWorkout(workout, workoutName);
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.copyWorkout(workout, workoutName);
         if (resultStatus.isSuccess()) {
             Workout newWorkout = resultStatus.getData().getWorkout();
-            userAndWorkout.setWorkout(newWorkout);
+            currentUserAndWorkout.setWorkout(newWorkout);
 
             user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
             user.putWorkout(resultStatus.getData().getUser().getWorkout(newWorkout.getWorkoutId()));
@@ -61,13 +61,13 @@ public class WorkoutManager {
         return resultStatus;
     }
 
-    public ResultStatus<UserAndWorkout> switchWorkout(@NonNull Workout oldWorkout, @NonNull String workoutId) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
+    public ResultStatus<CurrentUserAndWorkout> switchWorkout(@NonNull Workout oldWorkout, @NonNull String workoutId) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
 
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.switchWorkout(oldWorkout, workoutId);
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.switchWorkout(oldWorkout, workoutId);
         if (resultStatus.isSuccess()) {
-            userAndWorkout.setWorkout(resultStatus.getData().getWorkout());
+            currentUserAndWorkout.setWorkout(resultStatus.getData().getWorkout());
             user.setCurrentWorkout(resultStatus.getData().getWorkout().getWorkoutId());
             user.putWorkout(resultStatus.getData().getUser().getWorkout(workoutId));
         }
@@ -75,8 +75,8 @@ public class WorkoutManager {
     }
 
     public ResultStatus<User> renameWorkout(@NonNull String workoutId, @NonNull String newWorkoutName) {
-        User user = userAndWorkoutProvider.provideUser();
-        Workout currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        Workout currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
         ResultStatus<User> resultStatus = this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
         if (resultStatus.isSuccess()) {
             user.updateOwnedExercises(resultStatus.getData().getOwnedExercises());
@@ -86,22 +86,22 @@ public class WorkoutManager {
         return resultStatus;
     }
 
-    public ResultStatus<UserAndWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
+    public ResultStatus<CurrentUserAndWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
         if (resultStatus.isSuccess()) {
             user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
             user.updateUserWorkouts(resultStatus.getData().getUser().getWorkoutMetas());
             user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
 
-            userAndWorkout.setWorkout(resultStatus.getData().getWorkout());
+            currentUserAndWorkout.setWorkout(resultStatus.getData().getWorkout());
         }
         return resultStatus;
     }
 
     public ResultStatus<WorkoutMeta> resetWorkoutStatistics(@NonNull String workoutId) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<WorkoutMeta> resultStatus = this.workoutRepository.resetWorkoutStatistics(workoutId);
         if (resultStatus.isSuccess()) {
             user.putWorkout(resultStatus.getData());
@@ -109,21 +109,21 @@ public class WorkoutManager {
         return resultStatus;
     }
 
-    public ResultStatus<UserAndWorkout> editWorkout(@NonNull String workoutId, @NonNull Workout workout) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.editWorkout(workoutId, workout);
+    public ResultStatus<CurrentUserAndWorkout> editWorkout(@NonNull String workoutId, @NonNull Workout workout) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.editWorkout(workoutId, workout);
         if (resultStatus.isSuccess()) {
             user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
-            userAndWorkout.setWorkout(resultStatus.getData().getWorkout());
+            currentUserAndWorkout.setWorkout(resultStatus.getData().getWorkout());
         }
         return resultStatus;
     }
 
-    public ResultStatus<UserAndWorkout> restartWorkout(@NonNull Workout workout) {
-        User user = userAndWorkoutProvider.provideUser();
-        Workout currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
-        ResultStatus<UserAndWorkout> resultStatus = this.workoutRepository.restartWorkout(workout);
+    public ResultStatus<CurrentUserAndWorkout> restartWorkout(@NonNull Workout workout) {
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        Workout currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+        ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutRepository.restartWorkout(workout);
         if (resultStatus.isSuccess()) {
             // update the statistics for this workout
             user.putWorkout(resultStatus.getData().getUser().getWorkout(workout.getWorkoutId()));
@@ -138,7 +138,7 @@ public class WorkoutManager {
     }
 
     public ResultStatus<String> sendWorkout(String recipientUsername, String workoutId) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.workoutRepository.sendWorkout(recipientUsername, workoutId);
         if (resultStatus.isSuccess()) {
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
@@ -151,7 +151,7 @@ public class WorkoutManager {
     }
 
     public ResultStatus<List<SharedWorkoutMeta>> getReceivedWorkouts(final int batchNumber) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
 
         ResultStatus<List<SharedWorkoutMeta>> resultStatus = this.workoutRepository.getReceivedWorkouts(batchNumber);
         if (resultStatus.isSuccess()) {
@@ -164,15 +164,15 @@ public class WorkoutManager {
 
     public ResultStatus<AcceptWorkoutResponse> acceptReceivedWorkout(final String sharedWorkoutId, final String optionalName) {
         ResultStatus<AcceptWorkoutResponse> resultStatus = this.workoutRepository.acceptReceivedWorkout(sharedWorkoutId, optionalName);
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
 
         if (resultStatus.isSuccess()) {
             AcceptWorkoutResponse response = resultStatus.getData();
             if (user.getCurrentWorkout() == null) {
                 // this newly accepted workout is the only workout the user now owns, so make it the current one
                 user.setCurrentWorkout(response.getWorkoutId());
-                userAndWorkout.setWorkout(response.getWorkout());
+                currentUserAndWorkout.setWorkout(response.getWorkout());
             }
 
             user.putWorkout(response.getWorkoutMeta());
@@ -190,7 +190,7 @@ public class WorkoutManager {
     public ResultStatus<String> declineReceivedWorkout(String sharedWorkoutId) {
         ResultStatus<String> resultStatus = this.workoutRepository.declineReceivedWorkout(sharedWorkoutId);
 
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         if (resultStatus.isSuccess()) {
             SharedWorkoutMeta sharedWorkoutMeta = user.getReceivedWorkout(sharedWorkoutId);
             user.getReceivedWorkouts().remove(sharedWorkoutMeta.getWorkoutId());

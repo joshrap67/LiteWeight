@@ -57,7 +57,7 @@ import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -110,7 +110,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -121,7 +121,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(true);
 
-        user = userAndWorkoutProvider.provideUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
         Bundle args = getArguments();

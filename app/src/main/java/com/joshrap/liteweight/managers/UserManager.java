@@ -7,9 +7,9 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 
 import java.util.List;
 
@@ -20,20 +20,20 @@ public class UserManager {
     @Inject
     UserRepository userRepository;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Inject
-    public UserManager(UserRepository userRepository, UserAndWorkoutProvider userAndWorkoutProvider) {
-        this.userAndWorkoutProvider = userAndWorkoutProvider;
+    public UserManager(UserRepository userRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider) {
+        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
         this.userRepository = userRepository;
     }
 
-    public ResultStatus<UserAndWorkout> getUserAndCurrentWorkout() {
+    public ResultStatus<CurrentUserAndWorkout> getUserAndCurrentWorkout() {
         return this.userRepository.getUserAndCurrentWorkout();
     }
 
     public ResultStatus<User> updateExercise(String exerciseId, OwnedExercise ownedExercise) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, ownedExercise);
         if (resultStatus.isSuccess()) {
             user.addExercise(resultStatus.getData().getExercise(exerciseId));
@@ -42,7 +42,7 @@ public class UserManager {
     }
 
     public ResultStatus<OwnedExercise> newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String details, String videoURL) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(exerciseName, focuses, weight, sets, reps, details, videoURL);
         if (resultStatus.isSuccess()) {
             OwnedExercise newExercise = resultStatus.getData();
@@ -52,14 +52,14 @@ public class UserManager {
     }
 
     public ResultStatus<String> deleteExercise(String exerciseId) {
-        User user = userAndWorkoutProvider.provideUser();
-        UserAndWorkout userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
         ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
 
         if (resultStatus.isSuccess()) {
             user.removeExercise(exerciseId);
-            if (userAndWorkout.getWorkout() != null) {
-                userAndWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
+            if (currentUserAndWorkout.getWorkout() != null) {
+                currentUserAndWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
             }
         }
         return resultStatus;
@@ -78,7 +78,7 @@ public class UserManager {
     }
 
     public ResultStatus<Friend> sendFriendRequest(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<Friend> resultStatus = this.userRepository.sendFriendRequest(username);
         if (resultStatus.isSuccess()) {
             user.addFriend(resultStatus.getData());
@@ -87,7 +87,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> cancelFriendRequest(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.cancelFriendRequest(username);
         if (resultStatus.isSuccess()) {
             user.removeFriend(username);
@@ -96,7 +96,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> setAllRequestsSeen() {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.setAllRequestsSeen();
         if (resultStatus.isSuccess()) {
             for (FriendRequest friendRequest : user.getFriendRequests().values()) {
@@ -107,7 +107,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> updateUserPreferences(UserPreferences userPreferences) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.updateUserPreferences(userPreferences);
         if (resultStatus.isSuccess()) {
             user.setUserPreferences(userPreferences);
@@ -116,7 +116,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> acceptFriendRequest(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.acceptFriendRequest(username);
         if (resultStatus.isSuccess()) {
             FriendRequest friendRequest = user.getFriendRequest(username);
@@ -129,7 +129,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> removeFriend(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.removeFriend(username);
         if (resultStatus.isSuccess()) {
             user.removeFriend(username);
@@ -138,7 +138,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> declineFriendRequest(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.declineFriendRequest(username);
         if (resultStatus.isSuccess()) {
             user.removeFriendRequest(username);
@@ -147,7 +147,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> unblockUser(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         user.removeBlockedUser(username);
 
         ResultStatus<String> resultStatus = userRepository.unblockUser(username);
@@ -162,7 +162,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> blockUser(String username) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
 
         ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
         if (resultStatus.isSuccess()) {
@@ -174,7 +174,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> setAllReceivedWorkoutsSeen() {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.setAllReceivedWorkoutsSeen();
         if (resultStatus.isSuccess()) {
             user.setUnseenReceivedWorkouts(0);
@@ -186,7 +186,7 @@ public class UserManager {
     }
 
     public ResultStatus<String> setReceivedWorkoutSeen(String workoutId) {
-        User user = userAndWorkoutProvider.provideUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<String> resultStatus = this.userRepository.setReceivedWorkoutSeen(workoutId);
         if (resultStatus.isSuccess()) {
             SharedWorkoutMeta sharedWorkoutMeta = user.getReceivedWorkout(workoutId);

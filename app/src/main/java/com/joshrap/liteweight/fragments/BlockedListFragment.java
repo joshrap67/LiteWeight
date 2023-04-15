@@ -32,7 +32,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -68,7 +68,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -78,7 +78,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.BLOCKED_LIST_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
-        user = userAndWorkoutProvider.provideUserAndWorkout().getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser();
 
         return inflater.inflate(R.layout.fragment_blocked_list, container, false);
     }

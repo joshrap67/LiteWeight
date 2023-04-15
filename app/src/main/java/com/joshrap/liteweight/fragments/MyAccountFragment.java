@@ -35,7 +35,7 @@ import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
 import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -77,7 +77,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Inject
     Tokens tokens;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -88,7 +88,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        user = userAndWorkoutProvider.provideUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         return inflater.inflate(R.layout.fragment_my_account, container, false);
     }
 

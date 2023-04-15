@@ -7,7 +7,7 @@ import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 
@@ -48,14 +48,14 @@ public class UserRepository {
         this.apiGateway = apiGateway;
     }
 
-    public ResultStatus<UserAndWorkout> getUserAndCurrentWorkout() {
-        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<CurrentUserAndWorkout> getUserAndCurrentWorkout() {
+        ResultStatus<CurrentUserAndWorkout> resultStatus = new ResultStatus<>();
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getUserWorkoutAction, new HashMap<>(), true);
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new CurrentUserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem loading your data.");

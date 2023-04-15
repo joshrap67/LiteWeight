@@ -5,7 +5,7 @@ import lombok.Getter;
 public class TimerRestartMessage {
 
     @Getter
-    private final long startTimeAbsolute;
+    private final long startTimeAbsolute; // in SI units of milliseconds (UNIX Timestamp)
     @Getter
     private final long timeRemaining; // in SI units of milliseconds
 

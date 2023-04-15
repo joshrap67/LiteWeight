@@ -41,7 +41,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineWeek;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
@@ -54,7 +54,7 @@ import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
@@ -95,7 +95,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
 
     @Nullable
@@ -105,8 +105,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         Injector.getInjector(getContext()).inject(this);
 
-        currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
-        user = userAndWorkoutProvider.provideUser();
+        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         ((MainActivity) getActivity()).toggleBackButton(false);
 
         View view;
@@ -404,7 +404,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

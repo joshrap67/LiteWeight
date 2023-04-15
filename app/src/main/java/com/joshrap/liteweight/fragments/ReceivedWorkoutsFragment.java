@@ -42,7 +42,7 @@ import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
 import com.joshrap.liteweight.models.AcceptWorkoutResponse;
 import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -95,7 +95,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -105,7 +105,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
-        user = userAndWorkoutProvider.provideUserAndWorkout().getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser();
         isGettingNextBatch = false;
         receivedWorkouts = new ArrayList<>();
 

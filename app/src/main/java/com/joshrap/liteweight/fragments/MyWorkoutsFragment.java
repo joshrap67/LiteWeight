@@ -48,7 +48,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.Friend;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -58,7 +58,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.CurrentUserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -94,7 +94,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -106,8 +106,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
-        user = userAndWorkoutProvider.provideUser();
+        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
 
         View view;
         if (currentWorkout == null) {
@@ -425,12 +425,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Copying...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.copyWorkout(currentWorkout, workoutName);
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.copyWorkout(currentWorkout, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
+                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
                     updateUI();
                 } else {
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
@@ -556,12 +556,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
+                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
                     if (currentWorkout == null) {
                         // change view to tell user to create a workout
                         resetFragment();
@@ -583,13 +583,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
+            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
-                        currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
+                        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
                         updateUI();
                     } else {
                         AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());

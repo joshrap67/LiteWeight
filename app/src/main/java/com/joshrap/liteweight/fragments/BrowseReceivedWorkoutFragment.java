@@ -42,7 +42,7 @@ import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentM
 import com.joshrap.liteweight.models.SharedExercise;
 import com.joshrap.liteweight.models.SharedWeek;
 import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -91,7 +91,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
     @Inject
     AlertDialog loadingDialog;
 
@@ -112,7 +112,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         ((MainActivity) getActivity()).updateToolbarTitle(workoutName);
         ((MainActivity) getActivity()).toggleBackButton(true);
 
-        user = userAndWorkoutProvider.provideUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         currentDayIndex = 0;
         currentWeekIndex = 0;
         View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);

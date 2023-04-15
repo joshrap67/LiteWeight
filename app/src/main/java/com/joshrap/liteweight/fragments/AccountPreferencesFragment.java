@@ -20,7 +20,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 
 import java.util.concurrent.Executor;
@@ -38,7 +38,7 @@ public class AccountPreferencesFragment extends Fragment {
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
     private SwitchCompat privateSwitch, metricSwitch, updateOnSaveSwitch, updateOnRestartSwitch;
 
     @Nullable
@@ -51,7 +51,7 @@ public class AccountPreferencesFragment extends Fragment {
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_account_preferences, container, false);
 
-        userPreferences = new UserPreferences(userAndWorkoutProvider.provideUserAndWorkout().getUser().getUserPreferences());
+        userPreferences = new UserPreferences(currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser().getUserPreferences());
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;

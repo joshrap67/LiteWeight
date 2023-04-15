@@ -36,7 +36,7 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -79,7 +79,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Inject
     UserManager userManager;
     @Inject
-    UserAndWorkoutProvider userAndWorkoutProvider;
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -97,7 +97,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             return null;
         }
 
-        user = userAndWorkoutProvider.provideUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = Variables.FOCUS_LIST;
 
