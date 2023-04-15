@@ -18,19 +18,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class MyExercisesFragment extends Fragment {
 
@@ -40,6 +42,9 @@ public class MyExercisesFragment extends Fragment {
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private List<String> focusList;
 
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,13 +52,12 @@ public class MyExercisesFragment extends Fragment {
 
         Injector.getInjector(getContext()).inject(this);
 
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(false);
 
         focusList = Variables.FOCUS_LIST;
-        UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
         totalExercises = new HashMap<>();
-        user = userWithWorkout.getUser();
+        user = userAndWorkoutProvider.provideUser();
         for (String focus : focusList) {
             // init the map of a specific focus to the list of exercises it contains
             totalExercises.put(focus, new ArrayList<>());
@@ -85,7 +89,7 @@ public class MyExercisesFragment extends Fragment {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors so let user create new exercise
-                ((WorkoutActivity) getActivity()).goToNewExercise();
+                ((MainActivity) getActivity()).goToNewExercise();
             }
         });
         Collections.sort(focusList);
@@ -133,7 +137,7 @@ public class MyExercisesFragment extends Fragment {
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             OwnedExercise exercise = (OwnedExercise) listView.getItemAtPosition(position);
-            ((WorkoutActivity) getActivity()).goToExerciseDetails(exercise.getExerciseId());
+            ((MainActivity) getActivity()).goToExerciseDetails(exercise.getExerciseId());
         });
     }
 }

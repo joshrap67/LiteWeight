@@ -27,13 +27,13 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 
@@ -54,7 +54,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
     private int acknowledgementsRotationAngle;
 
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     AlertDialog loadingDialog;
 
@@ -65,8 +65,8 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         Injector.getInjector(getContext()).inject(this);
 
         View view = inflater.inflate(R.layout.fragment_about, container, false);
-        ((WorkoutActivity) getActivity()).toggleBackButton(false);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ABOUT_TITLE);
         String version = null;
         try {
             version = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
@@ -79,7 +79,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
             versionTV.setText(displayText);
         }
         TextView faqTV = view.findViewById(R.id.faq_tv);
-        faqTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToFaq());
+        faqTV.setOnClickListener(view1 -> ((MainActivity) getActivity()).goToFaq());
 
         TextView termsConditionsTV = view.findViewById(R.id.terms_conditions_tv);
         termsConditionsTV.setOnClickListener(view1 -> {
@@ -159,7 +159,7 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Sending...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.sendFeedback(feedback, feedbackTime);
+            ResultStatus<String> resultStatus = this.userManager.sendFeedback(feedback, feedbackTime);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

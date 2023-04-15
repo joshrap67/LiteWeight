@@ -37,12 +37,15 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineWeek;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -51,18 +54,16 @@ import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.network.repos.WorkoutRepository;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -83,7 +84,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private RecyclerView recyclerView;
     private ProgressBar workoutProgressBar;
     private TextView workoutProgressTV, secondaryTimerTV, secondaryStopwatchTV, dayTV, dayTagTV;
-    private UserWithWorkout userWithWorkout;
     private ClockBottomFragment clockBottomFragment;
 
     private enum AnimationDirection {NONE, FROM_LEFT, FROM_RIGHT}
@@ -93,7 +93,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
-    WorkoutRepository workoutRepository;
+    WorkoutManager workoutManager;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
 
 
     @Nullable
@@ -103,18 +105,17 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         Injector.getInjector(getContext()).inject(this);
 
-        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
-        currentWorkout = userWithWorkout.getWorkout();
-        user = userWithWorkout.getUser();
-        ((WorkoutActivity) getActivity()).toggleBackButton(false);
+        currentWorkout = userAndWorkoutProvider.provideCurrentWorkout();
+        user = userAndWorkoutProvider.provideUser();
+        ((MainActivity) getActivity()).toggleBackButton(false);
 
         View view;
-        if (!userWithWorkout.isWorkoutPresent()) {
+        if (currentWorkout == null) {
             // user has no workouts, display special layout telling them to create one
-            ((WorkoutActivity) getActivity()).updateToolbarTitle("LiteWeight");
+            ((MainActivity) getActivity()).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
-            ((WorkoutActivity) getActivity()).updateToolbarTitle(currentWorkout.getWorkoutName());
+            ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout.getWorkoutName());
             view = inflater.inflate(R.layout.fragment_current_workout, container, false);
         }
         return view;
@@ -123,9 +124,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (!userWithWorkout.isWorkoutPresent()) {
+        if (currentWorkout == null) {
             ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
-            createWorkoutBtn.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToCreateWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((MainActivity) getActivity()).goToCreateWorkout());
             return;
         }
 
@@ -133,8 +134,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         currentWeekIndex = currentWorkout.getCurrentWeek();
         currentDayIndex = currentWorkout.getCurrentDay();
 
-        timer = ((WorkoutActivity) getActivity()).getTimer();
-        stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+        timer = ((MainActivity) getActivity()).getTimer();
+        stopwatch = ((MainActivity) getActivity()).getStopwatch();
         clockBottomFragment = ClockBottomFragment.newInstance();
 
         recyclerView = view.findViewById(R.id.routine_recycler_view);
@@ -221,14 +222,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         super.onResume();
         // when this fragment is visible again, the timer/stopwatch service is no longer needed so cancel it
         if (timer != null && timer.isTimerRunning()) {
-            ((WorkoutActivity) getActivity()).cancelTimerService();
+            ((MainActivity) getActivity()).cancelTimerService();
         }
         // remove timer finished notification if user comes back to this page
         NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(TimerService.timerFinishedId);
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            ((WorkoutActivity) getActivity()).cancelStopwatchService();
+            ((MainActivity) getActivity()).cancelStopwatchService();
         }
     }
 
@@ -238,11 +239,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
-            ((WorkoutActivity) getActivity()).startTimerService();
+            ((MainActivity) getActivity()).startTimerService();
         }
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            ((WorkoutActivity) getActivity()).startStopwatchService();
+            ((MainActivity) getActivity()).startStopwatchService();
         }
     }
 
@@ -275,23 +276,19 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         stopwatch.stopStopwatch();
     }
 
-    private void updateTimerDisplay(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));
-        int seconds = (int) (elapsedTime / Timer.timeUnit) % 60;
-        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    private void updateTimerDisplay(long timeRemaining) {
+        String timeRemainingFormatted = TimeUtils.getClockDisplay(timeRemaining);
 
         if (secondaryTimerTV != null) {
-            secondaryTimerTV.setText(timeRemaining);
+            secondaryTimerTV.setText(timeRemainingFormatted);
         }
     }
 
     private void updateStopwatchDisplay(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Stopwatch.timeUnit));
-        int seconds = (int) (elapsedTime / Stopwatch.timeUnit) % 60;
-        String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+        String elapsedTimeFormatted = TimeUtils.getClockDisplay(elapsedTime);
 
         if (secondaryStopwatchTV != null) {
-            secondaryStopwatchTV.setText(timeFormatted);
+            secondaryStopwatchTV.setText(elapsedTimeFormatted);
         }
     }
 
@@ -407,22 +404,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.restartWorkout(currentWorkout);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    // update the statistics for this workout
-                    user.putWorkout(resultStatus.getData().getUser().getWorkout(currentWorkout.getWorkoutId()));
-                    // in case any default weights were updated
-                    user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
-
-                    currentWorkout.setRoutine(resultStatus.getData().getWorkout().getRoutine());
                     routine = currentWorkout.getRoutine();
-                    currentDayIndex = 0;
-                    currentWeekIndex = 0;
-                    currentWorkout.setCurrentDay(currentDayIndex);
-                    currentWorkout.setCurrentWeek(currentWeekIndex);
+                    currentDayIndex = currentWorkout.getCurrentDay();
+                    currentWeekIndex = currentWorkout.getCurrentWeek();
 
                     updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                     updateWorkoutProgressBar();
@@ -667,7 +656,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             expandButton.setOnClickListener((v) -> {
-                ((WorkoutActivity) getActivity()).hideKeyboard();
+                ((MainActivity) getActivity()).hideKeyboard();
 
                 if (rowModel.isExpanded) {
                     boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
@@ -688,7 +677,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                         rowModel.isExpanded = false;
 
                         notifyItemChanged(position, true);
-                        ((WorkoutActivity) getActivity()).hideKeyboard();
+                        ((MainActivity) getActivity()).hideKeyboard();
                     }
 
                 } else {

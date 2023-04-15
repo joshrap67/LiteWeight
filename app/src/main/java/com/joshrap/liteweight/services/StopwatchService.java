@@ -12,11 +12,11 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.utils.TimeUtils;
 
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -68,36 +68,23 @@ public class StopwatchService extends Service {
      */
     @Override
     public void onDestroy() {
+        // Get rid of the stopwatch running notification whenever the service is killed
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(stopwatchRunningId);
         stopwatch.cancel();
         super.onDestroy();
     }
 
-    /**
-     * Is called by the stopwatch. Formats a long to a string to then display it in a notification
-     *
-     * @param aTime time to be displayed on the notification
-     */
-    private void updateStopwatchRunningNotificationMessage(long aTime) {
-        int minutes = (int) (aTime / 60000);
-        int seconds = (int) (aTime / 1000) % 60;
-        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-
+    private void updateStopwatchRunningNotificationMessage(long time) {
+        String timeRemaining = TimeUtils.getClockDisplay(time);
         Notification notification = stopwatchRunningNotification(timeRemaining);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(stopwatchRunningId, notification);
     }
 
-    /**
-     * As long as the stopwatch is running in the background, show a notification
-     *
-     * @param content formatted time to be displayed.
-     * @return Notification to be displayed on the status bar.
-     */
     private Notification stopwatchRunningNotification(String content) {
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
 
@@ -129,7 +116,7 @@ public class StopwatchService extends Service {
      * This shouldn't ever really happen, but if the stopwatch max limit is reached then show a notification
      */
     private void showStopwatchFinishedNotification() {
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK);
 

@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
@@ -65,6 +66,7 @@ import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentM
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -75,9 +77,8 @@ import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.network.RequestFields;
-import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
 import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.services.TimerService;
@@ -101,7 +102,7 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
-public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
@@ -117,9 +118,8 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ConstraintLayout navHeaderLayout;
     private ProgressBar loadingBar;
+    private UserAndWorkout userAndWorkout;
 
-    @Getter
-    private UserWithWorkout userWithWorkout;
     @Getter
     private Timer timer;
     @Getter
@@ -128,11 +128,13 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Inject
     Tokens tokens;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
     AlertDialog loadingDialog;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,17 +163,18 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
         });
 
-        loadUserWithWorkout();
+        loadUserAndWorkout();
     }
 
-    private void loadUserWithWorkout() {
+    private void loadUserAndWorkout() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.userRepository.getUserAndCurrentWorkout();
+            ResultStatus<UserAndWorkout> resultStatus = this.userManager.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
-                    userWithWorkout = resultStatus.getData();
+                    userAndWorkout = resultStatus.getData();
+                    userAndWorkoutProvider.setUserAndWorkout(resultStatus.getData()); // sets static var for all other fragments to pull from
                     loadingBar.setVisibility(View.GONE);
                     loadActivity();
                 } else {
@@ -181,7 +184,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         });
     }
 
-    // called once main dependency - userWithWorkout - is loaded
+    // called once main dependency - userAndWorkout - is loaded
     private void loadActivity() {
         String notificationAction = null;
         if (getIntent().getExtras() != null) {
@@ -189,9 +192,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             notificationAction = getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION);
         }
 
-        user = userWithWorkout.getUser();
-        if (userWithWorkout.isWorkoutPresent()) {
-            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
+        user = userAndWorkout.getUser();
+        if (userAndWorkout.isWorkoutPresent()) {
+            lastSyncedWorkout = new Workout(userAndWorkout.getWorkout());
         } else {
             lastSyncedWorkout = null;
         }
@@ -221,7 +224,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
         // doing this here just because otherwise there is a barely noticeable delay when first launching the app
         // as the title gets set slightly after other elements are visible
-        toolbarTitleTV.setText(userWithWorkout.isWorkoutPresent() ? userWithWorkout.getWorkout().getWorkoutName() : "LiteWeight");
+        toolbarTitleTV.setText(userAndWorkout.isWorkoutPresent() ? userAndWorkout.getWorkout().getWorkoutName() : "LiteWeight");
 
         navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
         navHeaderLayout.setOnClickListener(view -> {
@@ -426,21 +429,21 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
                 popFragStack();
             } else {
-                ActivityCompat.finishAffinity(WorkoutActivity.this);
+                ActivityCompat.finishAffinity(MainActivity.this);
             }
 
         }
     };
 
     private void syncCurrentWorkout() {
-        if (userWithWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
+        if (userAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, userAndWorkout.getWorkout())) {
             // we assume it always succeeds
-            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
+            lastSyncedWorkout = new Workout(userAndWorkout.getWorkout());
             Intent intent = new Intent(this, SyncWorkoutService.class);
             intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
             intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
             try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userAndWorkout.getWorkout().asMap()));
                 startService(intent);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -521,7 +524,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
-            userRepository.removeEndpointId();
+            userManager.removeEndpointId();
             // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make above api call
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
@@ -658,14 +661,14 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
         SharedWorkoutMeta sharedWorkoutMeta = event.getSharedWorkoutMeta();
         String workoutId = sharedWorkoutMeta.getWorkoutId();
-        if (!user.hasReceivedWorkout(workoutId)) {
+        if (user.doesNotContainReceivedWorkout(workoutId)) {
             // workout wasn't here, so total needs to be increased
             user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
         }
 
         // If workout isn't there, update unseen count.
         // If workout is there and it is already marked as seen - update it to unseen.
-        boolean updateUnseen = !user.hasReceivedWorkout(workoutId) || user.getReceivedWorkout(workoutId).isSeen();
+        boolean updateUnseen = user.doesNotContainReceivedWorkout(workoutId) || user.getReceivedWorkout(workoutId).isSeen();
         if (updateUnseen) {
             user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
         }
@@ -694,7 +697,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
                         // blind send for now for updating notification endpoint id
-                        userRepository.updateEndpointId(token);
+                        userManager.updateEndpointId(token);
                     });
                 });
     }
@@ -845,10 +848,22 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    public void clearAccountNotificationIndicator() {
+        // check if there are any unseen notifications for friend requests
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        view.setText(null);
+    }
+
     public void updateReceivedWorkoutNotificationIndicator() {
         // check if there are any unseen notifications for received workouts
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
         view.setText(user.getUnseenReceivedWorkouts() > 0 ? String.valueOf(user.getUnseenReceivedWorkouts()) : null);
+    }
+
+    public void updateReceivedWorkoutNotificationIndicator(int count) {
+        // fragments manually set the indicator in cases of blind sends (ik ik MVVM is where this could shine)
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
+        view.setText(count > 0 ? String.valueOf(count) : null);
     }
 
     private void saveCurrentFragmentState() {

@@ -27,7 +27,7 @@
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="checkboxStyle">@style/CheckBoxStyle</item>
         <item name="materialButtonStyle">@style/ButtonStyle</item>
-        <item name="android:textCursorDrawable">@drawable/cursor</item>
+        <item name="android:textCursorDrawable">@null</item> <!-- Hack. But for some reason this was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>

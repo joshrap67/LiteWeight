@@ -1,12 +1,13 @@
 package com.joshrap.liteweight.network.repos;
 
+import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.Friend;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
 
@@ -36,6 +37,9 @@ public class UserRepository {
     private static final String blockUserAction = "blockUser";
     private static final String unblockUserAction = "unblockUser";
     private static final String sendFeedbackAction = "sendFeedback";
+    private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
+    private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
+
 
     private final ApiGateway apiGateway;
 
@@ -44,14 +48,14 @@ public class UserRepository {
         this.apiGateway = apiGateway;
     }
 
-    public ResultStatus<UserWithWorkout> getUserAndCurrentWorkout() {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> getUserAndCurrentWorkout() {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         ResultStatus<String> apiResponse = this.apiGateway.makeRequest(getUserWorkoutAction, new HashMap<>(), true);
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem loading your data.");
@@ -362,6 +366,36 @@ public class UserRepository {
             resultStatus.setSuccess(true);
         } else {
             resultStatus.setErrorMessage("There was a problem sending your feedback. Please try again later.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> setAllReceivedWorkoutsSeen() {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else {
+            resultStatus.setErrorMessage("There was a problem trying to set workouts as seen.");
+        }
+        return resultStatus;
+    }
+
+    public ResultStatus<String> setReceivedWorkoutSeen(String sharedWorkoutId) {
+        ResultStatus<String> resultStatus = new ResultStatus<>();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, sharedWorkoutId);
+
+        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
+        if (apiResponse.isSuccess()) {
+            resultStatus.setData(apiResponse.getData());
+            resultStatus.setSuccess(true);
+        } else {
+            resultStatus.setErrorMessage("There was a problem trying to set workout as seen.");
         }
         return resultStatus;
     }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class ValidatorUtils {
 
     // todo unit test all these
-    private static final Pattern validUsername = Pattern.compile(".*[A-Z0-9._%+-].*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern validUsername = Pattern.compile(".*[A-Z\\d._%+-].*", Pattern.CASE_INSENSITIVE);
 
     /**
      * Ensures that a URL has the correct format.
@@ -215,7 +215,7 @@ public class ValidatorUtils {
         if (Pattern.compile("\\s").matcher(password).find()) {
             errorMsg += "Cannot have any whitespace.\n";
         }
-        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
+        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
             // sanity check to make sure no invalid characters.
             errorMsg += "Invalid character detected.";
         }
@@ -253,7 +253,7 @@ public class ValidatorUtils {
     public static String validNewEmail(String email) {
         email = email.trim();
         // regex found on SO
-        Pattern validEmail = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+        Pattern validEmail = Pattern.compile("^[A-Z\\d._%+-]+@[A-Z\\d.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         String retVal = null;
         if (!validEmail.matcher(email).find()) {
             retVal = "Invalid email.";

@@ -49,7 +49,6 @@ import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.network.repos.CognitoRepository;
-import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -76,8 +75,6 @@ public class SignInActivity extends AppCompatActivity {
     AlertDialog loadingDialog;
     @Inject
     Tokens tokens;
-    @Inject
-    UserRepository userRepository;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -498,11 +495,11 @@ public class SignInActivity extends AppCompatActivity {
         tokens.setIdToken(resultStatus.getData().getIdToken());
         tokens.setRefreshToken(resultStatus.getData().getRefreshToken());
         editor.apply();
-        launchWorkoutActivity();
+        launchMainActivity();
     }
 
-    private void launchWorkoutActivity() {
-        Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
+    private void launchMainActivity() {
+        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

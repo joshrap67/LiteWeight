@@ -8,7 +8,8 @@ public class Timer {
 
     public final MutableLiveData<Boolean> timerRunning;
     public static final long timeUnit = 1000; // SI units of milliseconds
-    public long startTimeAbsolute, timerDuration; // in SI units of milliseconds
+    public long startTimeAbsolute; // in SI units of milliseconds (UNIX Timestamp)
+    public long timerDuration; // in SI units of milliseconds
     public long initialTimeRemaining; // in SI units of milliseconds. utilized when pausing the timer to keep the latest time on the clock
     public final MutableLiveData<Long> timeRemaining; // in SI units of milliseconds
 

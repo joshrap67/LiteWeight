@@ -29,6 +29,13 @@ public class UserPreferences implements Model {
         this.setMetricUnits((Boolean) json.get(METRIC));
     }
 
+    public UserPreferences(UserPreferences userPreferences) {
+        this.privateAccount = userPreferences.isPrivateAccount();
+        this.updateDefaultWeightOnRestart = userPreferences.isUpdateDefaultWeightOnRestart();
+        this.updateDefaultWeightOnSave = userPreferences.isUpdateDefaultWeightOnSave();
+        this.metricUnits = userPreferences.isMetricUnits();
+    }
+
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> retVal = new HashMap<>();

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.Setter;
 
 @Data
@@ -79,8 +78,8 @@ public class User implements Model {
         }
     }
 
-    public boolean hasReceivedWorkout(String receivedWorkoutId) {
-        return this.receivedWorkouts.containsKey(receivedWorkoutId);
+    public boolean doesNotContainReceivedWorkout(String receivedWorkoutId) {
+        return !this.receivedWorkouts.containsKey(receivedWorkoutId);
     }
 
     public SharedWorkoutMeta getReceivedWorkout(String workoutMetaId) {

@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.widgets.Stopwatch;
@@ -60,8 +60,8 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
 
-        timer = ((WorkoutActivity) getActivity()).getTimer();
-        stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+        timer = ((MainActivity) getActivity()).getTimer();
+        stopwatch = ((MainActivity) getActivity()).getStopwatch();
         editor = sharedPreferences.edit();
 
         View view = inflater.inflate(R.layout.bottom_sheet_clock, container, false);

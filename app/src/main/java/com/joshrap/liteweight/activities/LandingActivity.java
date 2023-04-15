@@ -28,7 +28,7 @@ public class LandingActivity extends AppCompatActivity {
             launchSignInActivity();
         } else {
             // user is logged in, attempt to fetch their info
-            launchWorkoutActivity();
+            launchMainActivity();
         }
     }
 
@@ -39,8 +39,8 @@ public class LandingActivity extends AppCompatActivity {
         finish();
     }
 
-    private void launchWorkoutActivity() {
-        Intent intent = new Intent(this, WorkoutActivity.class);
+    private void launchMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

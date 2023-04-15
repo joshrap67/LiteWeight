@@ -14,12 +14,13 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 
 import java.util.concurrent.Executor;
@@ -33,8 +34,11 @@ public class AccountPreferencesFragment extends Fragment {
 
     private UserPreferences userPreferences;
     private boolean metricChanged, privateChanged, saveChanged, restartChanged;
+
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
     private SwitchCompat privateSwitch, metricSwitch, updateOnSaveSwitch, updateOnRestartSwitch;
 
     @Nullable
@@ -42,12 +46,12 @@ public class AccountPreferencesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_PREFS_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_PREFS_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_account_preferences, container, false);
 
-        userPreferences = ((WorkoutActivity) getActivity()).getUserWithWorkout().getUser().getUserPreferences();
+        userPreferences = new UserPreferences(userAndWorkoutProvider.provideUserAndWorkout().getUser().getUserPreferences());
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;
@@ -96,10 +100,10 @@ public class AccountPreferencesFragment extends Fragment {
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                ResultStatus<String> resultStatus = this.userRepository.updateUserPreferences(userPreferences);
+                ResultStatus<String> resultStatus = this.userManager.updateUserPreferences(userPreferences);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
-                    if (!resultStatus.isSuccess()) {
+                    if (resultStatus.isFailure()) {
                         AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });

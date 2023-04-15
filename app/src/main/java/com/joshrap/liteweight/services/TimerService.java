@@ -12,22 +12,17 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.messages.activitymessages.TimerRestartMessage;
+import com.joshrap.liteweight.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * This service, once created, is only used for showing the timer progress. It currently does not
- * need to constantly communicate to any activities listening. In the future buttons could be provided in the
- * notification to stop/reset the timer.
- */
 public class TimerService extends Service {
 
     public static final int timerRunningId = 1;
@@ -73,7 +68,6 @@ public class TimerService extends Service {
             public void run() {
                 long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
                 long timeRemaining = initialTimeRemaining - elapsedTime;
-                System.out.println("huh " + timeRemaining); // todo this is fixing the service stopping intermittently bug...
                 if (timeRemaining <= 0) {
                     timer.cancel();
                     stopSelf();
@@ -99,35 +93,21 @@ public class TimerService extends Service {
         super.onDestroy();
     }
 
-    /**
-     * Is called by the timer. Formats a long to a string and then displays it in a notification
-     *
-     * @param aTime time that is going to be formatted and then sent to notification
-     */
-    private void updateTimerRunningNotificationMessage(long aTime) {
-        int minutes = (int) (aTime / 60000);
-        int seconds = (int) (aTime / 1000) % 60;
-        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-
+    private void updateTimerRunningNotificationMessage(long time) {
+        String timeRemaining = TimeUtils.getClockDisplay(time);
         Notification notification = timerRunningNotification(timeRemaining);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(timerRunningId, notification);
     }
 
-    /**
-     * As long as the timer is running in the background, show a notification
-     *
-     * @param content formatted string to be displayed on the push notification
-     * @return Push Notification to display on status bar.
-     */
     private Notification timerRunningNotification(String content) {
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-        // don't actually need to send data as of now, but putting dummy data in order to not have specific branches in notification activity
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_RUNNING_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // weird bug on android 12 if this isn't used sometimes the notification is delayed
             return new Notification.Builder(this, Variables.TIMER_RUNNING_CHANNEL)
@@ -154,10 +134,9 @@ public class TimerService extends Service {
      * Once the timer limit has been reached, show a one time notification (is no longer a foreground service at this point)
      */
     private void showTimerFinishedNotification(long timerDuration) {
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.INTENT_TIMER_NOTIFICATION_CLICK);
-
         PendingIntent contentIntent = PendingIntent.getActivity(this,
                 Variables.TIMER_FINISHED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 

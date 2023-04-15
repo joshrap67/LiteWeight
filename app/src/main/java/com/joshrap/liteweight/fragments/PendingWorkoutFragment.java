@@ -50,7 +50,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.CustomSortAdapter;
 import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.adapters.RoutineDayAdapter;
@@ -58,6 +58,8 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
@@ -65,11 +67,10 @@ import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -99,7 +100,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
-    private UserWithWorkout userWithWorkout;
+    private UserAndWorkout userAndWorkout;
     private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
@@ -117,11 +118,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    WorkoutRepository workoutRepository;
+    WorkoutManager workoutManager;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     SharedPreferences sharedPreferences;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -129,7 +132,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).toggleBackButton(true);
 
         if (this.getArguments() != null) {
             isExistingWorkout = this.getArguments().getBoolean(Variables.EXISTING_WORKOUT);
@@ -138,15 +141,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         currentDayIndex = 0;
         currentWeekIndex = 0;
         allOwnedExercises = new HashMap<>();
-        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
-        user = userWithWorkout.getUser();
+        userAndWorkout = userAndWorkoutProvider.provideUserAndWorkout();
+        user = userAndWorkout.getUser();
 
         if (isExistingWorkout) {
-            pendingWorkout = new Workout(userWithWorkout.getWorkout());
+            pendingWorkout = new Workout(userAndWorkout.getWorkout());
             pendingRoutine = pendingWorkout.getRoutine();
         } else {
             pendingRoutine = Routine.emptyRoutine();
-            firstWorkout = !userWithWorkout.isWorkoutPresent();
+            firstWorkout = !userAndWorkout.isWorkoutPresent();
         }
 
         setToolbarTitle();
@@ -251,13 +254,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             return false;
         });
         routineDayMoreIcon.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             dropDownRoutineDayMenu.show();
         });
 
         addExercisesButton = view.findViewById(R.id.add_exercises_fab);
         addExercisesButton.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             popupAddExercises();
         });
         //endregion
@@ -311,7 +314,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 } else if (isRearranging) {
                     finishRearrangeMode();
                 } else if (isRoutineDayViewShown) {
-                    ((WorkoutActivity) getActivity()).hideKeyboard();
+                    ((MainActivity) getActivity()).hideKeyboard();
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
@@ -347,7 +350,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void setToolbarTitle() {
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(isExistingWorkout
+        ((MainActivity) getActivity()).updateToolbarTitle(isExistingWorkout
                 ? pendingWorkout.getWorkoutName()
                 : Variables.CREATE_WORKOUT_TITLE);
     }
@@ -383,7 +386,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         isRoutineDayViewShown = true;
         routineDayView.setVisibility(View.VISIBLE);
         routineView.setVisibility(View.GONE);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(getString(R.string.day_details));
+        ((MainActivity) getActivity()).updateToolbarTitle(getString(R.string.day_details));
 
         currentDayIndex = day;
         currentWeekIndex = week;
@@ -404,7 +407,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private boolean isRoutineModified() {
         if (isExistingWorkout) {
-            return Routine.routinesDifferent(pendingRoutine, userWithWorkout.getWorkout().getRoutine());
+            return Routine.routinesDifferent(pendingRoutine, userAndWorkout.getWorkout().getRoutine());
         }
 
         if (pendingRoutine.getTotalNumberOfDays() > 1) {
@@ -536,7 +539,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
-        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+        public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
             // allows for dragging speed to start off faster when dragging outside bounds of list
 
             final int direction = (int) Math.signum(viewSizeOutOfBounds);
@@ -590,7 +593,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         @Override
-        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+        public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
             // allows for dragging speed to start off faster when dragging outside bounds of list
             final int direction = (int) Math.signum(viewSizeOutOfBounds);
             if (msSinceStartScroll <= 800) {
@@ -898,21 +901,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Creating...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.createWorkout(pendingRoutine, workoutName);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    String newWorkoutId = resultStatus.getData().getWorkout().getWorkoutId();
-                    user.setCurrentWorkout(resultStatus.getData().getUser().getCurrentWorkout());
-                    user.putWorkout(resultStatus.getData().getUser().getWorkout(newWorkoutId));
-                    user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
-
-                    userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
-
-                    // once created, treat it as an existing workout
                     isExistingWorkout = true;
-                    pendingWorkout = new Workout(userWithWorkout.getWorkout());
+                    pendingWorkout = new Workout(userAndWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
                     setToolbarTitle();
                     setWeekAdapter(); // since adapter holds old references to weeks
@@ -928,14 +923,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.workoutRepository.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    user.updateOwnedExercises(resultStatus.getData().getUser().getOwnedExercises());
-                    userWithWorkout.setWorkout(resultStatus.getData().getWorkout());
-                    pendingWorkout = new Workout(userWithWorkout.getWorkout());
+                    pendingWorkout = new Workout(userAndWorkout.getWorkout());
                     pendingRoutine = pendingWorkout.getRoutine();
 
                     setWeekAdapter(); // since adapter holds old references to weeks
@@ -1128,12 +1121,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
             if (nameError == null && !focusError) {
                 String exerciseName = exerciseNameInput.getText().toString().trim();
-
                 createExerciseDialog.setCancelable(false);
                 loadingBar.setVisibility(View.VISIBLE);
+
                 Executor executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
-                    ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(
+                    ResultStatus<OwnedExercise> resultStatus = userManager.newExercise(
                             exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
                     Handler handler = new Handler(getMainLooper());
                     handler.post(() -> {
@@ -1141,7 +1134,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         createExerciseDialog.setCancelable(true);
                         if (resultStatus.isSuccess()) {
                             OwnedExercise newExercise = resultStatus.getData();
-                            user.addExercise(newExercise);
 
                             exerciseIdToName.putIfAbsent(newExercise.getExerciseId(), newExercise.getExerciseName());
                             exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getExerciseId(), newExercise.getDefaultWeight());
@@ -1483,7 +1475,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     }
 
                     @Override
-                    public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+                    public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
                         // allows for dragging speed to start off faster when dragging outside bounds of list
                         final int direction = (int) Math.signum(viewSizeOutOfBounds);
                         if (msSinceStartScroll <= 800) {

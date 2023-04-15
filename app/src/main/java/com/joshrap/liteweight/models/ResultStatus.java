@@ -1,8 +1,10 @@
 package com.joshrap.liteweight.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class ResultStatus<T> {
     private boolean success;
     private boolean outDatedVersion;
@@ -22,5 +24,9 @@ public class ResultStatus<T> {
 
     public ResultStatus() {
         this.success = false;
+    }
+
+    public boolean isFailure() {
+        return !this.success;
     }
 }

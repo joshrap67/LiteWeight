@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
@@ -73,7 +73,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotificationNewFriendRequest(final String jsonData) throws IOException {
         FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize(jsonData));
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.NEW_FRIEND_REQUEST_CLICK);
 
@@ -132,7 +132,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
         String userAccepted = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
 
@@ -157,7 +157,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
         final SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize(jsonData));
-        Intent notificationIntent = new Intent(this, WorkoutActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
 

@@ -33,8 +33,10 @@ import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
+import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -45,8 +47,6 @@ import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +68,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits;
     private ClipboardManager clipboard;
-    private UserWithWorkout userWithWorkout;
     private List<String> focusList, selectedFocuses;
     private int focusRotationAngle;
     private RelativeLayout focusRelativeLayout;
@@ -78,7 +77,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -86,8 +87,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
 
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
         if (this.getArguments() != null) {
@@ -96,8 +97,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             return null;
         }
 
-        userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
-        user = userWithWorkout.getUser();
+        user = userAndWorkoutProvider.provideUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = Variables.FOCUS_LIST;
 
@@ -117,7 +117,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
         deleteExercise.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             promptDelete();
         });
 
@@ -165,7 +165,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             alertDialog.show();
         });
         clipboardBtn.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
@@ -196,7 +196,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             saveExercise();
         });
 
@@ -209,7 +209,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusRelativeLayout = view.findViewById(R.id.focus_title_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -315,13 +315,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, updatedExercise);
+                ResultStatus<User> resultStatus = this.userManager.updateExercise(exerciseId, updatedExercise);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-                        user.addExercise(resultStatus.getData().getExercise(exerciseId));
 
                         originalExercise = user.getExercise(exerciseId);
                         initViews();
@@ -357,17 +356,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
+            ResultStatus<String> resultStatus = this.userManager.deleteExercise(exerciseId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess()) {
-                    // deleted successfully, so delete everything
-                    user.removeExercise(exerciseId);
-                    if (userWithWorkout.getWorkout() != null) {
-                        userWithWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
-                    }
-                    ((WorkoutActivity) getActivity()).finishFragment();
+                    ((MainActivity) getActivity()).finishFragment();
                 } else {
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
 

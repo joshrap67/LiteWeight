@@ -30,11 +30,12 @@ import androidx.fragment.app.Fragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
-import com.joshrap.liteweight.models.FriendRequest;
 import com.joshrap.liteweight.models.Tokens;
+import com.joshrap.liteweight.providers.UserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -42,8 +43,6 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
@@ -72,10 +71,13 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private String profilePicUrl;
     private AlertDialog alertDialog;
     private TextView friendsListTV;
+
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     Tokens tokens;
+    @Inject
+    UserAndWorkoutProvider userAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -83,11 +85,10 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(false);
 
-        UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
-        user = userWithWorkout.getUser();
+        user = userAndWorkoutProvider.provideUser();
         return inflater.inflate(R.layout.fragment_my_account, container, false);
     }
 
@@ -119,11 +120,11 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         emailTV.setText(email);
 
         friendsListTV = view.findViewById(R.id.friends_list_tv);
-        friendsListTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToFriendsList(null));
+        friendsListTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToFriendsList(null));
         TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
-        accountPrefsTV.setOnClickListener(v -> ((WorkoutActivity) getActivity()).goToAccountPreferences());
+        accountPrefsTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
         TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
-        blockedListTV.setOnClickListener(view1 -> ((WorkoutActivity) getActivity()).goToBlockedList());
+        blockedListTV.setOnClickListener(view1 -> ((MainActivity) getActivity()).goToBlockedList());
 
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
@@ -219,7 +220,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     if (uri != null) {
                         profilePicture.setImageURI(uri);
                         setCircularImage(profilePicture);
-                        ((WorkoutActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
+                        ((MainActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
                         try {
                             InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
                             updateIcon(ImageUtils.getImageByteArray(iStream));
@@ -235,13 +236,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
      * Updates whether an indicator should be shown on the view that takes users to their friend's list.
      */
     private void updateFriendsTVNotification() {
-        int requestUnseenCount = 0;
-        for (FriendRequest friendRequest : user.getFriendRequests().values()) {
-            if (!friendRequest.isSeen()) {
-                requestUnseenCount++;
-            }
-        }
-        if (requestUnseenCount > 0) {
+        if (user.getFriendRequests().values().stream().anyMatch(x -> !x.isSeen())) {
             friendsListTV.setText(R.string.friends_list_alert);
         } else {
             friendsListTV.setText(R.string.friends_list);
@@ -252,10 +247,10 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                ResultStatus<String> resultStatus = this.userRepository.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
+                ResultStatus<String> resultStatus = this.userManager.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
-                    if (!resultStatus.isSuccess()) {
+                    if (resultStatus.isFailure()) {
                         AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }
                 });
@@ -295,7 +290,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
-                .setPositiveButton("Yes", (dialog, which) -> ((WorkoutActivity) getActivity()).logout())
+                .setPositiveButton("Yes", (dialog, which) -> ((MainActivity) getActivity()).logout())
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();

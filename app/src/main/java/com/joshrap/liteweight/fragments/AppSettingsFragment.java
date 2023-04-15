@@ -20,7 +20,7 @@ import android.widget.TextView;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.joshrap.liteweight.*;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 
@@ -37,8 +37,8 @@ public class AppSettingsFragment extends Fragment {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(false);
 
         View view = inflater.inflate(R.layout.fragment_app_settings, container, false);
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
@@ -51,8 +51,8 @@ public class AppSettingsFragment extends Fragment {
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());
         stopwatchSwitch.setChecked(sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true));
         stopwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((WorkoutActivity) getActivity()).cancelStopwatchService();
-            ((WorkoutActivity) getActivity()).getStopwatch().stopStopwatch();
+            ((MainActivity) getActivity()).cancelStopwatchService();
+            ((MainActivity) getActivity()).getStopwatch().stopStopwatch();
             editor.putBoolean(Variables.STOPWATCH_ENABLED, isChecked);
             editor.apply();
         });
@@ -60,8 +60,8 @@ public class AppSettingsFragment extends Fragment {
         timerLayout.setOnClickListener(view1 -> timerSwitch.performClick());
         timerSwitch.setChecked(sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true));
         timerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((WorkoutActivity) getActivity()).cancelTimerService();
-            ((WorkoutActivity) getActivity()).getTimer().stopTimer();
+            ((MainActivity) getActivity()).cancelTimerService();
+            ((MainActivity) getActivity()).getTimer().stopTimer();
             editor.putBoolean(Variables.TIMER_ENABLED, isChecked);
             editor.apply();
         });
