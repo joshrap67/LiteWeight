@@ -160,7 +160,22 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         if (receivedWorkouts.size() != user.getReceivedWorkouts().size()) {
             // while app was in background, there was a notification which added a received workout - so update list
             setAndDisplayReceivedWorkouts();
+        } else {
+            // while app was in background, a workout that was already sent has been sent again and needs to be moved up in the list
+            boolean needsUpdating = false;
+            for (int i = 0; i < receivedWorkouts.size(); i++) {
+                SharedWorkoutMeta fragmentMeta = receivedWorkouts.get(i);
+                SharedWorkoutMeta upToDateMeta = user.getReceivedWorkouts().get(fragmentMeta.getWorkoutId());
+                if (!fragmentMeta.getDateSent().equals(upToDateMeta.getDateSent())) {
+                    needsUpdating = true;
+                    break;
+                }
+            }
+            if (needsUpdating) {
+                setAndDisplayReceivedWorkouts();
+            }
         }
+
         EventBus.getDefault().register(this);
     }
 

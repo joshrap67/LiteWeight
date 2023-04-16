@@ -231,7 +231,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         friendRequestsAdapter.notifyItemInserted(0);
 
         Toast.makeText(getContext(), newFriendRequest.getUsername() + " sent you a friend request.", Toast.LENGTH_LONG).show();
-        if (currentIndex == FRIENDS_POSITION) {
+        if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
             tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests (!)");
         }
 
@@ -350,33 +350,27 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void switchToFriendsList() {
-        boolean requestsUnseen = false;
-        for (FriendRequest friendRequest : friendRequests) {
-            if (!friendRequest.isSeen()) {
-                requestsUnseen = true;
-                break;
-            }
-        }
+        boolean requestsUnseen = friendRequests.stream().anyMatch(x -> !x.isSeen());
         tabLayout.getTabAt(REQUESTS_POSITION).setText(requestsUnseen ? "Friend Requests (!)" : "Friend Requests");
         floatingActionButton.show();
-        checkEmptyList(FRIENDS_POSITION);
+        checkEmptyList();
         friendsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
-                checkEmptyList(FRIENDS_POSITION);
+                checkEmptyList();
             }
 
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                checkEmptyList(FRIENDS_POSITION);
+                checkEmptyList();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
-                checkEmptyList(FRIENDS_POSITION);
+                checkEmptyList();
             }
         });
         recyclerView.setAdapter(friendsAdapter);
@@ -385,35 +379,35 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private void switchToRequestsList() {
         tabLayout.getTabAt(REQUESTS_POSITION).setText("Friend Requests"); // when user clicks on this tab, all requests are set to "seen"
         floatingActionButton.hide();
-        checkEmptyList(REQUESTS_POSITION);
+        checkEmptyList();
         friendRequestsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
-                checkEmptyList(REQUESTS_POSITION);
+                checkEmptyList();
             }
 
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                checkEmptyList(REQUESTS_POSITION);
+                checkEmptyList();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
-                checkEmptyList(REQUESTS_POSITION);
+                checkEmptyList();
             }
         });
         recyclerView.setAdapter(friendRequestsAdapter);
         clearFriendRequestNotifications();
     }
 
-    private void checkEmptyList(int position) {
-        if (position == FRIENDS_POSITION) {
+    private void checkEmptyList() {
+        if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
             emptyView.setVisibility(friends.isEmpty() ? View.VISIBLE : View.GONE);
             emptyView.setText(getString(R.string.empty_friend_list_msg));
-        } else if (position == REQUESTS_POSITION) {
+        } else if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
             emptyView.setVisibility(friendRequests.isEmpty() ? View.VISIBLE : View.GONE);
             emptyView.setText(getString(R.string.empty_friends_request_msg));
         }

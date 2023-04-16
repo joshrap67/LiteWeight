@@ -51,7 +51,7 @@ public class AccountPreferencesFragment extends Fragment {
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_account_preferences, container, false);
 
-        userPreferences = new UserPreferences(currentUserAndWorkoutProvider.provideCurrentUser().getUserPreferences());
+        userPreferences = currentUserAndWorkoutProvider.provideCurrentUser().getUserPreferences();
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;
@@ -97,6 +97,7 @@ public class AccountPreferencesFragment extends Fragment {
             userPreferences.setPrivateAccount(privateSwitch.isChecked());
             userPreferences.setUpdateDefaultWeightOnSave(updateOnSaveSwitch.isChecked());
             userPreferences.setUpdateDefaultWeightOnRestart(updateOnRestartSwitch.isChecked());
+            // note that due to blind send the work above breaks the manager pattern a little bit since code is duplicated in manager call. but idc i don't want a loading dialog for this
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {

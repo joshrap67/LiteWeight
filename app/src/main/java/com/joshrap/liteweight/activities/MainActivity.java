@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // doing this here just because otherwise there is a barely noticeable delay when first launching the app
         // as the title gets set slightly after other elements are visible
-        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getWorkoutName() : "LiteWeight");
+        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getWorkoutName() : getString(R.string.app_name));
 
         navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
         navHeaderLayout.setOnClickListener(view -> {
@@ -669,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String workoutId = sharedWorkoutMeta.getWorkoutId();
         if (user.doesNotContainReceivedWorkout(workoutId)) {
             // workout wasn't here, so total needs to be increased
-            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
+            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1); // todo when i eventually make it so workouts with same name don't matter, remove this if statement
         }
 
         // If workout isn't there, update unseen count.
@@ -687,7 +687,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //endregion
-
 
     // Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
     private void updatePushEndpointToken() {

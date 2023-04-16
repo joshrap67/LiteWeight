@@ -209,11 +209,12 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     }
 
     private void setReceivedWorkoutSeen(String workoutId) {
-        // blind send for marking a workout read for now
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> this.userManager.setReceivedWorkoutSeen(workoutId));
-
-        ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+        executor.execute(() -> {
+            this.userManager.setReceivedWorkoutSeen(workoutId);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator());
+        });
     }
 
     private void workoutNameAlreadyExistsPopup(final SharedWorkout receivedWorkout) {
