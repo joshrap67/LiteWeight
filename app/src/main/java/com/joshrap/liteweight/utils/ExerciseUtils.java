@@ -40,17 +40,11 @@ public class ExerciseUtils {
      */
     public static String getFocusTitle(List<String> focuses) {
         // todo unit test
-        StringBuilder focusesBuilder = new StringBuilder();
-        focuses.sort(String::compareToIgnoreCase);
-        int count = 0;
-        for (String focus : focuses) {
-            focusesBuilder.append(focus).append((count < focuses.size() - 1) ? FOCUS_DELIMITER : "");
-            count++;
-        }
-        if (count > 0) {
-            return focusesBuilder.toString();
-        } else {
+        if (focuses.isEmpty()) {
             return null;
         }
+        focuses.sort(String::compareToIgnoreCase);
+        return String.join(FOCUS_DELIMITER, focuses);
+
     }
 }

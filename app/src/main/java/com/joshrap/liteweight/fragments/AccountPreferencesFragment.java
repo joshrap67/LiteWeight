@@ -51,7 +51,7 @@ public class AccountPreferencesFragment extends Fragment {
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_account_preferences, container, false);
 
-        userPreferences = new UserPreferences(currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser().getUserPreferences());
+        userPreferences = new UserPreferences(currentUserAndWorkoutProvider.provideCurrentUser().getUserPreferences());
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;

@@ -58,7 +58,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -425,7 +425,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Copying...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.copyWorkout(currentWorkout, workoutName);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.copyWorkout(currentWorkout, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -556,7 +556,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -583,7 +583,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {

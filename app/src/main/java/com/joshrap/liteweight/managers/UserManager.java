@@ -7,7 +7,7 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.User;
 import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 
@@ -28,7 +28,7 @@ public class UserManager {
         this.userRepository = userRepository;
     }
 
-    public ResultStatus<CurrentUserAndWorkout> getUserAndCurrentWorkout() {
+    public ResultStatus<UserAndWorkout> getUserAndCurrentWorkout() {
         return this.userRepository.getUserAndCurrentWorkout();
     }
 
@@ -36,7 +36,7 @@ public class UserManager {
         User user = currentUserAndWorkoutProvider.provideCurrentUser();
         ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, ownedExercise);
         if (resultStatus.isSuccess()) {
-            user.addExercise(resultStatus.getData().getExercise(exerciseId));
+            user.putExercise(resultStatus.getData().getExercise(exerciseId));
         }
         return resultStatus;
     }
@@ -46,14 +46,14 @@ public class UserManager {
         ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(exerciseName, focuses, weight, sets, reps, details, videoURL);
         if (resultStatus.isSuccess()) {
             OwnedExercise newExercise = resultStatus.getData();
-            user.addExercise(newExercise);
+            user.putExercise(newExercise);
         }
         return resultStatus;
     }
 
     public ResultStatus<String> deleteExercise(String exerciseId) {
         User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        CurrentUserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+        UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
         ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
 
         if (resultStatus.isSuccess()) {
@@ -69,12 +69,12 @@ public class UserManager {
         return this.userRepository.updateProfilePicture(pictureData);
     }
 
-    public ResultStatus<String> updateEndpointId(String tokenId) {
-        return this.userRepository.updateEndpointId(tokenId);
+    public ResultStatus<String> updatePushEndpointId(String tokenId) {
+        return this.userRepository.updatePushEndpointId(tokenId);
     }
 
-    public ResultStatus<String> removeEndpointId() {
-        return this.userRepository.removeEndpointId();
+    public ResultStatus<String> removePushEndpointId() {
+        return this.userRepository.removePushEndpointId();
     }
 
     public ResultStatus<Friend> sendFriendRequest(String username) {

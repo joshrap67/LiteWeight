@@ -136,13 +136,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case acceptWorkoutId:
-                    boolean workoutNameExists = false;
-                    for (WorkoutMeta workoutMeta : user.getWorkoutMetas().values()) {
-                        if (workoutMeta.getWorkoutName().equals(workoutName)) {
-                            workoutNameExists = true;
-                            break;
-                        }
-                    }
+                    boolean workoutNameExists = user.getWorkoutMetas().values().stream().anyMatch(x -> x.getWorkoutName().equals(workoutName));
                     if (workoutNameExists) {
                         workoutNameAlreadyExistsPopup(sharedWorkout);
                     } else {

@@ -37,12 +37,10 @@ public class User implements Model {
     private int unseenReceivedWorkouts;
     private int totalReceivedWorkouts;
 
-    // todo i think what i should do is have a separate contract for the api that way for the app i can do my own thing (e.g. lists instead of maps)
-
     @Setter(AccessLevel.NONE)
     private Map<String, String> blocked;
     @Setter(AccessLevel.NONE)
-    private Map<String, WorkoutMeta> workoutMetas; //todo rename this to workoutInfo? Or workoutDetails? anything other than meta lmfao
+    private Map<String, WorkoutMeta> workoutMetas; //todo rename this to workoutInfo? Or workoutDetails? workoutStatistics? anything other than meta lmfao
     @Setter(AccessLevel.NONE)
     private Map<String, OwnedExercise> ownedExercises;
     @Setter(AccessLevel.NONE)
@@ -86,8 +84,6 @@ public class User implements Model {
         return this.receivedWorkouts.get(workoutMetaId);
     }
 
-    // todo store friends as a list instead of map? wouldn't change the backend side
-
     public void removeExercise(String exerciseId) {
         this.ownedExercises.remove(exerciseId);
     }
@@ -96,7 +92,7 @@ public class User implements Model {
         return this.ownedExercises.get(exerciseId);
     }
 
-    public void addExercise(OwnedExercise exercise) {
+    public void putExercise(OwnedExercise exercise) {
         this.ownedExercises.put(exercise.getExerciseId(), exercise);
     }
 
@@ -118,10 +114,6 @@ public class User implements Model {
 
     public void removeBlockedUser(String username) {
         this.blocked.remove(username);
-    }
-
-    public String getBlockedIcon(String username) {
-        return this.blocked.get(username);
     }
 
     public boolean isBlocking(String username){

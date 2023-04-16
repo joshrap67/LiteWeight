@@ -87,6 +87,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private AlertDialog alertDialog;
     private ReceivedWorkoutsAdapter receivedWorkoutsAdapter;
     private boolean isGettingNextBatch;
+    private int totalBatchesReceived; // to cover against an infinite loop if something screws up
 
     @Inject
     AlertDialog loadingDialog;
@@ -105,7 +106,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
-        user = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         isGettingNextBatch = false;
         receivedWorkouts = new ArrayList<>();
 
@@ -189,7 +190,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             notificationManager.cancel(sharedWorkoutMeta.getWorkoutId().hashCode());
         }
 
-        Toast.makeText(getContext(), "New workout: " + sharedWorkoutMeta.getWorkoutName(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "New workout - " + sharedWorkoutMeta.getWorkoutName(), Toast.LENGTH_LONG).show();
     }
 
     private void setAndDisplayReceivedWorkouts() {
@@ -230,6 +231,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void getNextBatch() {
+        totalBatchesReceived++;
+        if (totalBatchesReceived > 100) {
+            // to cover against an infinite loop if something screws up
+            isGettingNextBatch = false;
+            return;
+        }
         listLoadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -361,7 +368,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 break;
             }
         }
-        if (index != -1) {
+        if (index >= 0) {
             this.receivedWorkouts.remove(index);
             receivedWorkoutsAdapter.notifyItemRemoved(index);
         }
@@ -433,7 +440,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             markAllReceivedWorkoutsSeenButton.setVisibility(View.INVISIBLE);
         }
 
-        receivedWorkouts.get(position).setSeen(true); // breaking pattern by duplicating the manager code due to blind send
+        receivedWorkouts.get(position).setSeen(true); // breaking pattern by duplicating the manager logic due to blind send
         receivedWorkoutsAdapter.notifyItemChanged(position, ReceivedWorkoutsAdapter.PAYLOAD_UPDATE_SEEN_STATUS);
         ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator(user.getUnseenReceivedWorkouts() - 1);
 
@@ -445,7 +452,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private void setAllReceivedWorkoutsSeen() {
         markAllReceivedWorkoutsSeenButton.setVisibility(View.INVISIBLE);
         for (SharedWorkoutMeta sharedWorkoutMeta : receivedWorkouts) {
-            // breaking pattern by duplicating the manager code due to blind send
+            // breaking pattern by duplicating the manager logic due to blind send
             sharedWorkoutMeta.setSeen(true);
         }
         receivedWorkoutsAdapter.notifyItemRangeChanged(0, receivedWorkoutsAdapter.getItemCount(), ReceivedWorkoutsAdapter.PAYLOAD_UPDATE_SEEN_STATUS);

@@ -11,14 +11,14 @@ import lombok.Data;
 import lombok.Setter;
 
 @Data
-public class CurrentUserAndWorkout implements Model {
+public class UserAndWorkout implements Model {
 
     @Setter(AccessLevel.PRIVATE)
     private User user;
     private Workout workout;
     private boolean workoutPresent;
 
-    public CurrentUserAndWorkout(Map<String, Object> json) {
+    public UserAndWorkout(Map<String, Object> json) {
         this.user = new User((Map<String, Object>) json.get(RequestFields.USER));
         this.workoutPresent = (boolean) json.get(RequestFields.WORKOUT_PRESENT);
         if (!workoutPresent) {

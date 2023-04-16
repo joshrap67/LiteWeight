@@ -35,13 +35,13 @@ public class StopwatchService extends Service {
 
     @Override
     public void onCreate() {
-        startForeground(stopwatchRunningId, stopwatchRunningNotification("Stopwatch starting..."));
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
+        startForeground(stopwatchRunningId, stopwatchRunningNotification("Stopwatch starting..."));
+        startTimeAbsolute = intent.getLongExtra(Variables.INTENT_ABSOLUTE_START_TIME, 0);
         initialElapsedTime = intent.getLongExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, 0);
 
         stopwatch = new Timer();

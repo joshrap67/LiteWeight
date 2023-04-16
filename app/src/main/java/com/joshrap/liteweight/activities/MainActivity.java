@@ -77,7 +77,7 @@ import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.services.StopwatchService;
 import com.joshrap.liteweight.services.SyncWorkoutService;
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ConstraintLayout navHeaderLayout;
     private ProgressBar loadingBar;
-    private CurrentUserAndWorkout currentUserAndWorkout;
+    private UserAndWorkout currentUserAndWorkout;
 
     @Getter
     private Timer timer;
@@ -163,13 +163,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        loadUserAndWorkout();
+        loadCurrentUserAndWorkout();
     }
 
-    private void loadUserAndWorkout() {
+    private void loadCurrentUserAndWorkout() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.userManager.getUserAndCurrentWorkout();
+            ResultStatus<UserAndWorkout> resultStatus = this.userManager.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (resultStatus.isSuccess()) {
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    // called once main dependency - userAndWorkout - is loaded
+    // called once main dependency - currentUserAndWorkout - is loaded
     private void loadActivity() {
         String notificationAction = null;
         if (getIntent().getExtras() != null) {
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
 
         setupNotifications();
-        updateEndpointToken();
+        updatePushEndpointToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
         if (notificationAction != null) {
@@ -505,9 +505,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 /*
                     If the fragment now currently on the backstack is a fragment that I don't want the user to get back to,
-                    then go back again to get rid of it.
+                    then go back again to get rid of it without ever showing the fragment again.
 
-                    This would happen for example if clicking on notification when on the edit workout fragment.
+                    This would happen for example if clicking on notification when on the edit workout fragment. When clicking back the edit workout fragment
+                    is immediately discarded it.
                  */
                 onBackPressed();
                 break;
@@ -524,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
-            userManager.removeEndpointId();
+            userManager.removePushEndpointId();
             // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make above api call
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
@@ -559,13 +560,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // service that continues the stopwatch's progress
     public void startStopwatchService() {
         Intent serviceIntent = new Intent(this, StopwatchService.class);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, stopwatch.initialElapsedTime);
-        startService(serviceIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
     }
 
     public void cancelStopwatchService() {
         stopService(new Intent(this, StopwatchService.class));
+
         // get rid of any notifications that are still showing now that the stopwatch is on the screen
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(StopwatchService.stopwatchRunningId);
@@ -573,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void startTimerService() {
         Intent serviceIntent = new Intent(this, TimerService.class);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_TIMER_INITIAL_TIME_REMAINING, timer.initialTimeRemaining);
         serviceIntent.putExtra(Variables.INTENT_TIMER_DURATION, timer.timerDuration);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -601,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void handleTimerRestartMessage(TimerRestartMessage event) {
         timer.initialTimeRemaining = event.getTimeRemaining();
         timer.startTimeAbsolute = event.getStartTimeAbsolute();
-        // if receiving this we can assume the timer is running
+        // if receiving this we can assume the timer finished and should be restarted
         timer.startTimer();
     }
 
@@ -682,10 +688,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //endregion
 
-    /**
-     * Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
-     */
-    private void updateEndpointToken() {
+
+    // Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
+    private void updatePushEndpointToken() {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -697,15 +702,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
                         // blind send for now for updating notification endpoint id
-                        userManager.updateEndpointId(token);
+                        userManager.updatePushEndpointId(token);
                     });
                 });
     }
 
-    /**
-     * Sets up a notification channel for each channel in the app. Each channel is preset with
-     * notification options but these can always be changed by the user.
-     */
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // channel for when the timer is running but not finished
@@ -716,6 +718,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             timerRunningChannel.setSound(null, null);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(timerRunningChannel);
+
             // channel for when the timer finished
             NotificationChannel timerFinishedChannel = new NotificationChannel(
                     Variables.TIMER_FINISHED_CHANNEL,
@@ -849,7 +852,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void clearAccountNotificationIndicator() {
-        // check if there are any unseen notifications for friend requests
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
         view.setText(null);
     }
@@ -861,7 +863,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void updateReceivedWorkoutNotificationIndicator(int count) {
-        // fragments manually set the indicator in cases of blind sends (ik ik MVVM is where this could shine)
+        // fragments manually set the indicator in cases of blind sends (ik ik, MVVM is where this could shine)
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
         view.setText(count > 0 ? String.valueOf(count) : null);
     }

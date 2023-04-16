@@ -1,25 +1,25 @@
 package com.joshrap.liteweight.providers;
 
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 
 import javax.inject.Inject;
 
 public class CurrentUserAndWorkoutProvider {
 
-    private static CurrentUserAndWorkout currentUserAndWorkout;
+    private static UserAndWorkout currentUserAndWorkout;
 
     @Inject
     public CurrentUserAndWorkoutProvider() {
 
     }
 
-    public void setCurrentUserAndWorkout(CurrentUserAndWorkout aCurrentUserAndWorkout) {
+    public void setCurrentUserAndWorkout(UserAndWorkout aCurrentUserAndWorkout) {
         currentUserAndWorkout = aCurrentUserAndWorkout;
     }
 
-    public CurrentUserAndWorkout provideCurrentUserAndWorkout() {
+    public UserAndWorkout provideCurrentUserAndWorkout() {
         return currentUserAndWorkout;
     }
 

@@ -21,6 +21,7 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
@@ -257,23 +258,19 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         stopwatchLayout.setVisibility(View.INVISIBLE);
     }
 
-    private void updateTimerDisplays(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));
-        int seconds = (int) (elapsedTime / Timer.timeUnit) % 60;
-        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    private void updateTimerDisplays(long timeRemaining) {
+        String timeRemainingFormatted = TimeUtils.getClockDisplay(timeRemaining);
 
         if (timerTV != null) {
-            timerTV.setText(timeRemaining);
+            timerTV.setText(timeRemainingFormatted);
         }
     }
 
     private void updateStopwatchDisplays(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Stopwatch.timeUnit));
-        int seconds = (int) (elapsedTime / Stopwatch.timeUnit) % 60;
-        String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+        String elapsedTimeFormatted = TimeUtils.getClockDisplay(elapsedTime);
 
         if (stopwatchTV != null) {
-            stopwatchTV.setText(timeFormatted);
+            stopwatchTV.setText(elapsedTimeFormatted);
         }
     }
 }

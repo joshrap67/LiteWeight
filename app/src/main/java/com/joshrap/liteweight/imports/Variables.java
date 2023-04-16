@@ -96,7 +96,7 @@ public class Variables {
     public static final String TIMER_DURATION = "TimerValue";
 
     // intent keys
-    public static final String INTENT_TIMER_ABSOLUTE_START_TIME = "Absolute_Time";
+    public static final String INTENT_ABSOLUTE_START_TIME = "Absolute_Time";
     public static final String INTENT_TIMER_INITIAL_TIME_REMAINING = "Initial_Time_Remaining";
     public static final String INTENT_STOPWATCH_INITIAL_ELAPSED_TIME = "Initial_Elapsed_Time";
     public static final String INTENT_TIMER_DURATION = "Timer_duration";

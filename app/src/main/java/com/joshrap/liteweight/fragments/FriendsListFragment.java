@@ -246,7 +246,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         String usernameToRemove = message.getUsernameToRemove();
         int index = getFriendRequestPosition(usernameToRemove);
 
-        if (index != -1) {
+        if (index >= 0) {
             friendRequests.remove(index);
             friendRequestsAdapter.notifyItemRemoved(index);
         }
@@ -265,7 +265,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestFragmentMessage message) {
         int index = getFriendPosition(message.getAcceptedUsername());
-        if (index != -1) {
+        if (index >= 0) {
             friendsAdapter.notifyItemChanged(index);
         }
 
@@ -274,20 +274,23 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void clearFriendsNotifications() {
+        if (notificationManager == null) {
+            return;
+        }
+
         for (String username : user.getFriends().keySet()) {
-            if (notificationManager != null) {
-                notificationManager.cancel(username.hashCode());
-            }
+            notificationManager.cancel(username.hashCode());
         }
     }
 
     private void clearFriendRequestNotifications() {
+        if (notificationManager == null) {
+            return;
+        }
+
         for (FriendRequest friendRequest : friendRequests) {
             if (!friendRequest.isSeen()) {
-                // get rid of any push notification that might be there for any friend requests
-                if (notificationManager != null) {
-                    notificationManager.cancel(friendRequest.getUsername().hashCode());
-                }
+                notificationManager.cancel(friendRequest.getUsername().hashCode());
             }
         }
     }
@@ -319,7 +322,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private void removeFriendFromList(String usernameToRemove) {
         int index = getFriendPosition(usernameToRemove);
 
-        if (index != -1) {
+        if (index >= 0) {
             friends.remove(index);
             friendsAdapter.notifyItemRemoved(index);
         }
@@ -522,12 +525,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 if (resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
                     if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
                         int index = getFriendPosition(username);
-                        friends.remove(index);
-                        friendsAdapter.notifyItemRemoved(index);
+                        if (index >= 0) {
+                            friends.remove(index);
+                            friendsAdapter.notifyItemRemoved(index);
+                        }
                     } else {
                         int index = getFriendRequestPosition(username);
-                        friendRequests.remove(index);
-                        friendsAdapter.notifyItemRemoved(index);
+                        if (index >= 0) {
+                            friendRequests.remove(index);
+                            friendsAdapter.notifyItemRemoved(index);
+                        }
                     }
                 } else {
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
@@ -537,10 +544,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void acceptFriendRequest(String username) {
-        // we assume it always succeeds
         int index = getFriendRequestPosition(username);
-        FriendRequest friendRequest = friendRequests.get(index);
-        friendRequests.remove(index);
+        if (index < 0) {
+            return;
+        }
+
+        // we assume it always succeeds
+        FriendRequest friendRequest = friendRequests.remove(index);
         friendRequestsAdapter.notifyItemRemoved(index);
 
         Friend friend = new Friend(friendRequest.getIcon(), true, username);
@@ -552,9 +562,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             ResultStatus<String> resultStatus = this.userManager.acceptFriendRequest(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                // not critical to show any type of loading dialog for this action.
                 if (resultStatus.isFailure() && FriendsListFragment.this.isResumed()) {
-                    // put the request back
+                    // on off chance it failed, put the request back
                     friendRequests.add(index, friendRequest);
                     friendRequestsAdapter.notifyItemInserted(index);
 
@@ -566,10 +575,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void declineFriendRequest(String username) {
-        // we assume it always succeeds
         int index = getFriendRequestPosition(username);
-        FriendRequest friendRequest = friendRequests.get(index);
-        friendRequests.remove(index);
+        if (index < 0) {
+            return;
+        }
+
+        // we assume it always succeeds
+        FriendRequest friendRequest = friendRequests.remove(index);
         friendRequestsAdapter.notifyItemRemoved(index);
 
         Executor executor = Executors.newSingleThreadExecutor();
@@ -589,10 +601,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void removeFriend(String username) {
-        // we assume it always succeeds
         int index = getFriendPosition(username);
-        Friend friend = friends.get(index);
-        friends.remove(index);
+        if (index < 0) {
+            return;
+        }
+
+        // we assume it always succeeds
+        Friend friend = friends.remove(index);
         friendsAdapter.notifyItemRemoved(index);
 
         Executor executor = Executors.newSingleThreadExecutor();
@@ -600,9 +615,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             ResultStatus<String> resultStatus = this.userManager.removeFriend(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                // not critical to show any type of loading dialog/handle errors for this action.
                 if (resultStatus.isFailure() && FriendsListFragment.this.isResumed()) {
-                    // put the friend back since it failed to remove
+                    // on off chance it failed, put the friend back
                     friends.add(index, friend);
                     friendsAdapter.notifyItemInserted(index);
 
@@ -614,19 +628,23 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     private void cancelFriendRequest(String username) {
         int index = getFriendPosition(username);
-
-        if (index != -1) {
-            friends.remove(index);
-            friendsAdapter.notifyItemRemoved(index);
+        if (index < 0) {
+            return;
         }
+
+        // we assume it always succeeds
+        Friend friend = friends.remove(index);
+        friendsAdapter.notifyItemRemoved(index);
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             ResultStatus<String> resultStatus = this.userManager.cancelFriendRequest(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                // not critical to show any type of loading dialog/handle errors for this action
                 if (resultStatus.isFailure()) {
+                    // on off chance it failed, put the friend back
+                    friends.add(index, friend);
+                    friendsAdapter.notifyItemInserted(index);
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
             });

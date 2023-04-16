@@ -40,12 +40,12 @@ public class TimerService extends Service {
 
     @Override
     public void onCreate() {
-        startForeground(timerRunningId, timerRunningNotification("Timer starting..."));
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        startForeground(timerRunningId, timerRunningNotification("Timer starting..."));
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(timerFinishedId);
 
@@ -59,7 +59,7 @@ public class TimerService extends Service {
             // broadcast to workout activity so that it knows it needs to start its timer again
             EventBus.getDefault().post(new TimerRestartMessage(startTimeAbsolute, initialTimeRemaining));
         } else {
-            startTimeAbsolute = intent.getLongExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, 0);
+            startTimeAbsolute = intent.getLongExtra(Variables.INTENT_ABSOLUTE_START_TIME, 0);
         }
 
         timer = new Timer();
@@ -116,6 +116,7 @@ public class TimerService extends Service {
                     .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
                     .setSmallIcon(R.drawable.notification_icon)
                     .setContentIntent(contentIntent)
+                    .setOngoing(true)
                     .setOnlyAlertOnce(true) // only the first notification sent has a sound
                     .build();
         } else {

@@ -67,7 +67,7 @@ import com.joshrap.liteweight.models.RoutineDay;
 import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.RoutineWeek;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.models.WorkoutMeta;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
@@ -100,7 +100,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
-    private CurrentUserAndWorkout currentUserAndWorkout;
+    private UserAndWorkout currentUserAndWorkout;
     private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
@@ -901,7 +901,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Creating...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -923,7 +923,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

@@ -78,7 +78,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.BLOCKED_LIST_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
-        user = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout().getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
 
         return inflater.inflate(R.layout.fragment_blocked_list, container, false);
     }

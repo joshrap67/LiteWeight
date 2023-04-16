@@ -54,7 +54,7 @@ import com.joshrap.liteweight.models.RoutineExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.CurrentUserAndWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
@@ -404,7 +404,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<CurrentUserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
+            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

@@ -21,6 +21,6 @@ public class ImageUtils {
     }
 
     public static String getIconUrl(String fileName) {
-        return BackendConfig.s3ImageUrl + fileName;
+        return BackendConfig.s3ImageUrl + fileName; // todo should this be taken care of by the backend?
     }
 }
