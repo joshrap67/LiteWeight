@@ -8,7 +8,7 @@ import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.Workout;
 import com.joshrap.liteweight.network.ApiGateway;
 import com.joshrap.liteweight.network.RequestFields;
@@ -36,8 +36,6 @@ public class WorkoutRepository {
     private static final String getReceivedWorkoutsAction = "getReceivedWorkouts";
     private static final String sendWorkoutAction = "sendWorkout";
     private static final String getSharedWorkoutAction = "getSharedWorkout";
-    private static final String setReceivedWorkoutSeenAction = "setReceivedWorkoutSeen";
-    private static final String setAllReceivedWorkoutsSeenAction = "setAllReceivedWorkoutsSeen";
     private static final String acceptReceivedWorkoutAction = "acceptReceivedWorkout";
     private static final String declineReceivedWorkoutAction = "declineReceivedWorkout";
 
@@ -48,8 +46,8 @@ public class WorkoutRepository {
         this.apiGateway = apiGateway;
     }
 
-    public ResultStatus<UserWithWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.ROUTINE, routine.asMap());
@@ -59,7 +57,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to create the workout.");
@@ -70,8 +68,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> copyWorkout(@NonNull Workout workout, @NonNull String workoutName) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> copyWorkout(@NonNull Workout workout, @NonNull String workoutName) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(RequestFields.WORKOUT, workout.asMap());
@@ -81,7 +79,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to copy the workout.");
@@ -92,8 +90,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> switchWorkout(@NonNull Workout oldWorkout, @NonNull String workoutId) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> switchWorkout(@NonNull Workout oldWorkout, @NonNull String workoutId) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(RequestFields.WORKOUT, oldWorkout.asMap());
@@ -103,7 +101,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to switch workouts.");
@@ -136,8 +134,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
@@ -147,7 +145,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to delete the workout.");
@@ -179,8 +177,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> editWorkout(@NonNull String workoutId, @NonNull Workout workout) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> editWorkout(@NonNull String workoutId, @NonNull Workout workout) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(Workout.WORKOUT_ID, workoutId);
@@ -190,7 +188,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to edit the workout.");
@@ -218,8 +216,8 @@ public class WorkoutRepository {
         return resultStatus;
     }
 
-    public ResultStatus<UserWithWorkout> restartWorkout(@NonNull Workout workout) {
-        ResultStatus<UserWithWorkout> resultStatus = new ResultStatus<>();
+    public ResultStatus<UserAndWorkout> restartWorkout(@NonNull Workout workout) {
+        ResultStatus<UserAndWorkout> resultStatus = new ResultStatus<>();
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put(RequestFields.WORKOUT, workout.asMap());
@@ -228,7 +226,7 @@ public class WorkoutRepository {
 
         if (apiResponse.isSuccess()) {
             try {
-                resultStatus.setData(new UserWithWorkout(JsonUtils.deserialize(apiResponse.getData())));
+                resultStatus.setData(new UserAndWorkout(JsonUtils.deserialize(apiResponse.getData())));
                 resultStatus.setSuccess(true);
             } catch (Exception e) {
                 resultStatus.setErrorMessage("There was a problem trying to restart the workout.");
@@ -304,36 +302,6 @@ public class WorkoutRepository {
             }
         } else {
             resultStatus.setErrorMessage("There was a problem trying to load the received workout.");
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> setReceivedWorkoutSeen(String sharedWorkoutId) {
-        ResultStatus<String> resultStatus = new ResultStatus<>();
-
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put(SharedWorkout.SHARED_WORKOUT_ID, sharedWorkoutId);
-
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setReceivedWorkoutSeenAction, requestBody, true);
-        if (apiResponse.isSuccess()) {
-            resultStatus.setData(apiResponse.getData());
-            resultStatus.setSuccess(true);
-        } else {
-            resultStatus.setErrorMessage("There was a problem trying to set workout as seen.");
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> setAllReceivedWorkoutsSeen() {
-        ResultStatus<String> resultStatus = new ResultStatus<>();
-
-        Map<String, Object> requestBody = new HashMap<>();
-        ResultStatus<String> apiResponse = this.apiGateway.makeRequest(setAllReceivedWorkoutsSeenAction, requestBody, true);
-        if (apiResponse.isSuccess()) {
-            resultStatus.setData(apiResponse.getData());
-            resultStatus.setSuccess(true);
-        } else {
-            resultStatus.setErrorMessage("There was a problem trying to set workouts as seen.");
         }
         return resultStatus;
     }

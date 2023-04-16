@@ -3,10 +3,8 @@ package com.joshrap.liteweight.activities;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -39,23 +38,37 @@ import android.os.Handler;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
-import com.joshrap.liteweight.imports.Globals;
+import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.NewFriendRequestMessage;
+import com.joshrap.liteweight.messages.activitymessages.ReceivedWorkoutMessage;
+import com.joshrap.liteweight.messages.activitymessages.RemovedFriendMessage;
+import com.joshrap.liteweight.messages.activitymessages.TimerRestartMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.AcceptedFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.DeclinedFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
+import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
+import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
@@ -64,9 +77,8 @@ import com.joshrap.liteweight.models.SharedWorkoutMeta;
 import com.joshrap.liteweight.models.SharedWorkout;
 import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.network.RequestFields;
-import com.joshrap.liteweight.network.repos.UserRepository;
 import com.joshrap.liteweight.services.StopwatchService;
 import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.services.TimerService;
@@ -75,7 +87,10 @@ import com.joshrap.liteweight.widgets.Timer;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,23 +102,24 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 
-public class WorkoutActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered;
-    private TextView toolbarTitleTV;
+    private TextView toolbarTitleTV, usernameTV;
     private NavigationView nav;
+    private Toolbar toolbar;
     private FragmentManager fragmentManager;
     private ArrayList<String> fragmentStack; // stack of fragment ids
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
-    private boolean activityFinishing;
     private ImageView profilePicture;
     private Workout lastSyncedWorkout;
     private User user;
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
+    private ConstraintLayout navHeaderLayout;
+    private ProgressBar loadingBar;
+    private UserAndWorkout currentUserAndWorkout;
 
-    @Getter
-    private UserWithWorkout userWithWorkout;
     @Getter
     private Timer timer;
     @Getter
@@ -112,161 +128,32 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     @Inject
     Tokens tokens;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
     AlertDialog loadingDialog;
-
-    private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-            // the broadcasts should only be updating the base models (user/workout). Individual fragments handle UI changes on their own
-            switch (action) {
-                case Variables.NEW_FRIEND_REQUEST_BROADCAST: {
-                    try {
-                        FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        user.getFriendRequests().put(friendRequest.getUsername(), friendRequest);
-                        updateAccountNotificationIndicator();
-
-                        // send broadcast to any fragments waiting on this model update
-                        Intent broadcastIntent = new Intent();
-                        broadcastIntent.setAction(Variables.NEW_FRIEND_REQUEST_MODEL_UPDATED_BROADCAST);
-                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, friendRequest.getUsername());
-                        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                        localBroadcastManager.sendBroadcast(broadcastIntent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-                case Variables.CANCELED_FRIEND_REQUEST_BROADCAST: {
-                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    user.getFriendRequests().remove(usernameToRemove);
-                    updateAccountNotificationIndicator();
-
-                    // send broadcast to any fragments waiting on this model update
-                    Intent broadcastIntent = new Intent();
-                    broadcastIntent.setAction(Variables.CANCELED_REQUEST_MODEL_UPDATED_BROADCAST);
-                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                    break;
-                }
-                case Variables.DECLINED_FRIEND_REQUEST_BROADCAST: {
-                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    user.getFriends().remove(usernameToRemove);
-
-                    // send broadcast to any fragments waiting on this model update
-                    Intent broadcastIntent = new Intent();
-                    broadcastIntent.setAction(Variables.DECLINED_REQUEST_MODEL_UPDATED_BROADCAST);
-                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                    break;
-                }
-                case Variables.REMOVED_AS_FRIEND_BROADCAST: {
-                    String usernameToRemove = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    user.getFriends().remove(usernameToRemove);
-
-                    // send broadcast to any fragments waiting on this model update
-                    Intent broadcastIntent = new Intent();
-                    broadcastIntent.setAction(Variables.REMOVE_FRIEND_MODEL_UPDATED_BROADCAST);
-                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                    break;
-                }
-                case Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST: {
-                    String usernameAccepted = intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA).toString();
-                    user.getFriends().get(usernameAccepted).setConfirmed(true);
-
-                    // send broadcast to any fragments waiting on this model update
-                    Intent broadcastIntent = new Intent();
-                    broadcastIntent.setAction(Variables.ACCEPTED_REQUEST_MODEL_UPDATED_BROADCAST);
-                    broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                    break;
-                }
-                case Variables.RECEIVED_WORKOUT_BROADCAST:
-                    try {
-                        SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize((String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA)));
-                        boolean updateTotal = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null;
-                        if (updateTotal) {
-                            // workout wasn't here, so total needs to be increased
-                            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1);
-                        }
-
-                        // if workout isn't there, update unseen. If workout is there and it is already marked as seen: update it to unseen
-                        boolean updateUnseen = user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()) == null ||
-                                user.getReceivedWorkouts().get(sharedWorkoutMeta.getWorkoutId()).isSeen();
-                        if (updateUnseen) {
-                            // workout has not been seen yet so increase the unseen count
-                            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
-                        }
-                        updateReceivedWorkoutNotificationIndicator();
-                        user.getReceivedWorkouts().put(sharedWorkoutMeta.getWorkoutId(), sharedWorkoutMeta);
-                        // send broadcast to any fragments waiting on this model update
-                        Intent broadcastIntent = new Intent();
-                        broadcastIntent.setAction(Variables.RECEIVED_WORKOUT_MODEL_UPDATED_BROADCAST);
-                        broadcastIntent.putExtra(Variables.INTENT_NOTIFICATION_DATA, (String) intent.getExtras().get(Variables.INTENT_NOTIFICATION_DATA));
-                        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-                        localBroadcastManager.sendBroadcast(broadcastIntent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-            }
-        }
-    };
+    @Inject
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(null); // bit of a hack, but don't want to used save instance state since if app killed by OS I get NPEs from fragments
+
+        Injector.getInjector(this).inject(this);
+        EventBus.getDefault().register(this);
+        setContentView(R.layout.activity_workout);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        String action = null;
-        String jsonNotificationData = null;
-        activityFinishing = false;
-        if (getIntent().getExtras() != null) {
-            // there is notification data
-            action = getIntent().getAction();
-            if (action != null && action.equals(Variables.NOTIFICATION_CLICKED)) {
-                /*
-                    So freaking hacky. Essentially if user clicked a notification while app was terminated, we immediately finish this
-                    activity and start the landing activity. Avoids this activity needlessly being destroyed twice.
-                 */
-                activityFinishing = true;
-                launchLandingActivity(getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA),
-                        getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION));
-                finish();
-                return;
-            }
-            jsonNotificationData = getIntent().getExtras().getString(Variables.INTENT_NOTIFICATION_DATA);
-        }
-
-        if (userWithWorkout == null && Globals.userWithWorkout != null) {
-            userWithWorkout = Globals.userWithWorkout;
-            Globals.userWithWorkout = null; // grr have to use because can't serialize big data in an intent
-        } else if (userWithWorkout == null) {
-            // ughhhh. if app is eventually killed by OS, static vars get nulled out. so in that case just restart app for user to avoid crash
-            Intent intent = new Intent(this, LandingActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
-        user = userWithWorkout.getUser();
-        if (userWithWorkout.isWorkoutPresent()) {
-            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
-        } else {
-            lastSyncedWorkout = null;
-        }
+        toolbar = findViewById(R.id.toolbar);
+        toolbarTitleTV = findViewById(R.id.toolbar_title);
+        drawer = findViewById(R.id.drawer);
+        nav = findViewById(R.id.nav_view);
+        View headerView = nav.getHeaderView(0);
+        navHeaderLayout = headerView.findViewById(R.id.nav_header_layout);
+        usernameTV = headerView.findViewById(R.id.username_tv);
+        profilePicture = headerView.findViewById(R.id.profile_picture_image);
+        loadingBar = findViewById(R.id.loading_progress_bar);
 
         requestNotificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -276,18 +163,42 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             }
         });
 
-        Injector.getInjector(this).inject(this);
+        loadCurrentUserAndWorkout();
+    }
 
-        IntentFilter receiverActions = new IntentFilter();
-        receiverActions.addAction(Variables.NEW_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.ACCEPTED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.CANCELED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.REMOVED_AS_FRIEND_BROADCAST);
-        receiverActions.addAction(Variables.DECLINED_FRIEND_REQUEST_BROADCAST);
-        receiverActions.addAction(Variables.RECEIVED_WORKOUT_BROADCAST);
-        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, receiverActions);
+    private void loadCurrentUserAndWorkout() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            ResultStatus<UserAndWorkout> resultStatus = this.userManager.getUserAndCurrentWorkout();
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (resultStatus.isSuccess()) {
+                    currentUserAndWorkout = resultStatus.getData();
+                    currentUserAndWorkoutProvider.setCurrentUserAndWorkout(resultStatus.getData()); // sets static var for all other fragments to pull from
+                    loadingBar.setVisibility(View.GONE);
+                    loadActivity();
+                } else {
+                    launchSignInActivity(resultStatus.getErrorMessage());
+                }
+            });
+        });
+    }
 
-        setContentView(R.layout.activity_workout);
+    // called once main dependency - currentUserAndWorkout - is loaded
+    private void loadActivity() {
+        String notificationAction = null;
+        if (getIntent().getExtras() != null) {
+            // app was launched from a notification, we will route according to this
+            notificationAction = getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION);
+        }
+
+        user = currentUserAndWorkout.getUser();
+        if (currentUserAndWorkout.isWorkoutPresent()) {
+            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
+        } else {
+            lastSyncedWorkout = null;
+        }
+
         long timerDuration = sharedPreferences.getLong(Variables.TIMER_DURATION, Variables.DEFAULT_TIMER_VALUE);
         timer = new Timer(timerDuration);
         stopwatch = new Stopwatch();
@@ -296,10 +207,6 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         drawerListenerIsRegistered = false;
         fragmentManager = getSupportFragmentManager();
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbarTitleTV = findViewById(R.id.toolbar_title);
-        drawer = findViewById(R.id.drawer);
-        nav = findViewById(R.id.nav_view);
         nav.setNavigationItemSelectedListener(this);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -309,24 +216,24 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_draw_open, R.string.nav_draw_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        if (savedInstanceState == null) {
-            // default landing fragment is current workout one
-            fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                    new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
-            fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
-            nav.setCheckedItem(R.id.nav_current_workout);
-        }
-        View headerView = nav.getHeaderView(0);
-        ConstraintLayout navHeaderLayout = headerView.findViewById(R.id.nav_header_layout);
+
+        // default landing fragment is current workout
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, new CurrentWorkoutFragment(), Variables.CURRENT_WORKOUT_TITLE).commit();
+        fragmentStack.add(Variables.CURRENT_WORKOUT_TITLE);
+        nav.setCheckedItem(R.id.nav_current_workout);
+
+        // doing this here just because otherwise there is a barely noticeable delay when first launching the app
+        // as the title gets set slightly after other elements are visible
+        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getWorkoutName() : getString(R.string.app_name));
+
         navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
         navHeaderLayout.setOnClickListener(view -> {
             goToMyAccount();
             drawer.closeDrawer(GravityCompat.START);
             nav.setCheckedItem(R.id.nav_my_account);
         });
-        TextView usernameTV = headerView.findViewById(R.id.username_tv);
+
         usernameTV.setText(user.getUsername());
-        profilePicture = headerView.findViewById(R.id.profile_picture_image);
         Picasso.get()
                 .load(ImageUtils.getIconUrl(user.getIcon()))
                 .error(R.drawable.picture_load_error)
@@ -347,14 +254,24 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 });
 
         setupNotifications();
-        updateEndpointToken();
+        updatePushEndpointToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
-        if (action != null && jsonNotificationData != null) {
-            // means the user clicked on a notification which created this activity, so take them to the appropriate fragment
-            navigateToFragmentFromNotification(action);
+        if (notificationAction != null) {
+            // the user clicked on a notification which created this activity, so route to the appropriate fragment
+            navigateToFragmentFromNotification(notificationAction);
         }
         getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+    }
+
+    private void launchSignInActivity(String errorMessage) {
+        Intent intent = new Intent(this, SignInActivity.class);
+        if (errorMessage != null) {
+            intent.putExtra(Variables.ERROR_MESSAGE, errorMessage);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     private void setupNotifications() {
@@ -367,16 +284,9 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    private void launchLandingActivity(String jsonData, String action) {
-        Intent intent = new Intent(this, LandingActivity.class);
-        intent.putExtra(Variables.INTENT_NOTIFICATION_DATA, jsonData);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setAction(action);
-        startActivity(intent);
-    }
-
     /**
      * Called whenever the user clicks on a notification while the app is running or paused.
+     * The models should already be updated from the event bus.
      *
      * @param intent contains data about how to route and what data to consume.
      */
@@ -392,25 +302,22 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         if (action == null) {
             return;
         }
+        // close any popup that might be showing to avoid memory leaks
+        closeAllOpenDialogs();
         switch (action) {
             case Variables.INTENT_TIMER_NOTIFICATION_CLICK:
             case Variables.INTENT_STOPWATCH_NOTIFICATION_CLICK:
-                // close any popup that might be showing
-                closeAllOpenDialogs();
                 goToCurrentWorkout();
                 nav.setCheckedItem(R.id.nav_current_workout);
                 break;
             case Variables.RECEIVED_WORKOUT_CLICK:
-                closeAllOpenDialogs();
                 nav.setCheckedItem(R.id.nav_received_workouts);
                 goToReceivedWorkouts();
                 break;
             case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
-                closeAllOpenDialogs();
                 goToFriendsList(null);
                 break;
             case Variables.NEW_FRIEND_REQUEST_CLICK:
-                closeAllOpenDialogs();
                 Bundle extrasFriendRequest = new Bundle(); // to start the fragment on the friend request tab
                 extrasFriendRequest.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
                 goToFriendsList(extrasFriendRequest);
@@ -420,7 +327,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     /**
      * This is called whenever user opens notification while app was terminated.
-     * No need to update any models since that would have been taken care of from the landing screen load
+     * No need to update any models since that would have been taken care of from the app load
      *
      * @param action informs which route to take.
      */
@@ -452,23 +359,21 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     @Override
     protected void onDestroy() {
-        if (!activityFinishing) {
-            // stop any timer/stopwatch services that may be running.
-            stopService(new Intent(this, TimerService.class));
-            stopService(new Intent(this, StopwatchService.class));
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
-                notificationManager.cancel(TimerService.timerFinishedId);
-            }
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
-            if (sharedPreferences != null) {
-                // update tokens just in case they changed in apps life cycle
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
-                editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
-                editor.apply();
-            }
+        // stop any timer/stopwatch services that may be running.
+        stopService(new Intent(this, TimerService.class));
+        stopService(new Intent(this, StopwatchService.class));
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            // if timer finished and user hasn't acknowledged the notification yet, just clear it on app termination
+            notificationManager.cancel(TimerService.timerFinishedId);
+        }
+        EventBus.getDefault().unregister(this);
+        if (sharedPreferences != null) {
+            // update tokens just in case they changed in apps life cycle
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
+            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
+            editor.apply();
         }
         super.onDestroy();
     }
@@ -510,7 +415,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     }
 
     final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
-        // no longer overriding on back pressed. Using this callback means I can handle back presses in the fragments
+        // using this callback instead of method override means I can handle back presses in the fragments
         @Override
         public void handleOnBackPressed() {
             if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -524,21 +429,21 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
                 // there's at least two fragments on the stack, so pressing back button will pop the one on the top of the stack
                 popFragStack();
             } else {
-                ActivityCompat.finishAffinity(WorkoutActivity.this);
+                ActivityCompat.finishAffinity(MainActivity.this);
             }
 
         }
     };
 
     private void syncCurrentWorkout() {
-        if (userWithWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, userWithWorkout.getWorkout())) {
+        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
             // we assume it always succeeds
-            lastSyncedWorkout = new Workout(userWithWorkout.getWorkout());
+            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
             Intent intent = new Intent(this, SyncWorkoutService.class);
             intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
             intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
             try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(userWithWorkout.getWorkout().asMap()));
+                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout().asMap()));
                 startService(intent);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -600,9 +505,10 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             default:
                 /*
                     If the fragment now currently on the backstack is a fragment that I don't want the user to get back to,
-                    then go back again to get rid of it.
+                    then go back again to get rid of it without ever showing the fragment again.
 
-                    This would happen for example if clicking on notification when on the edit workout fragment.
+                    This would happen for example if clicking on notification when on the edit workout fragment. When clicking back the edit workout fragment
+                    is immediately discarded it.
                  */
                 onBackPressed();
                 break;
@@ -619,12 +525,12 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
-            userRepository.removeEndpointId();
-            // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make api call
+            userManager.removePushEndpointId();
+            // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make above api call
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
+                EventBus.getDefault().unregister(this);
                 // clear appropriate values in shared prefs
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.remove(Variables.ID_TOKEN_KEY);
@@ -654,13 +560,18 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
     // service that continues the stopwatch's progress
     public void startStopwatchService() {
         Intent serviceIntent = new Intent(this, StopwatchService.class);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, stopwatch.initialTimeOnClock);
-        startService(serviceIntent);
+        serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, stopwatch.initialElapsedTime);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
     }
 
     public void cancelStopwatchService() {
         stopService(new Intent(this, StopwatchService.class));
+
         // get rid of any notifications that are still showing now that the stopwatch is on the screen
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(StopwatchService.stopwatchRunningId);
@@ -668,9 +579,15 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
 
     public void startTimerService() {
         Intent serviceIntent = new Intent(this, TimerService.class);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
-        serviceIntent.putExtra(Variables.INTENT_TIMER_TIME_ON_CLOCK, timer.initialTimeOnClock);
-        startService(serviceIntent);
+        serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_INITIAL_TIME_REMAINING, timer.initialTimeRemaining);
+        serviceIntent.putExtra(Variables.INTENT_TIMER_DURATION, timer.timerDuration);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+
     }
 
     public void cancelTimerService() {
@@ -682,30 +599,114 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         notificationManager.cancel(TimerService.timerFinishedId);
     }
 
-    /**
-     * Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
-     */
-    private void updateEndpointToken() {
-        FirebaseInstanceId.getInstance().getInstanceId()
+    //region Subscriptions
+
+    // individual fragments handle the ui changes, these methods should only be updating the models.
+    // Admittedly this is where mvvm could take over but im not redoing the entire app
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleTimerRestartMessage(TimerRestartMessage event) {
+        timer.initialTimeRemaining = event.getTimeRemaining();
+        timer.startTimeAbsolute = event.getStartTimeAbsolute();
+        // if receiving this we can assume the timer finished and should be restarted
+        timer.startTimer();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleNewFriendRequestMessage(NewFriendRequestMessage event) {
+        FriendRequest friendRequest = event.getFriendRequest();
+        user.addFriendRequest(friendRequest);
+        updateAccountNotificationIndicator();
+
+        // send broadcast to any fragments waiting on this model update
+        NewFriendRequestFragmentMessage fragmentMessage = new NewFriendRequestFragmentMessage(friendRequest);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleCanceledFriendRequestMessage(CanceledFriendRequestMessage event) {
+        String usernameToRemove = event.getUsernameToRemove();
+        user.removeFriendRequest(usernameToRemove);
+        updateAccountNotificationIndicator();
+
+        // send broadcast to any fragments waiting on this model update
+        CanceledFriendRequestFragmentMessage fragmentMessage = new CanceledFriendRequestFragmentMessage(usernameToRemove);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleDeclinedFriendRequestMessage(DeclinedFriendRequestMessage event) {
+        String usernameToRemove = event.getUsernameToRemove();
+        user.removeFriend(usernameToRemove);
+
+        // send broadcast to any fragments waiting on this model update
+        DeclinedFriendRequestFragmentMessage fragmentMessage = new DeclinedFriendRequestFragmentMessage(usernameToRemove);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleRemovedAsFriendMessage(RemovedFriendMessage event) {
+        String usernameToRemove = event.getUsernameToRemove();
+        user.removeFriend(usernameToRemove);
+
+        // send broadcast to any fragments waiting on this model update
+        RemovedFriendFragmentMessage fragmentMessage = new RemovedFriendFragmentMessage(usernameToRemove);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestMessage message) {
+        String usernameAccepted = message.getAcceptedUsername();
+        user.getFriend(usernameAccepted).setConfirmed(true);
+
+        // send broadcast to any fragments waiting on this model update
+        AcceptedFriendRequestFragmentMessage fragmentMessage = new AcceptedFriendRequestFragmentMessage(usernameAccepted);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
+        SharedWorkoutMeta sharedWorkoutMeta = event.getSharedWorkoutMeta();
+        String workoutId = sharedWorkoutMeta.getWorkoutId();
+        if (user.doesNotContainReceivedWorkout(workoutId)) {
+            // workout wasn't here, so total needs to be increased
+            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1); // todo when i eventually make it so workouts with same name don't matter, remove this if statement
+        }
+
+        // If workout isn't there, update unseen count.
+        // If workout is there and it is already marked as seen - update it to unseen.
+        boolean updateUnseen = user.doesNotContainReceivedWorkout(workoutId) || user.getReceivedWorkout(workoutId).isSeen();
+        if (updateUnseen) {
+            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
+        }
+        updateReceivedWorkoutNotificationIndicator();
+        user.putReceivedWorkout(sharedWorkoutMeta);
+
+        // send broadcast to any fragments waiting on this model update
+        ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(sharedWorkoutMeta);
+        EventBus.getDefault().post(fragmentMessage);
+    }
+
+    //endregion
+
+    // Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
+    private void updatePushEndpointToken() {
+        FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         return;
                     }
 
                     // Get new Instance ID token
-                    String token = task.getResult().getToken();
+                    String token = task.getResult();
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
                         // blind send for now for updating notification endpoint id
-                        userRepository.updateEndpointId(token);
+                        userManager.updatePushEndpointId(token);
                     });
                 });
     }
 
-    /**
-     * Sets up a notification channel for each channel in the app. Each channel is preset with
-     * notification options but these can always be changed by the user.
-     */
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // channel for when the timer is running but not finished
@@ -716,6 +717,7 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
             timerRunningChannel.setSound(null, null);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(timerRunningChannel);
+
             // channel for when the timer finished
             NotificationChannel timerFinishedChannel = new NotificationChannel(
                     Variables.TIMER_FINISHED_CHANNEL,
@@ -840,18 +842,29 @@ public class WorkoutActivity extends AppCompatActivity implements NavigationView
         // check if there are any unseen notifications for friend requests
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
         view.setText(null);
-        for (String username : user.getFriendRequests().keySet()) {
-            if (!user.getFriendRequests().get(username).isSeen()) {
+        for (FriendRequest friendRequest : user.getFriendRequests().values()) {
+            if (!friendRequest.isSeen()) {
                 view.setText(R.string.alert);
                 return;
             }
         }
     }
 
+    public void clearAccountNotificationIndicator() {
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        view.setText(null);
+    }
+
     public void updateReceivedWorkoutNotificationIndicator() {
         // check if there are any unseen notifications for received workouts
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
         view.setText(user.getUnseenReceivedWorkouts() > 0 ? String.valueOf(user.getUnseenReceivedWorkouts()) : null);
+    }
+
+    public void updateReceivedWorkoutNotificationIndicator(int count) {
+        // fragments manually set the indicator in cases of blind sends (ik ik, MVVM is where this could shine)
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
+        view.setText(count > 0 ? String.valueOf(count) : null);
     }
 
     private void saveCurrentFragmentState() {

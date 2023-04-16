@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class DateUtils {
+public class TimeUtils {
 
     public static String getFormattedLocalDateTime(String utcDateTime) {
         String formattedDateTime = null;
@@ -24,5 +24,16 @@ public class DateUtils {
             e.printStackTrace();
         }
         return formattedDateTime;
+    }
+
+
+    /**
+     * @param time time in milliseconds
+     * @return Returns a string in the format MM:SS
+     */
+    public static String getClockDisplay(long time) {
+        int minutes = (int) (time / 60000);
+        int seconds = (int) (time / 1000) % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 }

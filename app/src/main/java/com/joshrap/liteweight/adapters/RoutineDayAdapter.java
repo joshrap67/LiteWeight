@@ -19,7 +19,7 @@ import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.Routine;
 import com.joshrap.liteweight.models.RoutineExercise;
@@ -167,7 +167,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         }
 
         deleteButton.setOnClickListener(v -> {
-            ((WorkoutActivity) activity).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
             routineRowModels.remove(rowModel);
             notifyItemRemoved(holder.getAdapterPosition());
@@ -175,7 +175,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         });
 
         expandButton.setOnClickListener((v) -> {
-            ((WorkoutActivity) activity).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
 
             if (rowModel.isExpanded) {
                 boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
@@ -200,7 +200,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
                     rowModel.isExpanded = false;
 
                     notifyItemChanged(holder.getAdapterPosition(), true);
-                    ((WorkoutActivity) activity).hideKeyboard();
+                    ((MainActivity) activity).hideKeyboard();
                 }
 
             } else {

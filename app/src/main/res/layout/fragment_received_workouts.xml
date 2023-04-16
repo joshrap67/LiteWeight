@@ -4,20 +4,38 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
         android:orientation="vertical">
 
-    <Button
-            android:id="@+id/mark_all_seen_btn"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
+    <RelativeLayout
+            android:id="@+id/top_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:contentDescription="@string/mark_all_seen"
-            android:text="@string/mark_all_seen"
-            android:textColor="@color/color_accent"
-            app:icon="@drawable/mark_all_read_icon" />
+            android:background="@color/exercise_row_background">
+
+        <TextView
+                android:id="@+id/total_received_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/mark_all_seen_btn"
+                android:paddingHorizontal="12dp"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                tools:text="15 WORKOUTS" />
+
+        <Button
+                android:id="@+id/mark_all_seen_btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:contentDescription="@string/mark_all_seen"
+                android:paddingHorizontal="12dp"
+                android:text="@string/mark_all_seen"
+                android:textColor="@color/color_accent"
+                app:icon="@drawable/mark_all_read_icon" />
+    </RelativeLayout>
 
     <TextView
             android:id="@+id/empty_view_tv"
@@ -35,7 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/loading_progress_bar"
-            android:layout_below="@id/mark_all_seen_btn"
+            android:layout_below="@id/top_container"
+            android:layout_marginHorizontal="12dp"
             android:layout_marginTop="8dp"
             android:paddingHorizontal="4dp"
             android:scrollbarStyle="outsideInset"

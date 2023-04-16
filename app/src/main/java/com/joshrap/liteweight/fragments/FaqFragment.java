@@ -16,7 +16,7 @@ import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 
 public class FaqFragment extends Fragment {
@@ -29,8 +29,8 @@ public class FaqFragment extends Fragment {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         View view = inflater.inflate(R.layout.fragment_faq, container, false);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.FAQ_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.FAQ_TITLE);
 
         RelativeLayout faq0Layout = view.findViewById(R.id.faq_0_container);
         TextView faq0 = view.findViewById(R.id.faq_0_tv);

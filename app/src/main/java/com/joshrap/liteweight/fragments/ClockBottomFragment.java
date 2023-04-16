@@ -1,10 +1,12 @@
 package com.joshrap.liteweight.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -16,9 +18,10 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
@@ -58,8 +61,8 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
 
-        timer = ((WorkoutActivity) getActivity()).getTimer();
-        stopwatch = ((WorkoutActivity) getActivity()).getStopwatch();
+        timer = ((MainActivity) getActivity()).getTimer();
+        stopwatch = ((MainActivity) getActivity()).getStopwatch();
         editor = sharedPreferences.edit();
 
         View view = inflater.inflate(R.layout.bottom_sheet_clock, container, false);
@@ -121,6 +124,13 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         Button timerPickerBackButton = view.findViewById(R.id.timer_picker_back_btn);
         timerPickerBackButton.setOnClickListener(v -> setTimerDurationVisibility(false));
         saveTimeDurationButton.setOnClickListener(v -> {
+            // clear focus so if user inputted text it gets set to the number pickers
+            minutePicker.clearFocus();
+            secondPicker.clearFocus();
+            // hide keyboard
+            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+
             long minutes = minutePicker.getValue() * (60 * Timer.timeUnit);
             long seconds = secondPicker.getValue() * Timer.timeUnit;
             int totalTime = (int) (minutes + seconds);
@@ -147,7 +157,6 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         timerDisplayLayout = view.findViewById(R.id.timer_display_container);
         timerButtonsLayout = view.findViewById(R.id.timer_buttons_container);
 
-        setTimerViewsVisibility();
         startTimerButton.setOnClickListener(v -> startTimer());
         stopTimerButton.setOnClickListener(v -> stopTimer());
         resetTimerButton.setOnClickListener(v -> timer.resetTimer());
@@ -164,15 +173,8 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             }
         });
 
-        timer.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime <= 0) {
-                // timer is done
-                updateTimerDisplays(elapsedTime);
-                setTimerViewsVisibility();
-            } else {
-                updateTimerDisplays(elapsedTime);
-            }
-        });
+        timer.timeRemaining.observe(getViewLifecycleOwner(), this::updateTimerDisplays);
+        timer.timerRunning.observe(getViewLifecycleOwner(), this::setTimerViewsVisibility);
         //endregion
 
         //region Stopwatch
@@ -182,20 +184,13 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         showTimerButton = view.findViewById(R.id.show_timer_btn);
         stopwatchTV = view.findViewById(R.id.stopwatch_tv);
 
-        setStopwatchViewsVisibility();
         startStopwatchButton.setOnClickListener(v -> startStopwatch());
         stopStopwatchButton.setOnClickListener(v -> stopStopwatch());
         resetStopwatchButton.setOnClickListener(v -> stopwatch.resetStopwatch());
         showTimerButton.setOnClickListener(v -> switchToTimer());
 
-        stopwatch.displayTime.observe(getViewLifecycleOwner(), elapsedTime -> {
-            if (elapsedTime >= Variables.MAX_STOPWATCH_TIME) {
-                updateStopwatchDisplays(elapsedTime);
-                setStopwatchViewsVisibility();
-            } else {
-                updateStopwatchDisplays(elapsedTime);
-            }
-        });
+        stopwatch.elapsedTime.observe(getViewLifecycleOwner(), this::updateStopwatchDisplays);
+        stopwatch.stopwatchRunning.observe(getViewLifecycleOwner(), this::setStopwatchViewsVisibility);
 
         return view;
 
@@ -204,27 +199,22 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     private void startStopwatch() {
         stopwatch.startStopwatch();
         dismiss();
-        setStopwatchViewsVisibility();
     }
 
     private void startTimer() {
         timer.startTimer();
         dismiss();
-        setTimerViewsVisibility();
     }
 
     private void stopTimer() {
         timer.stopTimer();
-        setTimerViewsVisibility();
     }
 
     private void stopStopwatch() {
         stopwatch.stopStopwatch();
-        setStopwatchViewsVisibility();
     }
 
-    private void setTimerViewsVisibility() {
-        boolean timerRunning = timer.isTimerRunning();
+    private void setTimerViewsVisibility(boolean timerRunning) {
         setTimerDurationTV.setVisibility(timerRunning ? View.INVISIBLE : View.VISIBLE);
         stopTimerButton.setVisibility(timerRunning ? View.VISIBLE : View.GONE);
         startTimerButton.setVisibility(timerRunning ? View.GONE : View.VISIBLE);
@@ -236,8 +226,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private void setStopwatchViewsVisibility() {
-        boolean stopwatchRunning = stopwatch.isStopwatchRunning();
+    private void setStopwatchViewsVisibility(boolean stopwatchRunning) {
         stopStopwatchButton.setVisibility(stopwatchRunning ? View.VISIBLE : View.GONE);
         startStopwatchButton.setVisibility(stopwatchRunning ? View.GONE : View.VISIBLE);
 
@@ -269,23 +258,19 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         stopwatchLayout.setVisibility(View.INVISIBLE);
     }
 
-    private void updateTimerDisplays(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Timer.timeUnit));
-        int seconds = (int) (elapsedTime / Timer.timeUnit) % 60;
-        String timeRemaining = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    private void updateTimerDisplays(long timeRemaining) {
+        String timeRemainingFormatted = TimeUtils.getClockDisplay(timeRemaining);
 
         if (timerTV != null) {
-            timerTV.setText(timeRemaining);
+            timerTV.setText(timeRemainingFormatted);
         }
     }
 
     private void updateStopwatchDisplays(long elapsedTime) {
-        int minutes = (int) (elapsedTime / (60 * Stopwatch.timeUnit));
-        int seconds = (int) (elapsedTime / Stopwatch.timeUnit) % 60;
-        String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+        String elapsedTimeFormatted = TimeUtils.getClockDisplay(elapsedTime);
 
         if (stopwatchTV != null) {
-            stopwatchTV.setText(timeFormatted);
+            stopwatchTV.setText(elapsedTimeFormatted);
         }
     }
 }

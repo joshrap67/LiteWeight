@@ -33,16 +33,16 @@ import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.OwnedExercise;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserWithWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -72,7 +72,9 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
+    @Inject
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
@@ -80,13 +82,12 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.NEW_EXERCISE_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.NEW_EXERCISE_TITLE);
 
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
 
-        UserWithWorkout userWithWorkout = ((WorkoutActivity) getActivity()).getUserWithWorkout();
-        user = userWithWorkout.getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
         metricUnits = user.getUserPreferences().isMetricUnits();
         focusList = new ArrayList<>(Variables.FOCUS_LIST);
         selectedFocuses = new ArrayList<>();
@@ -152,7 +153,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             alertDialog.show();
         });
         clipboardBtn.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             String url = urlInput.getText().toString().trim();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
@@ -160,7 +161,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             createExercise();
         });
 
@@ -172,7 +173,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            ((WorkoutActivity) getActivity()).hideKeyboard();
+            ((MainActivity) getActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -212,7 +213,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         List<String> exerciseNames = new ArrayList<>();
         for (String exerciseId : user.getOwnedExercises().keySet()) {
-            exerciseNames.add(user.getOwnedExercises().get(exerciseId).getExerciseName());
+            exerciseNames.add(user.getExercise(exerciseId).getExerciseName());
         }
         nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
         exerciseNameLayout.setError(nameError);
@@ -259,14 +260,12 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             Executor executor = Executors.newSingleThreadExecutor();
             double finalWeight = weight; // java weirdness
             executor.execute(() -> {
-                ResultStatus<OwnedExercise> resultStatus = this.userRepository.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
+                ResultStatus<OwnedExercise> resultStatus = this.userManager.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (resultStatus.isSuccess()) {
-                        OwnedExercise newExercise = resultStatus.getData();
-                        user.getOwnedExercises().put(newExercise.getExerciseId(), newExercise);
-                        ((WorkoutActivity) getActivity()).finishFragment();
+                        ((MainActivity) getActivity()).finishFragment();
                     } else {
                         AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                     }

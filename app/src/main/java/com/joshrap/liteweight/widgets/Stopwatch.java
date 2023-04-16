@@ -7,22 +7,22 @@ import androidx.lifecycle.MutableLiveData;
 import com.joshrap.liteweight.imports.Variables;
 
 public class Stopwatch {
+
     public final MutableLiveData<Boolean> stopwatchRunning;
     public static final long timeUnit = 1000; // in SI units of milliseconds
-    public long startTimeAbsolute, initialTimeOnClock; // in SI units of milliseconds
-    public final MutableLiveData<Long> displayTime; // in SI units of milliseconds
+    public long startTimeAbsolute; // in SI units of milliseconds (UNIX Timestamp)
+    public long initialElapsedTime; // in SI units of milliseconds. utilized when pausing the stopwatch to keep the latest time on the clock
+    public final MutableLiveData<Long> elapsedTime; // in SI units of milliseconds
 
     private final Handler stopwatchHandler = new Handler();
     private final Runnable stopwatch = new Runnable() {
         @Override
         public void run() {
-            long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
-            displayTime.setValue(initialTimeOnClock + elapsedTime);
-            if (displayTime.getValue() > Variables.MAX_STOPWATCH_TIME) {
-                stopwatchRunning.setValue(false);
-                displayTime.setValue(0L);
+            long elapsedTimeAbsolute = System.currentTimeMillis() - startTimeAbsolute;
+            elapsedTime.setValue(initialElapsedTime + elapsedTimeAbsolute);
+            if (elapsedTime.getValue() > Variables.MAX_STOPWATCH_TIME) {
+                cancelRunnable();
                 resetStopwatch();
-                stopwatchHandler.removeCallbacks(stopwatch);
             } else {
                 stopwatchHandler.postDelayed(stopwatch, 500);
             }
@@ -31,8 +31,8 @@ public class Stopwatch {
 
     public Stopwatch() {
         stopwatchRunning = new MutableLiveData<>(false);
-        initialTimeOnClock = 0; // assume at initialization the stopwatch isn't running
-        displayTime = new MutableLiveData<>(0L);
+        initialElapsedTime = 0; // assume at initialization the stopwatch isn't running
+        elapsedTime = new MutableLiveData<>(0L);
     }
 
     public void startStopwatch() {
@@ -46,23 +46,24 @@ public class Stopwatch {
     public void stopStopwatch() {
         if (isStopwatchRunning()) {
             long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;
-            initialTimeOnClock += elapsedTime;
-            startTimeAbsolute = System.currentTimeMillis();
-            stopwatchHandler.removeCallbacks(stopwatch);
-            stopwatchRunning.setValue(false);
+            initialElapsedTime += elapsedTime;
+            cancelRunnable();
         }
     }
 
     public void resetStopwatch() {
-        initialTimeOnClock = 0;
-        startTimeAbsolute = System.currentTimeMillis();
+        initialElapsedTime = 0;
         if (isStopwatchRunning()) {
-            stopwatchRunning.setValue(false);
-            stopwatchHandler.removeCallbacks(stopwatch);
+            cancelRunnable();
             startStopwatch();
         } else {
-            displayTime.setValue(0L);
+            elapsedTime.setValue(0L);
         }
+    }
+
+    private void cancelRunnable() {
+        stopwatchRunning.setValue(false);
+        stopwatchHandler.removeCallbacks(stopwatch);
     }
 
     public boolean isStopwatchRunning() {

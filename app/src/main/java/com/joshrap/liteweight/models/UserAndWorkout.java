@@ -11,14 +11,14 @@ import lombok.Data;
 import lombok.Setter;
 
 @Data
-public class UserWithWorkout implements Model {
+public class UserAndWorkout implements Model {
 
     @Setter(AccessLevel.PRIVATE)
     private User user;
     private Workout workout;
     private boolean workoutPresent;
 
-    public UserWithWorkout(Map<String, Object> json) {
+    public UserAndWorkout(Map<String, Object> json) {
         this.user = new User((Map<String, Object>) json.get(RequestFields.USER));
         this.workoutPresent = (boolean) json.get(RequestFields.WORKOUT_PRESENT);
         if (!workoutPresent) {
@@ -41,7 +41,6 @@ public class UserWithWorkout implements Model {
         if (this.workoutPresent) {
             retVal.put(RequestFields.WORKOUT, this.workout.asMap());
         } else {
-            // in case the user has no workout, just return an empty map
             retVal.put(RequestFields.WORKOUT, new HashMap<>());
         }
         retVal.put(RequestFields.WORKOUT_PRESENT, this.workoutPresent);

@@ -41,7 +41,6 @@ import android.widget.ViewFlipper;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.BackendConfig;
-import com.joshrap.liteweight.imports.Globals;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -49,9 +48,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.models.CognitoResponse;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.models.UserWithWorkout;
 import com.joshrap.liteweight.network.repos.CognitoRepository;
-import com.joshrap.liteweight.network.repos.UserRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -78,8 +75,6 @@ public class SignInActivity extends AppCompatActivity {
     AlertDialog loadingDialog;
     @Inject
     Tokens tokens;
-    @Inject
-    UserRepository userRepository;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -500,34 +495,15 @@ public class SignInActivity extends AppCompatActivity {
         tokens.setIdToken(resultStatus.getData().getIdToken());
         tokens.setRefreshToken(resultStatus.getData().getRefreshToken());
         editor.apply();
-        getUserWithWorkout();
+        launchMainActivity();
     }
 
-    private void getUserWithWorkout() {
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<UserWithWorkout> resultStatus = this.userRepository.getUserAndCurrentWorkout();
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    Globals.userWithWorkout = resultStatus.getData(); // turns out if you send a big object in an intent, it causes performance problems so instead get this fun hack :(
-                    launchWorkoutActivity(resultStatus.getData());
-                } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), this);
-                }
-            });
-        });
-    }
-
-    private void launchWorkoutActivity(UserWithWorkout userWithWorkout) {
-        Intent intent = new Intent(SignInActivity.this, WorkoutActivity.class);
+    private void launchMainActivity() {
+        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        if (userWithWorkout != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     private void attemptSignUp(String username, String password, String email, String optionalIdToken) {

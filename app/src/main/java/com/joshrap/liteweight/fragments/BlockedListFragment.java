@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,7 +30,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.activities.WorkoutActivity;
+import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -38,7 +41,6 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.ResultStatus;
 import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.network.repos.UserRepository;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -64,18 +66,19 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserRepository userRepository;
-
+    UserManager userManager;
+    @Inject
+    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        ((WorkoutActivity) getActivity()).updateToolbarTitle(Variables.BLOCKED_LIST_TITLE);
-        ((WorkoutActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) getActivity()).updateToolbarTitle(Variables.BLOCKED_LIST_TITLE);
+        ((MainActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
-        user = ((WorkoutActivity) getActivity()).getUserWithWorkout().getUser();
+        user = currentUserAndWorkoutProvider.provideCurrentUser();
 
         return inflater.inflate(R.layout.fragment_blocked_list, container, false);
     }
@@ -85,13 +88,12 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         blocked = new ArrayList<>();
         blocked.addAll(user.getBlocked().keySet());
         Collections.sort(blocked);
-        blockedAdapter = new BlockedAdapter(blocked, user.getBlocked());
+        blockedAdapter = new BlockedAdapter(user.getBlocked());
 
         emptyView = view.findViewById(R.id.empty_view_tv);
         RecyclerView recyclerView = view.findViewById(R.id.blocked_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         blockedAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            // since google is stupid af and doesn't have a simple setEmptyView for recyclerView...
             @Override
             public void onChanged() {
                 super.onChanged();
@@ -131,9 +133,6 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         }
     }
 
-    /**
-     * Used to check if the user has any blocked. If not, show a textview alerting user
-     */
     private void checkEmptyList() {
         emptyView.setVisibility(blocked.isEmpty() ? View.VISIBLE : View.GONE);
         emptyView.setText(getString(R.string.empty_blocked_list_msg));
@@ -175,20 +174,14 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = userRepository.blockUser(username);
+            ResultStatus<String> resultStatus = userManager.blockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
-                    user.getBlocked().put(username, resultStatus.getData());
-                    // this maybe shouldn't be the frontend's responsibility, but i would have to change the backend return value so oh well
-                    user.getFriendRequests().remove(username);
-                    user.getFriends().remove(username);
-
                     blocked.add(username);
                     Collections.sort(blocked);
                     blockedAdapter.notifyDataSetChanged();
-                    checkEmptyList();
                 } else {
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
@@ -198,23 +191,19 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
     private void unblockUser(String username) {
         // assume it always succeeds
-        String icon = user.getBlocked().get(username); // preserve in case there was an error with unblocking
-        user.getBlocked().remove(username);
-        blocked.remove(username);
-        blockedAdapter.notifyDataSetChanged();
-        checkEmptyList();
+        int index = blocked.indexOf(username);
+        blocked.remove(index);
+        blockedAdapter.notifyItemRemoved(index);
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = userRepository.unblockUser(username);
+            ResultStatus<String> resultStatus = userManager.unblockUser(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                // not critical to show any type of loading dialog/handle errors for this action
-                if (!resultStatus.isSuccess() && BlockedListFragment.this.isResumed()) {
-                    // if it failed add the blocked user back to the list/model
-                    user.getBlocked().put(username, icon);
-                    blocked.add(username);
-                    blockedAdapter.notifyDataSetChanged();
+                if (resultStatus.isFailure() && BlockedListFragment.this.isResumed()) {
+                    // on off chance it failed add the blocked user back to the list
+                    blocked.add(index, username);
+                    blockedAdapter.notifyItemInserted(index);
                     checkEmptyList();
                     AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
                 }
@@ -254,12 +243,10 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
             }
         }
 
-        private final List<String> blockedList;
-        private final Map<String, String> blockedMap;
+        private final Map<String, String> usernameToIcon;
 
-        BlockedAdapter(List<String> blockedList, Map<String, String> blockedMap) {
-            this.blockedMap = blockedMap;
-            this.blockedList = blockedList;
+        BlockedAdapter(Map<String, String> usernameToIcon) {
+            this.usernameToIcon = usernameToIcon;
         }
 
         @NonNull
@@ -272,19 +259,9 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
         }
 
         @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return position;
-        }
-
-        @Override
         public void onBindViewHolder(BlockedAdapter.ViewHolder holder, int position) {
-            String blockedUser = blockedList.get(position);
-            String icon = blockedMap.get(blockedUser);
+            String blockedUser = blocked.get(position);
+            String icon = usernameToIcon.get(blockedUser);
 
             RelativeLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
@@ -355,7 +332,7 @@ public class BlockedListFragment extends Fragment implements FragmentWithDialog 
 
         @Override
         public int getItemCount() {
-            return blockedList.size();
+            return blocked.size();
         }
     }
     //endregion

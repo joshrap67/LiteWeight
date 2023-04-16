@@ -8,7 +8,7 @@
         android:background="@drawable/nav_header_background"
         android:clickable="true"
         android:focusable="true"
-        tools:context=".activities.WorkoutActivity">
+        tools:context=".activities.MainActivity">
 
     <RelativeLayout
             android:layout_width="match_parent"

@@ -12,5 +12,6 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:contentDescription="@string/profile_picture"
+            android:paddingHorizontal="16dp"
             tools:srcCompat="@mipmap/app_logo" />
 </LinearLayout>
