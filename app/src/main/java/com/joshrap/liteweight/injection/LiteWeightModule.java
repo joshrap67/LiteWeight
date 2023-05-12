@@ -5,9 +5,10 @@ import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.models.VersionModel;
 
 import javax.inject.Singleton;
@@ -36,11 +37,10 @@ class LiteWeightModule {
     }
 
     @Provides
-    @Singleton
-    Tokens provideTokens(final SharedPreferences sharedPreferences) {
-        String refreshToken = sharedPreferences.getString(Variables.REFRESH_TOKEN_KEY, null);
-        String idToken = sharedPreferences.getString(Variables.ID_TOKEN_KEY, null);
-        return new Tokens(refreshToken, idToken);
+    ObjectMapper provideObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return objectMapper;
     }
 
     @Provides

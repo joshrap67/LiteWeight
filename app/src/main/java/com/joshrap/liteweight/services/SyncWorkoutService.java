@@ -10,20 +10,18 @@ import androidx.annotation.Nullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.models.VersionModel;
-import com.joshrap.liteweight.models.Workout;
-import com.joshrap.liteweight.network.ApiGateway;
-import com.joshrap.liteweight.network.CognitoGateway;
-import com.joshrap.liteweight.network.RequestFields;
-import com.joshrap.liteweight.network.repos.CognitoRepository;
-import com.joshrap.liteweight.network.repos.WorkoutRepository;
+import com.joshrap.liteweight.managers.WorkoutManager;
+import com.joshrap.liteweight.models.workout.Workout;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
 public class SyncWorkoutService extends Service {
+    @Inject
+    WorkoutManager workoutManager;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -32,31 +30,19 @@ public class SyncWorkoutService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        String refreshToken = intent.getStringExtra(Variables.INTENT_REFRESH_TOKEN);
-        String idToken = intent.getStringExtra(Variables.INTENT_ID_TOKEN);
-        String workoutJson = intent.getStringExtra(RequestFields.WORKOUT);
+        String workoutJson = intent.getStringExtra(Variables.WORKOUT);
         Workout workout = null;
         try {
-            workout = new Workout(new ObjectMapper().readValue(workoutJson, Map.class));
+            workout = new Workout(new ObjectMapper().readValue(workoutJson, Workout.class));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        String versionName = null;
-        int versionCode = 0;
-        try {
-            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        ApiGateway apiGateway = new ApiGateway(new Tokens(refreshToken, idToken), new CognitoRepository(new CognitoGateway()), new VersionModel(versionName, versionCode));
-        WorkoutRepository repository = new WorkoutRepository(apiGateway);
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;
         executor.execute(() -> {
             if (finalWorkout != null) {
-                repository.syncWorkout(finalWorkout);
+                workoutManager.updateWorkout(finalWorkout);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(this::stopSelf);
             } else {

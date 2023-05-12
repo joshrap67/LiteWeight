@@ -10,15 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.joshrap.liteweight.models.WorkoutMeta;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
 
 import java.util.List;
 
-public class WorkoutsAdapter extends ArrayAdapter<WorkoutMeta> {
+public class WorkoutsAdapter extends ArrayAdapter<WorkoutInfo> {
     private final Context context;
-    private final List<WorkoutMeta> workoutList;
+    private final List<WorkoutInfo> workoutList;
 
-    public WorkoutsAdapter(@NonNull Context context, List<WorkoutMeta> list) {
+    public WorkoutsAdapter(@NonNull Context context, List<WorkoutInfo> list) {
         super(context, 0, list);
         this.context = context;
         this.workoutList = list;
@@ -31,10 +31,10 @@ public class WorkoutsAdapter extends ArrayAdapter<WorkoutMeta> {
         if (listItem == null) {
             listItem = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, parent, false);
         }
-        WorkoutMeta currentExercise = workoutList.get(position);
+        WorkoutInfo workoutInfo = workoutList.get(position);
 
         TextView workoutNameTV = listItem.findViewById(android.R.id.text1);
-        workoutNameTV.setText(currentExercise.getWorkoutName());
+        workoutNameTV.setText(workoutInfo.getWorkoutName());
         workoutNameTV.setTextSize(17);
 
         return workoutNameTV;

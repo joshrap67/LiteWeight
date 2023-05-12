@@ -18,8 +18,8 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.UserPreferences;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.UserPreferences;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 
@@ -101,11 +101,11 @@ public class AccountPreferencesFragment extends Fragment {
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                ResultStatus<String> resultStatus = this.userManager.updateUserPreferences(userPreferences);
+                Result<String> result = this.userManager.updateUserPreferences(userPreferences);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
-                    if (resultStatus.isFailure()) {
-                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    if (result.isFailure()) {
+                        AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                     }
                 });
             });

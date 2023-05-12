@@ -9,27 +9,34 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.NewFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.ReceivedWorkoutMessage;
 import com.joshrap.liteweight.messages.activitymessages.RemovedFriendMessage;
+import com.joshrap.liteweight.models.notifications.AcceptedFriendRequestNotification;
+import com.joshrap.liteweight.models.notifications.CanceledFriendRequestNotification;
+import com.joshrap.liteweight.models.notifications.DeclinedFriendRequestNotification;
+import com.joshrap.liteweight.models.notifications.RemovedAsFriendNotification;
 import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.FriendRequest;
-import com.joshrap.liteweight.models.PushNotification;
-import com.joshrap.liteweight.models.SharedWorkoutMeta;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.FriendRequest;
+import com.joshrap.liteweight.models.notifications.PushNotification;
+import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String friendRequestAction = "friendRequest";
@@ -39,11 +46,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String declinedFriendRequestAction = "declinedFriendRequest";
     private static final String receivedWorkoutNotificationAction = "receivedWorkout";
 
+    @Inject
+    ObjectMapper objectMapper;
+
+    // todo look into onNewToken. I probably want to do this
+
+
+    @Override
+    public void onCreate() {
+        Injector.getInjector(getBaseContext()).inject(this);
+        super.onCreate();
+    }
+
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
             Map<String, Object> jsonMap = JsonUtils.deserialize(remoteMessage.getData().get("metadata"));
-            PushNotification pushNotification = new PushNotification(jsonMap);
+            PushNotification pushNotification = new PushNotification(jsonMap); // todo use jackson?
             switch (pushNotification.getAction()) {
                 case friendRequestAction:
                     showNotificationNewFriendRequest(pushNotification.getJsonPayload());
@@ -72,7 +91,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private void showNotificationNewFriendRequest(final String jsonData) throws IOException {
-        FriendRequest friendRequest = new FriendRequest(JsonUtils.deserialize(jsonData));
+        FriendRequest friendRequest = objectMapper.readValue(jsonData, FriendRequest.class);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.NEW_FRIEND_REQUEST_CLICK);
@@ -97,41 +116,41 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void silentNotificationCancelFriendRequest(final String jsonData) throws IOException {
-        String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
+        CanceledFriendRequestNotification userToRemove = objectMapper.readValue(jsonData, CanceledFriendRequestNotification.class);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.cancel(userToRemove.hashCode());
+            mNotificationManager.cancel(userToRemove.getUserId().hashCode());
         }
 
-        CanceledFriendRequestMessage message = new CanceledFriendRequestMessage(userToRemove);
+        CanceledFriendRequestMessage message = new CanceledFriendRequestMessage(userToRemove.getUserId());
         EventBus.getDefault().post(message);
     }
 
     private void silentNotificationDeclinedFriendRequest(final String jsonData) throws IOException {
-        String declinedUser = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
+        DeclinedFriendRequestNotification declinedFriendRequestNotification = objectMapper.readValue(jsonData, DeclinedFriendRequestNotification.class);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.cancel(declinedUser.hashCode());
+            mNotificationManager.cancel(declinedFriendRequestNotification.getUserId().hashCode());
         }
 
-        DeclinedFriendRequestMessage message = new DeclinedFriendRequestMessage(declinedUser);
+        DeclinedFriendRequestMessage message = new DeclinedFriendRequestMessage(declinedFriendRequestNotification.getUserId());
         EventBus.getDefault().post(message);
     }
 
     private void silentNotificationRemovedFriend(final String jsonData) throws IOException {
-        String userToRemove = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
+        RemovedAsFriendNotification removedAsFriendNotification = objectMapper.readValue(jsonData, RemovedAsFriendNotification.class);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
             // if user still has notification saying this user accepted their request, hide it if user removes them
-            mNotificationManager.cancel(userToRemove.hashCode());
+            mNotificationManager.cancel(removedAsFriendNotification.getUserId().hashCode());
         }
 
-        RemovedFriendMessage message = new RemovedFriendMessage(userToRemove);
+        RemovedFriendMessage message = new RemovedFriendMessage(removedAsFriendNotification.getUserId());
         EventBus.getDefault().post(message);
     }
 
     private void showNotificationAcceptedFriendRequest(final String jsonData) throws IOException {
-        String userAccepted = (String) JsonUtils.deserialize(jsonData).get(User.USERNAME);
+        AcceptedFriendRequestNotification userAccepted = objectMapper.readValue(jsonData, AcceptedFriendRequestNotification.class);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.ACCEPTED_FRIEND_REQUEST_CLICK);
@@ -140,7 +159,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Variables.ACCEPTED_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(this, Variables.ACCEPTED_FRIEND_CHANNEL)
                 .setContentTitle("New Workout Buddy!")
-                .setContentText(String.format("%s accepted your friend request!", userAccepted))
+                .setContentText(String.format("%s accepted your friend request!", userAccepted.getUsername()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -151,12 +170,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.notify(userAccepted.hashCode(), notification);
         }
 
-        AcceptedFriendRequestMessage message = new AcceptedFriendRequestMessage(userAccepted);
+        AcceptedFriendRequestMessage message = new AcceptedFriendRequestMessage(userAccepted.getUserId());
         EventBus.getDefault().post(message);
     }
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
-        final SharedWorkoutMeta sharedWorkoutMeta = new SharedWorkoutMeta(JsonUtils.deserialize(jsonData));
+        final SharedWorkoutInfo sharedWorkoutInfo = objectMapper.readValue(jsonData, SharedWorkoutInfo.class);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
@@ -166,7 +185,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
                 .setContentTitle("Workout Received!")
                 .setContentText(String.format("%s sent you a workout: %s. Click to respond.",
-                        sharedWorkoutMeta.getSender(), sharedWorkoutMeta.getWorkoutName()))
+                        sharedWorkoutInfo.getSenderUsername(), sharedWorkoutInfo.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -174,10 +193,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(sharedWorkoutMeta.getWorkoutId().hashCode(), notification);
+            mNotificationManager.notify(sharedWorkoutInfo.getSharedWorkoutId().hashCode(), notification);
         }
 
-        ReceivedWorkoutMessage message = new ReceivedWorkoutMessage(sharedWorkoutMeta);
+        ReceivedWorkoutMessage message = new ReceivedWorkoutMessage(sharedWorkoutInfo);
         EventBus.getDefault().post(message);
     }
 }

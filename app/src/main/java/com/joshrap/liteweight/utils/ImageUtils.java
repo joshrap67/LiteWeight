@@ -20,7 +20,7 @@ public class ImageUtils {
         return byteBuffer.toByteArray();
     }
 
-    public static String getIconUrl(String fileName) {
-        return BackendConfig.s3ImageUrl + fileName; // todo should this be taken care of by the backend?
+    public static String getProfilePictureUrl(String fileName) {
+        return BackendConfig.profilePictureBaseUrl + fileName;
     }
 }

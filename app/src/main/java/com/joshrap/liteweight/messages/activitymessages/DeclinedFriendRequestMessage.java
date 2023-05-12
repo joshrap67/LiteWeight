@@ -5,9 +5,9 @@ import lombok.Getter;
 public class DeclinedFriendRequestMessage {
 
     @Getter
-    private final String usernameToRemove; // user who declined the friend request
+    private final String userIdToRemove; // user who declined the friend request
 
-    public DeclinedFriendRequestMessage(String usernameToRemove) {
-        this.usernameToRemove = usernameToRemove;
+    public DeclinedFriendRequestMessage(String userIdToRemove) {
+        this.userIdToRemove = userIdToRemove;
     }
 }

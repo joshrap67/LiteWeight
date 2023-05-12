@@ -21,8 +21,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 

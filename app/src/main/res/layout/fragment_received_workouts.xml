@@ -52,7 +52,6 @@
             android:id="@+id/received_workouts_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/loading_progress_bar"
             android:layout_below="@id/top_container"
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="8dp"
@@ -62,13 +61,4 @@
             tools:listitem="@layout/row_received_workout">
 
     </androidx.recyclerview.widget.RecyclerView>
-
-    <ProgressBar
-            android:id="@+id/loading_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerInParent="true"
-            android:visibility="invisible" />
-
 </RelativeLayout>

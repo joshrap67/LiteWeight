@@ -1,10 +1,10 @@
 package com.joshrap.liteweight.utils;
 
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineDay;
-import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.RoutineWeek;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineWeek;
+import com.joshrap.liteweight.models.user.User;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -84,14 +84,8 @@ public class AppSettingsFragment extends Fragment {
         TextView manageNotificationsTV = view.findViewById(R.id.manage_notifications_tv);
         manageNotificationsTV.setOnClickListener(view1 -> {
             Intent intent = new Intent();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
-            } else {
-                intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                intent.putExtra("app_package", getContext().getPackageName());
-                intent.putExtra("app_uid", getContext().getApplicationInfo().uid);
-            }
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
             getContext().startActivity(intent);
         });
         return view;

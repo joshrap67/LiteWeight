@@ -5,9 +5,9 @@ import lombok.Getter;
 public class RemovedFriendMessage {
 
     @Getter
-    private final String usernameToRemove; // user who removed the active user
+    private final String userIdToRemove; // user who removed the active user
 
-    public RemovedFriendMessage(String usernameToRemove) {
-        this.usernameToRemove = usernameToRemove;
+    public RemovedFriendMessage(String userIdToRemove) {
+        this.userIdToRemove = userIdToRemove;
     }
 }

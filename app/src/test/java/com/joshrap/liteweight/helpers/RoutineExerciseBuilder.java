@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.helpers;
 
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 import java.util.Random;
 import java.util.UUID;

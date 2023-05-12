@@ -27,22 +27,19 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
-import com.joshrap.liteweight.models.Tokens;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.User;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
@@ -50,9 +47,6 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -74,8 +68,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
     @Inject
     UserManager userManager;
-    @Inject
-    Tokens tokens;
     @Inject
     CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
@@ -100,21 +92,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         changePictureButton.setVisibility(View.GONE);
         changePictureButton.setOnClickListener(v -> launchPhotoPicker());
 
-        String email = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            // yes this is a war crime but it beats refactoring the database to add emails to it
-            String[] jwtParts = tokens.getIdToken().split("\\.");
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String payloadJson = new String(decoder.decode(jwtParts[1]));
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Map<String, String> map = mapper.readValue(payloadJson, Map.class);
-                email = map.get("email").toLowerCase(Locale.ROOT);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-
+        String email = user.getEmail();
         TextView emailTV = view.findViewById(R.id.email_tv);
         emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);
         emailTV.setText(email);
@@ -123,8 +101,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         friendsListTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToFriendsList(null));
         TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
         accountPrefsTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
-        TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
-        blockedListTV.setOnClickListener(view1 -> ((MainActivity) getActivity()).goToBlockedList());
 
         Button logoutButton = view.findViewById(R.id.log_out_btn);
         logoutButton.setOnClickListener(view1 -> promptLogout());
@@ -132,7 +108,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
         updateFriendsTVNotification();
 
-        profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
+        profilePicUrl = ImageUtils.getProfilePictureUrl(user.getIcon());
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
@@ -236,7 +212,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
      * Updates whether an indicator should be shown on the view that takes users to their friend's list.
      */
     private void updateFriendsTVNotification() {
-        if (user.getFriendRequests().values().stream().anyMatch(x -> !x.isSeen())) {
+        if (user.getFriendRequests().stream().anyMatch(x -> !x.isSeen())) {
             friendsListTV.setText(R.string.friends_list_alert);
         } else {
             friendsListTV.setText(R.string.friends_list);
@@ -246,17 +222,13 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private void updateIcon(byte[] imageData) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            try {
-                ResultStatus<String> resultStatus = this.userManager.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
-                Handler handler = new Handler(getMainLooper());
-                handler.post(() -> {
-                    if (resultStatus.isFailure()) {
-                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
-                    }
-                });
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            Result<String> result = this.userManager.updateProfilePicture(imageData);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (result.isFailure()) {
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
+                }
+            });
         });
     }
 

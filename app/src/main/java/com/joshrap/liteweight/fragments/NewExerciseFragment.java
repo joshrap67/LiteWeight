@@ -39,9 +39,9 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.models.OwnedExercise;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
@@ -212,8 +212,8 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         boolean focusError = false;
 
         List<String> exerciseNames = new ArrayList<>();
-        for (String exerciseId : user.getOwnedExercises().keySet()) {
-            exerciseNames.add(user.getExercise(exerciseId).getExerciseName());
+        for (OwnedExercise exercise : user.getExercises()) {
+            exerciseNames.add(exercise.getName());
         }
         nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
         exerciseNameLayout.setError(nameError);
@@ -260,14 +260,14 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             Executor executor = Executors.newSingleThreadExecutor();
             double finalWeight = weight; // java weirdness
             executor.execute(() -> {
-                ResultStatus<OwnedExercise> resultStatus = this.userManager.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
+                Result<OwnedExercise> result = this.userManager.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
-                    if (resultStatus.isSuccess()) {
+                    if (result.isSuccess()) {
                         ((MainActivity) getActivity()).finishFragment();
                     } else {
-                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                        AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                     }
                 });
             });

@@ -25,8 +25,6 @@ import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
-import java.util.Locale;
-
 import javax.inject.Inject;
 
 public class ClockBottomFragment extends BottomSheetDialogFragment {

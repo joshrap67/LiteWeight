@@ -278,20 +278,6 @@ public class ValidatorUtils {
         return retVal;
     }
 
-    public static String validUserToBlock(String activeUser, String username, List<String> users) {
-        username = username.trim();
-        String retVal = validUsername(username);
-        if (retVal == null) {
-            // means no issue with base username
-            if (users.contains(username)) {
-                retVal = "User already blocked.";
-            } else if (activeUser.equals(username)) {
-                retVal = "If only it were that simple to block yourself.";
-            }
-        }
-        return retVal;
-    }
-
     public static String validUserToSendWorkout(String activeUser, String username) {
         username = username.trim();
         String retVal = validUsername(username);

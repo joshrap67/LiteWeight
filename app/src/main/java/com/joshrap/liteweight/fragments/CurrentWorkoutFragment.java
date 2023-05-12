@@ -39,8 +39,8 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.RoutineDay;
-import com.joshrap.liteweight.models.RoutineWeek;
+import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineWeek;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -49,13 +49,12 @@ import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.OwnedExercise;
-import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
@@ -67,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -115,7 +115,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             ((MainActivity) getActivity()).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
-            ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout.getWorkoutName());
+            ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout.getName());
             view = inflater.inflate(R.layout.fragment_current_workout, container, false);
         }
         return view;
@@ -371,7 +371,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
             routineRowModels.add(exerciseRowModel);
         }
-        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, user.getOwnedExercises(), metricUnits, videosEnabled);
+        Map<String, OwnedExercise> exerciseIdToExercise = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, ownedExercise -> ownedExercise));
+        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, metricUnits, videosEnabled);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -404,11 +405,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.restartWorkout(currentWorkout);
+            Result<String> result = this.workoutManager.restartWorkout(currentWorkout);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
+                if (result.isSuccess()) {
                     routine = currentWorkout.getRoutine();
                     currentDayIndex = currentWorkout.getCurrentDay();
                     currentWeekIndex = currentWorkout.getCurrentWeek();
@@ -416,7 +417,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                     updateWorkoutProgressBar();
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
@@ -616,7 +617,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final RoutineExercise exercise = rowModel.routineExercise;
             boolean isExpanded = rowModel.isExpanded;
 
-            String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getExerciseName();
+            String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;
             exerciseCheckbox.setText(currentExerciseName);
             exerciseCheckbox.setChecked(exercise.isCompleted());

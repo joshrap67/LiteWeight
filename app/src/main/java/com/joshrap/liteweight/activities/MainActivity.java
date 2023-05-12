@@ -16,8 +16,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
@@ -47,6 +45,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
@@ -64,23 +63,19 @@ import com.joshrap.liteweight.messages.fragmentmessages.DeclinedFriendRequestFra
 import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.FriendRequest;
-import com.joshrap.liteweight.models.SharedWorkoutMeta;
-import com.joshrap.liteweight.models.SharedWorkout;
-import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.FriendRequest;
+import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
+import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.network.RequestFields;
 import com.joshrap.liteweight.services.StopwatchService;
-import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
@@ -126,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Stopwatch stopwatch;
 
     @Inject
-    Tokens tokens;
-    @Inject
     UserManager userManager;
     @Inject
     SharedPreferences sharedPreferences;
@@ -167,22 +160,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadCurrentUserAndWorkout() {
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.userManager.getUserAndCurrentWorkout();
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                if (resultStatus.isSuccess()) {
-                    currentUserAndWorkout = resultStatus.getData();
-                    currentUserAndWorkoutProvider.setCurrentUserAndWorkout(resultStatus.getData()); // sets static var for all other fragments to pull from
-                    loadingBar.setVisibility(View.GONE);
-                    loadActivity();
-                } else {
-                    launchSignInActivity(resultStatus.getErrorMessage());
-                }
+        if (currentUserAndWorkoutProvider.provideCurrentUserAndWorkout() != null) {
+            // this would be non null if user just created their account
+            currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            loadingBar.setVisibility(View.GONE);
+            loadActivity();
+        } else {
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                Result<UserAndWorkout> result = this.userManager.getUserAndCurrentWorkout();
+                Handler handler = new Handler(getMainLooper());
+                handler.post(() -> {
+                    if (result.isSuccess()) {
+                        if (result.getData().getUser() == null) {
+                            // user is authenticated and verified, but has no account in the DB. Load activity to create this
+                            launchAccountNotCreatedActivity();
+                        } else {
+                            // user does have an account, so load activity
+                            currentUserAndWorkout = result.getData();
+                            currentUserAndWorkoutProvider.setCurrentUserAndWorkout(result.getData()); // sets static var for all other fragments to pull from
+
+                            loadingBar.setVisibility(View.GONE);
+                            loadActivity();
+                        }
+                    } else {
+                        launchSignInActivity(result.getErrorMessage());
+                    }
+                });
             });
-        });
+        }
     }
+
 
     // called once main dependency - currentUserAndWorkout - is loaded
     private void loadActivity() {
@@ -224,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // doing this here just because otherwise there is a barely noticeable delay when first launching the app
         // as the title gets set slightly after other elements are visible
-        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getWorkoutName() : getString(R.string.app_name));
+        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getName() : getString(R.string.app_name));
 
         navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
         navHeaderLayout.setOnClickListener(view -> {
@@ -235,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         usernameTV.setText(user.getUsername());
         Picasso.get()
-                .load(ImageUtils.getIconUrl(user.getIcon()))
+                .load(ImageUtils.getProfilePictureUrl(user.getIcon()))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture, new com.squareup.picasso.Callback() {
@@ -269,6 +277,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (errorMessage != null) {
             intent.putExtra(Variables.ERROR_MESSAGE, errorMessage);
         }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
+
+    private void launchAccountNotCreatedActivity() {
+        Intent intent = new Intent(this, NewAccountActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
@@ -368,13 +383,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             notificationManager.cancel(TimerService.timerFinishedId);
         }
         EventBus.getDefault().unregister(this);
-        if (sharedPreferences != null) {
-            // update tokens just in case they changed in apps life cycle
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Variables.REFRESH_TOKEN_KEY, tokens.getRefreshToken());
-            editor.putString(Variables.ID_TOKEN_KEY, tokens.getIdToken());
-            editor.apply();
-        }
         super.onDestroy();
     }
 
@@ -436,19 +444,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     };
 
     private void syncCurrentWorkout() {
-        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
-            // we assume it always succeeds
-            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
-            Intent intent = new Intent(this, SyncWorkoutService.class);
-            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-            try {
-                intent.putExtra(RequestFields.WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout().asMap()));
-                startService(intent);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
+//            // we assume it always succeeds
+//            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
+//            Intent intent = new Intent(this, SyncWorkoutService.class);
+//            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
+//            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
+//            try {
+//                intent.putExtra(Variables.WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout()));
+//                startService(intent);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void popFragStack() {
@@ -486,9 +494,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nav.setCheckedItem(R.id.nav_my_account);
                 goToMyAccount();
                 break;
-            case Variables.BLOCKED_LIST_TITLE:
-                goToBlockedList();
-                break;
             case Variables.FRIENDS_LIST_TITLE:
                 goToFriendsList(null);
                 break;
@@ -520,31 +525,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
         syncCurrentWorkout();
+        currentUserAndWorkoutProvider.clear();
 
         AndroidUtils.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for removing notification endpoint id
             userManager.removePushEndpointId();
-            // doing this all in the same thread to avoid potential race condition of deleting tokens while trying to make above api call
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 EventBus.getDefault().unregister(this);
-                // clear appropriate values in shared prefs
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(Variables.ID_TOKEN_KEY);
-                editor.remove(Variables.REFRESH_TOKEN_KEY);
-                editor.apply();
 
                 // clear all notifications
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     notificationManager.cancelAll();
                 }
-                // since tokens are singleton, need to update tokens to null here
-                tokens.setRefreshToken(null);
-                tokens.setIdToken(null);
+
+                FirebaseAuth.getInstance().signOut();
+
                 timer.stopTimer();
                 stopwatch.stopStopwatch();
 
@@ -562,11 +562,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent serviceIntent = new Intent(this, StopwatchService.class);
         serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, stopwatch.startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, stopwatch.initialElapsedTime);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
+        startForegroundService(serviceIntent);
     }
 
     public void cancelStopwatchService() {
@@ -582,12 +578,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_TIMER_INITIAL_TIME_REMAINING, timer.initialTimeRemaining);
         serviceIntent.putExtra(Variables.INTENT_TIMER_DURATION, timer.timerDuration);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
-
+        startForegroundService(serviceIntent);
     }
 
     public void cancelTimerService() {
@@ -624,65 +615,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleCanceledFriendRequestMessage(CanceledFriendRequestMessage event) {
-        String usernameToRemove = event.getUsernameToRemove();
-        user.removeFriendRequest(usernameToRemove);
+        String userIdToRemove = event.getUserIdToRemove();
+        user.removeFriendRequest(userIdToRemove);
         updateAccountNotificationIndicator();
 
         // send broadcast to any fragments waiting on this model update
-        CanceledFriendRequestFragmentMessage fragmentMessage = new CanceledFriendRequestFragmentMessage(usernameToRemove);
+        CanceledFriendRequestFragmentMessage fragmentMessage = new CanceledFriendRequestFragmentMessage(userIdToRemove);
         EventBus.getDefault().post(fragmentMessage);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleDeclinedFriendRequestMessage(DeclinedFriendRequestMessage event) {
-        String usernameToRemove = event.getUsernameToRemove();
-        user.removeFriend(usernameToRemove);
+        String userIdToRemove = event.getUserIdToRemove();
+        user.removeFriend(userIdToRemove);
 
         // send broadcast to any fragments waiting on this model update
-        DeclinedFriendRequestFragmentMessage fragmentMessage = new DeclinedFriendRequestFragmentMessage(usernameToRemove);
+        DeclinedFriendRequestFragmentMessage fragmentMessage = new DeclinedFriendRequestFragmentMessage(userIdToRemove);
         EventBus.getDefault().post(fragmentMessage);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleRemovedAsFriendMessage(RemovedFriendMessage event) {
-        String usernameToRemove = event.getUsernameToRemove();
-        user.removeFriend(usernameToRemove);
+        String userIdToRemove = event.getUserIdToRemove();
+        user.removeFriend(userIdToRemove);
 
         // send broadcast to any fragments waiting on this model update
-        RemovedFriendFragmentMessage fragmentMessage = new RemovedFriendFragmentMessage(usernameToRemove);
+        RemovedFriendFragmentMessage fragmentMessage = new RemovedFriendFragmentMessage(userIdToRemove);
         EventBus.getDefault().post(fragmentMessage);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestMessage message) {
-        String usernameAccepted = message.getAcceptedUsername();
-        user.getFriend(usernameAccepted).setConfirmed(true);
+        String userIdAccepted = message.getAcceptedUserId();
+        user.getFriend(userIdAccepted).setConfirmed(true);
 
         // send broadcast to any fragments waiting on this model update
-        AcceptedFriendRequestFragmentMessage fragmentMessage = new AcceptedFriendRequestFragmentMessage(usernameAccepted);
+        AcceptedFriendRequestFragmentMessage fragmentMessage = new AcceptedFriendRequestFragmentMessage(userIdAccepted);
         EventBus.getDefault().post(fragmentMessage);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
-        SharedWorkoutMeta sharedWorkoutMeta = event.getSharedWorkoutMeta();
-        String workoutId = sharedWorkoutMeta.getWorkoutId();
-        if (user.doesNotContainReceivedWorkout(workoutId)) {
-            // workout wasn't here, so total needs to be increased
-            user.setTotalReceivedWorkouts(user.getTotalReceivedWorkouts() + 1); // todo when i eventually make it so workouts with same name don't matter, remove this if statement
-        }
+        SharedWorkoutInfo sharedWorkoutInfo = event.getSharedWorkoutInfo();
 
-        // If workout isn't there, update unseen count.
-        // If workout is there and it is already marked as seen - update it to unseen.
-        boolean updateUnseen = user.doesNotContainReceivedWorkout(workoutId) || user.getReceivedWorkout(workoutId).isSeen();
-        if (updateUnseen) {
-            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() + 1);
-        }
         updateReceivedWorkoutNotificationIndicator();
-        user.putReceivedWorkout(sharedWorkoutMeta);
+        user.addReceivedWorkout(sharedWorkoutInfo);
 
         // send broadcast to any fragments waiting on this model update
-        ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(sharedWorkoutMeta);
+        ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(sharedWorkoutInfo);
         EventBus.getDefault().post(fragmentMessage);
     }
 
@@ -690,75 +670,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
     private void updatePushEndpointToken() {
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        return;
-                    }
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                return;
+            }
 
-                    // Get new Instance ID token
-                    String token = task.getResult();
-                    Executor executor = Executors.newSingleThreadExecutor();
-                    executor.execute(() -> {
-                        // blind send for now for updating notification endpoint id
-                        userManager.updatePushEndpointId(token);
-                    });
-                });
+            // Get new Instance ID token
+            String token = task.getResult();
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                // blind send for now for updating notification endpoint id
+                userManager.updatePushEndpointId(token);
+            });
+        });
     }
 
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // channel for when the timer is running but not finished
-            NotificationChannel timerRunningChannel = new NotificationChannel(
-                    Variables.TIMER_RUNNING_CHANNEL,
-                    "Timer Running",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            timerRunningChannel.setSound(null, null);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(timerRunningChannel);
+        // channel for when the timer is running but not finished
+        NotificationChannel timerRunningChannel = new NotificationChannel(
+                Variables.TIMER_RUNNING_CHANNEL,
+                "Timer Running",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        timerRunningChannel.setSound(null, null);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(timerRunningChannel);
 
-            // channel for when the timer finished
-            NotificationChannel timerFinishedChannel = new NotificationChannel(
-                    Variables.TIMER_FINISHED_CHANNEL,
-                    "Timer Finished",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(timerFinishedChannel);
+        // channel for when the timer finished
+        NotificationChannel timerFinishedChannel = new NotificationChannel(
+                Variables.TIMER_FINISHED_CHANNEL,
+                "Timer Finished",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(timerFinishedChannel);
 
-            // channel for when stopwatch is running
-            NotificationChannel stopwatchRunningChannel = new NotificationChannel(
-                    Variables.STOPWATCH_RUNNING_CHANNEL,
-                    "Stopwatch Running",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            stopwatchRunningChannel.setSound(null, null);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(stopwatchRunningChannel);
+        // channel for when stopwatch is running
+        NotificationChannel stopwatchRunningChannel = new NotificationChannel(
+                Variables.STOPWATCH_RUNNING_CHANNEL,
+                "Stopwatch Running",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        stopwatchRunningChannel.setSound(null, null);
+        manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(stopwatchRunningChannel);
 
-            // channel for incoming friend requests
-            NotificationChannel friendRequestChannel = new NotificationChannel(
-                    Variables.FRIEND_REQUEST_CHANNEL,
-                    "New Friend Requests",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(friendRequestChannel);
+        // channel for incoming friend requests
+        NotificationChannel friendRequestChannel = new NotificationChannel(
+                Variables.FRIEND_REQUEST_CHANNEL,
+                "New Friend Requests",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(friendRequestChannel);
 
-            // channel for accepted friend requests
-            NotificationChannel acceptedRequestChannel = new NotificationChannel(
-                    Variables.ACCEPTED_FRIEND_CHANNEL,
-                    "Accepted Friend Requests",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(acceptedRequestChannel);
+        // channel for accepted friend requests
+        NotificationChannel acceptedRequestChannel = new NotificationChannel(
+                Variables.ACCEPTED_FRIEND_CHANNEL,
+                "Accepted Friend Requests",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(acceptedRequestChannel);
 
-            // channel for accepted friend requests
-            NotificationChannel receivedWorkoutChannel = new NotificationChannel(
-                    Variables.RECEIVED_WORKOUT_CHANNEL,
-                    "Received Workouts",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(receivedWorkoutChannel);
-        }
+        // channel for accepted friend requests
+        NotificationChannel receivedWorkoutChannel = new NotificationChannel(
+                Variables.RECEIVED_WORKOUT_CHANNEL,
+                "Received Workouts",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(receivedWorkoutChannel);
     }
 
     private void closeAllOpenDialogs() {
@@ -842,7 +819,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // check if there are any unseen notifications for friend requests
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
         view.setText(null);
-        for (FriendRequest friendRequest : user.getFriendRequests().values()) {
+        for (FriendRequest friendRequest : user.getFriendRequests()) {
             if (!friendRequest.isSeen()) {
                 view.setText(R.string.alert);
                 return;
@@ -858,10 +835,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void updateReceivedWorkoutNotificationIndicator() {
         // check if there are any unseen notifications for received workouts
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
-        view.setText(user.getUnseenReceivedWorkouts() > 0 ? String.valueOf(user.getUnseenReceivedWorkouts()) : null);
+        long unseenCount = user.getReceivedWorkouts().stream().filter(x -> !x.isSeen()).count();
+        view.setText(unseenCount > 0 ? String.valueOf(unseenCount) : null);
     }
 
-    public void updateReceivedWorkoutNotificationIndicator(int count) {
+    public void updateReceivedWorkoutNotificationIndicator(long count) {
         // fragments manually set the indicator in cases of blind sends (ik ik, MVVM is where this could shine)
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
         view.setText(count > 0 ? String.valueOf(count) : null);
@@ -1017,17 +995,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToBlockedList() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.BLOCKED_LIST_TITLE);
-        fragmentStack.add(0, Variables.BLOCKED_LIST_TITLE);
-
-        fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
-                .replace(R.id.fragment_container, new BlockedListFragment(), Variables.BLOCKED_LIST_TITLE)
-                .commit();
-    }
-
     public void goToReceivedWorkouts() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.RECEIVED_WORKOUTS_TITLE);
@@ -1047,8 +1014,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
 
         Bundle arguments = new Bundle();
-        arguments.putString(SharedWorkout.SHARED_WORKOUT_ID, workoutId);
-        arguments.putString(SharedWorkout.WORKOUT_NAME, workoutName);
+        arguments.putString(Variables.SHARED_WORKOUT_ID, workoutId);
+        arguments.putString(Variables.WORKOUT_NAME, workoutName);
         Fragment fragment = new BrowseReceivedWorkoutFragment();
         fragment.setArguments(arguments);
 

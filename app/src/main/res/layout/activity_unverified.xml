@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+    <TextView
+            android:id="@+id/app_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Email Not Verified"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+    <TextView
+            android:id="@+id/reset_password_tv"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/app_title_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/verification_email_sent_please_retry"
+            android:textAlignment="center" />
+
+    <Button
+            android:id="@+id/retry_verification_btn"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/reset_password_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/retry_login" />
+
+    <Button
+            android:id="@+id/send_verification_email_btn"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/retry_verification_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/resend_verification_email" />
+
+
+    <LinearLayout
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/send_verification_email_btn"
+            android:layout_marginVertical="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/login_divider_color" />
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/signed_in_as_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider"
+            android:layout_centerHorizontal="true"
+            android:text="You are signed in as ghosthippo67@gmail.com" />
+
+    <Button
+            android:id="@+id/log_out_btn"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/signed_in_as_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/log_out" />
+</RelativeLayout>

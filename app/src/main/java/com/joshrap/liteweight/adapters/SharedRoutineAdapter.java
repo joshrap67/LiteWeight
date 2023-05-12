@@ -18,7 +18,7 @@ import androidx.transition.TransitionManager;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.models.SharedExercise;
+import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.joshrap.liteweight.providers;
 
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.models.Workout;
+import com.joshrap.liteweight.models.workout.Workout;
 
 import javax.inject.Inject;
 
@@ -29,5 +29,9 @@ public class CurrentUserAndWorkoutProvider {
 
     public Workout provideCurrentWorkout() {
         return currentUserAndWorkout.getWorkout();
+    }
+
+    public void clear() {
+        currentUserAndWorkout = null;
     }
 }

@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.joshrap.liteweight.helpers.RoutineExerciseBuilder;
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 import org.junit.Test;
 

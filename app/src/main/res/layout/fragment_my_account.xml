@@ -87,25 +87,10 @@
                     app:drawableEndCompat="@drawable/account_preferences_icon" />
 
             <TextView
-                    android:id="@+id/blocked_list_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/account_preferences_tv"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="8dp"
-                    android:background="?android:selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="8dp"
-                    android:text="@string/blocked_list"
-                    android:textSize="25sp"
-                    app:drawableEndCompat="@drawable/block_user_icon" />
-
-            <TextView
                     android:id="@+id/friends_list_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/blocked_list_tv"
+                    android:layout_below="@id/account_preferences_tv"
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="8dp"
                     android:background="?android:selectableItemBackground"

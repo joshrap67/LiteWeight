@@ -5,8 +5,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.joshrap.liteweight.helpers.RoutineExerciseBuilder;
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 public class RoutinesDifferentTests {
 

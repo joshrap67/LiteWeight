@@ -33,7 +33,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.models.ResultStatus;
+import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 
@@ -152,21 +152,21 @@ public class AboutFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void sendFeedback(String feedback) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M-d-yyyy, HH:mm:ss z", Locale.US);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M-d-yyyy, HH:mm:ss z", Locale.US); //todo
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
         String feedbackTime = simpleDateFormat.format(new Date(System.currentTimeMillis()));
 
         AndroidUtils.showLoadingDialog(loadingDialog, "Sending...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.sendFeedback(feedback, feedbackTime);
+            Result<String> result = this.userManager.sendFeedback(feedback, feedbackTime);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
+                if (result.isSuccess()) {
                     Toast.makeText(getContext(), "Feedback successfully sent. Thank you!", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });

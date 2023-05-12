@@ -63,16 +63,14 @@
     <string name="empty_friends_request_msg">No pending requests</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
-    <string name="reset_password_msg">Please enter the username or email for the account whose password that you wish to reset. A code will be sent to the email associated with that account.</string>
-    <string name="send_code">SEND CODE</string>
+    <string name="reset_password_msg">Please enter the email for the account whose password that you wish to reset. A reset password email will be sent containing instructions on how to reset the password.</string>
+    <string name="send_email">Send Email</string>
     <string name="reset_password_btn_msg">RESET PASSWORD</string>
     <string name="friends_list">Friends List</string>
-    <string name="blocked_list">Blocked List</string>
     <string name="account_preferences">Account Preferences</string>
     <string name="received_workouts">Received Workouts</string>
     <string name="friends_list_alert">Friends List (!)</string>
     <string name="manage_notifications">Manage Notifications</string>
-    <string name="empty_blocked_list_msg">You are not blocking any users</string>
     <string name="workout_progress_description">Displays a progress bar in the current workout page showing the percentage of exercises completed in the workout.</string>
     <string name="app_purpose">LiteWeight is used for creating and tracking custom workouts. The \"Current Workout\" page contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed that day by checking the checkbox, and can update the weight, sets, or reps by expanding the row.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! Go to the \"My Workouts\" page to edit an existing workout or to create a new one. The \"My Exercises\" page contains a collection of all your exercises and the default values associated with them.\n\nAdd friends by going to the Friend\'s List in the \"My Account\" page. There you can send a friend request to any LiteWeight user. You can send your workout to any user either directly from your friend\'s list or from the \"My Workouts\" page.</string>
     <string name="restart_workout_explanation">At this time, you are not able to see previous states of workouts. Previous progress of a workout can be inferred from the exercise completion average of the workout.</string>
@@ -80,13 +78,11 @@
     <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will default to the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account preferences, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_msg">Use this form to send any feedback you have about the app. Be it concerns, bugs, or success stories!</string>
-    <string name="unblock_user">Unblock user</string>
-    <string name="block_friend">Block Friend</string>
     <string name="cancel_friend_request">Cancel Friend Request</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="share_a_workout">Share a workout</string>
     <string name="browse_workout">Browse Workout</string>
-    <string name="block_user">Block User</string>
+    <string name="report_user">Report User</string>
     <string name="confirm_msg">Please enter the code sent to your email.</string>
     <string name="email_verification_code_hint">Email Verification Code</string>
     <string name="confirm">CONFIRM</string>
@@ -121,7 +117,7 @@
     <string name="request_sent">Request Sent…</string>
     <string name="new_indicator">*</string>
     <string name="click_for_more_details">Click for more details…</string>
-    <string name="forgot_password_link">Forgot password</string>
+    <string name="forgot_password_link">Forgot password?</string>
     <string name="gmail_detected_msg">Click the \"Sign In\" button below to skip manual email verifications.\n\nNote the selected email MUST match the email you are using for your new LiteWeight account.</string>
     <string name="google_alt_msg">If you do not wish to verify your email here, click the \"Send Code\" button to have a verification code sent to your inbox.</string>
     <string name="my_workouts">My Workouts</string>
@@ -181,4 +177,10 @@
     <string name="rearrange">Rearrange</string>
     <string name="done_rearranging">Done rearranging</string>
     <string name="rearrange_hint">Press and hold a day or a week to drag it to its desired position.</string>
+    <string name="or">OR</string>
+    <string name="verification_email_sent_please_retry">An verification email has been sent to the email address that you are signed in as. Please complete the instructions on that email, then re-try.</string>
+    <string name="resend_verification_email">Resend Verification Email</string>
+    <string name="retry_login">Retry Login</string>
+    <string name="create">Create</string>
+    <string name="signed_in_as">You are currently signed in as: </string>
 </resources>
