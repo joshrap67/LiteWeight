@@ -4,14 +4,20 @@ import com.joshrap.liteweight.models.user.UserPreferences;
 import com.joshrap.liteweight.repositories.BodyRequest;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class SetUserPreferencesRequest extends BodyRequest {
 
-    public boolean privateAccount;
-    public boolean updateDefaultWeightOnSave;
-    public boolean updateDefaultWeightOnRestart;
-    public boolean metricUnits;
+    private boolean privateAccount;
+    private boolean updateDefaultWeightOnSave;
+    private boolean updateDefaultWeightOnRestart;
+    private boolean metricUnits;
 
     public SetUserPreferencesRequest(UserPreferences userPreferences) {
         this.privateAccount = userPreferences.isPrivateAccount();

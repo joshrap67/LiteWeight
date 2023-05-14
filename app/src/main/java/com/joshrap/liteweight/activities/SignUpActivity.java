@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -13,11 +12,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.common.base.Strings;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,7 +31,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText emailInput, passwordInput, passwordConfirmInput;
     private TextInputLayout emailLayout, passwordConfirmLayout, passwordLayout;
-    private TextView passwordAttributesTV;
     private FirebaseAuth mAuth;
 
     @Override
@@ -49,12 +47,9 @@ public class SignUpActivity extends AppCompatActivity {
         passwordLayout = findViewById(R.id.password_input_layout);
         passwordConfirmInput = findViewById(R.id.password_confirm_input);
         passwordConfirmLayout = findViewById(R.id.password_confirm_input_layout);
-        passwordAttributesTV = findViewById(R.id.password_attributes_tv);
         Button signUpButton = findViewById(R.id.sign_up_btn);
 
         signUpButton.setOnClickListener(view -> {
-            passwordAttributesTV.setVisibility(View.GONE); // wish I could do this after pswd loses focus, but can't get it to work
-
             if (validSignUpInput()) {
                 attemptSignUp(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim());
             }
@@ -70,42 +65,6 @@ public class SignUpActivity extends AppCompatActivity {
                 AndroidUtils.showErrorDialog(errorMessage, this);
             }
         }
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        /*
-            Found on SO. Hides keyboard when clicking outside editText.
-            https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
-         */
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (v instanceof EditText) {
-                Rect viewRect = new Rect();
-                v.getGlobalVisibleRect(viewRect);
-                if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                    boolean touchTargetIsEditText = false;
-                    //Check if another editText has been touched
-                    for (View vi : v.getRootView().getTouchables()) {
-                        if (vi instanceof EditText) {
-                            Rect clickedViewRect = new Rect();
-                            vi.getGlobalVisibleRect(clickedViewRect);
-                            //Bounding box is to big, reduce it just a little bit
-                            if (clickedViewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                                touchTargetIsEditText = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!touchTargetIsEditText) {
-                        v.clearFocus();
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    }
-                }
-            }
-        }
-        return super.dispatchTouchEvent(event);
     }
 
     private void initEditTexts() {
@@ -127,10 +86,7 @@ public class SignUpActivity extends AppCompatActivity {
         passwordInput.setOnFocusChangeListener((View v, boolean hasFocus) -> {
             if (v.hasFocus()) {
                 String errorMessage = ValidatorUtils.validNewPassword(passwordInput.getText().toString().trim());
-                if (errorMessage != null) {
-                    passwordAttributesTV.setVisibility(View.VISIBLE);
-                    passwordAttributesTV.setText(errorMessage);
-                }
+                passwordLayout.setError(errorMessage);
             }
         });
         passwordInput.addTextChangedListener(new TextWatcher() {
@@ -140,24 +96,29 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String errorMessage = ValidatorUtils.validNewPassword(s.toString().trim());
-                if (errorMessage == null) {
-                    // no error so hide attributes
-                    passwordAttributesTV.setVisibility(View.GONE);
+                String errorMessage = ValidatorUtils.validNewPassword(passwordInput.getText().toString().trim());
+                passwordLayout.setError(errorMessage);
+
+                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(errorMessage)) {
+                    passwordLayout.setError(passwordNotMatchingMsg);
+                } else if (passwordsDoNotMatch()) {
+                    passwordLayout.setError(errorMessage + passwordNotMatchingMsg);
                 } else {
-                    passwordAttributesTV.setText(errorMessage);
-                    passwordAttributesTV.setVisibility(View.VISIBLE);
+                    passwordLayout.setError(errorMessage);
+                    passwordLayout.setErrorEnabled(errorMessage != null);
                 }
 
-                if (passwordLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    passwordLayout.setErrorEnabled(false);
-                    passwordLayout.setError(null);
-                }
-                if (passwordConfirmLayout.isErrorEnabled() && passwordConfirmLayout.getError().equals(passwordNotMatchingMsg)) {
-                    // if the passwords weren't matching, hide the error on confirmPassword edittext since user just acknowledged the error
-                    passwordConfirmLayout.setErrorEnabled(false);
-                    passwordConfirmLayout.setError(null);
+                String confirmPassword = passwordConfirmInput.getText().toString().trim();
+                if (confirmPassword.isEmpty()) return;
+
+                String confirmPasswordErrorMessage = ValidatorUtils.validNewPassword(confirmPassword);
+                if (passwordsDoNotMatch() && confirmPasswordErrorMessage == null) {
+                    passwordConfirmLayout.setError(passwordNotMatchingMsg);
+                } else if (passwordsDoNotMatch()) {
+                    passwordConfirmLayout.setError(confirmPasswordErrorMessage + passwordNotMatchingMsg);
+                } else {
+                    passwordConfirmLayout.setError(confirmPasswordErrorMessage);
+                    passwordConfirmLayout.setErrorEnabled(confirmPasswordErrorMessage != null);
                 }
             }
 
@@ -173,15 +134,28 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (passwordConfirmLayout.isErrorEnabled()) {
-                    // if an error is present, stop showing the error message once the user types (acknowledged it)
-                    passwordConfirmLayout.setErrorEnabled(false);
-                    passwordConfirmLayout.setError(null);
+                String errorMessage = ValidatorUtils.validNewPassword(passwordConfirmInput.getText().toString().trim());
+
+                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(errorMessage)) {
+                    passwordConfirmLayout.setError(passwordNotMatchingMsg);
+                } else if (passwordsDoNotMatch()) {
+                    passwordConfirmLayout.setError(errorMessage + passwordNotMatchingMsg);
+                } else {
+                    passwordConfirmLayout.setError(errorMessage);
+                    passwordConfirmLayout.setErrorEnabled(errorMessage != null);
                 }
-                if (passwordLayout.isErrorEnabled() && passwordLayout.getError().equals(passwordNotMatchingMsg)) {
-                    // if the passwords weren't matching, hide the error on confirmPassword edittext since user just acknowledged the error
-                    passwordLayout.setErrorEnabled(false);
-                    passwordLayout.setError(null);
+
+                String password = passwordInput.getText().toString().trim();
+                if (password.isEmpty()) return;
+
+                String passwordErrorMessage = ValidatorUtils.validNewPassword(password);
+                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(passwordErrorMessage)) {
+                    passwordLayout.setError(passwordNotMatchingMsg);
+                } else if (passwordsDoNotMatch()) {
+                    passwordLayout.setError(passwordErrorMessage + passwordNotMatchingMsg);
+                } else {
+                    passwordLayout.setError(passwordErrorMessage);
+                    passwordLayout.setErrorEnabled(passwordErrorMessage != null);
                 }
             }
 
@@ -202,6 +176,15 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    private boolean passwordsDoNotMatch() {
+        String password = passwordInput.getText().toString().trim();
+        String confirmPassword = passwordConfirmInput.getText().toString().trim();
+        if (password.isEmpty() || confirmPassword.isEmpty()) {
+            return false;
+        } else {
+            return !password.equals(confirmPassword);
+        }
+    }
 
     private void attemptSignUp(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
@@ -211,14 +194,14 @@ public class SignUpActivity extends AppCompatActivity {
                 if (user != null && user.isEmailVerified()) {
                     launchMainActivity();
                 } else if (user != null && !user.isEmailVerified()) {
-                    ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-                            // URL you want to redirect back to. The domain (www.example.com) for this
-                            // URL must be whitelisted in the Firebase Console.
-                            .setUrl("https://www.google.com") // todo a site
-                            .setHandleCodeInApp(true)
-                            .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
-                            .build();
-                    user.sendEmailVerification(actionCodeSettings);
+//                    ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
+//                            // URL you want to redirect back to. The domain (www.example.com) for this
+//                            // URL must be whitelisted in the Firebase Console.
+//                            .setUrl("https://www.google.com") // todo a site
+//                            .setHandleCodeInApp(true)
+//                            .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
+//                            .build();
+                    user.sendEmailVerification();
                     launchUnverifiedActivity();
                 }
             } else {
@@ -229,7 +212,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void launchMainActivity() {
-        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
@@ -237,7 +220,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void launchUnverifiedActivity() {
-        Intent intent = new Intent(SignUpActivity.this, UnverifiedActivity.class);
+        Intent intent = new Intent(this, UnverifiedActivity.class);
         startActivity(intent);
         finish();
     }

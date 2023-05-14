@@ -77,7 +77,7 @@ public class NewAccountActivity extends AppCompatActivity {
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         usernameInput.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                String errorMsg = ValidatorUtils.validUsername(usernameInput.getText().toString().trim());
+                String errorMsg = ValidatorUtils.validNewUsername(usernameInput.getText().toString().trim());
                 if (errorMsg == null) {
                     usernameInputLayout.setError(null);
                     return true;
@@ -91,7 +91,7 @@ public class NewAccountActivity extends AppCompatActivity {
 
         createUserButton.setOnClickListener(v -> {
             String username = usernameInput.getText().toString().trim();
-            String usernameErrorMsg = ValidatorUtils.validUsername(username);
+            String usernameErrorMsg = ValidatorUtils.validNewUsername(username);
             if (usernameErrorMsg != null) {
                 usernameInputLayout.setError(usernameErrorMsg);
                 usernameInputLayout.startAnimation(AndroidUtils.shakeError(2));
@@ -104,10 +104,6 @@ public class NewAccountActivity extends AppCompatActivity {
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (userResult.isSuccess() && userResult.getData() != null) {
-                        UserAndWorkout userAndWorkout = new UserAndWorkout();
-                        userAndWorkout.setUser(userResult.getData());
-                        currentUserAndWorkoutProvider.setCurrentUserAndWorkout(userAndWorkout); // sets static var for all other fragments to pull from
-
                         launchMainActivity();
                     } else {
                         AndroidUtils.showErrorDialog(userResult.getErrorMessage(), this);

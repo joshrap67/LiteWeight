@@ -16,7 +16,7 @@ import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
 import com.joshrap.liteweight.repositories.currentUser.requests.CreateUserRequest;
 import com.joshrap.liteweight.repositories.currentUser.requests.SetCurrentWorkoutRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.SetPushEndpointRequest;
+import com.joshrap.liteweight.repositories.currentUser.requests.LinkFirebaseTokenRequest;
 import com.joshrap.liteweight.repositories.currentUser.requests.SetUserPreferencesRequest;
 import com.joshrap.liteweight.repositories.currentUser.requests.UpdateIconRequest;
 import com.joshrap.liteweight.models.Result;
@@ -30,14 +30,14 @@ import javax.inject.Inject;
 
 public class CurrentUserRepository {
 
-    private static final String updateProfilePictureRoute = "update-icon";
-    private static final String setPushEndpointRoute = "set-push-endpoint";
-    private static final String removePushEndpointRoute = "remove-push-endpoint";
-    private static final String setAllFriendRequestsSeenRoute = "set-all-friend-requests-seen";
-    private static final String setUserPreferencesRoute = "set-user-preferences";
-    private static final String setCurrentWorkoutRoute = "set-current-workout";
-    private static final String setAllReceivedWorkoutsSeenRoute = "set-all-seen";
-    private static final String setReceivedWorkoutSeenRoute = "set-seen";
+    private static final String updateProfilePictureRoute = "icon";
+    private static final String linkFirebaseTokenRoute = "link-firebase-token";
+    private static final String unlinkFirebaseTokenRoute = "unlink-firebase-token";
+    private static final String setAllFriendRequestsSeenRoute = "all-friend-requests-seen";
+    private static final String setUserPreferencesRoute = "user-preferences";
+    private static final String setCurrentWorkoutRoute = "current-workout";
+    private static final String setAllReceivedWorkoutsSeenRoute = "all-seen";
+    private static final String setReceivedWorkoutSeenRoute = "seen";
     private static final String sendFeedbackAction = "sendFeedback";
 
     private static final String receivedWorkoutsRoute = "received-workouts";
@@ -89,15 +89,15 @@ public class CurrentUserRepository {
         this.apiGateway.put(route, body);
     }
 
-    public void setPushEndpointId(String tokenId) throws IOException, LiteWeightNetworkException {
-        BodyRequest body = new SetPushEndpointRequest(tokenId);
-        String route = getRoute(currentUserRoute, setPushEndpointRoute);
+    public void linkFirebaseToken(String tokenId) throws IOException, LiteWeightNetworkException {
+        BodyRequest body = new LinkFirebaseTokenRequest(tokenId);
+        String route = getRoute(currentUserRoute, linkFirebaseTokenRoute);
 
         this.apiGateway.put(route, body);
     }
 
-    public void removePushEndpointId() throws IOException, LiteWeightNetworkException {
-        String route = getRoute(currentUserRoute, removePushEndpointRoute);
+    public void unlinkFirebaseToken() throws IOException, LiteWeightNetworkException {
+        String route = getRoute(currentUserRoute, unlinkFirebaseTokenRoute);
         this.apiGateway.delete(route);
     }
 

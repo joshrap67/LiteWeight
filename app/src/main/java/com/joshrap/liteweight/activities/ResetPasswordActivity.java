@@ -1,14 +1,11 @@
 package com.joshrap.liteweight.activities;
 
-import android.content.Context;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,25 +17,34 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 
-
 public class ResetPasswordActivity extends AppCompatActivity {
 
     private EditText emailInput;
     private TextInputLayout emailInputLayout;
-    private FirebaseAuth mAuth;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_reset_password_layout);
 
         emailInput = findViewById(R.id.email_input);
         emailInputLayout = findViewById(R.id.email_input_layout);
         Button sendResetPasswordEmailButton = findViewById(R.id.send_reset_email_btn);
+        sendResetPasswordEmailButton.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            if (email.isEmpty()) {
+                return;
+            }
+
+            auth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(this, "Email sent successfully", Toast.LENGTH_LONG).show();
+                }
+            });
+        });
         Button backToSignInButton = findViewById(R.id.back_to_sign_in_btn);
         backToSignInButton.setOnClickListener(v -> finish());
 

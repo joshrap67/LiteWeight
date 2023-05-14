@@ -163,25 +163,25 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> updatePushEndpointId(String tokenId) {
+    public Result<String> setFirebaseToken(String firebaseToken) {
         Result<String> result = new Result<>();
 
         try {
-            this.currentUserRepository.setPushEndpointId(tokenId);
+            this.currentUserRepository.linkFirebaseToken(firebaseToken);
         } catch (Exception e) {
-            result.setErrorMessage("There was a problem updating push endpoint.");
+            result.setErrorMessage("There was a problem linking the firebase token.");
         }
 
         return result;
     }
 
-    public Result<String> removePushEndpointId() {
+    public Result<String> unlinkFirebaseToken() {
         Result<String> result = new Result<>();
 
         try {
-            this.currentUserRepository.removePushEndpointId();
+            this.currentUserRepository.unlinkFirebaseToken();
         } catch (Exception e) {
-            result.setErrorMessage("There was a problem removing the push endpoint.");
+            result.setErrorMessage("There was a problem unlinking the firebase token.");
         }
 
         return result;

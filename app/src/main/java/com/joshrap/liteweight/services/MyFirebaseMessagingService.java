@@ -15,6 +15,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
@@ -25,7 +26,6 @@ import com.joshrap.liteweight.models.notifications.AcceptedFriendRequestNotifica
 import com.joshrap.liteweight.models.notifications.CanceledFriendRequestNotification;
 import com.joshrap.liteweight.models.notifications.DeclinedFriendRequestNotification;
 import com.joshrap.liteweight.models.notifications.RemovedAsFriendNotification;
-import com.joshrap.liteweight.utils.JsonUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.user.FriendRequest;
 import com.joshrap.liteweight.models.notifications.PushNotification;
@@ -34,7 +34,8 @@ import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -49,8 +50,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Inject
     ObjectMapper objectMapper;
 
-    // todo look into onNewToken. I probably want to do this
+    @Inject
+    UserManager userManager;
 
+    @Override
+    public void onNewToken(@NonNull String token) {
+        super.onNewToken(token);
+        // todo test. this might not actually work since i think this is called on install when there is no user. might just be better to use shared prefs or room DB
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            // blind send for now for unlinking firebase token
+            userManager.setFirebaseToken(token);
+        });
+    }
 
     @Override
     public void onCreate() {
@@ -61,8 +73,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
-            Map<String, Object> jsonMap = JsonUtils.deserialize(remoteMessage.getData().get("metadata"));
-            PushNotification pushNotification = new PushNotification(jsonMap); // todo use jackson?
+            // todo test
+            String json = remoteMessage.getData().get("metadata");
+            PushNotification pushNotification = this.objectMapper.convertValue(json, PushNotification.class);
             switch (pushNotification.getAction()) {
                 case friendRequestAction:
                     showNotificationNewFriendRequest(pushNotification.getJsonPayload());

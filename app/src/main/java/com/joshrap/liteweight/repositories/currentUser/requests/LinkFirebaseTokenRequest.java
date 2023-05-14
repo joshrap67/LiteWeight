@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class UpdateIconRequest extends BodyRequest {
+public class LinkFirebaseTokenRequest extends BodyRequest {
 
-    private byte[] imageData;
+    private String firebaseToken;
 }

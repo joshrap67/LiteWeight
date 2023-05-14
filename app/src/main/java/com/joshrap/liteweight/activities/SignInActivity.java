@@ -3,12 +3,9 @@ package com.joshrap.liteweight.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -28,8 +25,10 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
@@ -111,46 +110,21 @@ public class SignInActivity extends AppCompatActivity {
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            AuthCredential firebaseCredential = GoogleAuthProvider.getCredential(idToken, null);
 
+            AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
+            mAuth.signInWithCredential(firebaseCredential).addOnCompleteListener(this, task -> {
+                loadingDialog.dismiss();
+                if (task.isSuccessful()) {
+                    launchMainActivity();
+                } else {
+                    AndroidUtils.showErrorDialog("There was an error signing in with Google.", SignInActivity.this);
+                }
+            });
         } catch (ApiException e) {
             AndroidUtils.showErrorDialog("There was an error signing in with Google.", this);
         }
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        /*
-            Found on SO. Hides keyboard when clicking outside editText.
-            https://gist.github.com/sc0rch/7c982999e5821e6338c25390f50d2993
-         */
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (v instanceof EditText) {
-                Rect viewRect = new Rect();
-                v.getGlobalVisibleRect(viewRect);
-                if (!viewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                    boolean touchTargetIsEditText = false;
-                    //Check if another editText has been touched
-                    for (View vi : v.getRootView().getTouchables()) {
-                        if (vi instanceof EditText) {
-                            Rect clickedViewRect = new Rect();
-                            vi.getGlobalVisibleRect(clickedViewRect);
-                            //Bounding box is to big, reduce it just a little bit
-                            if (clickedViewRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                                touchTargetIsEditText = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!touchTargetIsEditText) {
-                        v.clearFocus();
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    }
-                }
-            }
-        }
-        return super.dispatchTouchEvent(event);
     }
 
     private void initEditTexts() {
@@ -206,14 +180,14 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void attemptSignIn(String email, String password) {
-        // todo show loading
+        AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            loadingDialog.dismiss();
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null && user.isEmailVerified()) {
                     launchMainActivity();
                 } else if (user != null && !user.isEmailVerified()) {
-                    // todo launch unverified page
                     launchUnverifiedActivity();
                 }
             } else {

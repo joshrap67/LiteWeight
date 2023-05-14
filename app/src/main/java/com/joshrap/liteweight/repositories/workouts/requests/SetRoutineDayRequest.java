@@ -9,12 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class SetRoutineDayRequest {
 
-    public String tag;
-    public List<SetRoutineExerciseRequest> exercises;
-
-    public SetRoutineDayRequest() {
-        this.exercises = new ArrayList<>(); // todo better to just initialize field above?
-    }
+    private String tag;
+    private List<SetRoutineExerciseRequest> exercises = new ArrayList<>();
 }

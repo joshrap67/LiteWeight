@@ -146,9 +146,9 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             // while app was in background, a workout that was already sent has been sent again and needs to be moved up in the list
             boolean needsUpdating = false;
             for (int i = 0; i < receivedWorkouts.size(); i++) {
-                SharedWorkoutInfo fragmentMeta = receivedWorkouts.get(i);
-                SharedWorkoutInfo upToDateMeta = user.getReceivedWorkout(fragmentMeta.getSharedWorkoutId());
-                if (!fragmentMeta.getSharedUtc().equals(upToDateMeta.getSharedUtc())) {
+                SharedWorkoutInfo fragmentWorkoutInfo = receivedWorkouts.get(i);
+                SharedWorkoutInfo upToDateInfo = user.getReceivedWorkout(fragmentWorkoutInfo.getSharedWorkoutId());
+                if (!fragmentWorkoutInfo.getSharedUtc().equals(upToDateInfo.getSharedUtc())) {
                     needsUpdating = true;
                     break;
                 }
@@ -200,7 +200,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private void sortReceivedWorkouts() {
         receivedWorkouts.sort((r1, r2) -> {
             // sort based on received workout sent time (newest at top)
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH); // todo util method
+            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {
@@ -306,8 +306,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private void removeWorkout(String workoutId) {
         int index = -1;
         for (int i = 0; i < receivedWorkouts.size(); i++) {
-            SharedWorkoutInfo workoutMeta = receivedWorkouts.get(i);
-            if (workoutMeta.getSharedWorkoutId().equals(workoutId)) {
+            SharedWorkoutInfo workoutInfo = receivedWorkouts.get(i);
+            if (workoutInfo.getSharedWorkoutId().equals(workoutId)) {
                 index = i;
                 break;
             }
@@ -523,10 +523,10 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);
                 workoutNameBottomSheetTV.setText(receivedWorkout.getWorkoutName());
 
-                TextView workoutMetaTV = sheetView.findViewById(R.id.workout_meta_tv);
+                TextView workoutInfoTV = sheetView.findViewById(R.id.workout_info_tv);
                 String mostFrequentFocus = receivedWorkout.getMostFrequentFocus();
                 if (mostFrequentFocus != null) {
-                    workoutMetaTV.setText(String.format(Locale.ENGLISH, "Most frequent focus: %s\nNumber of days: %d",
+                    workoutInfoTV.setText(String.format(Locale.ENGLISH, "Most frequent focus: %s\nNumber of days: %d",
                             mostFrequentFocus.replaceAll(",", ", "),
                             receivedWorkout.getTotalDays()));
                 }

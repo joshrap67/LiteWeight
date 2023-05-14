@@ -168,13 +168,13 @@ public class ApiGateway {
         } else if (responseCode == badRequestCode) {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             BadRequestResponse badRequestResponse = this.objectMapper.readValue(jsonResponse, BadRequestResponse.class);
-            throw new LiteWeightNetworkException(responseCode, badRequestResponse.errorType, badRequestResponse.message);
+            throw new LiteWeightNetworkException(badRequestResponse.getErrorType(), badRequestResponse.getMessage());
         } else if (responseCode == versionUpgradeCode) {
-            throw new LiteWeightNetworkException(responseCode, ErrorTypes.upgradeRequired, "You must upgrade your version of LiteWeight to continue.");
+            throw new LiteWeightNetworkException(ErrorTypes.upgradeRequired, "You must upgrade your version of LiteWeight to continue.");
         } else {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             ErrorResponse errorResponse = this.objectMapper.readValue(jsonResponse, ErrorResponse.class);
-            throw new LiteWeightNetworkException(responseCode, errorResponse.message);
+            throw new LiteWeightNetworkException(errorResponse.getMessage());
         }
     }
 

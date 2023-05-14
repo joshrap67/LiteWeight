@@ -6,17 +6,23 @@ import com.joshrap.liteweight.repositories.BodyRequest;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class SetExerciseRequest extends BodyRequest {
 
-    public String name;
-    public double defaultWeight;
-    public int defaultSets;
-    public int defaultReps;
-    public List<String> focuses;
-    public String defaultDetails;
-    public String videoUrl;
+    private String name;
+    private double defaultWeight;
+    private int defaultSets;
+    private int defaultReps;
+    private List<String> focuses;
+    private String defaultDetails;
+    private String videoUrl;
 
     public SetExerciseRequest(OwnedExercise ownedExercise) {
         this.name = ownedExercise.getName();

@@ -63,7 +63,7 @@
     <string name="empty_friends_request_msg">No pending requests</string>
     <string name="back_to_sign_in">BACK TO SIGN IN</string>
     <string name="log_out">Log Out</string>
-    <string name="reset_password_msg">Please enter the email for the account whose password that you wish to reset. A reset password email will be sent containing instructions on how to reset the password.</string>
+    <string name="reset_password_msg">A reset password email will be sent to the following email address.</string>
     <string name="send_email">Send Email</string>
     <string name="reset_password_btn_msg">RESET PASSWORD</string>
     <string name="friends_list">Friends List</string>
@@ -106,7 +106,7 @@
     <string name="new_workout_name">New Workout name</string>
     <string name="workout_name">Workout name</string>
     <string name="workout_name_exists_msg">You already have a workout with this name. In order to accept it you must enter a new name below.</string>
-    <string name="reset_password">Reset Password</string>
+    <string name="forgot_password">Forgot Password</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="new_password">New Password</string>
     <string name="code">Code</string>
@@ -178,9 +178,12 @@
     <string name="done_rearranging">Done rearranging</string>
     <string name="rearrange_hint">Press and hold a day or a week to drag it to its desired position.</string>
     <string name="or">OR</string>
-    <string name="verification_email_sent_please_retry">An verification email has been sent to the email address that you are signed in as. Please complete the instructions on that email, then re-try.</string>
+    <string name="verification_email_sent_please_retry">An verification email has been sent to the email address that you are signed in as. Please complete the instructions on that email, then re-try logging in.</string>
     <string name="resend_verification_email">Resend Verification Email</string>
     <string name="retry_login">Retry Login</string>
     <string name="create">Create</string>
     <string name="signed_in_as">You are currently signed in as: </string>
+    <string name="email_not_verified">Email Not Verified</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
 </resources>

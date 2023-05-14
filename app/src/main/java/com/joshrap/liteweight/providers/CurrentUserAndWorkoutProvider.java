@@ -24,11 +24,19 @@ public class CurrentUserAndWorkoutProvider {
     }
 
     public User provideCurrentUser() {
-        return currentUserAndWorkout.getUser();
+        if (currentUserAndWorkout == null) {
+            return null;
+        } else {
+            return currentUserAndWorkout.getUser();
+        }
     }
 
     public Workout provideCurrentWorkout() {
-        return currentUserAndWorkout.getWorkout();
+        if (currentUserAndWorkout == null) {
+            return null;
+        } else {
+            return currentUserAndWorkout.getWorkout();
+        }
     }
 
     public void clear() {

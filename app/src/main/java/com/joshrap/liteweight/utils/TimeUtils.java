@@ -9,9 +9,11 @@ import java.util.TimeZone;
 
 public class TimeUtils {
 
+    public static final String ZULU_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+
     public static String getFormattedLocalDateTime(String utcDateTime) {
         String formattedDateTime = null;
-        DateFormat dateFormatInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
+        DateFormat dateFormatInput = new SimpleDateFormat(ZULU_TIME_FORMAT, Locale.ENGLISH);
         dateFormatInput.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             Date date = dateFormatInput.parse(utcDateTime);

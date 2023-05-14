@@ -7,7 +7,7 @@ import com.joshrap.liteweight.models.LiteWeightNetworkException;
 import com.joshrap.liteweight.models.user.Friend;
 import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
-import com.joshrap.liteweight.repositories.users.requests.SendFriendRequestRequest;
+import com.joshrap.liteweight.repositories.users.requests.SendFriendRequestApiRequest;
 import com.joshrap.liteweight.repositories.users.requests.ShareWorkoutRequest;
 import com.joshrap.liteweight.repositories.users.responses.ShareWorkoutResponse;
 
@@ -20,7 +20,7 @@ public class UsersRepository {
     private static final String shareWorkoutRoute = "share-workout";
     private static final String sendFriendRequestRoute = "send-friend-request";
     private static final String acceptFriendRequestRoute = "accept-friend-request";
-    private static final String removeFriendRoute = "remove-friend";
+    private static final String removeFriendRoute = "friend";
     private static final String declineFriendRequestRoute = "decline-friend-request";
     private static final String cancelFriendRequestRoute = "cancel-friend-request";
 
@@ -38,7 +38,7 @@ public class UsersRepository {
 
     public Friend sendFriendRequest(String username) throws IOException, LiteWeightNetworkException {
         String route = getRoute(usersRoute, sendFriendRequestRoute);
-        BodyRequest body = new SendFriendRequestRequest(username);
+        BodyRequest body = new SendFriendRequestApiRequest(username);
         String apiResponse = this.apiGateway.post(route, body);
 
         return this.objectMapper.readValue(apiResponse, Friend.class);

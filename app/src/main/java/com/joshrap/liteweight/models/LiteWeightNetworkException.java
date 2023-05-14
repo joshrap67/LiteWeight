@@ -1,24 +1,20 @@
 package com.joshrap.liteweight.models;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class LiteWeightNetworkException extends Exception {
 
     private String errorType;
-    private int statusCode; // todo probably can delete
 
-    public String getErrorType() {
-        return errorType;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public LiteWeightNetworkException(int statusCode, String errorType, String errorMessage) {
+    public LiteWeightNetworkException(String errorType, String errorMessage) {
         super(errorMessage);
         this.errorType = errorType;
     }
 
-    public LiteWeightNetworkException(int statusCode, String errorMessage) {
+    public LiteWeightNetworkException(String errorMessage) {
         super(errorMessage);
     }
 }

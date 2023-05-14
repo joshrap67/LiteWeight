@@ -10,13 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class SetRoutineRequest extends BodyRequest {
 
-    public List<SetRoutineWeekRequest> weeks;
+    private List<SetRoutineWeekRequest> weeks = new ArrayList<>();
 
     public SetRoutineRequest(Routine routine) {
         this.weeks = new ArrayList<>();
@@ -29,7 +33,7 @@ public class SetRoutineRequest extends BodyRequest {
                     SetRoutineExerciseRequest setRoutineExerciseRequest = new SetRoutineExerciseRequest(routineExercise);
                     routineDayRequest.getExercises().add(setRoutineExerciseRequest);
                 }
-                weekRequest.days.add(routineDayRequest);
+                weekRequest.getDays().add(routineDayRequest);
             }
             this.weeks.add(weekRequest);
         }

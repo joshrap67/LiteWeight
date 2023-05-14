@@ -32,7 +32,7 @@
                 tools:text="Sample Workout" />
 
         <TextView
-                android:id="@+id/workout_meta_tv"
+                android:id="@+id/workout_info_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/workout_name_tv"
@@ -44,7 +44,7 @@
                 android:id="@+id/username_pic_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/workout_meta_tv"
+                android:layout_below="@id/workout_info_tv"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:background="?android:selectableItemBackground"

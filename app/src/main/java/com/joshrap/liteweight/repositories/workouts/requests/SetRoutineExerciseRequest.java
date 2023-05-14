@@ -3,17 +3,19 @@ package com.joshrap.liteweight.repositories.workouts.requests;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class SetRoutineExerciseRequest {
-    public boolean completed;
-    public String exerciseId;
-    public double weight;
-    public int sets;
-    public int reps;
-    public String details;
+    private boolean completed;
+    private String exerciseId;
+    private double weight;
+    private int sets;
+    private int reps;
+    private String details;
 
     public SetRoutineExerciseRequest(RoutineExercise routineExercise) {
         this.completed = routineExercise.isCompleted();

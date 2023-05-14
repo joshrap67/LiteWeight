@@ -122,6 +122,7 @@ public class WorkoutRepository {
     public void updateWorkout(@NonNull Workout workout)
             throws IOException, LiteWeightNetworkException {
         // todo use firebase. use update to ensure it doesn't overwrite schema on backend
+        // need to ensure validation is present... might not be worth doing it on frontend anymore
         BodyRequest body = new UpdateWorkoutRequest(workout.getCurrentWeek(), workout.getCurrentDay(), workout.getRoutine());
         String route = getRoute(workoutsRoute, workout.getId(), updateWorkoutRoute);
 

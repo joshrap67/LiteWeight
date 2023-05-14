@@ -160,35 +160,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadCurrentUserAndWorkout() {
-        if (currentUserAndWorkoutProvider.provideCurrentUserAndWorkout() != null) {
-            // this would be non null if user just created their account
-            currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
-            loadingBar.setVisibility(View.GONE);
-            loadActivity();
-        } else {
-            Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> {
-                Result<UserAndWorkout> result = this.userManager.getUserAndCurrentWorkout();
-                Handler handler = new Handler(getMainLooper());
-                handler.post(() -> {
-                    if (result.isSuccess()) {
-                        if (result.getData().getUser() == null) {
-                            // user is authenticated and verified, but has no account in the DB. Load activity to create this
-                            launchAccountNotCreatedActivity();
-                        } else {
-                            // user does have an account, so load activity
-                            currentUserAndWorkout = result.getData();
-                            currentUserAndWorkoutProvider.setCurrentUserAndWorkout(result.getData()); // sets static var for all other fragments to pull from
-
-                            loadingBar.setVisibility(View.GONE);
-                            loadActivity();
-                        }
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Result<UserAndWorkout> result = this.userManager.getUserAndCurrentWorkout();
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (result.isSuccess()) {
+                    if (result.getData().getUser() == null) {
+                        // user is authenticated and verified, but has no account in the DB. Load activity to create this
+                        launchAccountNotCreatedActivity();
                     } else {
-                        launchSignInActivity(result.getErrorMessage());
+                        // user does have an account, so load activity
+                        currentUserAndWorkout = result.getData();
+                        currentUserAndWorkoutProvider.setCurrentUserAndWorkout(result.getData()); // sets static var for all other fragments to pull from
+
+                        loadingBar.setVisibility(View.GONE);
+                        loadActivity();
                     }
-                });
+                } else {
+                    launchSignInActivity(result.getErrorMessage());
+                }
             });
-        }
+        });
     }
 
 
@@ -262,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
 
         setupNotifications();
-        updatePushEndpointToken();
+        linkFirebaseToken();
         updateAccountNotificationIndicator();
         updateReceivedWorkoutNotificationIndicator();
         if (notificationAction != null) {
@@ -530,8 +523,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AndroidUtils.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            // blind send for now for removing notification endpoint id
-            userManager.removePushEndpointId();
+            // blind send for now for unlinking firebase token
+            userManager.unlinkFirebaseToken();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -668,8 +661,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //endregion
 
-    // Fetches token from Firebase and then registers it with SNS in order for push notifications to work.
-    private void updatePushEndpointToken() {
+    private void linkFirebaseToken() {
+        if (user.getFirebaseMessagingToken() != null) return;
+
+        // possible scenario would be signing out and back in again. Token is generated when app is installed, so if they log back in onNewToken isn't guaranteed to be called
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 return;
@@ -679,8 +674,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String token = task.getResult();
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                // blind send for now for updating notification endpoint id
-                userManager.updatePushEndpointId(token);
+                // blind send for now for updating notification token
+                userManager.setFirebaseToken(token);
             });
         });
     }

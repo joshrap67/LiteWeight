@@ -16,17 +16,34 @@ public class LandingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         Injector.getInjector(this).inject(this);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
             launchSignInActivity();
-        } else if (currentUser.isEmailVerified()) {
-            launchMainActivity();
-        } else {
-            launchUnverifiedActivity();
+            return;
         }
+
+        if (currentUser.isEmailVerified()) {
+            launchMainActivity();
+            return;
+        }
+
+        currentUser.reload().addOnCompleteListener(task -> {
+            // reload only happens once every hour or so. if the user is not verified, manually reload in case they clicked to verify their email
+            if (task.isSuccessful()) {
+                if (currentUser.isEmailVerified()) {
+                    launchMainActivity();
+                } else {
+                    launchUnverifiedActivity();
+                }
+            } else {
+                // todo error message?
+                launchSignInActivity();
+            }
+        });
     }
 
     private void launchSignInActivity() {

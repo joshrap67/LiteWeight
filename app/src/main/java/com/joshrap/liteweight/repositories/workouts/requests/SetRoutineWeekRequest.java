@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class SetRoutineWeekRequest {
 
-    public List<SetRoutineDayRequest> days;
-
-    public SetRoutineWeekRequest(){
-        this.days = new ArrayList<>();
-    }
+    private List<SetRoutineDayRequest> days = new ArrayList<>();
 }

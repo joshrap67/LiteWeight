@@ -52,6 +52,7 @@ import com.joshrap.liteweight.models.user.Friend;
 import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
+import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.StatisticsUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -256,7 +257,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         WorkoutInfo currentWorkoutInfo = user.getWorkout(currentWorkout.getId());
         workoutList.remove(currentWorkoutInfo);
         workoutList.sort((r1, r2) -> {
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {
@@ -563,7 +564,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout(); // todo use result?
+                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout(); // todo use result instead of provider?
                     if (currentWorkout == null) {
                         // change view to tell user to create a workout
                         resetFragment();
