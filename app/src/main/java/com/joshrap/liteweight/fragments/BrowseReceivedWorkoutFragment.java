@@ -40,7 +40,7 @@ import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
 import com.joshrap.liteweight.models.sharedWorkout.SharedWeek;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -62,7 +62,6 @@ import javax.inject.Inject;
 import static android.os.Looper.getMainLooper;
 
 public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentWithDialog {
-    private User user;
     private ProgressBar loadingIcon;
     private RecyclerView browseRecyclerView;
     private SharedWorkout sharedWorkout;
@@ -75,6 +74,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     private AlertDialog alertDialog;
     private RelativeLayout browseContainer;
     private String receivedWorkoutId;
+    private boolean isMetricUnits;
+    private final List<String> existingWorkoutNames = new ArrayList<>();
 
     private enum AnimationDirection {NONE, FROM_LEFT, FROM_RIGHT}
 
@@ -106,7 +107,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         ((MainActivity) getActivity()).updateToolbarTitle(workoutName);
         ((MainActivity) getActivity()).toggleBackButton(true);
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        for (WorkoutInfo workoutInfo : user.getWorkouts()) {
+            existingWorkoutNames.add(workoutInfo.getWorkoutName());
+        }
+        isMetricUnits = user.getPreferences().isMetricUnits();
         currentDayIndex = 0;
         currentWeekIndex = 0;
         View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);
@@ -179,11 +184,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
                 String newName = renameInput.getText().toString().trim();
-                List<String> workoutNames = new ArrayList<>();
-                for (WorkoutInfo workoutInfo : user.getWorkouts()) {
-                    workoutNames.add(workoutInfo.getWorkoutName());
-                }
-                String errorMsg = ValidatorUtils.validWorkoutName(newName, workoutNames);
+                String errorMsg = ValidatorUtils.validWorkoutName(newName, existingWorkoutNames);
                 if (errorMsg == null) {
                     acceptWorkout(newName);
                     alertDialog.dismiss();
@@ -315,15 +316,13 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
-        boolean metricUnits = user.getUserPreferences().isMetricUnits();
-
         List<SharedRoutineAdapter.SharedRoutineRowModel> sharedRoutineRowModels = new ArrayList<>();
         for (SharedExercise exercise : sharedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
             SharedRoutineAdapter.SharedRoutineRowModel exerciseRowModel = new SharedRoutineAdapter.SharedRoutineRowModel(exercise, false);
             sharedRoutineRowModels.add(exerciseRowModel);
         }
 
-        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, metricUnits);
+        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, isMetricUnits);
         browseRecyclerView.setAdapter(routineAdapter);
         browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

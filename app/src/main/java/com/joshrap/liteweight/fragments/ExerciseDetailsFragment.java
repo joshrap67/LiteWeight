@@ -37,7 +37,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -54,6 +54,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -63,7 +64,6 @@ import static android.os.Looper.getMainLooper;
 public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
-    private User user;
     private OwnedExercise originalExercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
@@ -75,6 +75,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private RelativeLayout focusRelativeLayout;
     private TextView focusesTV;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
+    private final List<String> existingExerciseNames = new ArrayList<>();
 
     @Inject
     AlertDialog loadingDialog;
@@ -99,8 +100,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             return null;
         }
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
-        metricUnits = user.getUserPreferences().isMetricUnits();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        originalExercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy
+        metricUnits = user.getPreferences().isMetricUnits();
+        for (OwnedExercise exercise : user.getExercises()) {
+            existingExerciseNames.add(exercise.getName());
+        }
         focusList = Variables.FOCUS_LIST;
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
@@ -109,8 +114,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        originalExercise = user.getExercise(exerciseId);
-        List<OwnedExerciseWorkout> workoutList = new ArrayList<>(originalExercise.getWorkouts());
+        List<String> workoutList = new ArrayList<>(originalExercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
         selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
 
         focusesTV = view.findViewById(R.id.focus_list_tv);
@@ -176,7 +180,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (workoutList.isEmpty()) {
             workoutListTv.setText(R.string.none);
         } else {
-            workoutList.sort(Comparator.comparing(workout -> workout.getWorkoutName().toLowerCase()));
+            workoutList.sort(Comparator.comparing(String::toLowerCase));
             StringBuilder workouts = new StringBuilder();
             int maxSize = 5; // only show 5 workouts
             if (workoutList.size() <= maxSize) {
@@ -265,11 +269,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         if (!exerciseNameInput.getText().toString().equals(originalExercise.getName())) {
             // make sure that if the user doesn't change the name that they can still update other fields
-            List<String> exerciseNames = new ArrayList<>();
-            for (OwnedExercise exercise : user.getExercises()) {
-                exerciseNames.add(exercise.getName());
-            }
-            renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+            renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), existingExerciseNames);
             exerciseNameLayout.setError(renameError);
         }
 
@@ -317,14 +317,14 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<String> result = this.userManager.updateExercise(exerciseId, updatedExercise);
+                Result<OwnedExercise> result = this.userManager.updateExercise(exerciseId, updatedExercise);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
 
-                        originalExercise = user.getExercise(exerciseId);
+                        originalExercise = result.getData();
                         initViews();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());

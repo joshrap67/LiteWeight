@@ -76,7 +76,7 @@ public class UnverifiedActivity extends AppCompatActivity {
         });
 
         if (getIntent().getExtras() != null) {
-            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
             if (errorMessage != null) {
                 AndroidUtils.showErrorDialog(errorMessage, this);
             }

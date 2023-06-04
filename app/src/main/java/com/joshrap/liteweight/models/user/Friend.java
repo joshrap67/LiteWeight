@@ -11,6 +11,6 @@ public class Friend {
 
     private String userId;
     private String username;
-    private String userIcon;
+    private String profilePicture;
     private boolean confirmed;
 }

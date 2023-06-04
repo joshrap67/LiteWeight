@@ -3,9 +3,7 @@ package com.joshrap.liteweight.fragments;
 import androidx.appcompat.app.AlertDialog;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,8 +12,6 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -43,13 +39,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.user.Friend;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
@@ -86,10 +83,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private TextView selectedWorkoutTV, timesCompletedTV, completionRateTV, totalDaysTV, mostFrequentFocusTV;
     private ListView workoutListView;
     private AlertDialog alertDialog;
-    private User user;
-    private Workout currentWorkout;
+    //    private User user;
+//    private Workout currentWorkout;
+    private WorkoutInfo currentWorkout;
     private List<WorkoutInfo> workoutList;
     private WorkoutsAdapter workoutsAdapter;
+    private boolean isPremium;
+    private int workoutsSent;
 
     @Inject
     AlertDialog loadingDialog;
@@ -110,8 +110,15 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        Workout workout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+        if (workout != null) {
+            currentWorkout = currentUserAndWorkoutProvider.provideCurrentUser().getWorkout(workout.getId());
+
+        }
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        isPremium = user.isPremium();
+        workoutList = new ArrayList<>(user.getWorkouts());
+        workoutsSent = user.getWorkoutsSent();
 
         View view;
         if (currentWorkout == null) {
@@ -130,7 +137,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             createWorkoutBtn.setOnClickListener(v -> ((MainActivity) getActivity()).goToCreateWorkout());
             return;
         }
-        workoutList = new ArrayList<>(user.getWorkouts());
+
         initViews(view);
     }
 
@@ -182,19 +189,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     promptDelete();
                     return true;
                 case sendIndex:
-                    if (user.getPremiumToken() != null ||
-                            user.getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
+                    if (isPremium || workoutsSent < Variables.MAX_FREE_WORKOUTS_SENT) {
                         promptShare();
                     } else {
                         AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
                     }
                     return true;
                 case copyIndex:
-                    if (user.getPremiumToken() == null &&
-                            workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+                    if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
                         AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
-                    } else if (user.getPremiumToken() != null
-                            && workoutList.size() >= Variables.MAX_WORKOUTS) {
+                    } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
                         AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
                     } else {
                         promptCopy();
@@ -211,16 +215,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         mostFrequentFocusTV = view.findViewById(R.id.most_frequent_focus_tv);
         completionRateTV = view.findViewById(R.id.completion_rate_tv);
         timesCompletedTV = view.findViewById(R.id.times_completed_tv);
-        selectedWorkoutTV.setText(currentWorkout.getName());
+        selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         updateStatisticsTV();
 
         FloatingActionButton createWorkoutBtn = view.findViewById(R.id.new_workout_fab);
         createWorkoutBtn.setOnClickListener(v -> {
-            if (user.getPremiumToken() == null
-                    && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+            if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
                 AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
-            } else if (user.getPremiumToken() != null
-                    && workoutList.size() >= Variables.MAX_WORKOUTS) {
+            } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
                 AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
             } else {
                 // no errors so let user create new workout
@@ -244,7 +246,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void updateUI() {
         workoutList.clear();
         workoutList.addAll(user.getWorkouts());
-        selectedWorkoutTV.setText(currentWorkout.getName());
+        selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         sortWorkouts();
         workoutsAdapter.notifyDataSetChanged();
         updateStatisticsTV();
@@ -254,7 +256,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Sorts workouts by date last accessed and ensures currently selected workout is at the top of the list.
      */
     private void sortWorkouts() {
-        WorkoutInfo currentWorkoutInfo = user.getWorkout(currentWorkout.getId());
+        WorkoutInfo currentWorkoutInfo = user.getWorkout(currentWorkout.getWorkoutId());
         workoutList.remove(currentWorkoutInfo);
         workoutList.sort((r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
@@ -265,7 +267,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 Date date2 = dateFormatter.parse(r2.getLastSetAsCurrentUtc());
                 retVal = date1 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
-                e.printStackTrace();
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
             return retVal;
         });
@@ -277,12 +279,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Fetches and displays statistics for the currently selected workout.
      */
     private void updateStatisticsTV() {
-        int timesCompleted = user.getWorkout(currentWorkout.getId()).getTimesCompleted();
+        int timesCompleted = user.getWorkout(currentWorkout.getId()).getTimesRestarted();
         double average = user.getWorkout(currentWorkout.getId()).getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
 
         timesCompletedTV.setText(Integer.toString(timesCompleted));
-        totalDaysTV.setText(Integer.toString(currentWorkout.getRoutine().getTotalNumberOfDays()));
+        totalDaysTV.setText(Integer.toString(currentWorkout.getRoutine().totalDays()));
         completionRateTV.setText(formattedPercentage);
         mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", "));
 
@@ -450,7 +452,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
-        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
+        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - workoutsSent;
         if (remainingAmount < 0) {
             remainingAmount = 0; // lol. Just to cover my ass in case
         }
@@ -501,7 +503,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
-                    if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
+                    if (!isPremium && workoutsSent >= Variables.MAX_FREE_WORKOUTS_SENT) {
                         AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed to share.", getContext());
                     } else {
                         shareWorkout(username, currentWorkout.getId());
@@ -516,7 +518,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.sharedWorkoutManager.shareWorkout(recipientUsername, workoutId);
+            Result<String> result = this.sharedWorkoutManager.shareWorkoutByUsername(recipientUsername, workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -608,7 +610,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }
 
-    public class SearchFriendArrayAdapter extends ArrayAdapter<Friend> implements Filterable {
+    public static class SearchFriendArrayAdapter extends ArrayAdapter<Friend> implements Filterable {
         private final Context context;
         private final List<Friend> allFriends;
         private final List<Friend> displayFriends;
@@ -644,27 +646,10 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
             ImageView profilePicture = listItem.findViewById(R.id.profile_picture_image);
             Picasso.get()
-                    .load(ImageUtils.getProfilePictureUrl(friend.getUserIcon()))
+                    .load(ImageUtils.getProfilePictureUrl(friend.getProfilePicture()))
                     .error(R.drawable.picture_load_error)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                    .into(profilePicture, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            if (!MyWorkoutsFragment.this.isResumed()) {
-                                return;
-                            }
-                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                            imageDrawable.setCircular(true);
-                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                            profilePicture.setImageDrawable(imageDrawable);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
-
+                    .into(profilePicture);
 
             return listItem;
         }

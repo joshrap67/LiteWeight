@@ -13,8 +13,4 @@ public class LiteWeightNetworkException extends Exception {
         super(errorMessage);
         this.errorType = errorType;
     }
-
-    public LiteWeightNetworkException(String errorMessage) {
-        super(errorMessage);
-    }
 }

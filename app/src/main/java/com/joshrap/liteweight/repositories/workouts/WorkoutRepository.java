@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
 import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
+import com.joshrap.liteweight.repositories.self.requests.SetCurrentWorkoutRequest;
 import com.joshrap.liteweight.repositories.workouts.requests.CopyWorkoutRequest;
 import com.joshrap.liteweight.repositories.workouts.requests.CreateWorkoutRequest;
 import com.joshrap.liteweight.repositories.workouts.requests.RenameWorkoutRequest;
@@ -37,8 +38,9 @@ public class WorkoutRepository {
     private static final String renameWorkoutRoute = "rename";
     private static final String resetStatisticsRoute = "reset-statistics";
     private static final String setRoutineRoute = "routine";
-    private static final String updateWorkoutRoute = "update";
+    private static final String updateWorkoutProgressRoute = "update-progress";
     private static final String restartWorkoutRoute = "restart";
+    private static final String deleteWorkoutAndSetCurrentRoute = "delete-and-set-current";
 
     private static final String workoutsRoute = "workouts";
     private static final String workoutsCollection = "workouts";
@@ -98,10 +100,10 @@ public class WorkoutRepository {
         this.apiGateway.post(route, body);
     }
 
-    public void deleteWorkout(String workoutId)
-            throws IOException, LiteWeightNetworkException {
-        String route = getRoute(workoutsRoute, workoutId);
-        this.apiGateway.delete(route);
+    public void deleteWorkoutAndSetCurrent(String workoutId, String currentWorkoutId) throws IOException, LiteWeightNetworkException {
+        String route = getRoute(workoutsRoute, workoutId, deleteWorkoutAndSetCurrentRoute);
+        BodyRequest body = new SetCurrentWorkoutRequest(currentWorkoutId);
+        this.apiGateway.put(route, body);
     }
 
     public void resetWorkoutStatistics(@NonNull String workoutId)
@@ -119,12 +121,10 @@ public class WorkoutRepository {
         return this.objectMapper.readValue(apiResponse, UserAndWorkout.class);
     }
 
-    public void updateWorkout(@NonNull Workout workout)
+    public void updateWorkoutProgress(int currentWeek, int currentDay, @NonNull Workout workout)
             throws IOException, LiteWeightNetworkException {
-        // todo use firebase. use update to ensure it doesn't overwrite schema on backend
-        // need to ensure validation is present... might not be worth doing it on frontend anymore
-        BodyRequest body = new UpdateWorkoutRequest(workout.getCurrentWeek(), workout.getCurrentDay(), workout.getRoutine());
-        String route = getRoute(workoutsRoute, workout.getId(), updateWorkoutRoute);
+        BodyRequest body = new UpdateWorkoutRequest(currentWeek, currentDay, workout.getRoutine());
+        String route = getRoute(workoutsRoute, workout.getId(), updateWorkoutProgressRoute);
 
         this.apiGateway.put(route, body);
     }

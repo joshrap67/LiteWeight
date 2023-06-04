@@ -40,8 +40,6 @@ Tutorial that got me started [Coding in flow](https://codinginflow.com/tutorials
 
 App Logo uses free SVG found [here](https://uxwing.com/feather-icon/)
 
-Default Profile Picture made by [Smashicons](https://www.flaticon.com/free-icon/user_149071)
-
 Numerous YouTube videos are used for the exercise videos in this non-profit application. I do not own any of these videos and take no responsibility for any actions of the owners
 
 My friend John Cooley for helping me with the app name

@@ -14,8 +14,8 @@ public class Workout {
     private String creationUtc;
     private String creatorId;
     private Routine routine;
-    private Integer currentWeek;
-    private Integer currentDay;
+//    private Integer currentWeek;
+//    private Integer currentDay;
 
     public Workout(Workout toBeCopied) {
         // copy constructor
@@ -23,8 +23,8 @@ public class Workout {
         this.name = toBeCopied.getName();
         this.creationUtc = toBeCopied.getCreationUtc();
         this.creatorId = toBeCopied.getCreatorId();
-        this.currentWeek = toBeCopied.getCurrentWeek();
-        this.currentDay = toBeCopied.getCurrentDay();
+//        this.currentWeek = toBeCopied.getCurrentWeek();
+//        this.currentDay = toBeCopied.getCurrentDay();
         this.routine = new Routine(toBeCopied.getRoutine());
     }
 
@@ -33,12 +33,12 @@ public class Workout {
         if (workout1 == null || workout2 == null) {
             return true;
         }
-        if (!workout1.getCurrentWeek().equals(workout2.getCurrentWeek())) {
-            retVal = true;
-        }
-        if (!workout1.getCurrentDay().equals(workout2.getCurrentDay())) {
-            retVal = true;
-        }
+//        if (!workout1.getCurrentWeek().equals(workout2.getCurrentWeek())) {
+//            retVal = true;
+//        }
+//        if (!workout1.getCurrentDay().equals(workout2.getCurrentDay())) {
+//            retVal = true;
+//        }
         if (Routine.routinesDifferent(workout1.getRoutine(), workout2.getRoutine())) {
             retVal = true;
         }

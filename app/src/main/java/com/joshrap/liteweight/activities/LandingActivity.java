@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.joshrap.liteweight.R;
+import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 
 public class LandingActivity extends AppCompatActivity {
@@ -22,7 +23,7 @@ public class LandingActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
-            launchSignInActivity();
+            launchSignInActivity(null);
             return;
         }
 
@@ -40,14 +41,16 @@ public class LandingActivity extends AppCompatActivity {
                     launchUnverifiedActivity();
                 }
             } else {
-                // todo error message?
-                launchSignInActivity();
+                launchSignInActivity("There was a problem with your account. Please try and login again.");
             }
         });
     }
 
-    private void launchSignInActivity() {
+    private void launchSignInActivity(String errorMessage) {
         Intent intent = new Intent(this, SignInActivity.class);
+        if (errorMessage != null) {
+            intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

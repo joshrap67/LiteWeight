@@ -36,21 +36,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
                     android:textSize="24sp"
-                    tools:text="Version 2.2.0" />
-
-            <TextView
-                    android:id="@+id/feedback_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="?android:selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingHorizontal="4dp"
-                    android:paddingVertical="10dp"
-                    android:text="@string/feedback_report_problem"
-                    android:textSize="20sp"
-                    app:drawableEndCompat="@drawable/feedback_icon" />
+                    tools:text="Version 3.0.0" />
 
             <TextView
                     android:id="@+id/faq_tv"
@@ -96,53 +82,6 @@
                     android:text="@string/terms_and_conditions"
                     android:textSize="20sp"
                     app:drawableEndCompat="@drawable/terms_conditions_icon" />
-
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical">
-
-                <RelativeLayout
-                        android:id="@+id/acknowledgements_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?android:selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingVertical="10dp">
-
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingHorizontal="4dp"
-                            android:text="@string/acknowledgements_title"
-                            android:textSize="20sp" />
-
-                    <ImageButton
-                            android:id="@+id/acknowledgements_icon_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:contentDescription="@string/expand_collapse"
-                            android:focusable="true"
-                            android:paddingHorizontal="4dp"
-                            android:src="@drawable/down_arrow" />
-                </RelativeLayout>
-
-                <TextView
-                        android:id="@+id/acknowledgements_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:linksClickable="true"
-                        android:paddingHorizontal="4dp"
-                        android:text="@string/acknowledgements"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

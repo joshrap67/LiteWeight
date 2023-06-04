@@ -2,12 +2,10 @@ package com.joshrap.liteweight.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -17,10 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Strings;
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.joshrap.liteweight.BuildConfig;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -37,6 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // todo i dont think the user will understand that they can sign in with google bypassing the sign up process. so this page should also have a sign up with google even though it is not technically necessary
         mAuth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_sign_up_layout);
@@ -60,7 +57,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         initEditTexts();
         if (getIntent().getExtras() != null) {
-            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
             if (errorMessage != null) {
                 AndroidUtils.showErrorDialog(errorMessage, this);
             }

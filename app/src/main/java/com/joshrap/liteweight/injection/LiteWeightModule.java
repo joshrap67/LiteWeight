@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.VersionModel;
@@ -59,7 +60,7 @@ class LiteWeightModule {
             versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
             versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
         } catch (Exception e) {
-            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
         return new VersionModel(versionName, versionCode);
     }

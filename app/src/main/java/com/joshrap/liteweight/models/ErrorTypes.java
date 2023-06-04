@@ -8,4 +8,5 @@ public class ErrorTypes {
     public static final String miscError = "MiscError";
     public static final String userNotFound = "UserNotFound";
     public static final String upgradeRequired = "UpgradeRequired";
+    public static final String serverError = "ServerError";
 }

@@ -1,7 +1,8 @@
 package com.joshrap.liteweight.managers;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.models.user.OwnedExercise;
-import com.joshrap.liteweight.repositories.currentUser.CurrentUserRepository;
+import com.joshrap.liteweight.repositories.self.SelfRepository;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.user.User;
@@ -9,7 +10,6 @@ import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
 
 import java.time.Instant;
 
@@ -22,15 +22,15 @@ public class WorkoutManager {
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
-    CurrentUserRepository currentUserRepository;
+    SelfRepository selfRepository;
     @Inject
     CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
 
     @Inject
-    public WorkoutManager(WorkoutRepository workoutRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider, CurrentUserRepository currentUserRepository) {
+    public WorkoutManager(WorkoutRepository workoutRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider, SelfRepository selfRepository) {
         this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
         this.workoutRepository = workoutRepository;
-        this.currentUserRepository = currentUserRepository;
+        this.selfRepository = selfRepository;
     }
 
     public Result<UserAndWorkout> createWorkout(@NonNull Routine routine, @NonNull String workoutName) {
@@ -49,6 +49,7 @@ public class WorkoutManager {
 
             currentUserAndWorkout.setWorkout(response.getWorkout());
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem creating the workout.");
         }
         return result;
@@ -63,13 +64,14 @@ public class WorkoutManager {
 
             UserAndWorkout copyResponse = this.workoutRepository.copyWorkout(workout.getId(), workoutName);
             Workout newWorkout = copyResponse.getWorkout();
-            this.currentUserRepository.setCurrentWorkout(newWorkout.getId());
+            this.selfRepository.setCurrentWorkout(newWorkout.getId());
 
             user.addWorkout(copyResponse.getUser().getWorkout(newWorkout.getId()));
             currentUserAndWorkout.setWorkout(newWorkout);
             user.setCurrentWorkoutId(newWorkout.getId());
-            // todo exercises?
+            user.updateOwnedExercises(copyResponse.getUser().getExercises());
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem copying the workout.");
         }
 
@@ -81,18 +83,22 @@ public class WorkoutManager {
 
         try {
             User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            UserAndWorkout userAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
 
-            this.workoutRepository.updateWorkout(oldWorkout);
+            this.workoutRepository.updateWorkoutProgress(
+                    currentUserAndWorkoutProvider.getCurrentWeek(),
+                    currentUserAndWorkoutProvider.getCurrentDay(),
+                    oldWorkout);
             Workout workout = this.workoutRepository.getWorkout(workoutId);
-            this.currentUserRepository.setCurrentWorkout(workoutId);
+            this.selfRepository.setCurrentWorkout(workoutId);
 
-            currentUserAndWorkout.setWorkout(workout);
+            userAndWorkout.setWorkout(workout);
             user.setCurrentWorkoutId(workoutId);
             String now = Instant.now().toString();
             WorkoutInfo workoutInfo = user.getWorkout(oldWorkout.getId());
             workoutInfo.setLastSetAsCurrentUtc(now);
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem switching to the workout.");
         }
 
@@ -113,7 +119,7 @@ public class WorkoutManager {
             user.getWorkout(currentWorkout.getId()).setWorkoutName(newWorkoutName);
             currentWorkout.setName(newWorkoutName);
         } catch (Exception e) {
-            // todo log exceptions?
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem renaming the workout.");
         }
         return result;
@@ -126,13 +132,13 @@ public class WorkoutManager {
             User user = currentUserAndWorkoutProvider.provideCurrentUser();
             UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
 
-            this.workoutRepository.deleteWorkout(workoutId);
+            this.workoutRepository.deleteWorkoutAndSetCurrent(workoutId, nextWorkoutId);
             Workout workout = null;
             if (nextWorkoutId != null) {
                 workout = this.workoutRepository.getWorkout(nextWorkoutId);
             }
-            this.currentUserRepository.setCurrentWorkout(nextWorkoutId);
 
+            user.setCurrentWorkoutId(nextWorkoutId);
             currentUserAndWorkout.setWorkout(workout);
             user.removeWorkout(workoutId);
             for (OwnedExercise exercise : user.getExercises()) {
@@ -141,6 +147,7 @@ public class WorkoutManager {
 
             result.setData(currentUserAndWorkout);
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem deleting the workout.");
         }
 
@@ -154,21 +161,22 @@ public class WorkoutManager {
         try {
             this.workoutRepository.resetWorkoutStatistics(workoutId);
             WorkoutInfo workoutInfo = user.getWorkout(workoutId);
-            workoutInfo.setTimesCompleted(0);
+            workoutInfo.setTimesRestarted(0);
             workoutInfo.setAverageExercisesCompleted(0.0);
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem resetting the workout statistics.");
         }
         return result;
     }
 
-    public Result<String> updateWorkout(@NonNull Workout workout) {
+    public Result<String> updateWorkoutProgress(int currentWeek, int currentDay, @NonNull Workout workout) {
         Result<String> result = new Result<>();
 
         try {
-            this.workoutRepository.updateWorkout(workout);
+            this.workoutRepository.updateWorkoutProgress(currentWeek, currentDay, workout);
         } catch (Exception e) {
-            // todo always catch raw exception, use instanceof for more fine tuned catching?
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem updating the workout.");
         }
         return result;
@@ -187,6 +195,7 @@ public class WorkoutManager {
 
             result.setData(currentUserAndWorkout);
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem updating the routine.");
         }
         return result;
@@ -210,9 +219,10 @@ public class WorkoutManager {
             user.updateOwnedExercises(response.getUser().getExercises());
 
             currentWorkout.setRoutine(response.getWorkout().getRoutine());
-            currentWorkout.setCurrentDay(0);
-            currentWorkout.setCurrentWeek(0);
+            workoutInfo.setCurrentDay(0);
+            workoutInfo.setCurrentWeek(0);
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem restarting the workout.");
         }
         return result;

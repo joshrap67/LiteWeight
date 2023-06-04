@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputFilter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -84,7 +83,7 @@ public class SignInActivity extends AppCompatActivity {
 
         initEditTexts();
         if (getIntent().getExtras() != null) {
-            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
             if (errorMessage != null) {
                 AndroidUtils.showErrorDialog(errorMessage, this);
             }
@@ -116,6 +115,7 @@ public class SignInActivity extends AppCompatActivity {
             AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
             mAuth.signInWithCredential(firebaseCredential).addOnCompleteListener(this, task -> {
                 loadingDialog.dismiss();
+                googleSignOut();
                 if (task.isSuccessful()) {
                     launchMainActivity();
                 } else {
@@ -127,12 +127,15 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+    private void googleSignOut() {
+        // only using google sign in for getting id token to link to firebase. Can immediately log out once getting that token
+        googleSignInClient.signOut();
+    }
+
     private void initEditTexts() {
-        // since user can sign in with username or email, can't restrict length by only username
-        emailInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
         emailInput.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                String errorMsg = ValidatorUtils.validUsername(emailInput.getText().toString().trim());
+                String errorMsg = ValidatorUtils.validEmail(emailInput.getText().toString().trim());
                 if (errorMsg == null) {
                     emailInputLayout.setError(null);
                     return true;
@@ -152,7 +155,6 @@ public class SignInActivity extends AppCompatActivity {
                 if (errorMsg == null) {
                     passwordInputLayout.setError(null);
                     if (validSignInInput()) {
-                        hideKeyboard(getCurrentFocus());
                         attemptSignIn(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim());
                     }
                     return true;
@@ -165,9 +167,9 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private boolean validSignInInput() {
-        String usernameErrorMsg = ValidatorUtils.validUsername(emailInput.getText().toString().trim());
-        if (usernameErrorMsg != null) {
-            emailInputLayout.setError(usernameErrorMsg);
+        String emailErrorMsg = ValidatorUtils.validEmail(emailInput.getText().toString().trim());
+        if (emailErrorMsg != null) {
+            emailInputLayout.setError(emailErrorMsg);
             emailInputLayout.startAnimation(AndroidUtils.shakeError(2));
         }
         String passwordErrorMsg = ValidatorUtils.validPassword(passwordInput.getText().toString().trim());
@@ -176,10 +178,11 @@ public class SignInActivity extends AppCompatActivity {
             passwordInputLayout.startAnimation(AndroidUtils.shakeError(2));
         }
 
-        return (usernameErrorMsg == null) && (passwordErrorMsg == null);
+        return (emailErrorMsg == null) && (passwordErrorMsg == null);
     }
 
     private void attemptSignIn(String email, String password) {
+        hideKeyboard(getCurrentFocus());
         AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             loadingDialog.dismiss();
@@ -191,7 +194,7 @@ public class SignInActivity extends AppCompatActivity {
                     launchUnverifiedActivity();
                 }
             } else {
-                AndroidUtils.showErrorDialog("Authentication failed", getApplicationContext());
+                AndroidUtils.showErrorDialog("Authentication failed", this);
             }
         });
     }
@@ -206,6 +209,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void launchSignUp() {
         Intent intent = new Intent(this, SignUpActivity.class);
+        // todo get transitions working
         startActivity(intent);
     }
 

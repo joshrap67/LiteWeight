@@ -10,6 +10,7 @@ public class Variables {
     public static final int WORKOUT_MAX_NUMBER_OF_DAYS = 7;
     public static final int MAX_NUMBER_OF_WEEKS = 10;
     public static final int MAX_WORKOUT_NAME = 40;
+    public static final int MAX_REPORT_DESCRIPTION = 400;
     public static final int MAX_DAY_TAG_LENGTH = 50;
     public static final int MAX_EXERCISE_NAME = 40;
     public static final int MAX_WEIGHT = 99999;
@@ -28,7 +29,6 @@ public class Variables {
     public static final int MAX_FREE_WORKOUTS_SENT = 50;
     public static final int MAX_FREE_WORKOUTS = 10;
     public static final int MAX_WORKOUTS = 20;
-    public static final int MAX_FEEDBACK = 2000;
     public static final int DEFAULT_WEIGHT = 0;
     public static final int DEFAULT_SETS = 3;
     public static final int DEFAULT_REPS = 15;
@@ -58,11 +58,10 @@ public class Variables {
     public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
     public static final String NEW_EXERCISE_TITLE = "New Exercise";
     public static final String ACCOUNT_TITLE = "My Account";
-    public static final String ACCOUNT_PREFS_TITLE = "Account Preferences";
+    public static final String SETTINGS_TITLE = "Settings";
     public static final String FRIENDS_LIST_TITLE = "Friends List";
     public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";
-    public static final String SETTINGS_TITLE = "App Settings";
     public static final String ABOUT_TITLE = "About";
     public static final String FAQ_TITLE = "FAQ";
 
@@ -100,8 +99,10 @@ public class Variables {
     public static final String NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked";
     public static final String ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked";
     public static final String RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked";
-    public static final String ERROR_MESSAGE = "Error_Message";
-    public static final String WORKOUT = "Workout";
+    public static final String INTENT_ERROR_MESSAGE = "Error_Message";
+    public static final String INTENT_WORKOUT = "Workout";
+    public static final String INTENT_CURRENT_WEEK = "currentWeek";
+    public static final String INTENT_CURRENT_DAY = "currentDay";
     public static final String WORKOUT_NAME = "Workout_Name";
     public static final String SHARED_WORKOUT_ID = "SharedWorkoutId";
 

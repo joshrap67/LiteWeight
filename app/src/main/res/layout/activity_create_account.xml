@@ -29,19 +29,49 @@
                     android:textSize="36sp"
                     android:textStyle="bold" />
 
+            <FrameLayout
+                    android:id="@+id/frame_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/app_title_tv"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/profile_picture_image"
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:layout_gravity="center_horizontal"
+                        android:contentDescription="@string/profile_picture"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                        app:srcCompat="@drawable/default_profile_picture"
+                        app:strokeColor="@color/subtitle_color"
+                        app:strokeWidth="1dp" />
+
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@string/profile_picture"
+                        app:srcCompat="@drawable/edit_icon" />
+            </FrameLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/username_input_layout"
-                    android:layout_width="300dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/app_title_tv"
+                    android:layout_below="@+id/frame_layout"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:hint="@string/username_hint"
+                    android:paddingHorizontal="16dp"
                     tools:style="@style/SignInTextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/username_input"
-                        android:layout_width="300dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:drawableStart="@drawable/user_icon_login"
@@ -73,7 +103,8 @@
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/metric_switch_description" />
+                        android:text="@string/metric_switch_description"
+                        android:textColor="@color/subtitle_color" />
             </LinearLayout>
         </RelativeLayout>
     </ScrollView>
@@ -88,10 +119,11 @@
 
         <Button
                 android:id="@+id/create_user_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:text="@string/create" />
+                android:layout_marginHorizontal="50dp"
+                android:text="@string/create_account" />
 
         <LinearLayout
                 android:id="@+id/divider"
@@ -118,14 +150,16 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="4dp"
-                tools:text="You are signed in as binary0010productions@gmail.com" />
+                android:textStyle="italic"
+                tools:text="Signed in as binary0010productions@gmail.com" />
 
         <Button
                 android:id="@+id/log_out_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/signed_in_as_tv"
                 android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="50dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="30dp"
                 android:text="@string/log_out" />

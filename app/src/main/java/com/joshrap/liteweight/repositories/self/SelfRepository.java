@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.currentUser;
+package com.joshrap.liteweight.repositories.self;
 
 import static com.joshrap.liteweight.utils.NetworkUtils.getRoute;
 
@@ -14,12 +14,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
 import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.CreateUserRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.SetCurrentWorkoutRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.LinkFirebaseTokenRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.SetUserPreferencesRequest;
-import com.joshrap.liteweight.repositories.currentUser.requests.UpdateIconRequest;
-import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.repositories.self.requests.CreateUserRequest;
+import com.joshrap.liteweight.repositories.self.requests.SetCurrentWorkoutRequest;
+import com.joshrap.liteweight.repositories.self.requests.LinkFirebaseTokenRequest;
+import com.joshrap.liteweight.repositories.self.requests.SetUserPreferencesRequest;
+import com.joshrap.liteweight.repositories.self.requests.UpdateProfilePictureRequest;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.user.UserPreferences;
 
@@ -28,9 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
-public class CurrentUserRepository {
+public class SelfRepository {
 
-    private static final String updateProfilePictureRoute = "icon";
+    private static final String updateProfilePictureRoute = "profile-picture";
     private static final String linkFirebaseTokenRoute = "link-firebase-token";
     private static final String unlinkFirebaseTokenRoute = "unlink-firebase-token";
     private static final String setAllFriendRequestsSeenRoute = "all-friend-requests-seen";
@@ -38,25 +37,24 @@ public class CurrentUserRepository {
     private static final String setCurrentWorkoutRoute = "current-workout";
     private static final String setAllReceivedWorkoutsSeenRoute = "all-seen";
     private static final String setReceivedWorkoutSeenRoute = "seen";
-    private static final String sendFeedbackAction = "sendFeedback";
 
     private static final String receivedWorkoutsRoute = "received-workouts";
-    private static final String currentUserRoute = "current-user";
-
+    private static final String selfRoute = "self";
     private static final String usersCollection = "users";
 
     private final ApiGateway apiGateway;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public CurrentUserRepository(ApiGateway apiGateway, ObjectMapper objectMapper) {
+    public SelfRepository(ApiGateway apiGateway, ObjectMapper objectMapper) {
         this.apiGateway = apiGateway;
         this.objectMapper = objectMapper;
     }
 
     // using firebase directly for optimized reads
-    public User getUser() throws ExecutionException, InterruptedException, JsonProcessingException {
+    public User getSelf() throws ExecutionException, InterruptedException, JsonProcessingException {
         User user = null;
+        // todo if schema changes this will fail. might need a singleton collection with the version the db supports?
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -75,64 +73,58 @@ public class CurrentUserRepository {
         return user;
     }
 
-    public User createUser(String username, boolean metricUnits) throws IOException, LiteWeightNetworkException, ExecutionException, InterruptedException {
-        BodyRequest body = new CreateUserRequest(username, metricUnits);
-        String apiResponse = this.apiGateway.post(currentUserRoute, body);
+    public User createSelf(String username, byte[] profilePictureData, boolean metricUnits) throws IOException, LiteWeightNetworkException, ExecutionException, InterruptedException {
+        BodyRequest body = new CreateUserRequest(username, profilePictureData, metricUnits);
+        String apiResponse = this.apiGateway.post(selfRoute, body);
 
         return this.objectMapper.readValue(apiResponse, User.class);
     }
 
     public void updateProfilePicture(byte[] pictureData) throws IOException, LiteWeightNetworkException {
-        UpdateIconRequest body = new UpdateIconRequest(pictureData);
-        String route = getRoute(currentUserRoute, updateProfilePictureRoute);
+        UpdateProfilePictureRequest body = new UpdateProfilePictureRequest(pictureData);
+        String route = getRoute(selfRoute, updateProfilePictureRoute);
 
         this.apiGateway.put(route, body);
     }
 
     public void linkFirebaseToken(String tokenId) throws IOException, LiteWeightNetworkException {
         BodyRequest body = new LinkFirebaseTokenRequest(tokenId);
-        String route = getRoute(currentUserRoute, linkFirebaseTokenRoute);
+        String route = getRoute(selfRoute, linkFirebaseTokenRoute);
 
         this.apiGateway.put(route, body);
     }
 
     public void unlinkFirebaseToken() throws IOException, LiteWeightNetworkException {
-        String route = getRoute(currentUserRoute, unlinkFirebaseTokenRoute);
-        this.apiGateway.delete(route);
+        String route = getRoute(selfRoute, unlinkFirebaseTokenRoute);
+        this.apiGateway.put(route);
     }
 
     public void setAllFriendRequestsSeen() throws IOException, LiteWeightNetworkException {
-        String route = getRoute(currentUserRoute, setAllFriendRequestsSeenRoute);
+        String route = getRoute(selfRoute, setAllFriendRequestsSeenRoute);
         this.apiGateway.put(route);
     }
 
     public void setUserPreferences(UserPreferences userPreferences) throws IOException, LiteWeightNetworkException {
         BodyRequest body = new SetUserPreferencesRequest(userPreferences);
-        String route = getRoute(currentUserRoute, setUserPreferencesRoute);
+        String route = getRoute(selfRoute, setUserPreferencesRoute);
 
         this.apiGateway.put(route, body);
     }
 
     public void setCurrentWorkout(String workoutId) throws IOException, LiteWeightNetworkException {
         BodyRequest body = new SetCurrentWorkoutRequest(workoutId);
-        String route = getRoute(currentUserRoute, setCurrentWorkoutRoute);
+        String route = getRoute(selfRoute, setCurrentWorkoutRoute);
 
         this.apiGateway.put(route, body);
     }
 
-    public Result<String> sendFeedback(String feedback, String feedbackTime) {
-        Result<String> result = new Result<>();
-        // todo
-        return result;
-    }
-
     public void setAllReceivedWorkoutsSeen() throws IOException, LiteWeightNetworkException {
-        String route = getRoute(currentUserRoute, receivedWorkoutsRoute, setAllReceivedWorkoutsSeenRoute);
+        String route = getRoute(selfRoute, receivedWorkoutsRoute, setAllReceivedWorkoutsSeenRoute);
         this.apiGateway.put(route);
     }
 
     public void setReceivedWorkoutSeen(String sharedWorkoutId) throws IOException, LiteWeightNetworkException {
-        String route = getRoute(currentUserRoute, receivedWorkoutsRoute, sharedWorkoutId, setReceivedWorkoutSeenRoute);
+        String route = getRoute(selfRoute, receivedWorkoutsRoute, sharedWorkoutId, setReceivedWorkoutSeenRoute);
         this.apiGateway.put(route);
     }
 }

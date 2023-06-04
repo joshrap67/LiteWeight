@@ -15,7 +15,7 @@ public class SharedWorkoutInfo {
     private boolean seen;
     private String senderId;
     private String senderUsername;
-    private String senderIcon;
+    private String senderProfilePicture;
     private Integer totalDays;
     private String mostFrequentFocus;
 }

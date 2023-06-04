@@ -6,8 +6,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 
@@ -16,14 +14,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.view.GravityCompat;
@@ -46,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
@@ -65,7 +64,8 @@ import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentM
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.workout.Workout;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Injector.getInjector(this).inject(this);
         EventBus.getDefault().register(this);
-        setContentView(R.layout.activity_workout);
+        setContentView(R.layout.activity_main);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         toolbar = findViewById(R.id.toolbar);
@@ -172,14 +172,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     } else {
                         // user does have an account, so load activity
                         currentUserAndWorkout = result.getData();
-                        currentUserAndWorkoutProvider.setCurrentUserAndWorkout(result.getData()); // sets static var for all other fragments to pull from
-
-                        loadingBar.setVisibility(View.GONE);
                         loadActivity();
                     }
                 } else {
                     launchSignInActivity(result.getErrorMessage());
                 }
+
+                loadingBar.setVisibility(View.GONE);
             });
         });
     }
@@ -236,27 +235,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         usernameTV.setText(user.getUsername());
         Picasso.get()
-                .load(ImageUtils.getProfilePictureUrl(user.getIcon()))
+                .load(ImageUtils.getProfilePictureUrl(user.getProfilePicture()))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                .into(profilePicture, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        profilePicture.setImageDrawable(imageDrawable);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                });
+                .into(profilePicture);
 
         setupNotifications();
         linkFirebaseToken();
-        updateAccountNotificationIndicator();
+        updateFriendsListIndicator();
         updateReceivedWorkoutNotificationIndicator();
         if (notificationAction != null) {
             // the user clicked on a notification which created this activity, so route to the appropriate fragment
@@ -268,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void launchSignInActivity(String errorMessage) {
         Intent intent = new Intent(this, SignInActivity.class);
         if (errorMessage != null) {
-            intent.putExtra(Variables.ERROR_MESSAGE, errorMessage);
+            intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
@@ -399,9 +385,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (!(getVisibleFragment() instanceof ReceivedWorkoutsFragment)) {
                 goToReceivedWorkouts();
             }
-        } else if (itemId == R.id.nav_user_settings) {
-            if (!(getVisibleFragment() instanceof AppSettingsFragment)) {
-                goToAppSettings();
+        } else if (itemId == R.id.nav_friends_list) {
+            if (!(getVisibleFragment() instanceof FriendsListFragment)) {
+                goToFriendsList(null);
             }
         } else if (itemId == R.id.nav_about) {
             if (!(getVisibleFragment() instanceof AboutFragment)) {
@@ -437,19 +423,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     };
 
     private void syncCurrentWorkout() {
-//        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
-//            // we assume it always succeeds
-//            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
-//            Intent intent = new Intent(this, SyncWorkoutService.class);
-//            intent.putExtra(Variables.INTENT_REFRESH_TOKEN, tokens.getRefreshToken());
-//            intent.putExtra(Variables.INTENT_ID_TOKEN, tokens.getIdToken());
-//            try {
-//                intent.putExtra(Variables.WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout()));
-//                startService(intent);
-//            } catch (JsonProcessingException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
+            // we assume it always succeeds
+            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
+            Intent intent = new Intent(this, SyncWorkoutService.class);
+            try {
+                intent.putExtra(Variables.INTENT_WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout()));
+                startService(intent);
+            } catch (JsonProcessingException e) {
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
+        }
     }
 
     public void popFragStack() {
@@ -471,9 +455,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 goToMyWorkouts();
                 nav.setCheckedItem(R.id.nav_my_workouts);
                 break;
-            case Variables.SETTINGS_TITLE:
-                goToAppSettings();
-                nav.setCheckedItem(R.id.nav_user_settings);
+            case Variables.FRIENDS_LIST_TITLE:
+                goToFriendsList(null);
+                nav.setCheckedItem(R.id.nav_friends_list);
                 break;
             case Variables.MY_EXERCISES_TITLE:
                 goToMyExercises();
@@ -487,10 +471,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nav.setCheckedItem(R.id.nav_my_account);
                 goToMyAccount();
                 break;
-            case Variables.FRIENDS_LIST_TITLE:
-                goToFriendsList(null);
-                break;
-            case Variables.ACCOUNT_PREFS_TITLE:
+            case Variables.SETTINGS_TITLE:
                 goToAccountPreferences();
                 break;
             case Variables.RECEIVED_WORKOUTS_TITLE:
@@ -599,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void handleNewFriendRequestMessage(NewFriendRequestMessage event) {
         FriendRequest friendRequest = event.getFriendRequest();
         user.addFriendRequest(friendRequest);
-        updateAccountNotificationIndicator();
+        updateFriendsListIndicator();
 
         // send broadcast to any fragments waiting on this model update
         NewFriendRequestFragmentMessage fragmentMessage = new NewFriendRequestFragmentMessage(friendRequest);
@@ -610,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void handleCanceledFriendRequestMessage(CanceledFriendRequestMessage event) {
         String userIdToRemove = event.getUserIdToRemove();
         user.removeFriendRequest(userIdToRemove);
-        updateAccountNotificationIndicator();
+        updateFriendsListIndicator();
 
         // send broadcast to any fragments waiting on this model update
         CanceledFriendRequestFragmentMessage fragmentMessage = new CanceledFriendRequestFragmentMessage(userIdToRemove);
@@ -651,8 +632,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
         SharedWorkoutInfo sharedWorkoutInfo = event.getSharedWorkoutInfo();
 
-        updateReceivedWorkoutNotificationIndicator();
         user.addReceivedWorkout(sharedWorkoutInfo);
+        updateReceivedWorkoutNotificationIndicator();
 
         // send broadcast to any fragments waiting on this model update
         ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(sharedWorkoutInfo);
@@ -662,9 +643,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //endregion
 
     private void linkFirebaseToken() {
-        if (user.getFirebaseMessagingToken() != null) return;
-
-        // possible scenario would be signing out and back in again. Token is generated when app is installed, so if they log back in onNewToken isn't guaranteed to be called
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 return;
@@ -783,14 +761,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbarTitleTV.setText(title);
     }
 
-    public void updateUserIcon(Uri uri) {
+    public void updateProfilePicture(Uri uri) {
         profilePicture.setImageURI(uri);
-        // make image round
-        Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-        imageDrawable.setCircular(true);
-        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-        profilePicture.setImageDrawable(imageDrawable);
     }
 
     private Fragment getVisibleFragment() {
@@ -810,9 +782,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onBackPressed();
     }
 
-    public void updateAccountNotificationIndicator() {
+    public void updateFriendsListIndicator() {
         // check if there are any unseen notifications for friend requests
-        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_friends_list).getActionView();
         view.setText(null);
         for (FriendRequest friendRequest : user.getFriendRequests()) {
             if (!friendRequest.isSeen()) {
@@ -823,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void clearAccountNotificationIndicator() {
-        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_my_account).getActionView();
+        TextView view = (TextView) nav.getMenu().findItem(R.id.nav_friends_list).getActionView();
         view.setText(null);
     }
 
@@ -966,12 +938,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void goToAccountPreferences() {
         saveCurrentFragmentState();
-        fragmentStack.remove(Variables.ACCOUNT_PREFS_TITLE);
-        fragmentStack.add(0, Variables.ACCOUNT_PREFS_TITLE);
+        fragmentStack.remove(Variables.SETTINGS_TITLE);
+        fragmentStack.add(0, Variables.SETTINGS_TITLE);
 
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
-                .replace(R.id.fragment_container, new AccountPreferencesFragment(), Variables.ACCOUNT_PREFS_TITLE)
+                .replace(R.id.fragment_container, new SettingsFragment(), Variables.SETTINGS_TITLE)
                 .commit();
     }
 
@@ -985,9 +957,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragment.setArguments(extras);
         }
         fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.FRIENDS_LIST_TITLE)
                 .commit();
+        closeDrawerFromNavigation();
     }
 
     public void goToReceivedWorkouts() {
@@ -1018,17 +990,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.RECEIVED_WORKOUT_TITLE)
                 .commit();
-    }
-
-    public void goToAppSettings() {
-        saveCurrentFragmentState();
-        fragmentStack.remove(Variables.SETTINGS_TITLE);
-        fragmentStack.add(0, Variables.SETTINGS_TITLE);
-
-        fragmentManager.beginTransaction().replace(R.id.fragment_container,
-                        new AppSettingsFragment(), Variables.SETTINGS_TITLE)
-                .commit();
-        closeDrawerFromNavigation();
     }
 
     public void goToAbout() {

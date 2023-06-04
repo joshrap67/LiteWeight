@@ -33,11 +33,11 @@ public class RoutineWeek implements Iterable<RoutineDay> {
         return retVal;
     }
 
-    public int getNumberOfDays() {
+    public int totalNumberOfDays() {
         return this.days.size();
     }
 
-    RoutineDay getDay(int dayPosition) {
+    RoutineDay get(int dayPosition) {
         return this.days.get(dayPosition);
     }
 

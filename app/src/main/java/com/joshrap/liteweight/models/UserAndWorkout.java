@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.models;
 
 import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.models.workout.Workout;
 
 import lombok.Data;

@@ -42,7 +42,7 @@ import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -88,7 +88,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
 
         user = currentUserAndWorkoutProvider.provideCurrentUser();
-        metricUnits = user.getUserPreferences().isMetricUnits();
+        metricUnits = user.getPreferences().isMetricUnits();
         focusList = new ArrayList<>(Variables.FOCUS_LIST);
         selectedFocuses = new ArrayList<>();
 

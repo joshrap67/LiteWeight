@@ -8,7 +8,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,23 +15,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
-import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -55,16 +53,12 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 public class MyAccountFragment extends Fragment implements FragmentWithDialog {
-    private User user;
     private ImageView profilePicture;
+    private String username, email, profilePictureUrl;
     private String profilePicUrl;
     private AlertDialog alertDialog;
-    private TextView friendsListTV;
+    private FirebaseAuth auth;
 
     @Inject
     UserManager userManager;
@@ -80,73 +74,44 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        username = user.getUsername();
+        profilePictureUrl = user.getProfilePicture();
+        email = user.getEmail();
         return inflater.inflate(R.layout.fragment_my_account, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView usernameTV = view.findViewById(R.id.username_tv);
-        usernameTV.setText(user.getUsername());
-        Button changePictureButton = view.findViewById(R.id.change_picture_btn);
-        changePictureButton.setVisibility(View.GONE);
-        changePictureButton.setOnClickListener(v -> launchPhotoPicker());
+        usernameTV.setText(username);
 
-        String email = user.getEmail();
+        auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+
+        String provider = "";
+        // todo need to hide fields if they do not have email/password auth on their firebase user
+
+
         TextView emailTV = view.findViewById(R.id.email_tv);
         emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);
         emailTV.setText(email);
 
-        friendsListTV = view.findViewById(R.id.friends_list_tv);
-        friendsListTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToFriendsList(null));
-        TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
-        accountPrefsTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
+        LinearLayout settingsLayout = view.findViewById(R.id.settings_layout);
+        settingsLayout.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
 
-        Button logoutButton = view.findViewById(R.id.log_out_btn);
-        logoutButton.setOnClickListener(view1 -> promptLogout());
+        LinearLayout logoutLayout = view.findViewById(R.id.log_out_container);
+        logoutLayout.setOnClickListener(view1 -> promptLogout());
         profilePicture = view.findViewById(R.id.profile_picture_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
-        updateFriendsTVNotification();
 
-        profilePicUrl = ImageUtils.getProfilePictureUrl(user.getIcon());
+        profilePicUrl = ImageUtils.getProfilePictureUrl(profilePictureUrl);
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                .into(profilePicture, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        changePictureButton.setVisibility(View.VISIBLE);
-                        setCircularImage(profilePicture);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        changePictureButton.setVisibility(View.VISIBLE);
-                    }
-                });
+                .into(profilePicture);
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void setCircularImage(ImageView profilePictureImageView) {
-        Bitmap imageBitmap = ((BitmapDrawable) profilePictureImageView.getDrawable()).getBitmap();
-        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-        imageDrawable.setCircular(true);
-        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-        profilePictureImageView.setImageDrawable(imageDrawable);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateFriendsTVNotification();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -154,16 +119,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void handleNewFriendRequestMessage(NewFriendRequestFragmentMessage message) {
-        updateFriendsTVNotification();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void handleCanceledFriendRequestMessage(CanceledFriendRequestFragmentMessage message) {
-        updateFriendsTVNotification();
     }
 
     private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
@@ -179,7 +134,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                             final Uri selectedUri = result.getData().getData();
                             performCrop(selectedUri);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            FirebaseCrashlytics.getInstance().recordException(e);
                         }
                     }
                 }
@@ -195,31 +150,19 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     final Uri uri = UCrop.getOutput(result.getData());
                     if (uri != null) {
                         profilePicture.setImageURI(uri);
-                        setCircularImage(profilePicture);
-                        ((MainActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
+                        ((MainActivity) getActivity()).updateProfilePicture(uri); // update icon in nav view since it has old one
                         try {
                             InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
-                            updateIcon(ImageUtils.getImageByteArray(iStream));
+                            updateProfilePicture(ImageUtils.getImageByteArray(iStream));
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            FirebaseCrashlytics.getInstance().recordException(e);
                         }
                         Picasso.get().invalidate(profilePicUrl); // since upload was successful,
                     }
                 }
             });
 
-    /**
-     * Updates whether an indicator should be shown on the view that takes users to their friend's list.
-     */
-    private void updateFriendsTVNotification() {
-        if (user.getFriendRequests().stream().anyMatch(x -> !x.isSeen())) {
-            friendsListTV.setText(R.string.friends_list_alert);
-        } else {
-            friendsListTV.setText(R.string.friends_list);
-        }
-    }
-
-    private void updateIcon(byte[] imageData) {
+    private void updateProfilePicture(byte[] imageData) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             Result<String> result = this.userManager.updateProfilePicture(imageData);

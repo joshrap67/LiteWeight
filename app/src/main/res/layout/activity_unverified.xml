@@ -92,7 +92,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="4dp"
-                tools:text="You are signed in as binary0010productions@gmail.com" />
+                android:textStyle="italic"
+                tools:text="Signed in as binary0010productions@gmail.com" />
 
         <Button
                 android:id="@+id/log_out_btn"

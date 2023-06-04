@@ -39,27 +39,27 @@ public class Routine implements Iterable<RoutineWeek> {
 
     // assumes both routines are sorted
     public static boolean routinesDifferent(Routine routine1, Routine routine2) {
-        if (routine1.getTotalNumberOfDays() != routine2.getTotalNumberOfDays()) {
+        if (routine1.totalDays() != routine2.totalDays()) {
             // one routine has more total days than the other, so not equal
             return true;
         }
 
-        if (routine1.getNumberOfWeeks() != routine2.getNumberOfWeeks()) {
+        if (routine1.totalWeeks() != routine2.totalWeeks()) {
             // one routine has more or less weeks than the other, so not equal
             return true;
         }
 
         for (RoutineWeek week : routine1) {
             int weekPosition = routine1.getWeeks().indexOf(week);
-            RoutineWeek otherWeek = routine2.getWeek(weekPosition);
-            if (week.getNumberOfDays() != otherWeek.getNumberOfDays()) {
+            RoutineWeek otherWeek = routine2.get(weekPosition);
+            if (week.totalNumberOfDays() != otherWeek.totalNumberOfDays()) {
                 // one routine has more or less days in a week than the other, so not equal
                 return true;
             }
 
             for (RoutineDay day : week) {
                 int dayPosition = week.getDays().indexOf(day);
-                RoutineDay otherDay = otherWeek.getDay(dayPosition);
+                RoutineDay otherDay = otherWeek.get(dayPosition);
 
                 List<RoutineExercise> exercises1 = day.getExercises();
                 List<RoutineExercise> exercises2 = otherDay.getExercises();
@@ -78,7 +78,7 @@ public class Routine implements Iterable<RoutineWeek> {
     }
 
 
-    public RoutineWeek getWeek(int weekPosition) {
+    public RoutineWeek get(int weekPosition) {
         return this.weeks.get(weekPosition);
     }
 
@@ -98,8 +98,8 @@ public class Routine implements Iterable<RoutineWeek> {
         this.weeks.remove(weekIndex);
     }
 
-    public RoutineDay getDay(int weekIndex, int dayIndex) {
-        return this.weeks.get(weekIndex).getDay(dayIndex);
+    public RoutineDay get(int weekIndex, int dayIndex) {
+        return this.weeks.get(weekIndex).get(dayIndex);
     }
 
     public void appendEmptyDay(int weekIndex) {
@@ -108,7 +108,7 @@ public class Routine implements Iterable<RoutineWeek> {
             // week with this index doesn't exist yet, so create it before appending the day
             this.addWeek(new RoutineWeek());
         }
-        this.getWeek(weekIndex).addDay(routineDay);
+        this.get(weekIndex).addDay(routineDay);
     }
 
     public void appendDay(int weekIndex, RoutineDay day) {
@@ -116,33 +116,33 @@ public class Routine implements Iterable<RoutineWeek> {
             // week with this index doesn't exist yet, so create it before appending the day
             this.addWeek(new RoutineWeek());
         }
-        this.getWeek(weekIndex).addDay(day);
+        this.get(weekIndex).addDay(day);
     }
 
     public void putDay(int weekIndex, int dayIndex, RoutineDay day) {
-        this.getWeek(weekIndex).putDay(dayIndex, day);
+        this.get(weekIndex).putDay(dayIndex, day);
     }
 
     public void deleteDay(int weekIndex, int dayIndex) {
-        this.getWeek(weekIndex).deleteDay(dayIndex);
+        this.get(weekIndex).deleteDay(dayIndex);
     }
 
 
     public void sortDay(int weekIndex, int dayIndex, int sortMode, Map<String, String> idToName) {
-        this.getDay(weekIndex, dayIndex).sortDay(sortMode, idToName);
+        this.get(weekIndex, dayIndex).sortDay(sortMode, idToName);
     }
 
 
-    public List<RoutineExercise> getExerciseListForDay(int weekPosition, int dayPosition) {
-        return new ArrayList<>(this.weeks.get(weekPosition).getDay(dayPosition).getExercises());
+    public List<RoutineExercise> exerciseListForDay(int weekPosition, int dayPosition) {
+        return new ArrayList<>(this.weeks.get(weekPosition).get(dayPosition).getExercises());
     }
 
     public void addExercise(int week, int day, final RoutineExercise routineExercise) {
-        this.getDay(week, day).insertNewExercise(routineExercise);
+        this.get(week, day).insertNewExercise(routineExercise);
     }
 
     public void removeExercise(int week, int day, String exerciseId) {
-        this.getDay(week, day).deleteExercise(exerciseId);
+        this.get(week, day).deleteExercise(exerciseId);
     }
 
     public void deleteExerciseFromRoutine(final String exerciseId) {
@@ -154,21 +154,21 @@ public class Routine implements Iterable<RoutineWeek> {
     }
 
     public void swapExerciseOrder(int week, int day, int fromPosition, int toPosition) {
-        this.getDay(week, day).swapExerciseOrder(fromPosition, toPosition);
+        this.get(week, day).swapExerciseOrder(fromPosition, toPosition);
     }
 
     public void swapDaysOrder(int week, int fromPosition, int toPosition) {
-        Collections.swap(this.getWeek(week).getDays(), fromPosition, toPosition);
+        Collections.swap(this.get(week).getDays(), fromPosition, toPosition);
     }
 
     public void swapWeeksOrder(int fromPosition, int toPosition) {
         Collections.swap(this.getWeeks(), fromPosition, toPosition);
     }
 
-    public int getWeekIndexOfDay(RoutineDay day) {
+    public int findWeekIndexOfDay(RoutineDay day) {
         int weekPosition = -1;
-        for (int weekIndex = 0; weekIndex < this.getNumberOfWeeks(); weekIndex++) {
-            RoutineWeek week = this.getWeek(weekIndex);
+        for (int weekIndex = 0; weekIndex < this.totalWeeks(); weekIndex++) {
+            RoutineWeek week = this.get(weekIndex);
             boolean found = false;
             for (RoutineDay day1 : week) {
                 if (day1 == day) {
@@ -184,14 +184,14 @@ public class Routine implements Iterable<RoutineWeek> {
         return weekPosition;
     }
 
-    public int getNumberOfWeeks() {
+    public int totalWeeks() {
         return this.weeks.size();
     }
 
-    public int getTotalNumberOfDays() {
+    public int totalDays() {
         int days = 0;
         for (RoutineWeek week : this) {
-            days += week.getNumberOfDays();
+            days += week.totalNumberOfDays();
         }
         return days;
     }

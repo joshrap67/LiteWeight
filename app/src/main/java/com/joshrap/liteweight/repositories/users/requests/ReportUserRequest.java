@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.currentUser.requests;
+package com.joshrap.liteweight.repositories.users.requests;
 
 import com.joshrap.liteweight.repositories.BodyRequest;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class UpdateIconRequest extends BodyRequest {
+public class ReportUserRequest extends BodyRequest {
 
-    private byte[] imageData;
+    private String description;
 }

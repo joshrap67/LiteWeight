@@ -16,20 +16,20 @@ public class User {
     private String id;
     private String username;
     private String email;
-    private String icon;
+    private String profilePicture;
     private String firebaseMessagingToken;
     private String premiumToken;
     private String currentWorkoutId;
     private int workoutsSent;
-    private UserPreferences userPreferences;
+    private UserPreferences preferences;
     private List<WorkoutInfo> workouts = new ArrayList<>();
     private List<OwnedExercise> exercises = new ArrayList<>();
     private List<Friend> friends = new ArrayList<>();
     private List<FriendRequest> friendRequests = new ArrayList<>();
     private List<SharedWorkoutInfo> receivedWorkouts = new ArrayList<>();
 
-    public void addNewExercises(List<OwnedExercise> exercises) {
-        this.exercises.addAll(exercises);
+    public boolean isPremium() {
+        return this.premiumToken != null;
     }
 
     public SharedWorkoutInfo getReceivedWorkout(String sharedWorkoutId) {
@@ -103,6 +103,10 @@ public class User {
 
     public long totalUnseenWorkouts() {
         return this.receivedWorkouts.stream().filter(x -> !x.isSeen()).count();
+    }
+
+    public int totalReceivedWorkouts() {
+        return this.receivedWorkouts.size();
     }
 
     /**

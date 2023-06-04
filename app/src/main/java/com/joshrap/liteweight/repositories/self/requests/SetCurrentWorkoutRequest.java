@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.currentUser.requests;
+package com.joshrap.liteweight.repositories.self.requests;
 
 import com.joshrap.liteweight.repositories.BodyRequest;
 

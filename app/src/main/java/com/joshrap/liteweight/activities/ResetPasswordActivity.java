@@ -19,9 +19,6 @@ import com.joshrap.liteweight.utils.ValidatorUtils;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
-    private EditText emailInput;
-    private TextInputLayout emailInputLayout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,8 +27,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_reset_password_layout);
 
-        emailInput = findViewById(R.id.email_input);
-        emailInputLayout = findViewById(R.id.email_input_layout);
+        EditText emailInput = findViewById(R.id.email_input);
+        TextInputLayout emailInputLayout = findViewById(R.id.email_input_layout);
         Button sendResetPasswordEmailButton = findViewById(R.id.send_reset_email_btn);
         sendResetPasswordEmailButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
@@ -48,16 +45,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
         Button backToSignInButton = findViewById(R.id.back_to_sign_in_btn);
         backToSignInButton.setOnClickListener(v -> finish());
 
-        initEditTexts();
-        if (getIntent().getExtras() != null) {
-            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
-            if (errorMessage != null) {
-                AndroidUtils.showErrorDialog(errorMessage, this);
-            }
-        }
-    }
-
-    private void initEditTexts() {
         emailInput.setOnKeyListener((View v, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 String errorMsg = ValidatorUtils.validNewEmail(emailInput.getText().toString().trim());
@@ -72,5 +59,11 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         });
         emailInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(emailInputLayout));
+        if (getIntent().getExtras() != null) {
+            String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
+            if (errorMessage != null) {
+                AndroidUtils.showErrorDialog(errorMessage, this);
+            }
+        }
     }
 }

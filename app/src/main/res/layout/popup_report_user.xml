@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical">
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp"
-            android:text="@string/feedback_msg" />
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            android:text="@string/report_user_msg"
+            android:textSize="16sp" />
 
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/feedback_input_layout"
+            android:id="@+id/report_user_input_layout"
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:layout_marginHorizontal="16dp"
-            app:errorIconDrawable="@null"
-            android:layout_marginVertical="8dp"
-            android:hint="@string/feedback"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:hint="@string/description"
+            android:paddingHorizontal="20dp"
+            app:expandedHintEnabled="false"
             tools:style="@style/TextInputLayoutStyle">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/feedback_input"
+                android:id="@+id/report_user_input"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ems="10"
-                android:gravity="top|start"
+                android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
-                android:minWidth="75dp" />
+                android:maxLines="5"
+                android:minWidth="75dp"
+                android:scrollbars="vertical"
+                app:autoSizeTextType="uniform" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

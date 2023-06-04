@@ -1,33 +1,49 @@
 package com.joshrap.liteweight.activities;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -36,9 +52,12 @@ import javax.inject.Inject;
 public class NewAccountActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
-
+    private ImageView profilePicture;
     private boolean metricUnits;
+    private byte[] profileImageData;
 
+    @Inject
+    AlertDialog loadingDialog;
     @Inject
     UserManager userManager;
     @Inject
@@ -53,7 +72,7 @@ public class NewAccountActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
-            launchSignInActivity();// todo pass in error message
+            launchSignInActivity("There was a problem with your account. Please try and login again.");
             finish();
             return;
         }
@@ -98,11 +117,15 @@ public class NewAccountActivity extends AppCompatActivity {
                 return;
             }
 
+            hideKeyboard(getCurrentFocus());
+            AndroidUtils.showLoadingDialog(loadingDialog, "Creating account...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<User> userResult = this.userManager.createUser(username, metricUnits);
+                Result<User> userResult = this.userManager.createUser(username, profileImageData, metricUnits);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
+                    loadingDialog.dismiss();
+
                     if (userResult.isSuccess() && userResult.getData() != null) {
                         launchMainActivity();
                     } else {
@@ -112,19 +135,86 @@ public class NewAccountActivity extends AppCompatActivity {
             });
         });
 
+        profilePicture = findViewById(R.id.profile_picture_image);
+        profilePicture.setOnClickListener(v -> launchPhotoPicker());
 
         logoutButton.setOnClickListener(v -> {
             auth.signOut();
-            launchSignInActivity();
+            launchSignInActivity(null);
         });
 
 
         if (getIntent().getExtras() != null) {
-            String errorMessage = getIntent().getExtras().getString(Variables.ERROR_MESSAGE);
+            String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
             if (errorMessage != null) {
                 AndroidUtils.showErrorDialog(errorMessage, this);
             }
         }
+    }
+
+    private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null) {
+                        // a picture was successfully picked, so immediately send it to be cropped
+                        try {
+                            final Uri selectedUri = result.getData().getData();
+                            performCrop(selectedUri);
+                        } catch (Exception e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                        }
+                    }
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> cropPhotoLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    final Uri uri = UCrop.getOutput(result.getData());
+                    if (uri != null) {
+                        profilePicture.setImageURI(uri);
+                        try {
+                            InputStream iStream = getContentResolver().openInputStream(uri);
+                            profileImageData = ImageUtils.getImageByteArray(iStream);
+                        } catch (IOException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                        }
+                    }
+                }
+            });
+
+    private void launchPhotoPicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        pickPhotoLauncher.launch(intent);
+    }
+
+    private void performCrop(Uri picUri) {
+        String destinationFileName = UUID.randomUUID().toString() + ".png";
+        UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+        cropper.withAspectRatio(1, 1);
+        cropper.withMaxResultSize(600, 600);
+
+        UCrop.Options options = new UCrop.Options();
+        options.setHideBottomControls(true);
+
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.color_primary));
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.color_primary));
+        options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.color_accent));
+        options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        options.setToolbarTitle("Crop Profile Picture");
+
+        cropper.withOptions(options);
+        cropper.getIntent(this);
+        cropPhotoLauncher.launch(cropper.getIntent(this));
     }
 
     private void launchMainActivity() {
@@ -135,9 +225,19 @@ public class NewAccountActivity extends AppCompatActivity {
         finish();
     }
 
-    private void launchSignInActivity() {
+    private void launchSignInActivity(String errorMessage) {
         Intent intent = new Intent(this, SignInActivity.class);
+        if (errorMessage != null) {
+            intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
+        }
         startActivity(intent);
         finish();
+    }
+
+    private void hideKeyboard(View view) {
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

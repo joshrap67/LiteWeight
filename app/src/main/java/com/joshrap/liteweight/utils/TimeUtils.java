@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.utils;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,7 +25,7 @@ public class TimeUtils {
             dateFormatOutput.setTimeZone(TimeZone.getDefault());
             formattedDateTime = dateFormatOutput.format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
         return formattedDateTime;
     }

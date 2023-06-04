@@ -7,11 +7,10 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.activities.SignInActivity;
 import com.joshrap.liteweight.activities.UnverifiedActivity;
 import com.joshrap.liteweight.fragments.AboutFragment;
-import com.joshrap.liteweight.fragments.AccountPreferencesFragment;
+import com.joshrap.liteweight.fragments.SettingsFragment;
 import com.joshrap.liteweight.fragments.ClockBottomFragment;
 import com.joshrap.liteweight.fragments.PendingWorkoutFragment;
 import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
-import com.joshrap.liteweight.fragments.AppSettingsFragment;
 import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
 import com.joshrap.liteweight.fragments.FriendsListFragment;
@@ -51,9 +50,7 @@ public interface LiteWeightComponent {
 
     void inject(FriendsListFragment friendsListFragment);
 
-    void inject(AccountPreferencesFragment accountPreferencesFragment);
-
-    void inject(AppSettingsFragment appSettingsFragment);
+    void inject(SettingsFragment settingsFragment);
 
     void inject(ReceivedWorkoutsFragment receivedWorkoutsFragment);
 

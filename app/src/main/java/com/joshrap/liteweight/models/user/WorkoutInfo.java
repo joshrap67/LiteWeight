@@ -12,8 +12,10 @@ public class WorkoutInfo {
     private String workoutId;
     private String workoutName;
     private String lastSetAsCurrentUtc;
-    private int timesCompleted;
+    private int timesRestarted;
     private double averageExercisesCompleted;
+    private Integer currentWeek;
+    private Integer currentDay;
 
     @Override
     public boolean equals(Object other) {
@@ -33,7 +35,7 @@ public class WorkoutInfo {
     public void update(WorkoutInfo newWorkoutInfo) {
         this.workoutName = newWorkoutInfo.workoutName;
         this.lastSetAsCurrentUtc = newWorkoutInfo.lastSetAsCurrentUtc;
-        this.timesCompleted = newWorkoutInfo.timesCompleted;
+        this.timesRestarted = newWorkoutInfo.timesRestarted;
         this.averageExercisesCompleted = newWorkoutInfo.averageExercisesCompleted;
     }
 
@@ -42,7 +44,7 @@ public class WorkoutInfo {
         int result = 17;
         result = 31 * result + workoutName.hashCode();
         result = 31 * result + lastSetAsCurrentUtc.hashCode();
-        result = 31 * result + timesCompleted;
+        result = 31 * result + timesRestarted;
         result = (int) (31 * result + averageExercisesCompleted);
         result = 31 * result + workoutId.hashCode();
         return result;

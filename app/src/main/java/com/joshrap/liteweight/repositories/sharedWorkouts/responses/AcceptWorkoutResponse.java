@@ -15,5 +15,5 @@ import lombok.NoArgsConstructor;
 public class AcceptWorkoutResponse {
 
     private WorkoutInfo newWorkoutInfo;
-    private List<OwnedExercise> newExercises;
+    private List<OwnedExercise> userExercises;
 }

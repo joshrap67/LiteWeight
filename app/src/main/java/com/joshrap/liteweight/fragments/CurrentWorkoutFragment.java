@@ -41,7 +41,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.workout.RoutineDay;
 import com.joshrap.liteweight.models.workout.RoutineWeek;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
@@ -54,7 +54,6 @@ import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
@@ -77,8 +76,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private int currentDayIndex, currentWeekIndex;
     private Timer timer;
     private Stopwatch stopwatch;
-    private Workout currentWorkout;
-    private User user;
+    private boolean isMetricUnits;
+    private Map<String, OwnedExercise> exerciseIdToExercise;
     private Routine routine;
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
@@ -105,17 +104,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         Injector.getInjector(getContext()).inject(this);
 
-        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        isMetricUnits = user.getPreferences().isMetricUnits();
+        exerciseIdToExercise = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, ownedExercise -> ownedExercise));
         ((MainActivity) getActivity()).toggleBackButton(false);
 
         View view;
-        if (currentWorkout == null) {
+        if (currentUserAndWorkoutProvider.provideCurrentWorkout() == null) {
             // user has no workouts, display special layout telling them to create one
             ((MainActivity) getActivity()).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
-            ((MainActivity) getActivity()).updateToolbarTitle(currentWorkout.getName());
+            ((MainActivity) getActivity()).updateToolbarTitle(currentUserAndWorkoutProvider.provideCurrentWorkout().getName());
             view = inflater.inflate(R.layout.fragment_current_workout, container, false);
         }
         return view;
@@ -124,15 +124,15 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (currentWorkout == null) {
+        if (currentUserAndWorkoutProvider.provideCurrentWorkout() == null) {
             ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
             createWorkoutBtn.setOnClickListener(v -> ((MainActivity) getActivity()).goToCreateWorkout());
             return;
         }
 
-        routine = currentWorkout.getRoutine();
-        currentWeekIndex = currentWorkout.getCurrentWeek();
-        currentDayIndex = currentWorkout.getCurrentDay();
+        routine = currentUserAndWorkoutProvider.provideCurrentWorkout().getRoutine();
+        currentWeekIndex = currentUserAndWorkoutProvider.getCurrentWeek();
+        currentDayIndex = currentUserAndWorkoutProvider.getCurrentDay();
 
         timer = ((MainActivity) getActivity()).getTimer();
         stopwatch = ((MainActivity) getActivity()).getStopwatch();
@@ -306,18 +306,17 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
-                currentDayIndex = routine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
+                currentDayIndex = routine.get(currentWeekIndex).totalNumberOfDays() - 1;
                 updateRoutineListUI(AnimationDirection.FROM_LEFT);
             }
-            currentWorkout.setCurrentDay(currentDayIndex);
-            currentWorkout.setCurrentWeek(currentWeekIndex);
+            currentUserAndWorkoutProvider.setCurrentWeekAndDay(currentWeekIndex, currentDayIndex);
         });
         forwardButton.setOnClickListener(v -> {
-            if (currentDayIndex + 1 < routine.getWeek(currentWeekIndex).getNumberOfDays()) {
+            if (currentDayIndex + 1 < routine.get(currentWeekIndex).totalNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
                 updateRoutineListUI(AnimationDirection.FROM_RIGHT);
-            } else if (currentWeekIndex + 1 < routine.getNumberOfWeeks()) {
+            } else if (currentWeekIndex + 1 < routine.totalWeeks()) {
                 // there are more weeks, so go to the next week
                 currentDayIndex = 0;
                 currentWeekIndex++;
@@ -326,8 +325,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 // on last week, prompt user to restart the workout
                 showRestartPopup();
             }
-            currentWorkout.setCurrentDay(currentDayIndex);
-            currentWorkout.setCurrentWeek(currentWeekIndex);
+            currentUserAndWorkoutProvider.setCurrentWeekAndDay(currentWeekIndex, currentDayIndex);
         });
     }
 
@@ -340,18 +338,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             forwardButton.setText(R.string.next_day);
-            if (currentWeekIndex + 1 == routine.getNumberOfWeeks() && routine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
+            if (currentWeekIndex + 1 == routine.totalWeeks() && routine.get(currentWeekIndex).totalNumberOfDays() == 1) {
                 // a one day workout, must show the restart button
                 forwardButton.setText(R.string.restart_workout);
             }
-        } else if (currentWeekIndex + 1 == routine.getNumberOfWeeks()
-                && currentDayIndex + 1 == routine.getWeek(currentWeekIndex).getNumberOfDays()) {
+        } else if (currentWeekIndex + 1 == routine.totalWeeks()
+                && currentDayIndex + 1 == routine.get(currentWeekIndex).totalNumberOfDays()) {
             // last day, so show reset icon
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
             // last day so set the restart icon instead of next icon
             forwardButton.setText(R.string.restart_workout);
-        } else if (currentWeekIndex < routine.getNumberOfWeeks()) {
+        } else if (currentWeekIndex < routine.totalWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -364,15 +362,13 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
         boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
-        boolean metricUnits = user.getUserPreferences().isMetricUnits();
 
         List<RoutineRowModel> routineRowModels = new ArrayList<>();
-        for (RoutineExercise exercise : routine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+        for (RoutineExercise exercise : routine.exerciseListForDay(currentWeekIndex, currentDayIndex)) {
             RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
             routineRowModels.add(exerciseRowModel);
         }
-        Map<String, OwnedExercise> exerciseIdToExercise = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, ownedExercise -> ownedExercise));
-        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, metricUnits, videosEnabled);
+        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, isMetricUnits, videosEnabled);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -392,7 +388,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
-        String dayTag = routine.getDay(currentWeekIndex, currentDayIndex).getTag();
+        String dayTag = routine.get(currentWeekIndex, currentDayIndex).getTag();
         dayTagTV.setVisibility(dayTag == null || dayTag.isEmpty() ? View.GONE : View.VISIBLE);
         dayTagTV.setText(dayTag);
         updateButtonViews();
@@ -405,14 +401,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Restarting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.workoutManager.restartWorkout(currentWorkout);
+            Result<String> result = this.workoutManager.restartWorkout(currentUserAndWorkoutProvider.provideCurrentWorkout());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    routine = currentWorkout.getRoutine();
-                    currentDayIndex = currentWorkout.getCurrentDay();
-                    currentWeekIndex = currentWorkout.getCurrentWeek();
+                    routine = currentUserAndWorkoutProvider.provideCurrentWorkout().getRoutine();
+                    currentDayIndex = 0;
+                    currentWeekIndex = 0;
 
                     updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                     updateWorkoutProgressBar();
@@ -451,9 +447,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
-            RoutineWeek week = routine.getWeek(weekIndex);
-            for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+        for (int weekIndex = 0; weekIndex < routine.totalWeeks(); weekIndex++) {
+            RoutineWeek week = routine.get(weekIndex);
+            for (int dayIndex = 0; dayIndex < week.totalNumberOfDays(); dayIndex++) {
                 if (weekIndex == currentWeekIndex && dayIndex == currentDayIndex) {
                     // for highlighting what day the user is currently on
                     selectedVal = totalDays;
@@ -479,9 +475,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (int weekIndex = 0; weekIndex < routine.getNumberOfWeeks(); weekIndex++) {
-                        RoutineWeek week = routine.getWeek(weekIndex);
-                        for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
+                    for (int weekIndex = 0; weekIndex < routine.totalWeeks(); weekIndex++) {
+                        RoutineWeek week = routine.get(weekIndex);
+                        for (int dayIndex = 0; dayIndex < week.totalNumberOfDays(); dayIndex++) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = weekIndex;
                                 currentDayIndex = dayIndex;
@@ -489,8 +485,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                             count++;
                         }
                     }
-                    currentWorkout.setCurrentDay(currentDayIndex);
-                    currentWorkout.setCurrentWeek(currentWeekIndex);
+                    currentUserAndWorkoutProvider.setCurrentWeekAndDay(currentWeekIndex, currentDayIndex);
                     updateRoutineListUI(AnimationDirection.FROM_RIGHT);
                 })
                 .create();

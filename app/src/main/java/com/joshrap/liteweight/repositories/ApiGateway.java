@@ -33,8 +33,6 @@ import lombok.Data;
 @Data
 public class ApiGateway {
 
-    private static final int successCode = 200; // THIS MUST MATCH THE CODE RETURNED FROM THE API
-    private static final int badRequestCode = 400; // THIS MUST MATCH THE CODE RETURNED FROM THE API
     private static final int versionUpgradeCode = 426; // THIS MUST MATCH THE CODE RETURNED FROM THE API
     private static final String VERSION_CODE_HEADER = "X-LiteWeight-Android-Version-Code";
     private static final String VERSION_NAME_HEADER = "X-LiteWeight-Version-Name";
@@ -163,18 +161,19 @@ public class ApiGateway {
 
     private String handleResponse(HttpURLConnection httpURLConnection) throws IOException, LiteWeightNetworkException {
         int responseCode = httpURLConnection.getResponseCode();
-        if (responseCode == successCode) {
+        if (responseCode >= HttpURLConnection.HTTP_OK && responseCode < 300) {
             return getJsonFromStream(httpURLConnection.getInputStream());
-        } else if (responseCode == badRequestCode) {
+        } else if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             BadRequestResponse badRequestResponse = this.objectMapper.readValue(jsonResponse, BadRequestResponse.class);
             throw new LiteWeightNetworkException(badRequestResponse.getErrorType(), badRequestResponse.getMessage());
         } else if (responseCode == versionUpgradeCode) {
+            // todo probably unnecessary now due to reading directly from firebase
             throw new LiteWeightNetworkException(ErrorTypes.upgradeRequired, "You must upgrade your version of LiteWeight to continue.");
         } else {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             ErrorResponse errorResponse = this.objectMapper.readValue(jsonResponse, ErrorResponse.class);
-            throw new LiteWeightNetworkException(errorResponse.getMessage());
+            throw new LiteWeightNetworkException(ErrorTypes.serverError, errorResponse.getMessage());
         }
     }
 

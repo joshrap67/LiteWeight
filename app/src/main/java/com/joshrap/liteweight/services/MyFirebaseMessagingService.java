@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
@@ -34,6 +35,7 @@ import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -56,12 +58,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
-        // todo test. this might not actually work since i think this is called on install when there is no user. might just be better to use shared prefs or room DB
+        // todo not necessary?
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            // blind send for now for unlinking firebase token
-            userManager.setFirebaseToken(token);
-        });
+        executor.execute(() -> userManager.setFirebaseToken(token));
     }
 
     @Override
@@ -73,8 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         try {
-            // todo test
-            String json = remoteMessage.getData().get("metadata");
+            Map<String, String> json = remoteMessage.getData();
             PushNotification pushNotification = this.objectMapper.convertValue(json, PushNotification.class);
             switch (pushNotification.getAction()) {
                 case friendRequestAction:
@@ -96,8 +94,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     showNotificationReceivedWorkout(pushNotification.getJsonPayload());
                     break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
         super.onMessageReceived(remoteMessage);
     }
@@ -121,7 +119,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(friendRequest.getUsername().hashCode(), notification);
+            mNotificationManager.notify(friendRequest.getUserId().hashCode(), notification);
         }
 
         NewFriendRequestMessage message = new NewFriendRequestMessage(friendRequest);
@@ -180,7 +178,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(userAccepted.hashCode(), notification);
+            mNotificationManager.notify(userAccepted.getUserId().hashCode(), notification);
         }
 
         AcceptedFriendRequestMessage message = new AcceptedFriendRequestMessage(userAccepted.getUserId());

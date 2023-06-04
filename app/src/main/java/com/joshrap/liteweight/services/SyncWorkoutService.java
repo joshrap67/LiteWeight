@@ -9,7 +9,9 @@ import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.workout.Workout;
 
@@ -29,20 +31,28 @@ public class SyncWorkoutService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Injector.getInjector(getBaseContext()).inject(this);
+    }
+
+    @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        String workoutJson = intent.getStringExtra(Variables.WORKOUT);
+        String workoutJson = intent.getStringExtra(Variables.INTENT_WORKOUT);
+        int currentWeek = intent.getIntExtra(Variables.INTENT_CURRENT_WEEK, 0);
+        int currentDay = intent.getIntExtra(Variables.INTENT_CURRENT_DAY, 0);
         Workout workout = null;
         try {
             workout = new Workout(new ObjectMapper().readValue(workoutJson, Workout.class));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         Executor executor = Executors.newSingleThreadExecutor();
         Workout finalWorkout = workout;
         executor.execute(() -> {
             if (finalWorkout != null) {
-                workoutManager.updateWorkout(finalWorkout);
+                workoutManager.updateWorkoutProgress(currentWeek, currentDay, finalWorkout);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(this::stopSelf);
             } else {

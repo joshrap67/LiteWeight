@@ -41,7 +41,7 @@ public class RoutineDay implements Iterable<RoutineExercise> {
         this.exercises.add(routineExercise);
     }
 
-    public int getNumberOfExercises() {
+    public int totalNumberOfExercises() {
         return this.exercises.size();
     }
 

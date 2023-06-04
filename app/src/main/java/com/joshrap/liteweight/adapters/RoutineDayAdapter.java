@@ -93,7 +93,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.activity = activity;
 
         List<RoutineRowModel> routineRowModels = new ArrayList<>();
-        for (RoutineExercise exercise : routine.getExerciseListForDay(currentWeek, currentDay)) {
+        for (RoutineExercise exercise : routine.exerciseListForDay(currentWeek, currentDay)) {
             RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
             routineRowModels.add(exerciseRowModel);
         }

@@ -27,7 +27,8 @@
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="checkboxStyle">@style/CheckBoxStyle</item>
         <item name="materialButtonStyle">@style/ButtonStyle</item>
-        <item name="android:textCursorDrawable">@null</item> <!-- Hack. But for some reason this was not working on my phone, would only work on emulator. -->
+        <item name="android:textCursorDrawable">@null
+        </item> <!-- Hack. But for some reason this was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
@@ -39,8 +40,8 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="colorError">@color/login_activity_error</item>
         <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
+        <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
     </style>
 
     <style name="TextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -63,6 +64,24 @@
     <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">
         <item name="android:popupBackground">@color/options_background</item>
     </style>
+
+    <style name="RoundedButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="shapeAppearance">@style/buttonShape</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="buttonShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="android:colorBackground">@color/dialog_window_background</item>

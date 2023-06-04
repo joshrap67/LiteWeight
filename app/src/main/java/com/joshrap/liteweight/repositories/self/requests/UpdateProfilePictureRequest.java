@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.currentUser.requests;
+package com.joshrap.liteweight.repositories.self.requests;
 
 import com.joshrap.liteweight.repositories.BodyRequest;
 
@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class CreateUserRequest extends BodyRequest {
+public class UpdateProfilePictureRequest extends BodyRequest {
 
-    private String Username;
-    private boolean metricUnits;
+    private byte[] imageData;
 }

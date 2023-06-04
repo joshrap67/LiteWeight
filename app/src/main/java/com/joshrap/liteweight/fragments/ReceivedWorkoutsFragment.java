@@ -4,9 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
@@ -26,14 +24,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
@@ -41,7 +38,7 @@ import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -208,7 +205,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 Date date2 = dateFormatter.parse(r2.getSharedUtc());
                 retVal = date1 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
-                e.printStackTrace();
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
             return retVal;
         });
@@ -255,34 +252,77 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     }
 
     private void updatePage() {
-        updateTopContainer();
-        emptyViewTV.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE); // todo
-    }
-
-    private void updateTopContainer() {
         markAllReceivedWorkoutsSeenButton.setVisibility(user.totalUnseenWorkouts() > 0 ? View.VISIBLE : View.INVISIBLE);
         topContainer.setVisibility(receivedWorkouts.isEmpty() ? View.GONE : View.VISIBLE);
-        totalReceivedTV.setText(user.totalUnseenWorkouts() + (user.totalUnseenWorkouts() == 1 ? " WORKOUT" : " WORKOUTS"));
+        totalReceivedTV.setText(user.totalReceivedWorkouts() + (user.totalReceivedWorkouts() == 1 ? " WORKOUT" : " WORKOUTS"));
+        emptyViewTV.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private void reportUser(String userId, String username) {
+    private void promptReportUser(String userId, String username) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_report_user, null);
+        EditText reportInput = popupView.findViewById(R.id.report_user_input);
+        TextInputLayout reportInputLayout = popupView.findViewById(R.id.report_user_input_layout);
+        reportInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPORT_DESCRIPTION)});
+        reportInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(reportInputLayout));
+
         // username is italicized
-        // todo
-        SpannableString span1 = new SpannableString("Are you sure you wish to block ");
+        SpannableString span1 = new SpannableString("Report ");
         SpannableString span2 = new SpannableString(username);
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
-        SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
-        CharSequence title = TextUtils.concat(span1, span2, span3);
+        CharSequence title = TextUtils.concat(span1, span2);
 
         alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Report User")
-                .setMessage(title)
-                .setPositiveButton("Yes", null)
-                .setNegativeButton("No", null)
+                .setTitle(title)
+                .setView(popupView)
+                .setPositiveButton("Report", null)
+                .setNegativeButton("Cancel", null)
                 .create();
+
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button reportButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            reportButton.setOnClickListener(view -> {
+                String reportDescription = reportInput.getText().toString();
+                String errorMsg = ValidatorUtils.validReportUserDescription(reportDescription);
+                if (errorMsg == null) {
+                    reportUser(userId, reportInput.getText().toString());
+                    alertDialog.dismiss();
+                } else {
+                    reportInputLayout.setError(errorMsg);
+                }
+            });
+        });
         alertDialog.show();
     }
 
+    private void reportUser(String userId, String complaint) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Reporting...");
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Result<String> result = this.userManager.reportUser(userId, complaint);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (result.isSuccess()) {
+                    alertDialog = new AlertDialog.Builder(getContext())
+                            .setTitle("User reported")
+                            .setMessage("Complaint received. Save receipt below for your records.\n\n" + result.getData())
+                            .setPositiveButton("Ok", null)
+                            .create();
+                    alertDialog.setOnShowListener(dialogInterface -> {
+                        View messageView = alertDialog.findViewById(android.R.id.message);
+                        if (messageView instanceof TextView) {
+                            // allow the complaint id to be selected and copied
+                            ((TextView) messageView).setTextIsSelectable(true);
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
 
     private void acceptWorkout(final SharedWorkoutInfo workoutToAccept, final String optionalName) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Accepting...");
@@ -407,11 +447,11 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         executor.execute(() -> this.userManager.setAllReceivedWorkoutsSeen());
     }
 
-    private void showBlownUpProfilePic(String username, String iconUrl) {
+    private void showBlownUpProfilePic(String username, String pfpUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
         ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
-                .load(ImageUtils.getProfilePictureUrl(iconUrl))
+                .load(ImageUtils.getProfilePictureUrl(pfpUrl))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .into(profilePicture);
@@ -540,36 +580,20 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 TextView reportUserTV = sheetView.findViewById(R.id.report_user_tv);
                 reportUserTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    reportUser(receivedWorkout.getSenderId(), receivedWorkout.getSenderUsername());
+                    promptReportUser(receivedWorkout.getSenderId(), receivedWorkout.getSenderUsername());
                 });
 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
-                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(receivedWorkout.getSenderUsername(), receivedWorkout.getSenderIcon()));
+                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(receivedWorkout.getSenderUsername(), receivedWorkout.getSenderProfilePicture()));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
                 ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 usernameTV.setText(receivedWorkout.getSenderUsername());
 
                 Picasso.get()
-                        .load(ImageUtils.getProfilePictureUrl(receivedWorkout.getSenderIcon()))
+                        .load(ImageUtils.getProfilePictureUrl(receivedWorkout.getSenderProfilePicture()))
                         .error(R.drawable.picture_load_error)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                        .into(profilePicture, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                if (!ReceivedWorkoutsFragment.this.isResumed()) {
-                                    return;
-                                }
-                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                                imageDrawable.setCircular(true);
-                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                                profilePicture.setImageDrawable(imageDrawable);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                            }
-                        });
+                        .into(profilePicture);
 
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();

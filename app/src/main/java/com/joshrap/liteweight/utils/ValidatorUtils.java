@@ -44,7 +44,7 @@ public class ValidatorUtils {
     public static String validWorkoutName(String workoutName, List<String> workoutNamesList) {
         workoutName = workoutName.trim();
         String retVal = null;
-        if ((workoutName.length() > 0) && (workoutName.length() <= Variables.MAX_WORKOUT_NAME)) {
+        if (workoutName.length() > 0 && workoutName.length() <= Variables.MAX_WORKOUT_NAME) {
             // check if workout name has already been used before
             for (String workout : workoutNamesList) {
                 if (workout.equals(workoutName)) {
@@ -54,6 +54,21 @@ public class ValidatorUtils {
             }
         } else {
             retVal = String.format("Name must have 1-%s characters.", Variables.MAX_WORKOUT_NAME);
+        }
+        return retVal;
+    }
+
+    /**
+     * Ensures that the report description is valid
+     *
+     * @param description description for the user's complaint.
+     * @return If no error, return null. Else return specific error.
+     */
+    public static String validReportUserDescription(String description) {
+        description = description.trim();
+        String retVal = null;
+        if (description.length() <= 0 || description.length() > Variables.MAX_REPORT_DESCRIPTION) {
+            retVal = String.format("Description must have 1-%s characters.", Variables.MAX_REPORT_DESCRIPTION);
         }
         return retVal;
     }
@@ -236,7 +251,17 @@ public class ValidatorUtils {
         } else if (Pattern.compile("\\s").matcher(username).find()) {
             retVal = "Username cannot have any whitespace.";
         } else if (username.length() > Variables.MAX_USERNAME_LENGTH) {
+            // todo overkill?
             retVal = String.format("Enter value between 0-%s.", Variables.MAX_USERNAME_LENGTH);
+        }
+        return retVal;
+    }
+
+    public static String validEmail(String email) {
+        email = email.trim();
+        String retVal = null;
+        if (email.isEmpty()) {
+            retVal = "Email cannot be empty.";
         }
         return retVal;
     }
@@ -286,17 +311,6 @@ public class ValidatorUtils {
             if (activeUser.equals(username)) {
                 retVal = "Cannot send a workout to yourself.";
             }
-        }
-        return retVal;
-    }
-
-    public static String validFeedback(String feedback) {
-        feedback = feedback.trim();
-        String retVal = null;
-        if (feedback.isEmpty()) {
-            retVal = "Feedback cannot be empty.";
-        } else if (feedback.length() > Variables.MAX_FEEDBACK) {
-            retVal = "Feedback is too large.";
         }
         return retVal;
     }

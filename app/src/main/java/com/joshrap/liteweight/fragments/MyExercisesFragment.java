@@ -20,7 +20,7 @@ import android.widget.ListView;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -38,7 +38,7 @@ public class MyExercisesFragment extends Fragment {
 
     private static final String SELECTED_FOCUS_KEY = "selectedFocus";
     private String selectedFocus;
-    private User user;
+    private boolean isPremium;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private List<String> focusList;
 
@@ -57,7 +57,8 @@ public class MyExercisesFragment extends Fragment {
 
         focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        isPremium = user.getPremiumToken() != null; // todo abstract into method
         for (String focus : focusList) {
             // init the map of a specific focus to the list of exercises it contains
             totalExercises.put(focus, new ArrayList<>());
@@ -83,9 +84,9 @@ public class MyExercisesFragment extends Fragment {
 
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_fab);
         createBtn.setOnClickListener(v -> {
-            if (user.getPremiumToken() == null && user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
+            if (!isPremium && currentUserAndWorkoutProvider.provideCurrentUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
-            } else if (user.getPremiumToken() != null && user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+            } else if (isPremium && currentUserAndWorkoutProvider.provideCurrentUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors

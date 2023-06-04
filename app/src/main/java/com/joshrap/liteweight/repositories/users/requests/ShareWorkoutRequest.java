@@ -14,5 +14,4 @@ import lombok.NoArgsConstructor;
 public class ShareWorkoutRequest extends BodyRequest {
 
     private String workoutId;
-    private String recipientUsername;
 }

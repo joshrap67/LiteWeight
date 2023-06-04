@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.users.requests;
+package com.joshrap.liteweight.repositories.self.requests;
 
 import com.joshrap.liteweight.repositories.BodyRequest;
 
@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class SendFriendRequestApiRequest extends BodyRequest {
+public class CreateUserRequest extends BodyRequest {
 
-    private String recipientUsername;
+    private String username;
+    private byte[] profilePictureData;
+    private boolean metricUnits;
 }
