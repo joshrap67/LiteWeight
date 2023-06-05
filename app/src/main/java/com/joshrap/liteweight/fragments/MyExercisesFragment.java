@@ -20,7 +20,7 @@ import android.widget.ListView;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.ExerciseAdapter;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -43,7 +43,7 @@ public class MyExercisesFragment extends Fragment {
     private List<String> focusList;
 
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -57,7 +57,7 @@ public class MyExercisesFragment extends Fragment {
 
         focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         isPremium = user.getPremiumToken() != null; // todo abstract into method
         for (String focus : focusList) {
             // init the map of a specific focus to the list of exercises it contains
@@ -84,9 +84,9 @@ public class MyExercisesFragment extends Fragment {
 
         FloatingActionButton createBtn = view.findViewById(R.id.new_exercise_fab);
         createBtn.setOnClickListener(v -> {
-            if (!isPremium && currentUserAndWorkoutProvider.provideCurrentUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
+            if (!isPremium && currentUserModule.getUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_FREE_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_FREE_EXERCISES + ") of exercises allowed.", getContext());
-            } else if (isPremium && currentUserAndWorkoutProvider.provideCurrentUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+            } else if (isPremium && currentUserModule.getUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors

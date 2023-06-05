@@ -40,7 +40,7 @@ import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
 import com.joshrap.liteweight.models.sharedWorkout.SharedWeek;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -64,7 +64,6 @@ import static android.os.Looper.getMainLooper;
 public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentWithDialog {
     private ProgressBar loadingIcon;
     private RecyclerView browseRecyclerView;
-    private SharedWorkout sharedWorkout;
     private SharedRoutine sharedRoutine;
     private TextView dayTV, dayTagTV;
     private String workoutName;
@@ -86,7 +85,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
     @Inject
     AlertDialog loadingDialog;
 
@@ -107,11 +106,11 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         ((MainActivity) getActivity()).updateToolbarTitle(workoutName);
         ((MainActivity) getActivity()).toggleBackButton(true);
 
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         for (WorkoutInfo workoutInfo : user.getWorkouts()) {
             existingWorkoutNames.add(workoutInfo.getWorkoutName());
         }
-        isMetricUnits = user.getPreferences().isMetricUnits();
+        isMetricUnits = user.getSettings().isMetricUnits();
         currentDayIndex = 0;
         currentWeekIndex = 0;
         View view = inflater.inflate(R.layout.fragment_browse_received_workout, container, false);
@@ -137,7 +136,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 case acceptWorkoutId:
                     boolean workoutNameExists = user.getWorkouts().stream().anyMatch(x -> x.getWorkoutName().equals(workoutName));
                     if (workoutNameExists) {
-                        workoutNameAlreadyExistsPopup(sharedWorkout);
+                        workoutNameAlreadyExistsPopup();
                     } else {
                         acceptWorkout(null);
                     }
@@ -161,7 +160,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         }
     }
 
-    private void workoutNameAlreadyExistsPopup(final SharedWorkout receivedWorkout) {
+    private void workoutNameAlreadyExistsPopup() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_workout_name_exists, null);
         EditText renameInput = popupView.findViewById(R.id.rename_workout_name_input);
         TextInputLayout workoutNameInputLayout = popupView.findViewById(R.id.rename_workout_name_input_layout);
@@ -169,7 +168,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         renameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
 
         // workout name is italicized
-        SpannableString span1 = new SpannableString(receivedWorkout.getWorkoutName());
+        SpannableString span1 = new SpannableString(workoutName);
         SpannableString span2 = new SpannableString(" already exists");
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
@@ -244,8 +243,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                     loadingIcon.setVisibility(View.GONE);
                     if (result.isSuccess()) {
                         browseContainer.setVisibility(View.VISIBLE);
-                        sharedWorkout = result.getData();
-                        sharedRoutine = sharedWorkout.getRoutine();
+                        sharedRoutine = result.getData().getRoutine();
                         setupButtons();
                         updateRoutineListUI(AnimationDirection.NONE);
                     } else {

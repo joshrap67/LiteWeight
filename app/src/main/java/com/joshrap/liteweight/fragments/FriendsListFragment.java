@@ -42,6 +42,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
@@ -55,7 +56,6 @@ import com.joshrap.liteweight.models.user.FriendRequest;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -112,7 +112,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -123,7 +123,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         username = user.getUsername();
         workoutsSent = user.getWorkoutsSent();
         friends = new ArrayList<>(user.getFriends());
@@ -206,13 +206,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         super.onResume();
         clearFriendsNotifications();
         // when resuming, a notification could have affected these data. Need to populate what is missing into the local view variables
-        if (currentUserAndWorkoutProvider.provideCurrentUser().getFriendRequests().size() != friendRequests.size()) {
-            friendRequests = new ArrayList<>(currentUserAndWorkoutProvider.provideCurrentUser().getFriendRequests());
+        if (currentUserModule.getUser().getFriendRequests().size() != friendRequests.size()) {
+            friendRequests = new ArrayList<>(currentUserModule.getUser().getFriendRequests());
             sortFriendRequestList();
             friendRequestsAdapter.notifyDataSetChanged();
         }
-        if (currentUserAndWorkoutProvider.provideCurrentUser().getFriends().size() != friends.size()) {
-            friends = new ArrayList<>(currentUserAndWorkoutProvider.provideCurrentUser().getFriends());
+        if (currentUserModule.getUser().getFriends().size() != friends.size()) {
+            friends = new ArrayList<>(currentUserModule.getUser().getFriends());
             sortFriendsList();
             friendsAdapter.notifyDataSetChanged();
         }

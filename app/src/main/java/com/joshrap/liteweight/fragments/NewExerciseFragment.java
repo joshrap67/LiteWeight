@@ -38,11 +38,11 @@ import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -57,7 +57,6 @@ import javax.inject.Inject;
 
 public class NewExerciseFragment extends Fragment implements FragmentWithDialog {
 
-    private User user;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits;
@@ -68,13 +67,14 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private TextView focusCountTV;
     private AlertDialog alertDialog;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
+    private final List<String> existingExerciseNames = new ArrayList<>();
 
     @Inject
     AlertDialog loadingDialog;
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -87,8 +87,11 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
-        metricUnits = user.getPreferences().isMetricUnits();
+        User user = currentUserModule.getUser();
+        for (OwnedExercise exercise : user.getExercises()) {
+            existingExerciseNames.add(exercise.getName());
+        }
+        metricUnits = user.getSettings().isMetricUnits();
         focusList = new ArrayList<>(Variables.FOCUS_LIST);
         selectedFocuses = new ArrayList<>();
 
@@ -211,11 +214,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         String nameError, weightError, setsError, repsError, detailsError, urlError = null;
         boolean focusError = false;
 
-        List<String> exerciseNames = new ArrayList<>();
-        for (OwnedExercise exercise : user.getExercises()) {
-            exerciseNames.add(exercise.getName());
-        }
-        nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
+        nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), existingExerciseNames);
         exerciseNameLayout.setError(nameError);
 
         weightError = ValidatorUtils.validWeight(weightInput.getText().toString().trim());

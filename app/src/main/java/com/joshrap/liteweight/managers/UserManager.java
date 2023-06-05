@@ -9,7 +9,7 @@ import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.user.UserPreferences;
+import com.joshrap.liteweight.models.user.UserSettings;
 import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.repositories.self.SelfRepository;
@@ -36,12 +36,12 @@ public class UserManager {
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Inject
-    public UserManager(SelfRepository selfRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider,
+    public UserManager(SelfRepository selfRepository, CurrentUserModule currentUserModule,
                        UsersRepository usersRepository, ExerciseRepository exerciseRepository, WorkoutRepository workoutRepository) {
-        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
+        this.currentUserModule = currentUserModule;
         this.selfRepository = selfRepository;
         this.usersRepository = usersRepository;
         this.exerciseRepository = exerciseRepository;
@@ -59,7 +59,7 @@ public class UserManager {
                 Workout workout = this.workoutRepository.getWorkout(user.getCurrentWorkoutId());
                 userAndWorkout.setWorkout(workout);
             }
-            currentUserAndWorkoutProvider.setCurrentUserAndWorkout(userAndWorkout);
+            currentUserModule.setCurrentUserAndWorkout(userAndWorkout);
             result.setData(userAndWorkout);
         } catch (IOException | ExecutionException | InterruptedException e) {
             FirebaseCrashlytics.getInstance().recordException(e);
@@ -93,7 +93,7 @@ public class UserManager {
         Result<OwnedExercise> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.exerciseRepository.updateExercise(exerciseId, updatedExercise);
             OwnedExercise exercise = user.getExercise(exerciseId);
@@ -112,7 +112,7 @@ public class UserManager {
         Result<OwnedExercise> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             OwnedExercise newExercise = exerciseRepository.newExercise(exerciseName, focuses, weight, sets, reps, details, videoURL);
             user.addExercise(newExercise);
@@ -129,8 +129,8 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             this.exerciseRepository.deleteExercise(exerciseId);
             user.removeExercise(exerciseId);
@@ -189,7 +189,7 @@ public class UserManager {
         Result<Friend> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             SearchByUsernameResponse searchResult = this.usersRepository.searchByUsername(username);
             Friend friend = this.usersRepository.sendFriendRequest(searchResult.getId());
@@ -213,7 +213,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.usersRepository.cancelFriendRequest(userId);
             user.removeFriend(userId);
@@ -229,7 +229,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.selfRepository.setAllFriendRequestsSeen();
             for (FriendRequest friendRequest : user.getFriendRequests()) {
@@ -243,14 +243,14 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> updateUserPreferences(UserPreferences userPreferences) {
+    public Result<String> updateUserPreferences(UserSettings userSettings) {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
-            this.selfRepository.setUserPreferences(userPreferences);
-            user.setPreferences(userPreferences);
+            this.selfRepository.setSettings(userSettings);
+            user.setSettings(userSettings);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem updating user preferences.");
@@ -263,7 +263,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.usersRepository.acceptFriendRequest(userId);
 
@@ -284,7 +284,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.usersRepository.removeFriend(userId);
             user.removeFriend(userId);
@@ -300,7 +300,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.usersRepository.declineFriendRequest(userId);
             user.removeFriendRequest(userId);
@@ -316,7 +316,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.selfRepository.setAllReceivedWorkoutsSeen();
             for (SharedWorkoutInfo sharedWorkoutInfo : user.getReceivedWorkouts()) {
@@ -334,7 +334,7 @@ public class UserManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.selfRepository.setReceivedWorkoutSeen(workoutId);
             SharedWorkoutInfo sharedWorkoutInfo = user.getReceivedWorkout(workoutId);

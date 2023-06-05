@@ -27,8 +27,8 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.user.UserPreferences;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.models.user.UserSettings;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 
 import java.util.concurrent.Executor;
@@ -40,7 +40,7 @@ import static android.os.Looper.getMainLooper;
 
 public class SettingsFragment extends Fragment {
 
-    private UserPreferences userPreferences;
+    private UserSettings userSettings;
     private boolean metricChanged, privateChanged, saveChanged, restartChanged;
     private int dangerZoneRotationAngle;
 
@@ -49,7 +49,7 @@ public class SettingsFragment extends Fragment {
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
     private SwitchCompat privateSwitch, metricSwitch, updateOnSaveSwitch, updateOnRestartSwitch;
 
     @Nullable
@@ -62,7 +62,7 @@ public class SettingsFragment extends Fragment {
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        userPreferences = currentUserAndWorkoutProvider.provideCurrentUser().getPreferences();
+        userSettings = currentUserModule.getUser().getSettings();
         metricChanged = false;
         privateChanged = false;
         saveChanged = false;
@@ -76,27 +76,27 @@ public class SettingsFragment extends Fragment {
 
         LinearLayout metricLayout = view.findViewById(R.id.metric_container);
         metricLayout.setOnClickListener(view1 -> metricSwitch.performClick());
-        metricSwitch.setChecked(userPreferences.isMetricUnits());
+        metricSwitch.setChecked(userSettings.isMetricUnits());
         metricSwitch.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> metricChanged = isChecked != userPreferences.isMetricUnits());
+                (buttonView, isChecked) -> metricChanged = isChecked != userSettings.isMetricUnits());
 
         LinearLayout privateLayout = view.findViewById(R.id.private_account_container);
         privateLayout.setOnClickListener(view1 -> privateSwitch.performClick());
-        privateSwitch.setChecked(userPreferences.isPrivateAccount());
+        privateSwitch.setChecked(userSettings.isPrivateAccount());
         privateSwitch.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> privateChanged = isChecked != userPreferences.isPrivateAccount());
+                (buttonView, isChecked) -> privateChanged = isChecked != userSettings.isPrivateAccount());
 
         LinearLayout updateOnRestartLayout = view.findViewById(R.id.update_on_restart_container);
         updateOnRestartLayout.setOnClickListener(view1 -> updateOnRestartSwitch.performClick());
-        updateOnRestartSwitch.setChecked(userPreferences.isUpdateDefaultWeightOnRestart());
+        updateOnRestartSwitch.setChecked(userSettings.isUpdateDefaultWeightOnRestart());
         updateOnRestartSwitch.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> restartChanged = isChecked != userPreferences.isUpdateDefaultWeightOnRestart());
+                (buttonView, isChecked) -> restartChanged = isChecked != userSettings.isUpdateDefaultWeightOnRestart());
 
         LinearLayout updateOnSaveLayout = view.findViewById(R.id.update_on_save_container);
         updateOnSaveLayout.setOnClickListener(view1 -> updateOnSaveSwitch.performClick());
-        updateOnSaveSwitch.setChecked(userPreferences.isUpdateDefaultWeightOnSave());
+        updateOnSaveSwitch.setChecked(userSettings.isUpdateDefaultWeightOnSave());
         updateOnSaveSwitch.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> saveChanged = isChecked != userPreferences.isUpdateDefaultWeightOnSave());
+                (buttonView, isChecked) -> saveChanged = isChecked != userSettings.isUpdateDefaultWeightOnSave());
 
         // app settings todo it might be confusing that these are not saved in cloud. at least perhaps tell users this
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
@@ -168,15 +168,15 @@ public class SettingsFragment extends Fragment {
         super.onPause();
         if (metricChanged || privateChanged || restartChanged || saveChanged) {
             // one or more settings has changed, so update it in the DB and the local user settings
-            userPreferences.setMetricUnits(metricSwitch.isChecked());
-            userPreferences.setPrivateAccount(privateSwitch.isChecked());
-            userPreferences.setUpdateDefaultWeightOnSave(updateOnSaveSwitch.isChecked());
-            userPreferences.setUpdateDefaultWeightOnRestart(updateOnRestartSwitch.isChecked());
+            userSettings.setMetricUnits(metricSwitch.isChecked());
+            userSettings.setPrivateAccount(privateSwitch.isChecked());
+            userSettings.setUpdateDefaultWeightOnSave(updateOnSaveSwitch.isChecked());
+            userSettings.setUpdateDefaultWeightOnRestart(updateOnRestartSwitch.isChecked());
             // note that due to blind send the work above breaks the manager pattern a little bit since code is duplicated in manager call. but idc i don't want a loading dialog for this
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<String> result = this.userManager.updateUserPreferences(userPreferences);
+                Result<String> result = this.userManager.updateUserPreferences(userSettings);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (result.isFailure()) {

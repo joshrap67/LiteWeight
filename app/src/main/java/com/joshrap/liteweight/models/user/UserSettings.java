@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPreferences {
+public class UserSettings {
 
     private boolean privateAccount;
     private boolean updateDefaultWeightOnSave;

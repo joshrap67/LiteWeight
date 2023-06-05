@@ -24,11 +24,11 @@ public class WorkoutManager {
     @Inject
     SelfRepository selfRepository;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Inject
-    public WorkoutManager(WorkoutRepository workoutRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider, SelfRepository selfRepository) {
-        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
+    public WorkoutManager(WorkoutRepository workoutRepository, CurrentUserModule currentUserModule, SelfRepository selfRepository) {
+        this.currentUserModule = currentUserModule;
         this.workoutRepository = workoutRepository;
         this.selfRepository = selfRepository;
     }
@@ -37,8 +37,8 @@ public class WorkoutManager {
         Result<UserAndWorkout> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             UserAndWorkout response = this.workoutRepository.createWorkout(routine, workoutName, true);
             String newWorkoutId = response.getWorkout().getId();
@@ -48,6 +48,7 @@ public class WorkoutManager {
             user.updateOwnedExercises(response.getUser().getExercises());
 
             currentUserAndWorkout.setWorkout(response.getWorkout());
+            result.setData(response);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem creating the workout.");
@@ -55,21 +56,29 @@ public class WorkoutManager {
         return result;
     }
 
-    public Result<String> copyWorkout(@NonNull Workout workout, @NonNull String workoutName) {
+    public Result<String> copyWorkout(String workoutId, @NonNull String workoutName) {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout userAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
-            UserAndWorkout copyResponse = this.workoutRepository.copyWorkout(workout.getId(), workoutName);
+            // make sure to update progress before switching
+            this.workoutRepository.updateWorkoutProgress(
+                    currentUserModule.getCurrentWeek(),
+                    currentUserModule.getCurrentDay(),
+                    userAndWorkout.getWorkout());
+
+            UserAndWorkout copyResponse = this.workoutRepository.copyWorkout(workoutId, workoutName);
             Workout newWorkout = copyResponse.getWorkout();
             this.selfRepository.setCurrentWorkout(newWorkout.getId());
 
             user.addWorkout(copyResponse.getUser().getWorkout(newWorkout.getId()));
-            currentUserAndWorkout.setWorkout(newWorkout);
+            userAndWorkout.setWorkout(newWorkout);
             user.setCurrentWorkoutId(newWorkout.getId());
             user.updateOwnedExercises(copyResponse.getUser().getExercises());
+
+            result.setData(newWorkout.getId());
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem copying the workout.");
@@ -78,24 +87,26 @@ public class WorkoutManager {
         return result;
     }
 
-    public Result<String> switchWorkout(@NonNull Workout oldWorkout, @NonNull String workoutId) {
+    public Result<String> switchWorkout(String oldWorkoutId, @NonNull String nextWorkoutId) {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout userAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout userAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
+            // make sure to update progress before switching
             this.workoutRepository.updateWorkoutProgress(
-                    currentUserAndWorkoutProvider.getCurrentWeek(),
-                    currentUserAndWorkoutProvider.getCurrentDay(),
-                    oldWorkout);
-            Workout workout = this.workoutRepository.getWorkout(workoutId);
-            this.selfRepository.setCurrentWorkout(workoutId);
+                    currentUserModule.getCurrentWeek(),
+                    currentUserModule.getCurrentDay(),
+                    userAndWorkout.getWorkout());
+            Workout workout = this.workoutRepository.getWorkout(nextWorkoutId);
+            this.selfRepository.setCurrentWorkout(nextWorkoutId);
 
             userAndWorkout.setWorkout(workout);
-            user.setCurrentWorkoutId(workoutId);
+            user.setCurrentWorkoutId(nextWorkoutId);
+
             String now = Instant.now().toString();
-            WorkoutInfo workoutInfo = user.getWorkout(oldWorkout.getId());
+            WorkoutInfo workoutInfo = user.getWorkout(oldWorkoutId);
             workoutInfo.setLastSetAsCurrentUtc(now);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
@@ -109,8 +120,8 @@ public class WorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            Workout currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+            User user = currentUserModule.getUser();
+            Workout currentWorkout = currentUserModule.getCurrentWorkout();
 
             this.workoutRepository.renameWorkout(workoutId, newWorkoutName);
             for (OwnedExercise exercise : user.getExercises()) {
@@ -125,12 +136,12 @@ public class WorkoutManager {
         return result;
     }
 
-    public Result<UserAndWorkout> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
-        Result<UserAndWorkout> result = new Result<>();
+    public Result<String> deleteWorkoutThenFetchNext(String workoutId, String nextWorkoutId) {
+        Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             this.workoutRepository.deleteWorkoutAndSetCurrent(workoutId, nextWorkoutId);
             Workout workout = null;
@@ -144,8 +155,6 @@ public class WorkoutManager {
             for (OwnedExercise exercise : user.getExercises()) {
                 exercise.removeWorkout(workoutId);
             }
-
-            result.setData(currentUserAndWorkout);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem deleting the workout.");
@@ -157,7 +166,7 @@ public class WorkoutManager {
     public Result<String> resetWorkoutStatistics(@NonNull String workoutId) {
         Result<String> result = new Result<>();
 
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         try {
             this.workoutRepository.resetWorkoutStatistics(workoutId);
             WorkoutInfo workoutInfo = user.getWorkout(workoutId);
@@ -186,8 +195,8 @@ public class WorkoutManager {
         Result<UserAndWorkout> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             UserAndWorkout response = this.workoutRepository.setRoutine(workoutId, routine);
             user.updateOwnedExercises(response.getUser().getExercises());
@@ -205,8 +214,8 @@ public class WorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            Workout currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+            User user = currentUserModule.getUser();
+            Workout currentWorkout = currentUserModule.getCurrentWorkout();
 
             UserAndWorkout response = this.workoutRepository.restartWorkout(workout);
 

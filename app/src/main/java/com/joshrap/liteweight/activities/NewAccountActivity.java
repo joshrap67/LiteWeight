@@ -34,7 +34,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -61,7 +61,7 @@ public class NewAccountActivity extends AppCompatActivity {
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

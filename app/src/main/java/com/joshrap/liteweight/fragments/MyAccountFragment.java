@@ -30,7 +30,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
@@ -63,7 +63,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -74,7 +74,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         username = user.getUsername();
         profilePictureUrl = user.getProfilePicture();
         email = user.getEmail();

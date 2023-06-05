@@ -7,17 +7,20 @@ import com.joshrap.liteweight.models.workout.Workout;
 
 import javax.inject.Inject;
 
-// rename module
-public class CurrentUserAndWorkoutProvider {
+public class CurrentUserModule {
 
     private static UserAndWorkout currentUserAndWorkout;
 
     @Inject
-    public CurrentUserAndWorkoutProvider() {
+    public CurrentUserModule() {
     }
 
     void setCurrentUserAndWorkout(UserAndWorkout aCurrentUserAndWorkout) {
         currentUserAndWorkout = aCurrentUserAndWorkout;
+    }
+
+    public boolean isWorkoutPresent() {
+        return currentUserAndWorkout.isWorkoutPresent();
     }
 
     public void setCurrentWeekAndDay(int currentWeek, int currentDay) {
@@ -36,11 +39,11 @@ public class CurrentUserAndWorkoutProvider {
         return workoutInfo.getCurrentDay();
     }
 
-    public UserAndWorkout provideCurrentUserAndWorkout() {
+    public UserAndWorkout getCurrentUserAndWorkout() {
         return currentUserAndWorkout;
     }
 
-    public User provideCurrentUser() {
+    public User getUser() {
         if (currentUserAndWorkout == null) {
             return null;
         } else {
@@ -48,7 +51,7 @@ public class CurrentUserAndWorkoutProvider {
         }
     }
 
-    public Workout provideCurrentWorkout() {
+    public Workout getCurrentWorkout() {
         if (currentUserAndWorkout == null) {
             return null;
         } else {

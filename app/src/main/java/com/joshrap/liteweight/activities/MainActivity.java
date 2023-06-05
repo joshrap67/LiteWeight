@@ -64,7 +64,7 @@ import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentM
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.workout.Workout;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -108,12 +108,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<String> fragmentStack; // stack of fragment ids
     private Map<String, Fragment.SavedState> fragmentSavedStatesMap;
     private ImageView profilePicture;
-    private Workout lastSyncedWorkout;
-    private User user;
+    private Workout lastSyncedWorkout; // used to determine if current workout needs to be updated on app close
+    private int lastSyncedCurrentDay, lastSyncedCurrentWeek;
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ConstraintLayout navHeaderLayout;
     private ProgressBar loadingBar;
-    private UserAndWorkout currentUserAndWorkout;
 
     @Getter
     private Timer timer;
@@ -127,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -171,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         launchAccountNotCreatedActivity();
                     } else {
                         // user does have an account, so load activity
-                        currentUserAndWorkout = result.getData();
                         loadActivity();
                     }
                 } else {
@@ -192,9 +190,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             notificationAction = getIntent().getExtras().getString(Variables.NOTIFICATION_ACTION);
         }
 
-        user = currentUserAndWorkout.getUser();
-        if (currentUserAndWorkout.isWorkoutPresent()) {
-            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
+        User user = currentUserModule.getUser();
+        if (currentUserModule.isWorkoutPresent()) {
+            lastSyncedWorkout = new Workout(currentUserModule.getCurrentWorkout());
+            lastSyncedCurrentDay = currentUserModule.getCurrentDay();
+            lastSyncedCurrentWeek = currentUserModule.getCurrentWeek();
         } else {
             lastSyncedWorkout = null;
         }
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // doing this here just because otherwise there is a barely noticeable delay when first launching the app
         // as the title gets set slightly after other elements are visible
-        toolbarTitleTV.setText(currentUserAndWorkout.isWorkoutPresent() ? currentUserAndWorkout.getWorkout().getName() : getString(R.string.app_name));
+        toolbarTitleTV.setText(currentUserModule.isWorkoutPresent() ? currentUserModule.getCurrentWorkout().getName() : getString(R.string.app_name));
 
         navHeaderLayout.getBackground().setAlpha(190); // to allow for username to be seen easier against the background image
         navHeaderLayout.setOnClickListener(view -> {
@@ -423,12 +423,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     };
 
     private void syncCurrentWorkout() {
-        if (currentUserAndWorkout.isWorkoutPresent() && Workout.workoutsDifferent(lastSyncedWorkout, currentUserAndWorkout.getWorkout())) {
+        if (currentUserModule.isWorkoutPresent() &&
+                (Workout.workoutsDifferent(lastSyncedWorkout, currentUserModule.getCurrentWorkout())
+                        || (currentUserModule.getCurrentWeek() != lastSyncedCurrentWeek || currentUserModule.getCurrentDay() != lastSyncedCurrentDay))) {
             // we assume it always succeeds
-            lastSyncedWorkout = new Workout(currentUserAndWorkout.getWorkout());
+            lastSyncedWorkout = new Workout(currentUserModule.getCurrentWorkout());
+            lastSyncedCurrentDay = currentUserModule.getCurrentDay();
+            lastSyncedCurrentWeek = currentUserModule.getCurrentWeek();
+
             Intent intent = new Intent(this, SyncWorkoutService.class);
             try {
-                intent.putExtra(Variables.INTENT_WORKOUT, new ObjectMapper().writeValueAsString(currentUserAndWorkout.getWorkout()));
+                intent.putExtra(Variables.INTENT_WORKOUT, new ObjectMapper().writeValueAsString(currentUserModule.getCurrentWorkout()));
+                intent.putExtra(Variables.INTENT_CURRENT_DAY, currentUserModule.getCurrentDay());
+                intent.putExtra(Variables.INTENT_CURRENT_WEEK, currentUserModule.getCurrentWeek());
                 startService(intent);
             } catch (JsonProcessingException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
@@ -499,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
         syncCurrentWorkout();
-        currentUserAndWorkoutProvider.clear();
+        currentUserModule.clear();
 
         AndroidUtils.showLoadingDialog(loadingDialog, "Logging out...");
         Executor executor = Executors.newSingleThreadExecutor();
@@ -579,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleNewFriendRequestMessage(NewFriendRequestMessage event) {
         FriendRequest friendRequest = event.getFriendRequest();
-        user.addFriendRequest(friendRequest);
+        currentUserModule.getUser().addFriendRequest(friendRequest);
         updateFriendsListIndicator();
 
         // send broadcast to any fragments waiting on this model update
@@ -590,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleCanceledFriendRequestMessage(CanceledFriendRequestMessage event) {
         String userIdToRemove = event.getUserIdToRemove();
-        user.removeFriendRequest(userIdToRemove);
+        currentUserModule.getUser().removeFriendRequest(userIdToRemove);
         updateFriendsListIndicator();
 
         // send broadcast to any fragments waiting on this model update
@@ -601,7 +608,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleDeclinedFriendRequestMessage(DeclinedFriendRequestMessage event) {
         String userIdToRemove = event.getUserIdToRemove();
-        user.removeFriend(userIdToRemove);
+        currentUserModule.getUser().removeFriend(userIdToRemove);
 
         // send broadcast to any fragments waiting on this model update
         DeclinedFriendRequestFragmentMessage fragmentMessage = new DeclinedFriendRequestFragmentMessage(userIdToRemove);
@@ -611,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleRemovedAsFriendMessage(RemovedFriendMessage event) {
         String userIdToRemove = event.getUserIdToRemove();
-        user.removeFriend(userIdToRemove);
+        currentUserModule.getUser().removeFriend(userIdToRemove);
 
         // send broadcast to any fragments waiting on this model update
         RemovedFriendFragmentMessage fragmentMessage = new RemovedFriendFragmentMessage(userIdToRemove);
@@ -621,7 +628,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestMessage message) {
         String userIdAccepted = message.getAcceptedUserId();
-        user.getFriend(userIdAccepted).setConfirmed(true);
+        currentUserModule.getUser().getFriend(userIdAccepted).setConfirmed(true);
 
         // send broadcast to any fragments waiting on this model update
         AcceptedFriendRequestFragmentMessage fragmentMessage = new AcceptedFriendRequestFragmentMessage(userIdAccepted);
@@ -632,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
         SharedWorkoutInfo sharedWorkoutInfo = event.getSharedWorkoutInfo();
 
-        user.addReceivedWorkout(sharedWorkoutInfo);
+        currentUserModule.getUser().addReceivedWorkout(sharedWorkoutInfo);
         updateReceivedWorkoutNotificationIndicator();
 
         // send broadcast to any fragments waiting on this model update
@@ -786,7 +793,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // check if there are any unseen notifications for friend requests
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_friends_list).getActionView();
         view.setText(null);
-        for (FriendRequest friendRequest : user.getFriendRequests()) {
+        for (FriendRequest friendRequest : currentUserModule.getUser().getFriendRequests()) {
             if (!friendRequest.isSeen()) {
                 view.setText(R.string.alert);
                 return;
@@ -802,7 +809,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void updateReceivedWorkoutNotificationIndicator() {
         // check if there are any unseen notifications for received workouts
         TextView view = (TextView) nav.getMenu().findItem(R.id.nav_received_workouts).getActionView();
-        long unseenCount = user.getReceivedWorkouts().stream().filter(x -> !x.isSeen()).count();
+        long unseenCount = currentUserModule.getUser().getReceivedWorkouts().stream().filter(x -> !x.isSeen()).count();
         view.setText(unseenCount > 0 ? String.valueOf(unseenCount) : null);
     }
 

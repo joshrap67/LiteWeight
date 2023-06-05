@@ -43,10 +43,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.user.Friend;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
@@ -57,7 +57,6 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -83,8 +82,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private TextView selectedWorkoutTV, timesCompletedTV, completionRateTV, totalDaysTV, mostFrequentFocusTV;
     private ListView workoutListView;
     private AlertDialog alertDialog;
-    //    private User user;
-//    private Workout currentWorkout;
     private WorkoutInfo currentWorkout;
     private List<WorkoutInfo> workoutList;
     private WorkoutsAdapter workoutsAdapter;
@@ -98,7 +95,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Inject
     SharedWorkoutManager sharedWorkoutManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -110,12 +107,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
         ((MainActivity) getActivity()).toggleBackButton(false);
 
-        Workout workout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+        Workout workout = currentUserModule.getCurrentWorkout();
         if (workout != null) {
-            currentWorkout = currentUserAndWorkoutProvider.provideCurrentUser().getWorkout(workout.getId());
+            setCurrentWorkout(workout.getId());
 
         }
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
         isPremium = user.isPremium();
         workoutList = new ArrayList<>(user.getWorkouts());
         workoutsSent = user.getWorkoutsSent();
@@ -244,8 +241,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Updates all UI with the newly changed current workout.
      */
     private void updateUI() {
-        workoutList.clear();
-        workoutList.addAll(user.getWorkouts());
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
         sortWorkouts();
         workoutsAdapter.notifyDataSetChanged();
@@ -256,8 +251,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Sorts workouts by date last accessed and ensures currently selected workout is at the top of the list.
      */
     private void sortWorkouts() {
-        WorkoutInfo currentWorkoutInfo = user.getWorkout(currentWorkout.getWorkoutId());
-        workoutList.remove(currentWorkoutInfo);
+        workoutList.removeIf(x -> x.getWorkoutId().equals(currentWorkout.getWorkoutId()));
         workoutList.sort((r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -271,7 +265,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             }
             return retVal;
         });
-        workoutList.add(0, currentWorkoutInfo); // selected always on top
+        workoutList.add(0, currentWorkout); // selected always on top
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
@@ -279,14 +273,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      * Fetches and displays statistics for the currently selected workout.
      */
     private void updateStatisticsTV() {
-        int timesCompleted = user.getWorkout(currentWorkout.getId()).getTimesRestarted();
-        double average = user.getWorkout(currentWorkout.getId()).getAverageExercisesCompleted();
+        int timesCompleted = currentWorkout.getTimesRestarted();
+        double average = currentWorkout.getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
 
         timesCompletedTV.setText(Integer.toString(timesCompleted));
-        totalDaysTV.setText(Integer.toString(currentWorkout.getRoutine().totalDays()));
+        totalDaysTV.setText(Integer.toString(currentUserModule.getCurrentWorkout().getRoutine().totalDays()));
         completionRateTV.setText(formattedPercentage);
-        mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(user, currentWorkout.getRoutine()).replaceAll(",", ", "));
+        mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(currentUserModule.getUser(), currentUserModule.getCurrentWorkout().getRoutine()).replaceAll(",", ", "));
 
     }
 
@@ -296,7 +290,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void promptResetStatistics() {
         // workout name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to reset the statistics for ");
-        SpannableString span2 = new SpannableString(currentWorkout.getName());
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         SpannableString span3 = new SpannableString("?\n\nDoing so will reset the total restarts and the exercise completion average.");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
@@ -304,7 +298,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Reset Statistics")
                 .setMessage(title)
-                .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getId()))
+                .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();
@@ -339,7 +333,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         // workout name is italicized
         SpannableString span1 = new SpannableString("Rename ");
-        SpannableString span2 = new SpannableString(currentWorkout.getName());
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
@@ -362,7 +356,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     workoutNameInputLayout.setError(errorMsg);
                 } else {
                     alertDialog.dismiss();
-                    renameWorkout(currentWorkout.getId(), newName);
+                    renameWorkout(currentWorkout.getWorkoutId(), newName);
                 }
             });
         });
@@ -395,7 +389,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         // workout name is italicized
         SpannableString span1 = new SpannableString("Copy ");
-        SpannableString span2 = new SpannableString(currentWorkout.getName());
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         SpannableString span3 = new SpannableString(" as a new workout");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
@@ -411,7 +405,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             saveButton.setOnClickListener(view -> {
                 String workoutName = workoutNameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (WorkoutInfo workoutInfo : user.getWorkouts()) {
+                for (WorkoutInfo workoutInfo : workoutList) {
                     workoutNames.add(workoutInfo.getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
@@ -431,12 +425,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Copying...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.workoutManager.copyWorkout(currentWorkout, workoutName);
+            Result<String> result = this.workoutManager.copyWorkout(currentWorkout.getWorkoutId(), workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+                    setCurrentWorkout(result.getData());
                     updateUI();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
@@ -459,7 +453,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
 
         List<Friend> friends = new ArrayList<>();
-        for (Friend friend : user.getFriends()) {
+        for (Friend friend : currentUserModule.getUser().getFriends()) {
             if (friend.isConfirmed()) {
                 friends.add(friend);
             }
@@ -482,7 +476,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
 
         // workout name is italicized
         SpannableString span1 = new SpannableString("Share ");
-        SpannableString span2 = new SpannableString(currentWorkout.getName());
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
@@ -497,7 +491,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             shareButton.setOnClickListener(view -> {
                 // usernames are case insensitive!
                 String username = usernameInput.getText().toString().trim().toLowerCase();
-                String errorMsg = ValidatorUtils.validUserToSendWorkout(user.getUsername(), username);
+                String errorMsg = ValidatorUtils.validUserToSendWorkout(currentUserModule.getUser().getUsername(), username);
                 if (errorMsg != null) {
                     usernameInputLayout.setError(errorMsg);
                 } else {
@@ -506,7 +500,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     if (!isPremium && workoutsSent >= Variables.MAX_FREE_WORKOUTS_SENT) {
                         AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed to share.", getContext());
                     } else {
-                        shareWorkout(username, currentWorkout.getId());
+                        shareWorkout(username, currentWorkout.getWorkoutId());
                     }
                 }
             });
@@ -537,7 +531,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private void promptDelete() {
         // workout name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
-        SpannableString span2 = new SpannableString(currentWorkout.getName());
+        SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         SpannableString span3 = new SpannableString("?\n\nIf so, all statistics for it will also be deleted.");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
@@ -550,7 +544,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     if (workoutList.size() >= 2) {
                         nextWorkoutId = workoutList.get(1).getWorkoutId(); // get next in list
                     }
-                    deleteWorkout(currentWorkout.getId(), nextWorkoutId);
+                    deleteWorkout(currentWorkout.getWorkoutId(), nextWorkoutId);
                 })
                 .setNegativeButton("No", null)
                 .create();
@@ -561,12 +555,12 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<UserAndWorkout> result = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
+            Result<String> result = this.workoutManager.deleteWorkoutThenFetchNext(workoutId, nextWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout(); // todo use result instead of provider?
+                    setCurrentWorkout(nextWorkoutId);
                     if (currentWorkout == null) {
                         // change view to tell user to create a workout
                         resetFragment();
@@ -581,20 +575,20 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void switchWorkout(final WorkoutInfo selectedWorkout) {
-        if (selectedWorkout.getWorkoutId().equals(currentWorkout.getId())) {
+        if (selectedWorkout.getWorkoutId().equals(currentWorkout.getWorkoutId())) {
             return;
         }
 
         AndroidUtils.showLoadingDialog(loadingDialog, "Loading...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.workoutManager.switchWorkout(currentWorkout, selectedWorkout.getWorkoutId());
+            Result<String> result = this.workoutManager.switchWorkout(currentWorkout.getWorkoutId(), selectedWorkout.getWorkoutId());
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
-                        currentWorkout = currentUserAndWorkoutProvider.provideCurrentWorkout();
+                        setCurrentWorkout(selectedWorkout.getWorkoutId());
                         updateUI();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
@@ -603,6 +597,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 }
             });
         });
+    }
+
+    private void setCurrentWorkout(String workoutId) {
+        if (workoutId == null) {
+            currentWorkout = null;
+        } else {
+            currentWorkout = currentUserModule.getUser().getWorkout(workoutId);
+        }
     }
 
     private void resetFragment() {

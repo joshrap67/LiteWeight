@@ -37,7 +37,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
-import com.joshrap.liteweight.managers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
@@ -82,7 +82,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
@@ -100,9 +100,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             return null;
         }
 
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        originalExercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy
-        metricUnits = user.getPreferences().isMetricUnits();
+        User user = currentUserModule.getUser();
+        originalExercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy?
+        metricUnits = user.getSettings().isMetricUnits();
         for (OwnedExercise exercise : user.getExercises()) {
             existingExerciseNames.add(exercise.getName());
         }

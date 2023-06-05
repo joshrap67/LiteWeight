@@ -17,10 +17,10 @@ import com.joshrap.liteweight.repositories.BodyRequest;
 import com.joshrap.liteweight.repositories.self.requests.CreateUserRequest;
 import com.joshrap.liteweight.repositories.self.requests.SetCurrentWorkoutRequest;
 import com.joshrap.liteweight.repositories.self.requests.LinkFirebaseTokenRequest;
-import com.joshrap.liteweight.repositories.self.requests.SetUserPreferencesRequest;
+import com.joshrap.liteweight.repositories.self.requests.SetUserSettingsRequest;
 import com.joshrap.liteweight.repositories.self.requests.UpdateProfilePictureRequest;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.user.UserPreferences;
+import com.joshrap.liteweight.models.user.UserSettings;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -33,7 +33,7 @@ public class SelfRepository {
     private static final String linkFirebaseTokenRoute = "link-firebase-token";
     private static final String unlinkFirebaseTokenRoute = "unlink-firebase-token";
     private static final String setAllFriendRequestsSeenRoute = "all-friend-requests-seen";
-    private static final String setUserPreferencesRoute = "user-preferences";
+    private static final String setSettingsRoute = "settings";
     private static final String setCurrentWorkoutRoute = "current-workout";
     private static final String setAllReceivedWorkoutsSeenRoute = "all-seen";
     private static final String setReceivedWorkoutSeenRoute = "seen";
@@ -104,9 +104,9 @@ public class SelfRepository {
         this.apiGateway.put(route);
     }
 
-    public void setUserPreferences(UserPreferences userPreferences) throws IOException, LiteWeightNetworkException {
-        BodyRequest body = new SetUserPreferencesRequest(userPreferences);
-        String route = getRoute(selfRoute, setUserPreferencesRoute);
+    public void setSettings(UserSettings userSettings) throws IOException, LiteWeightNetworkException {
+        BodyRequest body = new SetUserSettingsRequest(userSettings);
+        String route = getRoute(selfRoute, setSettingsRoute);
 
         this.apiGateway.put(route, body);
     }

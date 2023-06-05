@@ -33,12 +33,12 @@ public class SharedWorkoutManager {
     @Inject
     SelfRepository selfRepository;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Inject
-    public SharedWorkoutManager(WorkoutRepository workoutRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider,
+    public SharedWorkoutManager(WorkoutRepository workoutRepository, CurrentUserModule currentUserModule,
                                 SharedWorkoutRepository sharedWorkoutRepository, UsersRepository usersRepository, SelfRepository selfRepository) {
-        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
+        this.currentUserModule = currentUserModule;
         this.workoutRepository = workoutRepository;
         this.sharedWorkoutRepository = sharedWorkoutRepository;
         this.usersRepository = usersRepository;
@@ -49,7 +49,7 @@ public class SharedWorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             SearchByUsernameResponse searchResult = this.usersRepository.searchByUsername(recipientUsername);
             this.usersRepository.shareWorkout(searchResult.getId(), workoutId);
@@ -72,7 +72,7 @@ public class SharedWorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.usersRepository.shareWorkout(recipientId, workoutId);
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
@@ -100,8 +100,8 @@ public class SharedWorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
-            UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
+            User user = currentUserModule.getUser();
+            UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             AcceptWorkoutResponse response = this.sharedWorkoutRepository.acceptReceivedWorkout(sharedWorkoutId, optionalName);
             if (user.getCurrentWorkoutId() == null) {
@@ -136,7 +136,7 @@ public class SharedWorkoutManager {
         Result<String> result = new Result<>();
 
         try {
-            User user = currentUserAndWorkoutProvider.provideCurrentUser();
+            User user = currentUserModule.getUser();
 
             this.sharedWorkoutRepository.declineReceivedWorkout(sharedWorkoutId);
             user.removeReceivedWorkout(sharedWorkoutId);

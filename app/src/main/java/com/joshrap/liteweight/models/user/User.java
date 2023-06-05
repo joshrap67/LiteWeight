@@ -21,7 +21,7 @@ public class User {
     private String premiumToken;
     private String currentWorkoutId;
     private int workoutsSent;
-    private UserPreferences preferences;
+    private UserSettings settings;
     private List<WorkoutInfo> workouts = new ArrayList<>();
     private List<OwnedExercise> exercises = new ArrayList<>();
     private List<Friend> friends = new ArrayList<>();
