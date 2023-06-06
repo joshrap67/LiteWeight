@@ -39,5 +39,7 @@
             android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="8dp"
             android:textAlignment="center"
-            tools:text="You can share a workout 20 more times" />
+            android:visibility="gone"
+            tools:text="@string/max_workouts_sent"
+            tools:visibility="visible" />
 </RelativeLayout>

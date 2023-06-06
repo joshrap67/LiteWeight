@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class RenameWorkoutRequest extends BodyRequest {
 
-    private String newName;
+    private String name;
 }

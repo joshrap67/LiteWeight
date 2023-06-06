@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class SetCurrentWorkoutRequest extends BodyRequest {
 
-    private String workoutId;
+    private String currentWorkoutId;
 }

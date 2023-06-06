@@ -61,9 +61,9 @@ public class UserManager {
             }
             currentUserModule.setCurrentUserAndWorkout(userAndWorkout);
             result.setData(userAndWorkout);
-        } catch (IOException | ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem getting your data.");
+            result.setErrorMessage("There was a problem getting your data. Suggest upgrading your app if applicable to try and resolve the issue.");
         }
 
         return result;
@@ -78,6 +78,7 @@ public class UserManager {
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
                 if (((LiteWeightNetworkException) e).getErrorType().equals(ErrorTypes.alreadyExists)) {
+                    // todo helper method ^
                     result.setErrorMessage("Invalid username");
                 }
             } else {
@@ -158,12 +159,12 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> setFirebaseToken(String firebaseToken) {
+    public Result<String> setFirebaseMessagingToken(String firebaseToken) {
         Result<String> result = new Result<>();
 
         // todo write directly to firebase since it is just one property?
         try {
-            this.selfRepository.linkFirebaseToken(firebaseToken);
+            this.selfRepository.linkFirebaseMessagingToken(firebaseToken);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem linking the firebase token.");
@@ -172,11 +173,11 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> unlinkFirebaseToken() {
+    public Result<String> unlinkFirebaseMessagingToken() {
         Result<String> result = new Result<>();
 
         try {
-            this.selfRepository.unlinkFirebaseToken();
+            this.selfRepository.unlinkFirebaseMessagingToken();
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem unlinking the firebase token.");

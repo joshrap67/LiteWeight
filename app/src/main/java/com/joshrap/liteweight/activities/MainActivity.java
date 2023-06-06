@@ -512,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for unlinking firebase token
-            userManager.unlinkFirebaseToken();
+            userManager.unlinkFirebaseMessagingToken();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -660,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 // blind send for now for updating notification token
-                userManager.setFirebaseToken(token);
+                userManager.setFirebaseMessagingToken(token);
             });
         });
     }

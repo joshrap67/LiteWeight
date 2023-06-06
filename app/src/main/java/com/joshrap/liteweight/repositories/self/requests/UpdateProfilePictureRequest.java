@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class UpdateProfilePictureRequest extends BodyRequest {
 
-    private byte[] imageData;
+    private byte[] profilePictureData;
 }

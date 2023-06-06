@@ -86,7 +86,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private List<WorkoutInfo> workoutList;
     private WorkoutsAdapter workoutsAdapter;
     private boolean isPremium;
-    private int workoutsSent;
+//    private int workoutsSent;
 
     @Inject
     AlertDialog loadingDialog;
@@ -115,7 +115,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         User user = currentUserModule.getUser();
         isPremium = user.isPremium();
         workoutList = new ArrayList<>(user.getWorkouts());
-        workoutsSent = user.getWorkoutsSent();
+//        workoutsSent = user.getWorkoutsSent();
 
         View view;
         if (currentWorkout == null) {
@@ -186,7 +186,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     promptDelete();
                     return true;
                 case sendIndex:
-                    if (isPremium || workoutsSent < Variables.MAX_FREE_WORKOUTS_SENT) {
+                    if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
                         promptShare();
                     } else {
                         AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
@@ -446,11 +446,14 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
-        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - workoutsSent;
-        if (remainingAmount < 0) {
-            remainingAmount = 0; // lol. Just to cover my ass in case
+
+        if (!isPremium) {
+            int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - currentUserModule.getUser().getWorkoutsSent();
+            if (remainingAmount <= 0) {
+                remainingToSendTv.setVisibility(View.VISIBLE);
+                remainingToSendTv.setText(R.string.max_workouts_sent);
+            }
         }
-        remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
 
         List<Friend> friends = new ArrayList<>();
         for (Friend friend : currentUserModule.getUser().getFriends()) {
@@ -497,7 +500,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
-                    if (!isPremium && workoutsSent >= Variables.MAX_FREE_WORKOUTS_SENT) {
+                    if (!isPremium && currentUserModule.getUser().getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
                         AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed to share.", getContext());
                     } else {
                         shareWorkout(username, currentWorkout.getWorkoutId());

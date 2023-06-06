@@ -174,4 +174,5 @@
     <string name="settings">Settings</string>
     <string name="description">Description</string>
     <string name="report_user_msg">Please give a brief description of why you wish to report this user.\n\nYour complaint will be reviewed as soon as possible, and if appropriate you will receive an update on any disciplinary action taken as a result of your report.</string>
+    <string name="max_workouts_sent">You have shared the maximum amount of workouts. Contact the developer to request unlimited sharing.</string>
 </resources>

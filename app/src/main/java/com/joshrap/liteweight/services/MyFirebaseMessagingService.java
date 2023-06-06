@@ -60,7 +60,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onNewToken(token);
         // todo not necessary?
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> userManager.setFirebaseToken(token));
+        executor.execute(() -> userManager.setFirebaseMessagingToken(token));
     }
 
     @Override

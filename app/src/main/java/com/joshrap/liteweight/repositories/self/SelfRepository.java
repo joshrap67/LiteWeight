@@ -16,7 +16,7 @@ import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
 import com.joshrap.liteweight.repositories.self.requests.CreateUserRequest;
 import com.joshrap.liteweight.repositories.self.requests.SetCurrentWorkoutRequest;
-import com.joshrap.liteweight.repositories.self.requests.LinkFirebaseTokenRequest;
+import com.joshrap.liteweight.repositories.self.requests.LinkFirebaseMessagingTokenRequest;
 import com.joshrap.liteweight.repositories.self.requests.SetUserSettingsRequest;
 import com.joshrap.liteweight.repositories.self.requests.UpdateProfilePictureRequest;
 import com.joshrap.liteweight.models.user.User;
@@ -30,8 +30,8 @@ import javax.inject.Inject;
 public class SelfRepository {
 
     private static final String updateProfilePictureRoute = "profile-picture";
-    private static final String linkFirebaseTokenRoute = "link-firebase-token";
-    private static final String unlinkFirebaseTokenRoute = "unlink-firebase-token";
+    private static final String linkFirebaseTokenRoute = "link-firebase-messaging-token";
+    private static final String unlinkFirebaseTokenRoute = "unlink-firebase-messaging-token";
     private static final String setAllFriendRequestsSeenRoute = "all-friend-requests-seen";
     private static final String setSettingsRoute = "settings";
     private static final String setCurrentWorkoutRoute = "current-workout";
@@ -54,7 +54,6 @@ public class SelfRepository {
     // using firebase directly for optimized reads
     public User getSelf() throws ExecutionException, InterruptedException, JsonProcessingException {
         User user = null;
-        // todo if schema changes this will fail. might need a singleton collection with the version the db supports?
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -73,7 +72,7 @@ public class SelfRepository {
         return user;
     }
 
-    public User createSelf(String username, byte[] profilePictureData, boolean metricUnits) throws IOException, LiteWeightNetworkException, ExecutionException, InterruptedException {
+    public User createSelf(String username, byte[] profilePictureData, boolean metricUnits) throws IOException, LiteWeightNetworkException {
         BodyRequest body = new CreateUserRequest(username, profilePictureData, metricUnits);
         String apiResponse = this.apiGateway.post(selfRoute, body);
 
@@ -87,14 +86,14 @@ public class SelfRepository {
         this.apiGateway.put(route, body);
     }
 
-    public void linkFirebaseToken(String tokenId) throws IOException, LiteWeightNetworkException {
-        BodyRequest body = new LinkFirebaseTokenRequest(tokenId);
+    public void linkFirebaseMessagingToken(String tokenId) throws IOException, LiteWeightNetworkException {
+        BodyRequest body = new LinkFirebaseMessagingTokenRequest(tokenId);
         String route = getRoute(selfRoute, linkFirebaseTokenRoute);
 
         this.apiGateway.put(route, body);
     }
 
-    public void unlinkFirebaseToken() throws IOException, LiteWeightNetworkException {
+    public void unlinkFirebaseMessagingToken() throws IOException, LiteWeightNetworkException {
         String route = getRoute(selfRoute, unlinkFirebaseTokenRoute);
         this.apiGateway.put(route);
     }

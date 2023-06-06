@@ -167,9 +167,6 @@ public class ApiGateway {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             BadRequestResponse badRequestResponse = this.objectMapper.readValue(jsonResponse, BadRequestResponse.class);
             throw new LiteWeightNetworkException(badRequestResponse.getErrorType(), badRequestResponse.getMessage());
-        } else if (responseCode == versionUpgradeCode) {
-            // todo probably unnecessary now due to reading directly from firebase
-            throw new LiteWeightNetworkException(ErrorTypes.upgradeRequired, "You must upgrade your version of LiteWeight to continue.");
         } else {
             String jsonResponse = getJsonFromStream(httpURLConnection.getErrorStream());
             ErrorResponse errorResponse = this.objectMapper.readValue(jsonResponse, ErrorResponse.class);

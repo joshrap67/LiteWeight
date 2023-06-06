@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LinkFirebaseTokenRequest extends BodyRequest {
+public class LinkFirebaseMessagingTokenRequest extends BodyRequest {
 
-    private String firebaseToken;
+    private String firebaseMessagingToken;
 }

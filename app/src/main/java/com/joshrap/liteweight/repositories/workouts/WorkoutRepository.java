@@ -97,7 +97,7 @@ public class WorkoutRepository {
         String route = getRoute(workoutsRoute, workoutId, renameWorkoutRoute);
         BodyRequest body = new RenameWorkoutRequest(workoutName);
 
-        this.apiGateway.post(route, body);
+        this.apiGateway.put(route, body);
     }
 
     public void deleteWorkoutAndSetCurrent(String workoutId, String currentWorkoutId) throws IOException, LiteWeightNetworkException {

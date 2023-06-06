@@ -78,7 +78,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     private Stopwatch stopwatch;
     private boolean isMetricUnits;
     private Map<String, OwnedExercise> exerciseIdToExercise;
-    //    private Routine routine;
     private AlertDialog alertDialog;
     private RecyclerView recyclerView;
     private ProgressBar workoutProgressBar;
@@ -130,7 +129,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             return;
         }
 
-//        routine = currentUserAndWorkoutProvider.provideCurrentWorkout().getRoutine();
         currentWeekIndex = currentUserModule.getCurrentWeek();
         currentDayIndex = currentUserModule.getCurrentDay();
 
@@ -411,7 +409,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-//                    routine = currentUserAndWorkoutProvider.provideCurrentWorkout().getRoutine();
                     currentDayIndex = 0;
                     currentWeekIndex = 0;
 

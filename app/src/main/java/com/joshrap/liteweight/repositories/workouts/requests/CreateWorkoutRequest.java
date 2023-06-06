@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class CreateWorkoutRequest extends BodyRequest {
 
-    private String workoutName;
+    private String name;
     private SetRoutineRequest routine;
     private boolean setAsCurrentWorkout;
 
-    public CreateWorkoutRequest(String workoutName, Routine routine, boolean setAsCurrentWorkout) {
-        this.workoutName = workoutName;
+    public CreateWorkoutRequest(String name, Routine routine, boolean setAsCurrentWorkout) {
+        this.name = name;
         this.routine = new SetRoutineRequest(routine);
         this.setAsCurrentWorkout = setAsCurrentWorkout;
     }
