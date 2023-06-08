@@ -10,6 +10,7 @@ public class ValidatorUtils {
 
     // todo unit test all these
     private static final Pattern validUsername = Pattern.compile(".*[A-Z\\d._%+-].*", Pattern.CASE_INSENSITIVE);
+    public static final String passwordNotMatchingMsg = "Passwords do not match.";
 
     /**
      * Ensures that a URL has the correct format.
@@ -208,6 +209,7 @@ public class ValidatorUtils {
         password = password.trim();
         String retVal = null;
         String errorMsg = "";
+        // todo ease a bit
         if (password.length() < Variables.MIN_PASSWORD_LENGTH) {
             errorMsg += "Must have at least " + Variables.MIN_PASSWORD_LENGTH + " characters.\n";
         }
@@ -298,6 +300,8 @@ public class ValidatorUtils {
                 retVal = "Already friends with this user.";
             } else if (activeUser.equals(username)) {
                 retVal = "Can't be friends with yourself. Sorry.";
+            } else if (existingFriends.size() >= Variables.MAX_FRIENDS) {
+                retVal = "You're too popular! You have reached the maximum number of friends allowed at this time.";
             }
         }
         return retVal;

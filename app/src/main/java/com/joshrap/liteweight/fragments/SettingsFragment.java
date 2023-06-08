@@ -1,7 +1,9 @@
 package com.joshrap.liteweight.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -9,27 +11,50 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.UserSettings;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.FirebaseUtils;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -38,11 +63,14 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements FragmentWithDialog {
 
     private UserSettings userSettings;
     private boolean metricChanged, privateChanged, saveChanged, restartChanged;
     private int dangerZoneRotationAngle;
+    private AlertDialog alertDialog;
+    private GoogleSignInClient googleSignInClient;
+    private FirebaseAuth auth;
 
     @Inject
     UserManager userManager;
@@ -50,6 +78,8 @@ public class SettingsFragment extends Fragment {
     SharedPreferences sharedPreferences;
     @Inject
     CurrentUserModule currentUserModule;
+    @Inject
+    AlertDialog loadingDialog;
     private SwitchCompat privateSwitch, metricSwitch, updateOnSaveSwitch, updateOnRestartSwitch;
 
     @Nullable
@@ -61,6 +91,13 @@ public class SettingsFragment extends Fragment {
         ((MainActivity) getActivity()).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(BackendConfig.googleSignInClientId)
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        auth = FirebaseAuth.getInstance();
 
         userSettings = currentUserModule.getUser().getSettings();
         metricChanged = false;
@@ -158,9 +195,118 @@ public class SettingsFragment extends Fragment {
             dangerZoneIcon.animate().rotation(dangerZoneRotationAngle).setDuration(400).start();
             TransitionManager.beginDelayedTransition(container, new AutoTransition());
         };
+        deleteAccountTV.setOnClickListener(v -> promptDeleteAccount());
         dangerZoneLayout.setOnClickListener(dangerZoneClicked);
         dangerZoneIcon.setOnClickListener(dangerZoneClicked);
         return view;
+    }
+
+    private void promptDeleteAccount() {
+        boolean requirePassword = FirebaseUtils.userHasPassword(auth.getCurrentUser());
+        View popupView = getLayoutInflater().inflate(R.layout.popup_delete_account, null);
+        EditText passwordInput = popupView.findViewById(R.id.password_input);
+        TextInputLayout passwordInputLayout = popupView.findViewById(R.id.password_input_layout);
+        passwordInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(passwordInputLayout));
+
+        TextView deleteAccountTV = popupView.findViewById(R.id.delete_account_msg_tv);
+        if (requirePassword) {
+            deleteAccountTV.setText(R.string.delete_account_with_password_msg);
+            passwordInputLayout.setVisibility(View.VISIBLE);
+        } else {
+            deleteAccountTV.setText(R.string.delete_account_with_social_msg);
+            passwordInputLayout.setVisibility(View.GONE);
+        }
+
+        alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle("Delete Account")
+                .setView(popupView)
+                .setPositiveButton("Delete", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button deleteButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button cancelButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            cancelButton.setTextColor(Color.WHITE);
+            deleteButton.setTextColor(ContextCompat.getColor(getContext(), R.color.danger_zone));
+            deleteButton.setOnClickListener(view -> {
+                String password = passwordInput.getText().toString().trim();
+                if (requirePassword && password.isEmpty()) {
+                    passwordInputLayout.setError("Required");
+                } else if (requirePassword) {
+                    alertDialog.dismiss();
+                    deleteAccount(EmailAuthProvider.getCredential(currentUserModule.getUser().getEmail(), password));
+                } else {
+                    alertDialog.dismiss();
+                    googleSignIn();
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result == null)
+                    return;
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    handleGoogleSignInResult(task);
+                }
+            });
+
+    private void googleSignIn() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (!account.getEmail().equals(currentUserModule.getUser().getEmail())) {
+                Toast.makeText(getContext(), "Gmail does not match email of user.", Toast.LENGTH_SHORT).show();
+                googleSignOut();
+                return;
+            }
+            String idToken = account.getIdToken();
+            AuthCredential firebaseCredential = GoogleAuthProvider.getCredential(idToken, null);
+            googleSignOut();
+            deleteAccount(firebaseCredential);
+        } catch (ApiException e) {
+            AndroidUtils.showErrorDialog("There was an error signing in with Google.", getContext());
+        }
+    }
+
+    private void googleSignOut() {
+        // only using google sign in for getting id token to link to firebase. Can immediately log out once getting that token
+        googleSignInClient.signOut();
+    }
+
+    private void deleteAccount(AuthCredential credential) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Deleting account...");
+        FirebaseUser user = auth.getCurrentUser();
+
+        user.reauthenticate(credential).addOnCompleteListener(reAuthTask -> {
+            if (reAuthTask.isSuccessful()) {
+                Executor executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    Result<String> result = this.userManager.deleteSelf();
+                    Handler handler = new Handler(getMainLooper());
+                    handler.post(() -> {
+                        loadingDialog.dismiss();
+                        if (result.isSuccess()) {
+                            ((MainActivity) getActivity()).forceKill();
+                        } else {
+                            AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
+                        }
+                    });
+                });
+            } else {
+                loadingDialog.dismiss();
+                AndroidUtils.showErrorDialog("There was a problem with authentication.", getContext());
+            }
+        });
     }
 
     @Override
@@ -184,6 +330,13 @@ public class SettingsFragment extends Fragment {
                     }
                 });
             });
+        }
+    }
+
+    @Override
+    public void hideAllDialogs() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
     }
 }

@@ -12,12 +12,14 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -473,8 +475,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             final TextView workoutNameTV;
             final TextView dateSentTV;
             final TextView senderTV;
-            final Button acceptButton;
-            final Button declineButton;
+            final Button respondButton;
             final RelativeLayout rootLayout;
 
             ViewHolder(View itemView) {
@@ -483,8 +484,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 dateSentTV = itemView.findViewById(R.id.date_sent_tv);
                 senderTV = itemView.findViewById(R.id.sender_tv);
                 rootLayout = itemView.findViewById(R.id.root_layout);
-                acceptButton = itemView.findViewById(R.id.accept_workout_btn);
-                declineButton = itemView.findViewById(R.id.decline_workout_btn);
+                respondButton = itemView.findViewById(R.id.respond_btn);
             }
         }
 
@@ -522,24 +522,32 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             TextView workoutNameTV = holder.workoutNameTV;
             TextView senderTV = holder.senderTV;
             TextView dateSentTv = holder.dateSentTV;
-            Button acceptButton = holder.acceptButton;
-            Button declineButton = holder.declineButton;
+            Button respondButton = holder.respondButton;
 
-            declineButton.setOnClickListener(view -> declineWorkout(receivedWorkout));
-            acceptButton.setOnClickListener(view -> {
-                boolean workoutNameExists = false;
-                for (WorkoutInfo workoutInfo : currentUserModule.getUser().getWorkouts()) {
-                    if (workoutInfo.getWorkoutName().equals(receivedWorkout.getWorkoutName())) {
-                        workoutNameExists = true;
-                        break;
-                    }
+            final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), respondButton);
+            Menu moreMenu = dropDownRoutineDayMenu.getMenu();
+            final int acceptWorkoutId = 0;
+            final int declineWorkoutId = 1;
+            moreMenu.add(0, acceptWorkoutId, 0, "Accept Workout");
+            moreMenu.add(0, declineWorkoutId, 0, "Decline Workout");
+
+            dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case acceptWorkoutId:
+                        boolean workoutNameExists = currentUserModule.getUser().getWorkouts().stream().anyMatch(x -> x.getWorkoutName().equals(receivedWorkout.getWorkoutName()));
+                        if (workoutNameExists) {
+                            workoutNameAlreadyExistsPopup(receivedWorkout);
+                        } else {
+                            acceptWorkout(receivedWorkout, null);
+                        }
+                        return true;
+                    case declineWorkoutId:
+                        declineWorkout(receivedWorkout);
+                        return true;
                 }
-                if (workoutNameExists) {
-                    workoutNameAlreadyExistsPopup(receivedWorkout);
-                } else {
-                    acceptWorkout(receivedWorkout, null);
-                }
+                return false;
             });
+            respondButton.setOnClickListener(v -> dropDownRoutineDayMenu.show());
 
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSenderUsername()));
 

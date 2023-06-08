@@ -28,6 +28,7 @@ public class Variables {
     public static final int DEFAULT_TIMER_VALUE = 60000;
     public static final int MAX_FREE_WORKOUTS_SENT = 50;
     public static final int MAX_FREE_WORKOUTS = 10;
+    public static final int MAX_FRIENDS = 1000;
     public static final int MAX_WORKOUTS = 20;
     public static final int DEFAULT_WEIGHT = 0;
     public static final int DEFAULT_SETS = 3;
@@ -59,6 +60,7 @@ public class Variables {
     public static final String NEW_EXERCISE_TITLE = "New Exercise";
     public static final String ACCOUNT_TITLE = "My Account";
     public static final String SETTINGS_TITLE = "Settings";
+    public static final String CHANGE_PASSWORD = "Change Password";
     public static final String FRIENDS_LIST_TITLE = "Friends List";
     public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";

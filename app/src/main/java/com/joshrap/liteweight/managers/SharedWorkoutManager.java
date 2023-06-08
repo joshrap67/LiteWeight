@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.managers;
 
+import static com.joshrap.liteweight.utils.NetworkUtils.getLiteWeightError;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.models.ErrorTypes;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
@@ -56,7 +58,7 @@ public class SharedWorkoutManager {
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
-                if (((LiteWeightNetworkException) e).getErrorType().equals(ErrorTypes.userNotFound)) {
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.userNotFound)) {
                     result.setErrorMessage("User does not exist.");
                 }
             } else {

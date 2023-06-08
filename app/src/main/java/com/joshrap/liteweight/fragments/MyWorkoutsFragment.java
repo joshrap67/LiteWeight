@@ -563,11 +563,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
+                    workoutList.removeIf(x -> x.getWorkoutId().equals(currentWorkout.getWorkoutId()));
                     setCurrentWorkout(nextWorkoutId);
                     if (currentWorkout == null) {
                         // change view to tell user to create a workout
                         resetFragment();
                     } else {
+
                         updateUI();
                     }
                 } else {

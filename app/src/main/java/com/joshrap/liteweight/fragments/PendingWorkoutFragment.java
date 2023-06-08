@@ -498,7 +498,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void finishRearrangeMode() {
         isRearranging = false;
         saveWorkoutButton.setVisibility(View.VISIBLE);
-        addWeekButton.setVisibility(View.VISIBLE);
+        if (pendingRoutine.totalWeeks() < Variables.MAX_NUMBER_OF_WEEKS) {
+            addWeekButton.setVisibility(View.VISIBLE);
+        }
         rearrangeButton.setVisibility(View.VISIBLE);
 
         rearrangeHintTV.setVisibility(View.GONE);

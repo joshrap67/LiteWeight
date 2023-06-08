@@ -175,4 +175,9 @@
     <string name="description">Description</string>
     <string name="report_user_msg">Please give a brief description of why you wish to report this user.\n\nYour complaint will be reviewed as soon as possible, and if appropriate you will receive an update on any disciplinary action taken as a result of your report.</string>
     <string name="max_workouts_sent">You have shared the maximum amount of workouts. Contact the developer to request unlimited sharing.</string>
+    <string name="current_password_hint">Current Password</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="confirm_new_password_hint">Confirm New Password</string>
+    <string name="delete_account_with_password_msg">Are you sure you want to delete your account? This action is permanent and irreversible.\n\nTo continue please confirm your password.</string>
+    <string name="delete_account_with_social_msg">Are you sure you want to delete your account? This action is permanent and irreversible.\n\nTo continue please log in with your social provider. After logging in, your account will be permanently deleted.</string>
 </resources>

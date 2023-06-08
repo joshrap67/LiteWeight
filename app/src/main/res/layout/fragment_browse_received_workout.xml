@@ -73,8 +73,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_margin="8dp"
                 android:layout_toStartOf="@id/space"
-                android:text="@string/previous_day"
-                app:shapeAppearance="@style/roundedButton" />
+                android:text="@string/previous_day" />
 
         <View
                 android:id="@+id/space"
@@ -91,7 +90,6 @@
                 android:layout_alignParentBottom="true"
                 android:layout_margin="8dp"
                 android:layout_toEndOf="@id/space"
-                android:text="@string/next_day"
-                app:shapeAppearance="@style/roundedButton" />
+                android:text="@string/next_day" />
     </RelativeLayout>
 </RelativeLayout>

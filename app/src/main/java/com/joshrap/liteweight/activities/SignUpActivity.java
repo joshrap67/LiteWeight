@@ -1,10 +1,10 @@
 package com.joshrap.liteweight.activities;
 
+import static com.joshrap.liteweight.utils.ValidatorUtils.passwordNotMatchingMsg;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -14,7 +14,6 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.common.base.Strings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.joshrap.liteweight.R;
@@ -23,7 +22,6 @@ import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 
 public class SignUpActivity extends AppCompatActivity {
-    private static final String passwordNotMatchingMsg = "Passwords do not match.";
 
     private EditText emailInput, passwordInput, passwordConfirmInput;
     private TextInputLayout emailLayout, passwordConfirmLayout, passwordLayout;
@@ -86,85 +84,13 @@ public class SignUpActivity extends AppCompatActivity {
                 passwordLayout.setError(errorMessage);
             }
         });
-        passwordInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String errorMessage = ValidatorUtils.validNewPassword(passwordInput.getText().toString().trim());
-                passwordLayout.setError(errorMessage);
+        AndroidUtils.setPasswordRequirementsWatcher(passwordInput, passwordLayout, passwordConfirmInput, passwordConfirmLayout);
 
-                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(errorMessage)) {
-                    passwordLayout.setError(passwordNotMatchingMsg);
-                } else if (passwordsDoNotMatch()) {
-                    passwordLayout.setError(errorMessage + passwordNotMatchingMsg);
-                } else {
-                    passwordLayout.setError(errorMessage);
-                    passwordLayout.setErrorEnabled(errorMessage != null);
-                }
-
-                String confirmPassword = passwordConfirmInput.getText().toString().trim();
-                if (confirmPassword.isEmpty()) return;
-
-                String confirmPasswordErrorMessage = ValidatorUtils.validNewPassword(confirmPassword);
-                if (passwordsDoNotMatch() && confirmPasswordErrorMessage == null) {
-                    passwordConfirmLayout.setError(passwordNotMatchingMsg);
-                } else if (passwordsDoNotMatch()) {
-                    passwordConfirmLayout.setError(confirmPasswordErrorMessage + passwordNotMatchingMsg);
-                } else {
-                    passwordConfirmLayout.setError(confirmPasswordErrorMessage);
-                    passwordConfirmLayout.setErrorEnabled(confirmPasswordErrorMessage != null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        passwordConfirmInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String errorMessage = ValidatorUtils.validNewPassword(passwordConfirmInput.getText().toString().trim());
-
-                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(errorMessage)) {
-                    passwordConfirmLayout.setError(passwordNotMatchingMsg);
-                } else if (passwordsDoNotMatch()) {
-                    passwordConfirmLayout.setError(errorMessage + passwordNotMatchingMsg);
-                } else {
-                    passwordConfirmLayout.setError(errorMessage);
-                    passwordConfirmLayout.setErrorEnabled(errorMessage != null);
-                }
-
-                String password = passwordInput.getText().toString().trim();
-                if (password.isEmpty()) return;
-
-                String passwordErrorMessage = ValidatorUtils.validNewPassword(password);
-                if (passwordsDoNotMatch() && Strings.isNullOrEmpty(passwordErrorMessage)) {
-                    passwordLayout.setError(passwordNotMatchingMsg);
-                } else if (passwordsDoNotMatch()) {
-                    passwordLayout.setError(passwordErrorMessage + passwordNotMatchingMsg);
-                } else {
-                    passwordLayout.setError(passwordErrorMessage);
-                    passwordLayout.setErrorEnabled(passwordErrorMessage != null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
         passwordConfirmInput.setOnKeyListener((View view, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 // if all valid input, try to sign up after user hits enter button
                 if (validSignUpInput()) {
-                    hideKeyboard(getCurrentFocus());
                     attemptSignUp(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim());
                 }
                 return true;
@@ -184,6 +110,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void attemptSignUp(String email, String password) {
+        hideKeyboard();
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
@@ -243,8 +170,7 @@ public class SignUpActivity extends AppCompatActivity {
             validInput = false;
         }
         // make sure that the passwords match assuming they are actually valid
-        if (passwordErrorMsg == null && passwordConfirmErrorMsg == null &&
-                !passwordInput.getText().toString().trim().equals(passwordConfirmInput.getText().toString().trim())) {
+        if (passwordsDoNotMatch()) {
             passwordLayout.setError(passwordNotMatchingMsg);
             passwordLayout.startAnimation(AndroidUtils.shakeError(2));
             passwordConfirmLayout.setError(passwordNotMatchingMsg);
@@ -255,10 +181,10 @@ public class SignUpActivity extends AppCompatActivity {
         return validInput;
     }
 
-    private void hideKeyboard(View view) {
-        if (view != null) {
+    private void hideKeyboard() {
+        if (getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
 }

@@ -26,7 +26,7 @@
         <item name="android:dividerHeight">1dp</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="checkboxStyle">@style/CheckBoxStyle</item>
-        <item name="materialButtonStyle">@style/ButtonStyle</item>
+        <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
         <item name="android:textCursorDrawable">@null
         </item> <!-- Hack. But for some reason this was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>

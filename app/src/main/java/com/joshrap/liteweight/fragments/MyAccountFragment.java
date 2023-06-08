@@ -32,6 +32,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.FirebaseUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -68,7 +69,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
         ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
@@ -88,10 +89,13 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
-
-        String provider = "";
-        // todo need to hide fields if they do not have email/password auth on their firebase user
-
+        LinearLayout passwordLayout = view.findViewById(R.id.password_layout);
+        if (FirebaseUtils.userHasPassword(user)) {
+            passwordLayout.setVisibility(View.VISIBLE);
+            passwordLayout.setOnClickListener(v -> ((MainActivity) getActivity()).goToChangePassword());
+        } else {
+            passwordLayout.setVisibility(View.GONE);
+        }
 
         TextView emailTV = view.findViewById(R.id.email_tv);
         emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);

@@ -4,8 +4,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:layout_marginHorizontal="4dp">
+        android:layout_marginHorizontal="4dp"
+        android:animateLayoutChanges="true">
 
     <TextView
             android:id="@+id/day_title_tv"
@@ -120,8 +120,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/timer_icon_btn"
                 android:maxLines="1"
-                android:text="@string/previous_day"
-                app:shapeAppearance="@style/roundedButton" />
+                android:text="@string/previous_day" />
 
         <ImageButton
                 android:id="@+id/timer_icon_btn"
@@ -142,7 +141,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@id/timer_icon_btn"
                 android:maxLines="1"
-                android:text="@string/next_day"
-                app:shapeAppearance="@style/roundedButton" />
+                android:text="@string/next_day" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

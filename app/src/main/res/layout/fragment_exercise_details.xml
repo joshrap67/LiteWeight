@@ -334,7 +334,7 @@
                 android:layout_weight="1"
                 android:text="@string/delete"
                 android:textColor="@color/color_accent"
-                app:backgroundTint="@color/deny_color" />
+                app:backgroundTint="@color/delete_color" />
 
         <Button
                 android:id="@+id/save_fab"
@@ -342,7 +342,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/save"
-                android:textColor="@color/color_accent"
-                app:backgroundTint="@color/color_primary" />
+                android:textColor="@color/color_accent" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

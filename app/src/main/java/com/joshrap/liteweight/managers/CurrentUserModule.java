@@ -20,7 +20,7 @@ public class CurrentUserModule {
     }
 
     public boolean isWorkoutPresent() {
-        return currentUserAndWorkout.isWorkoutPresent();
+        return currentUserAndWorkout != null && currentUserAndWorkout.isWorkoutPresent();
     }
 
     public void setCurrentWeekAndDay(int currentWeek, int currentDay) {

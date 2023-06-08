@@ -79,6 +79,11 @@ public class SelfRepository {
         return this.objectMapper.readValue(apiResponse, User.class);
     }
 
+    public void deleteSelf() throws IOException, LiteWeightNetworkException {
+        String route = getRoute(selfRoute);
+        this.apiGateway.delete(route);
+    }
+
     public void updateProfilePicture(byte[] pictureData) throws IOException, LiteWeightNetworkException {
         UpdateProfilePictureRequest body = new UpdateProfilePictureRequest(pictureData);
         String route = getRoute(selfRoute, updateProfilePictureRoute);

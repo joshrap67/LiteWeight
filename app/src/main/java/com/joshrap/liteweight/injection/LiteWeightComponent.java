@@ -7,6 +7,7 @@ import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.activities.SignInActivity;
 import com.joshrap.liteweight.activities.UnverifiedActivity;
 import com.joshrap.liteweight.fragments.AboutFragment;
+import com.joshrap.liteweight.fragments.ChangePasswordFragment;
 import com.joshrap.liteweight.fragments.SettingsFragment;
 import com.joshrap.liteweight.fragments.ClockBottomFragment;
 import com.joshrap.liteweight.fragments.PendingWorkoutFragment;
@@ -71,4 +72,6 @@ public interface LiteWeightComponent {
     void inject(MyFirebaseMessagingService myFirebaseMessagingService);
 
     void inject(UnverifiedActivity unverifiedActivity);
+
+    void inject(ChangePasswordFragment changePasswordFragment);
 }

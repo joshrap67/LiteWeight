@@ -129,7 +129,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         friends = new ArrayList<>(user.getFriends());
         friendRequests = new ArrayList<>(user.getFriendRequests());
         workouts.addAll(user.getWorkouts());
-        isPremium = user.getPremiumToken() != null;
+        isPremium = user.isPremium();
 
         notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 

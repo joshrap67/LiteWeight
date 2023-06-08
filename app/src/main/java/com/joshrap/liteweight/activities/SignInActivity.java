@@ -42,7 +42,7 @@ public class SignInActivity extends AppCompatActivity {
     private EditText emailInput, passwordInput;
     private TextInputLayout emailInputLayout, passwordInputLayout;
     private GoogleSignInClient googleSignInClient;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
 
     @Inject
     AlertDialog loadingDialog;
@@ -56,7 +56,7 @@ public class SignInActivity extends AppCompatActivity {
                 .requestIdToken(BackendConfig.googleSignInClientId)
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_sign_in_layout);
 
@@ -113,7 +113,7 @@ public class SignInActivity extends AppCompatActivity {
             AuthCredential firebaseCredential = GoogleAuthProvider.getCredential(idToken, null);
 
             AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
-            mAuth.signInWithCredential(firebaseCredential).addOnCompleteListener(this, task -> {
+            auth.signInWithCredential(firebaseCredential).addOnCompleteListener(this, task -> {
                 loadingDialog.dismiss();
                 googleSignOut();
                 if (task.isSuccessful()) {
@@ -184,10 +184,10 @@ public class SignInActivity extends AppCompatActivity {
     private void attemptSignIn(String email, String password) {
         hideKeyboard(getCurrentFocus());
         AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             loadingDialog.dismiss();
             if (task.isSuccessful()) {
-                FirebaseUser user = mAuth.getCurrentUser();
+                FirebaseUser user = auth.getCurrentUser();
                 if (user != null && user.isEmailVerified()) {
                     launchMainActivity();
                 } else if (user != null && !user.isEmailVerified()) {

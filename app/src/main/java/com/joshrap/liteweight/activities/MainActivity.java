@@ -505,6 +505,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // stop any timer/stopwatch services that may be running.
         stopService(new Intent(this, TimerService.class));
         stopService(new Intent(this, StopwatchService.class));
+        timer.stopTimer();
+        stopwatch.stopStopwatch();
         syncCurrentWorkout();
         currentUserModule.clear();
 
@@ -526,9 +528,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 FirebaseAuth.getInstance().signOut();
 
-                timer.stopTimer();
-                stopwatch.stopStopwatch();
-
                 // take user back to sign in activity
                 Intent intent = new Intent(this, SignInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -536,6 +535,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 finish();
             });
         });
+    }
+
+    // utilized when deleting account
+    public void forceKill() {
+        // stop any timer/stopwatch services that may be running.
+        stopService(new Intent(this, TimerService.class));
+        stopService(new Intent(this, StopwatchService.class));
+        timer.stopTimer();
+        stopwatch.stopStopwatch();
+        currentUserModule.clear();
+        EventBus.getDefault().unregister(this);
+
+        // clear all notifications
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancelAll();
+        }
+        FirebaseAuth.getInstance().signOut();// todo do i need this if account is deleted?
+        // todo shared method for these? ^
+
+        // take user back to sign in activity
+        Intent intent = new Intent(this, SignInActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     // service that continues the stopwatch's progress
@@ -951,6 +975,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, new SettingsFragment(), Variables.SETTINGS_TITLE)
+                .commit();
+    }
+
+    public void goToChangePassword() {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.CHANGE_PASSWORD);
+        fragmentStack.add(0, Variables.CHANGE_PASSWORD);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
+                .replace(R.id.fragment_container, new ChangePasswordFragment(), Variables.CHANGE_PASSWORD)
                 .commit();
     }
 

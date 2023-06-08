@@ -1,5 +1,7 @@
 package com.joshrap.liteweight.managers;
 
+import static com.joshrap.liteweight.utils.NetworkUtils.getLiteWeightError;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.models.ErrorTypes;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
@@ -19,9 +21,7 @@ import com.joshrap.liteweight.repositories.users.responses.ReportUserResponse;
 import com.joshrap.liteweight.repositories.users.responses.SearchByUsernameResponse;
 import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -77,14 +77,25 @@ public class UserManager {
             result.setData(user);
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
-                if (((LiteWeightNetworkException) e).getErrorType().equals(ErrorTypes.alreadyExists)) {
-                    // todo helper method ^
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.alreadyExists)) {
                     result.setErrorMessage("Invalid username");
                 }
             } else {
                 FirebaseCrashlytics.getInstance().recordException(e);
                 result.setErrorMessage("There was a problem creating the user.");
             }
+        }
+
+        return result;
+    }
+
+    public Result<String> deleteSelf() {
+        Result<String> result = new Result<>();
+        try {
+            this.selfRepository.deleteSelf();
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            result.setErrorMessage("There was a problem deleting the user.");
         }
 
         return result;
@@ -198,8 +209,10 @@ public class UserManager {
             result.setData(friend);
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
-                if (((LiteWeightNetworkException) e).getErrorType().equals(ErrorTypes.userNotFound)) {
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.userNotFound)) {
                     result.setErrorMessage("User does not exist.");
+                } else if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.maxLimit)) {
+                    result.setErrorMessage("Recipient user received too many friend requests.");
                 }
             } else {
                 FirebaseCrashlytics.getInstance().recordException(e);
@@ -274,8 +287,14 @@ public class UserManager {
             Friend friend = new Friend(friendRequest.getUserId(), friendRequest.getUsername(), friendRequest.getProfilePicture(), true);
             user.addFriend(friend);
         } catch (Exception e) {
-            FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem accepting the friend request.");
+            if (e instanceof LiteWeightNetworkException) {
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.maxLimit)) {
+                    result.setErrorMessage("Accepting this would put you over the maximum allowed number of friends.");
+                }
+            } else {
+                FirebaseCrashlytics.getInstance().recordException(e);
+                result.setErrorMessage("There was a problem accepting the friend request.");
+            }
         }
 
         return result;

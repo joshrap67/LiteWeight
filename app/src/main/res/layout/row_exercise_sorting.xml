@@ -27,8 +27,8 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@id/weight_btn"
             android:layout_toEndOf="@id/drag_icon_image"
-            android:clickable="true"
-            android:focusable="true"
+            android:clickable="false"
+            android:focusable="false"
             android:textSize="18sp"
             tools:text="Exercise Name" />
 
@@ -37,8 +37,8 @@
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:clickable="true"
+            android:background="@color/transparent"
+            android:clickable="false"
             android:focusable="true"
             android:textAllCaps="false"
             tools:text="25 lb" />

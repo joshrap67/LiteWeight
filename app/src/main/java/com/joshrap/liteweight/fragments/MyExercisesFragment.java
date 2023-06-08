@@ -58,7 +58,7 @@ public class MyExercisesFragment extends Fragment {
         focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
         User user = currentUserModule.getUser();
-        isPremium = user.getPremiumToken() != null; // todo abstract into method
+        isPremium = user.isPremium();
         for (String focus : focusList) {
             // init the map of a specific focus to the list of exercises it contains
             totalExercises.put(focus, new ArrayList<>());

@@ -4,7 +4,7 @@
     <color name="color_accent">#FFFFFF</color>
     <color name="default_text_color">#FFFFFF</color>
     <color name="hint_color">#BEFFFFFF</color>
-    <color name="deny_color">#2d4440</color>
+    <color name="delete_color">#B71C1C</color>
     <color name="color_control">#02F88F</color>
     <color name="danger_zone">#D32F2F</color>
     <color name="notification_color">#FFFFFF</color>

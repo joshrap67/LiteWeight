@@ -76,17 +76,19 @@
 
         <Button
                 android:id="@+id/save_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/save_workout" />
 
         <Button
                 android:id="@+id/done_rearranging_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/done_rearranging"
                 android:visibility="gone"
