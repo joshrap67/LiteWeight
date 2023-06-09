@@ -99,7 +99,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private TextView routineDayTitleTV, emptyDayTV, routineDayTagTV, rearrangeHintTV;
     private String selectedFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
-    private int currentWeekIndex, currentDayIndex; // todo need to handle setting global one if you delete a day or something
+    private int currentWeekIndex, currentDayIndex;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;

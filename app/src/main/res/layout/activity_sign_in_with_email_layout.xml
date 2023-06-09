@@ -89,7 +89,7 @@
                     android:background="?selectableItemBackground"
                     android:text="@string/forgot_password_link"
                     android:textAlignment="center"
-                    android:textColor="@color/color_accent"
+                    android:textColor="?defaultTextColor"
                     android:textStyle="italic" />
         </RelativeLayout>
     </ScrollView>

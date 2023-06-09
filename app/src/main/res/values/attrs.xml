@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="navItemIconNotSelectedColor" format="color" />
+    <attr name="iconButtonColor" format="color" />
+    <attr name="coloredButtonColor" format="color" />
+    <attr name="borderColor" format="color" />
+    <attr name="myAccountBackground" format="color" />
+    <attr name="dayCardBackground" format="color" />
+    <attr name="dayCardSelectedBackground" format="color" />
+    <attr name="exerciseRowBackground" format="color" />
+    <attr name="exerciseRowSelectedBackground" format="color" />
+    <attr name="workoutProgressBackground" format="color" />
+    <attr name="workoutProgressGradientStart" format="color" />
+    <attr name="workoutProgressGradientEnd" format="color" />
+    <attr name="optionsBackground" format="color" />
+    <attr name="headerBackground" format="color" />
+    <attr name="navItemSelected" format="color" />
+    <attr name="weekCardBackground" format="color" />
+    <attr name="weekCardSelectedBackground" format="color" />
+    <attr name="subtitleColor" format="color" />
+    <attr name="defaultTextColor" format="color" />
+    <attr name="hintColor" format="color" />
+    <attr name="colorControl" format="color" />
+    <attr name="dangerZone" format="color" />
+    <attr name="rowActivated" format="color" />
+    <attr name="toolBarTextColor" format="color" />
+    <attr name="boxFocusedColor" format="color" />
+    <attr name="boxNotFocusedColor" format="color" />
+</resources>

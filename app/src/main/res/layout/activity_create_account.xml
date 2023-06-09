@@ -46,16 +46,16 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
                         app:srcCompat="@drawable/default_profile_picture"
-                        app:strokeColor="@color/subtitle_color"
+                        app:strokeColor="?subtitleColor"
                         app:strokeWidth="1dp" />
 
                 <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
+                        android:layout_gravity="bottom|end"
                         android:layout_marginStart="8dp"
                         android:contentDescription="@string/profile_picture"
-                        app:srcCompat="@drawable/edit_icon" />
+                        app:srcCompat="@drawable/change_profile_picture_icon" />
             </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -105,7 +105,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/metric_switch_description"
-                        android:textColor="@color/subtitle_color" />
+                        android:textColor="?subtitleColor" />
             </LinearLayout>
         </RelativeLayout>
     </ScrollView>

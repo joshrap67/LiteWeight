@@ -25,7 +25,7 @@
                 android:layout_marginStart="8dp"
                 android:contentDescription="@string/profile_picture"
                 app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
-                app:srcCompat="@mipmap/app_logo" />
+                tools:srcCompat="@mipmap/app_logo" />
 
         <TextView
                 android:id="@+id/username_tv"
@@ -39,7 +39,7 @@
                 android:shadowDx="3"
                 android:shadowDy="3"
                 android:shadowRadius="1"
-                android:textColor="@color/color_accent"
+                android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:text="joshrap67" />

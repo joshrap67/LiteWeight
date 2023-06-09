@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            android:textColor="@color/subtitle_color"
+            android:textColor="?subtitleColor"
             android:textSize="13sp"
             android:textStyle="italic"
             app:layout_constraintBottom_toTopOf="@+id/workout_progress_container"
@@ -65,6 +65,7 @@
                 android:shadowDy="1"
                 android:shadowRadius="1"
                 android:textAlignment="center"
+                android:textColor="@android:color/white"
                 android:textSize="14sp"
                 tools:text="Workout Progress - 80%" />
     </FrameLayout>

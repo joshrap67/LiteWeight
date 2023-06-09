@@ -183,4 +183,6 @@
     <string name="sign_up_with_email">Sign up with email</string>
     <string name="sign_in_with_email">Sign in with email</string>
     <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="dark_theme_switch_description">Enables dark theme for the app. Changes to this setting will take into effect after restarting the app.</string>
+    <string name="dark_theme_switch">Dark Theme</string>
 </resources>

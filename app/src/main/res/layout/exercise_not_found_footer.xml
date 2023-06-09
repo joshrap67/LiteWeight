@@ -12,5 +12,5 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:text="@string/dont_see_an_exercise"
-            android:textColor="@color/color_accent" />
+            android:textColor="?defaultTextColor" />
 </LinearLayout>

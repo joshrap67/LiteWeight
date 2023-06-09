@@ -8,6 +8,35 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="colorAccent">@color/color_accent</item>
+        <item name="colorControlNormal">@android:color/white</item>
+
+        <item name="navItemIconNotSelectedColor">@color/color_accent</item>
+        <item name="iconButtonColor">@color/color_accent</item>
+        <item name="borderColor">@color/divider_color</item>
+        <item name="coloredButtonColor">@color/color_primary</item>
+        <item name="dayCardBackground">@color/day_card_background</item>
+        <item name="dayCardSelectedBackground">@color/day_card_selected_background</item>
+        <item name="exerciseRowBackground">@color/exercise_row_background</item>
+        <item name="exerciseRowSelectedBackground">@color/exercise_row_selected_background</item>
+        <item name="workoutProgressBackground">@color/workout_progress_background</item>
+        <item name="workoutProgressGradientStart">@color/workout_progress_gradient_start</item>
+        <item name="workoutProgressGradientEnd">@color/workout_progress_gradient_end</item>
+        <item name="optionsBackground">@color/options_background</item>
+        <item name="navItemSelected">@color/nav_item_selected</item>
+        <item name="weekCardBackground">@color/week_card_background</item>
+        <item name="weekCardSelectedBackground">@color/week_card_selected_background</item>
+        <item name="subtitleColor">@color/subtitle_color</item>
+        <item name="defaultTextColor">@color/default_text_color</item>
+        <item name="hintColor">@color/hint_color</item>
+        <item name="colorControl">@color/color_control</item>
+        <item name="dangerZone">@color/danger_zone</item>
+        <item name="rowActivated">@color/row_activated</item>
+        <item name="myAccountBackground">@color/exercise_row_background</item>
+        <item name="toolBarTextColor">@android:color/white</item>
+        <item name="headerBackground">@color/exercise_row_background</item>
+        <item name="boxFocusedColor">@color/workout_activity_outline_box_focused_color</item>
+        <item name="boxNotFocusedColor">@color/workout_activity_outline_box_unfocused_color</item>
+
         <item name="android:statusBarColor">@android:color/transparent</item>
 
         <item name="android:textColor">@color/default_text_color</item>
@@ -34,6 +63,8 @@
         <!--  ^ ^ Hack. But for some reason the drawable i had was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
+        <item name="extendedFloatingActionButtonStyle">@style/ExtendedFloatingActionButtonStyle
+        </item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
         <item name="textInputStyle">@style/TextInputLayoutStyle</item>
         <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
@@ -43,44 +74,13 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
+        <item name="textInputStyle">@style/TextInputLayoutStyle</item>
         <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
         <item name="android:windowEnterTransition">@android:transition/fade</item>
         <item name="android:windowExitTransition">@android:transition/slide_left</item>
+        <item name="boxFocusedColor">@color/login_activity_outline_box_focused_color</item>
+        <item name="boxNotFocusedColor">@color/login_activity_outline_box_unfocused_color</item>
 
-    </style>
-
-    <style name="TextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="expandedHintEnabled">false</item>
-
-        <item name="boxStrokeColor">@color/workout_activity_box_color</item>
-        <item name="hintTextColor">@color/workout_activity_outline_box_focused_color</item>
-        <item name="android:textColorHint">@color/workout_activity_outline_box_unfocused_color
-        </item>
-    </style>
-
-    <style name="SignInTextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="expandedHintEnabled">false</item>
-
-        <item name="boxStrokeColor">@color/signin_activity_box_color</item>
-        <item name="hintTextColor">@color/login_activity_outline_box_focused_color</item>
-        <item name="android:textColorHint">@color/login_activity_outline_box_unfocused_color</item>
-    </style>
-
-    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">
-        <item name="android:popupBackground">@color/options_background</item>
-    </style>
-
-    <style name="RoundedButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="shapeAppearance">@style/RoundedButton</item>
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="RoundedImageViewRounded">
-        <item name="cornerFamily">rounded</item>
-        <item name="android:scaleType">centerCrop</item>
-        <item name="cornerSize">50%</item>
     </style>
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
@@ -93,48 +93,4 @@
         <item name="android:textColor">@color/default_text_color</item>
         <item name="android:buttonTint">@color/color_accent</item>
     </style>
-
-    <style name="ButtonStyle" parent="@style/Widget.MaterialComponents.Button">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="FloatingActionButtonStyle" parent="@style/Widget.MaterialComponents.FloatingActionButton">
-        <item name="backgroundTint">@color/color_primary</item>
-        <item name="tint">@android:color/white</item>
-    </style>
-
-    <style name="JumpDaysItemStyle">
-        <item name="android:textSize">25sp</item>
-    </style>
-
-    <style name="BottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/BottomSheet</item>
-    </style>
-
-    <style name="BottomSheet" parent="Widget.MaterialComponents.BottomSheet">
-        <item name="shapeAppearanceOverlay">@style/RoundedBottomSheetDialog</item>
-    </style>
-
-    <style name="PopupMenuStyle" parent="Widget.MaterialComponents.PopupMenu.Overflow">
-        <item name="android:popupBackground">@drawable/rounded_popup</item>
-    </style>
-
-    <style name="RoundedBottomSheetDialog" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopRight">16dp</item>
-        <item name="cornerSizeTopLeft">16dp</item>
-        <item name="cornerSizeBottomRight">0dp</item>
-        <item name="cornerSizeBottomLeft">0dp</item>
-    </style>
-
-    <style name="RoundedOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="shapeAppearance">@style/RoundedButton</item>
-    </style>
-
-    <style name="RoundedButton">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
-
 </resources>

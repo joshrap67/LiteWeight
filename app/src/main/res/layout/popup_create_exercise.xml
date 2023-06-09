@@ -13,8 +13,7 @@
             android:layout_marginVertical="8dp"
             android:hint="@string/name_hint"
             app:autoSizeTextType="uniform"
-            app:expandedHintEnabled="false"
-            tools:style="@style/TextInputLayoutStyle">
+            app:expandedHintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/exercise_name_input"

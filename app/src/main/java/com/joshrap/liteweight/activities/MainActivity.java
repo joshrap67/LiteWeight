@@ -132,8 +132,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(null); // bit of a hack, but don't want to used save instance state since if app killed by OS I get NPEs from fragments
-
         Injector.getInjector(this).inject(this);
+
+        boolean darkThemeEnabled = sharedPreferences.getBoolean(Variables.DARK_THEME_ENABLED, true);
+        if (darkThemeEnabled) {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeLight);
+        }
         EventBus.getDefault().register(this);
         setContentView(R.layout.activity_main);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);

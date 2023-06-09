@@ -3,7 +3,7 @@
         android:color="?colorControlHighlight">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/options_background" />
+            <solid android:color="?optionsBackground" />
         </shape>
     </item>
 </ripple>

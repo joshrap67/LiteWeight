@@ -42,6 +42,7 @@
                     android:shadowDy="1"
                     android:shadowRadius="1"
                     android:textSize="14sp"
+                    android:textColor="@android:color/white"
                     tools:text="Workout Progress - 80%" />
         </RelativeLayout>
     </FrameLayout>

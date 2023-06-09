@@ -90,6 +90,7 @@ public class Variables {
     public static final String TIMER = "Timer";
     public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
     public static final String TIMER_DURATION = "TimerValue";
+    public static final String DARK_THEME_ENABLED = "DarkThemeEnabled";
 
     // intent keys
     public static final String INTENT_ABSOLUTE_START_TIME = "Absolute_Time";

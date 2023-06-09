@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- due to bug i have to duplicate this for dark/light theme :( https://issuetracker.google.com/issues/36941443 -->
+    <item android:drawable="@color/row_activated_light" android:state_activated="true" />
+    <item android:drawable="@color/row_activated_light" android:state_checked="true" />
+    <item android:drawable="@android:color/transparent" />
+</selector>

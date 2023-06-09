@@ -13,8 +13,7 @@
             android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="8dp"
             android:hint="@string/username_hint"
-            app:expandedHintEnabled="false"
-            tools:style="@style/TextInputLayoutStyle">
+            app:expandedHintEnabled="false">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/username_input"
@@ -25,7 +24,7 @@
                 android:dropDownHeight="180dp"
                 android:maxLines="1"
                 android:minWidth="75dp"
-                android:popupBackground="@color/options_background"
+                android:popupBackground="?optionsBackground"
                 android:singleLine="true"
                 tools:text="username" />
     </com.google.android.material.textfield.TextInputLayout>

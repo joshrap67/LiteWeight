@@ -47,7 +47,7 @@
                     android:layout_gravity="center"
                     android:text="@string/rearrange_hint"
                     android:textAlignment="center"
-                    android:textColor="@color/subtitle_color"
+                    android:textColor="?subtitleColor"
                     android:visibility="gone" />
 
             <Button
@@ -57,9 +57,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:text="@string/rearrange"
-                    android:textColor="@color/color_accent"
+                    android:textColor="?defaultTextColor"
                     app:icon="@drawable/move_icon"
-                    app:iconTint="@color/color_accent" />
+                    app:iconTint="?iconButtonColor" />
 
             <Button
                     android:id="@+id/add_week_btn"
@@ -69,9 +69,9 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="5dp"
                     android:text="@string/add_week_msg"
-                    android:textColor="@color/color_accent"
+                    android:textColor="?defaultTextColor"
                     app:icon="@drawable/add_icon"
-                    app:iconTint="@color/color_accent" />
+                    app:iconTint="?iconButtonColor" />
         </RelativeLayout>
 
         <Button

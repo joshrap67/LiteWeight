@@ -141,8 +141,17 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
+        SwitchCompat darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
         SwitchCompat workoutProgressSwitch = view.findViewById(R.id.workout_progress_switch);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        LinearLayout darkThemeLayout = view.findViewById(R.id.dark_theme_layout);
+        darkThemeLayout.setOnClickListener(view1 -> darkThemeSwitch.performClick());
+        darkThemeSwitch.setChecked(sharedPreferences.getBoolean(Variables.DARK_THEME_ENABLED, true));
+        darkThemeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editor.putBoolean(Variables.DARK_THEME_ENABLED, isChecked);
+            editor.apply();
+        });
 
         LinearLayout stopwatchLayout = view.findViewById(R.id.stopwatch_container);
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());

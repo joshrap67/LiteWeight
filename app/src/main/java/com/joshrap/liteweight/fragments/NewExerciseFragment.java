@@ -165,7 +165,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
 
-        Button saveButton = view.findViewById(R.id.save_fab);
+        Button saveButton = view.findViewById(R.id.save_btn);
         saveButton.setOnClickListener(v -> {
             ((MainActivity) requireActivity()).hideKeyboard();
             createExercise();

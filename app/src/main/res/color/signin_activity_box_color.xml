@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/login_activity_outline_box_focused_color" android:state_focused="true" />
-    <item android:color="@color/login_activity_outline_box_unfocused_color" />
-</selector>
