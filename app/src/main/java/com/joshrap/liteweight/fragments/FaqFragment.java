@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
@@ -26,11 +27,12 @@ public class FaqFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         View view = inflater.inflate(R.layout.fragment_faq, container, false);
-        ((MainActivity) getActivity()).toggleBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.FAQ_TITLE);
+        ((MainActivity) activity).toggleBackButton(true);
+        ((MainActivity) activity).updateToolbarTitle(Variables.FAQ_TITLE);
 
         RelativeLayout faq0Layout = view.findViewById(R.id.faq_0_container);
         TextView faq0 = view.findViewById(R.id.faq_0_tv);

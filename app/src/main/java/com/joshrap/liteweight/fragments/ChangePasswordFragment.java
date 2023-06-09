@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -50,9 +51,9 @@ public class ChangePasswordFragment extends Fragment {
         Injector.getInjector(getContext()).inject(this);
 
         View view = inflater.inflate(R.layout.fragment_change_password, container, false);
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        ((MainActivity) getActivity()).toggleBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.CHANGE_PASSWORD);
+        requireActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        ((MainActivity) requireActivity()).toggleBackButton(true);
+        ((MainActivity) requireActivity()).updateToolbarTitle(Variables.CHANGE_PASSWORD);
 
         Button saveButton = view.findViewById(R.id.save_btn);
 
@@ -96,31 +97,26 @@ public class ChangePasswordFragment extends Fragment {
 
     private void changePassword() {
         hideKeyboard();
-        AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Changing password...");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        AuthCredential credential = EmailAuthProvider
-                .getCredential(user.getEmail(), existingPasswordInput.getText().toString().trim());
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), existingPasswordInput.getText().toString().trim());
 
-        user.reauthenticate(credential)
-                .addOnCompleteListener(reAuthTask -> {
-                    if (reAuthTask.isSuccessful()) {
-                        user.updatePassword(newPasswordInput.getText().toString().trim())
-                                .addOnCompleteListener(updatePwTask -> {
-                                    if (updatePwTask.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Password successfully reset", Toast.LENGTH_SHORT).show();
-                                        getActivity().onBackPressed();
-                                    } else {
-                                        AndroidUtils.showErrorDialog("There was a problem changing your password", getContext());
-                                    }
-                                    loadingDialog.dismiss();
-                                });
+        user.reauthenticate(credential).addOnCompleteListener(reAuthTask -> {
+            if (reAuthTask.isSuccessful()) {
+                user.updatePassword(newPasswordInput.getText().toString().trim()).addOnCompleteListener(updatePwTask -> {
+                    if (updatePwTask.isSuccessful()) {
+                        Toast.makeText(getContext(), "Password successfully reset", Toast.LENGTH_SHORT).show();
+                        ((MainActivity) requireActivity()).finishFragment();
                     } else {
-                        loadingDialog.dismiss();
-                        AndroidUtils.showErrorDialog("Invalid credentials", getContext());
+                        AndroidUtils.showErrorDialog("There was a problem changing your password", getContext());
                     }
-
+                    loadingDialog.dismiss();
                 });
-
+            } else {
+                loadingDialog.dismiss();
+                AndroidUtils.showErrorDialog("Invalid credentials", getContext());
+            }
+        });
     }
 
     private boolean validInput() {
@@ -166,9 +162,10 @@ public class ChangePasswordFragment extends Fragment {
     }
 
     private void hideKeyboard() {
-        if (getActivity().getCurrentFocus() != null) {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        FragmentActivity activity = requireActivity();
+        if (activity.getCurrentFocus() != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
     }
 

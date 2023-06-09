@@ -4,6 +4,7 @@ import static android.os.Looper.getMainLooper;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -89,6 +91,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+@SuppressLint("NotifyDataSetChanged")
 public class PendingWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private RecyclerView weeksRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
@@ -128,10 +131,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) activity).toggleBackButton(true);
 
         if (this.getArguments() != null) {
             isExistingWorkout = this.getArguments().getBoolean(Variables.EXISTING_WORKOUT);
@@ -145,7 +149,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         if (isExistingWorkout) {
             originalWorkout = new Workout(currentUserModule.getCurrentWorkout());
-            pendingRoutine = originalWorkout.getRoutine();
+            pendingRoutine = new Routine(originalWorkout.getRoutine());
         } else {
             pendingRoutine = Routine.emptyRoutine();
             firstWorkout = !currentUserModule.isWorkoutPresent();
@@ -161,6 +165,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        FragmentActivity activity = requireActivity();
+
         routineDayView = view.findViewById(R.id.routine_day_layout);
         routineView = view.findViewById(R.id.routine_week_layout);
 
@@ -249,13 +255,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             return false;
         });
         routineDayMoreIcon.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             dropDownRoutineDayMenu.show();
         });
 
         addExercisesButton = view.findViewById(R.id.add_exercises_fab);
         addExercisesButton.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             popupAddExercises();
         });
         //endregion
@@ -309,23 +315,23 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 } else if (isRearranging) {
                     finishRearrangeMode();
                 } else if (isRoutineDayViewShown) {
-                    ((MainActivity) getActivity()).hideKeyboard();
+                    ((MainActivity) activity).hideKeyboard();
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
-                    alertDialog = new AlertDialog.Builder(getContext())
+                    alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("Unsaved Changes")
                             .setMessage(R.string.unsaved_workout_msg)
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 remove();
-                                requireActivity().onBackPressed();
+                                activity.onBackPressed();
                             })
                             .setNegativeButton("No", null)
                             .create();
                     alertDialog.show();
                 } else {
                     remove();
-                    requireActivity().onBackPressed();
+                    activity.onBackPressed();
                 }
             }
         };
@@ -345,7 +351,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void setToolbarTitle() {
-        ((MainActivity) getActivity()).updateToolbarTitle(isExistingWorkout
+        ((MainActivity) requireActivity()).updateToolbarTitle(isExistingWorkout
                 ? originalWorkout.getName()
                 : Variables.CREATE_WORKOUT_TITLE);
     }
@@ -381,7 +387,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         isRoutineDayViewShown = true;
         routineDayView.setVisibility(View.VISIBLE);
         routineView.setVisibility(View.GONE);
-        ((MainActivity) getActivity()).updateToolbarTitle(getString(R.string.day_details));
+        ((MainActivity) requireActivity()).updateToolbarTitle(getString(R.string.day_details));
 
         currentDayIndex = day;
         currentWeekIndex = week;
@@ -409,8 +415,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             return true;
         }
 
-        // essentially routine is only not modified for new workout if not a single exercise or day has been added
-        return pendingRoutine.get(0, 0).getExercises().size() != 0;
+        // essentially routine is only not modified for new workout if the first day has not been modified
+        RoutineDay firstDay = pendingRoutine.get(0, 0);
+        return firstDay.getExercises().size() != 0 || firstDay.getTag() != null;
     }
 
     private void updateRoutineDayExerciseList() {
@@ -451,7 +458,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void setRoutineDayTagTV(int weekIndex, int dayIndex) {
         RoutineDay day = pendingRoutine.get(weekIndex, dayIndex);
         routineDayTagTV.setVisibility(day.getTag() == null ? View.INVISIBLE : View.VISIBLE);
-        routineDayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+        routineDayTagTV.setText(day.getTag());
     }
 
     private void checkEmptyView() {
@@ -607,7 +614,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     });
 
     private void promptDeleteWeek(int weekIndex) {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Week " + (weekIndex + 1))
                 .setMessage(R.string.remove_week_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -640,7 +647,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         RoutineDay currentDay = pendingRoutine.get(weekIndex, dayIndex);
         dayTagInput.setText(currentDay.getTag());
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Set Day Tag")
                 .setView(popupView)
                 .setPositiveButton("Save", (dialog, which) -> {
@@ -673,7 +680,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Move " + WorkoutUtils.generateDayTitle(weekIndex, dayIndex))
                 .setView(popupView)
                 .setPositiveButton("Move", (dialog, which) -> {
@@ -704,7 +711,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void promptDeleteDay(int weekIndex, int dayIndex) {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete " + (WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setMessage(R.string.remove_day_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -749,7 +756,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(dayLabelsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
@@ -794,7 +801,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
@@ -838,7 +845,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format(Locale.US, "Copy Week %d", currentWeek + 1))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
@@ -868,7 +875,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Create workout")
                 .setView(popupView)
                 .setPositiveButton("Create", null)
@@ -905,7 +912,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 if (result.isSuccess()) {
                     isExistingWorkout = true;
                     originalWorkout = new Workout(result.getData().getWorkout());
-                    pendingRoutine = originalWorkout.getRoutine();
+                    pendingRoutine = new Routine(originalWorkout.getRoutine());
 
                     setToolbarTitle();
                     setWeekAdapter(); // since adapter holds old references to weeks
@@ -927,7 +934,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
                     originalWorkout = new Workout(result.getData().getWorkout());
-                    pendingRoutine = originalWorkout.getRoutine();
+                    // todo in general all fragments other than current workout should deep copy. verify im following this
+                    pendingRoutine = new Routine(originalWorkout.getRoutine());
 
                     setWeekAdapter(); // since adapter holds old references to weeks
                     Toast.makeText(getContext(), "Workout saved.", Toast.LENGTH_LONG).show();
@@ -994,14 +1002,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 searchExerciseInput.requestFocus();
 
                 // android is so beautiful. Show keyboard after requesting focus
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(searchExerciseInput, 0);
             } else {
                 // reset all search views
                 searchExerciseInput.clearFocus();
 
                 // can't use shared hide keyboard method since this is in an alertdialog apparently
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchExerciseInput.getWindowToken(), 0);
 
                 searchButton.setImageResource(R.drawable.search_icon);
@@ -1031,13 +1039,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusList.sort(String.CASE_INSENSITIVE_ORDER);
         focusList.add(0, AllFocus);
 
-        ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
+        ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new PendingWorkoutFragment.FocusSpinnerListener());
         // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
         focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Add Exercises To Day")
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -1085,7 +1093,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
-        createExerciseDialog = new AlertDialog.Builder(getContext())
+        createExerciseDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Create New Exercise")
                 .setView(popupView)
                 .setPositiveButton("Create and Add", null)
@@ -1320,7 +1328,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayList.clear();
-                displayList.addAll((List) results.values);
+                displayList.addAll((List<? extends OwnedExercise>) results.values);
                 notifyDataSetChanged();
             }
         };
@@ -1384,7 +1392,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             if (recyclerViewItemTouchHelperMap.containsKey(holder.dayRecyclerView)) {
-                // prevents memory leak happening when day recycler is recycled. the original dispatcher is still attached to old list once the viewholder is created, causing weird graphical bugs
+                // prevents memory leak happening when day recycler is recycled. the original dispatcher is still attached to old list once the viewHolder is created, causing weird graphical bugs
                 ItemTouchHelper dispatcher = recyclerViewItemTouchHelperMap.get(holder.dayRecyclerView);
                 if (dispatcher != null)
                     dispatcher.attachToRecyclerView(null);
@@ -1560,7 +1568,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         private void setWeekLabel(@NonNull WeekViewHolder weekViewHolder) {
-            weekViewHolder.weekTitle.setText("Week " + (weekViewHolder.getAdapterPosition() + 1));
+            weekViewHolder.weekTitle.setText(String.format(Locale.getDefault(), "Week %d", weekViewHolder.getAdapterPosition() + 1));
         }
 
         @Override
@@ -1616,12 +1624,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             String dayText = "Day " + (dayIndex + 1);
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
             TextView dayTagTV = dayViewHolder.dayTagTV;
-            exerciseCountTV.setText(Integer.toString(day.totalNumberOfExercises()));
+            exerciseCountTV.setText(String.format(Locale.getDefault(), Integer.toString(day.totalNumberOfExercises())));
             dayViewHolder.dayTitleTV.setText(dayText);
 
 
             if (day.getTag() != null) {
-                dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+                dayTagTV.setText(day.getTag());
             } else {
                 dayTagTV.setText(null); // otherwise when recycled, days without tags may have a tag shown
             }

@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -53,7 +54,7 @@ public class NewAccountActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private ImageView profilePicture;
-    private boolean metricUnits;
+    private boolean metricUnits, shouldFinish;
     private byte[] profileImageData;
 
     @Inject
@@ -221,8 +222,8 @@ public class NewAccountActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
     }
 
     private void launchSignInActivity(String errorMessage) {
@@ -230,8 +231,17 @@ public class NewAccountActivity extends AppCompatActivity {
         if (errorMessage != null) {
             intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
         }
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // prevents flash of activity being finished when transition animations are used
+        if (shouldFinish) {
+            finish();
+        }
     }
 
     private void hideKeyboard(View view) {

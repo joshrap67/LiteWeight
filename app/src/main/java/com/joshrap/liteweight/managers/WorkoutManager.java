@@ -10,6 +10,7 @@ import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
+import com.joshrap.liteweight.utils.WorkoutUtils;
 
 import java.time.Instant;
 
@@ -179,16 +180,12 @@ public class WorkoutManager {
         return result;
     }
 
-    public Result<String> updateWorkoutProgress(int currentWeek, int currentDay, @NonNull Workout workout) {
-        Result<String> result = new Result<>();
-
+    public void updateWorkoutProgress(int currentWeek, int currentDay, @NonNull Workout workout) {
         try {
             this.workoutRepository.updateWorkoutProgress(currentWeek, currentDay, workout);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem updating the workout.");
         }
-        return result;
     }
 
     public Result<UserAndWorkout> setRoutine(@NonNull String workoutId, @NonNull Routine routine) {
@@ -201,6 +198,8 @@ public class WorkoutManager {
             UserAndWorkout response = this.workoutRepository.setRoutine(workoutId, routine);
             user.updateOwnedExercises(response.getUser().getExercises());
             currentUserAndWorkout.setWorkout(response.getWorkout());
+            WorkoutInfo workoutInfo = user.getWorkout(workoutId);
+            WorkoutUtils.checkCurrentWeekAndDay(workoutInfo, response.getWorkout().getRoutine());
 
             result.setData(currentUserAndWorkout);
         } catch (Exception e) {

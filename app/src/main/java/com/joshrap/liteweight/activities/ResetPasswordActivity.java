@@ -43,7 +43,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
             });
         });
         Button backToSignInButton = findViewById(R.id.back_to_sign_in_btn);
-        backToSignInButton.setOnClickListener(v -> finish());
+        backToSignInButton.setOnClickListener(v -> onBackPressed());
 
         emailInput.setOnKeyListener((View v, int keyCode, KeyEvent keyevent) -> {
             if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {

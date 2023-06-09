@@ -248,13 +248,6 @@ public class ValidatorUtils {
         String retVal = null;
         if (username.isEmpty()) {
             retVal = "Username cannot be empty.";
-        } else if (!validUsername.matcher(username).find()) {
-            retVal = "Invalid characters.";
-        } else if (Pattern.compile("\\s").matcher(username).find()) {
-            retVal = "Username cannot have any whitespace.";
-        } else if (username.length() > Variables.MAX_USERNAME_LENGTH) {
-            // todo overkill?
-            retVal = String.format("Enter value between 0-%s.", Variables.MAX_USERNAME_LENGTH);
         }
         return retVal;
     }

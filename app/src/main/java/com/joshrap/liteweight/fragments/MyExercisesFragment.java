@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ public class MyExercisesFragment extends Fragment {
     private boolean isPremium;
     private HashMap<String, ArrayList<OwnedExercise>> totalExercises; // focus to exercise list
     private List<String> focusList;
+    private ExerciseAdapter exerciseAdapter;
 
     @Inject
     CurrentUserModule currentUserModule;
@@ -48,12 +50,13 @@ public class MyExercisesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
 
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).updateToolbarTitle(Variables.MY_EXERCISES_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
         focusList = Variables.FOCUS_LIST;
         totalExercises = new HashMap<>();
@@ -90,7 +93,7 @@ public class MyExercisesFragment extends Fragment {
                 AndroidUtils.showErrorDialog("You already have the max number (" + Variables.MAX_NUMBER_OF_EXERCISES + ") of exercises allowed.", getContext());
             } else {
                 // no errors
-                ((MainActivity) getActivity()).goToNewExercise();
+                ((MainActivity) requireActivity()).goToNewExercise();
             }
         });
         Collections.sort(focusList);
@@ -99,7 +102,28 @@ public class MyExercisesFragment extends Fragment {
         } else {
             selectedFocus = focusList.get(0); // initially select first focus if this is first time using this fragment
         }
-        populateFocusListView();
+        ListView focusListView = view.findViewById(R.id.focus_list_view);
+        ListView exerciseListView = view.findViewById(R.id.exercise_list_view);
+
+        // populate focuses
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_activated_1, focusList);
+        focusListView.setAdapter(arrayAdapter);
+        focusListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        focusListView.setOnItemClickListener((parent, v, position, id) -> {
+            selectedFocus = focusListView.getItemAtPosition(position).toString();
+            populateExercisesListView();
+        });
+        // programmatically select selected focus
+        focusListView.setItemChecked(focusList.indexOf(selectedFocus), true);
+
+        // populate exercises
+        exerciseAdapter = new ExerciseAdapter(requireContext(), new ArrayList<>());
+        exerciseListView.setAdapter(exerciseAdapter);
+        exerciseListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        exerciseListView.setOnItemClickListener((parent, v, position, id) -> {
+            OwnedExercise exercise = (OwnedExercise) exerciseListView.getItemAtPosition(position);
+            ((MainActivity) requireActivity()).goToExerciseDetails(exercise.getId());
+        });
         populateExercisesListView();
     }
 
@@ -109,37 +133,13 @@ public class MyExercisesFragment extends Fragment {
         outState.putString(SELECTED_FOCUS_KEY, selectedFocus);
     }
 
-    private void populateFocusListView() {
-        ListView listView = getView().findViewById(R.id.focus_list_view);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_activated_1, focusList);
-        listView.setAdapter(arrayAdapter);
-        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            selectedFocus = listView.getItemAtPosition(position).toString();
-            populateExercisesListView();
-        });
-        // programmatically select selected focus
-        listView.setItemChecked(focusList.indexOf(selectedFocus), true);
-    }
-
-    /**
-     * Populates the exercise list view based on the selected focus
-     */
     private void populateExercisesListView() {
-        ListView listView = getView().findViewById(R.id.exercise_list_view);
         if (totalExercises.get(selectedFocus) == null) {
             return;
         }
-        ArrayList<OwnedExercise> exercisesForSelectedFocus = new ArrayList<>(totalExercises.get(selectedFocus));
+        List<OwnedExercise> exercisesForSelectedFocus = new ArrayList<>(totalExercises.get(selectedFocus));
         Collections.sort(exercisesForSelectedFocus);
-
-        ExerciseAdapter exerciseAdapter = new ExerciseAdapter(getContext(), exercisesForSelectedFocus);
-        listView.setAdapter(exerciseAdapter);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            OwnedExercise exercise = (OwnedExercise) listView.getItemAtPosition(position);
-            ((MainActivity) getActivity()).goToExerciseDetails(exercise.getId());
-        });
+        exerciseAdapter.updateExercises(exercisesForSelectedFocus);
     }
 }
 

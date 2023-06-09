@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.activities;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -100,7 +101,7 @@ import lombok.Getter;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
-    private boolean drawerListenerIsRegistered;
+    private boolean drawerListenerIsRegistered, shouldFinish;
     private TextView toolbarTitleTV, usernameTV;
     private NavigationView nav;
     private Toolbar toolbar;
@@ -181,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-
     // called once main dependency - currentUserAndWorkout - is loaded
     private void loadActivity() {
         String notificationAction = null;
@@ -257,15 +257,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
     }
 
     private void launchAccountNotCreatedActivity() {
         Intent intent = new Intent(this, NewAccountActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // prevents flash of activity being finished when transition animations are used
+        if (shouldFinish) {
+            finish();
+        }
     }
 
     private void setupNotifications() {
@@ -528,11 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 FirebaseAuth.getInstance().signOut();
 
-                // take user back to sign in activity
-                Intent intent = new Intent(this, SignInActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
+                launchSignInActivity(null);
             });
         });
     }
@@ -552,14 +557,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (notificationManager != null) {
             notificationManager.cancelAll();
         }
-        FirebaseAuth.getInstance().signOut();// todo do i need this if account is deleted?
-        // todo shared method for these? ^
+        FirebaseAuth.getInstance().signOut();
 
-        // take user back to sign in activity
-        Intent intent = new Intent(this, SignInActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        launchSignInActivity(null);
     }
 
     // service that continues the stopwatch's progress

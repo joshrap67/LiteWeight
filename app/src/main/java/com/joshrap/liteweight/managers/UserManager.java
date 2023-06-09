@@ -170,31 +170,21 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> setFirebaseMessagingToken(String firebaseToken) {
-        Result<String> result = new Result<>();
-
-        // todo write directly to firebase since it is just one property?
+    public void setFirebaseMessagingToken(String firebaseToken) {
         try {
             this.selfRepository.linkFirebaseMessagingToken(firebaseToken);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem linking the firebase token.");
         }
 
-        return result;
     }
 
-    public Result<String> unlinkFirebaseMessagingToken() {
-        Result<String> result = new Result<>();
-
+    public void unlinkFirebaseMessagingToken() {
         try {
-            this.selfRepository.unlinkFirebaseMessagingToken();
+            this.selfRepository.linkFirebaseMessagingToken(null);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem unlinking the firebase token.");
         }
-
-        return result;
     }
 
     public Result<Friend> sendFriendRequest(String username) {
@@ -239,22 +229,18 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> setAllFriendRequestsSeen() {
-        Result<String> result = new Result<>();
-
+    public void setAllFriendRequestsSeen() {
         try {
             User user = currentUserModule.getUser();
 
+            // todo blind sends should happen here instead of on views
             this.selfRepository.setAllFriendRequestsSeen();
             for (FriendRequest friendRequest : user.getFriendRequests()) {
                 friendRequest.setSeen(true);
             }
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem setting all friend requests seen.");
         }
-
-        return result;
     }
 
     public Result<String> updateUserPreferences(UserSettings userSettings) {
@@ -332,9 +318,7 @@ public class UserManager {
         return result;
     }
 
-    public Result<String> setAllReceivedWorkoutsSeen() {
-        Result<String> result = new Result<>();
-
+    public void setAllReceivedWorkoutsSeen() {
         try {
             User user = currentUserModule.getUser();
 
@@ -344,15 +328,10 @@ public class UserManager {
             }
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem setting all received workouts to seen.");
         }
-
-        return result;
     }
 
-    public Result<String> setReceivedWorkoutSeen(String workoutId) {
-        Result<String> result = new Result<>();
-
+    public void setReceivedWorkoutSeen(String workoutId) {
         try {
             User user = currentUserModule.getUser();
 
@@ -361,10 +340,7 @@ public class UserManager {
             sharedWorkoutInfo.setSeen(true);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem setting the received workout to seen.");
         }
-
-        return result;
     }
 
     public Result<String> reportUser(String userId, String complaint) {

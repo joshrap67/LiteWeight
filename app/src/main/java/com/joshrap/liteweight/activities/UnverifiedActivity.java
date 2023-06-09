@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.activities;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -23,6 +24,7 @@ import javax.inject.Inject;
 public class UnverifiedActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
+    private boolean shouldFinish;
 
     @Inject
     AlertDialog loadingDialog;
@@ -100,13 +102,23 @@ public class UnverifiedActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
     }
 
     private void launchSignInActivity() {
         Intent intent = new Intent(this, SignInActivity.class);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // prevents flash of activity being finished when transition animations are used
+        if (shouldFinish) {
+            finish();
+        }
+    }
+
 }

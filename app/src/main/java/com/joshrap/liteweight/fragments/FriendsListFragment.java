@@ -2,6 +2,7 @@ package com.joshrap.liteweight.fragments;
 
 import static android.os.Looper.getMainLooper;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -29,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,6 +85,7 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+@SuppressLint({"NotifyDataSetChanged", "InflateParams"})
 public class FriendsListFragment extends Fragment implements FragmentWithDialog {
     private static final int FRIENDS_POSITION = 0;
     public static final int REQUESTS_POSITION = 1;
@@ -117,11 +120,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
         User user = currentUserModule.getUser();
         username = user.getUsername();
@@ -131,7 +135,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         workouts.addAll(user.getWorkouts());
         isPremium = user.isPremium();
 
-        notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -145,8 +149,6 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-
         sortFriendRequestList();
         sortFriendsList();
 
@@ -349,7 +351,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             try {
                 Date date1 = df.parse(fr1.getSentUtc());
                 Date date2 = df.parse(fr2.getSentUtc());
-                retVal = date1 != null ? date2.compareTo(date1) : 0;
+                retVal = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
             }
@@ -446,7 +448,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         EditText friendInput = popupView.findViewById(R.id.username_input);
         friendInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Add Friend")
                 .setView(popupView)
                 .setPositiveButton("Send Request", null)
@@ -456,7 +458,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
                 // usernames are case insensitive!
-                String friendUsername = friendInput.getText().toString().trim().toLowerCase();
+                String friendUsername = friendInput.getText().toString().trim();
                 List<String> existingFriends = new ArrayList<>();
                 List<String> existingFriendRequests = new ArrayList<>();
                 for (Friend friend : friends) {
@@ -619,7 +621,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Report", null)
@@ -651,7 +653,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    alertDialog = new AlertDialog.Builder(getContext())
+                    alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("User reported")
                             .setMessage("Complaint received. Save receipt below for your records.\n\n" + result.getData())
                             .setPositiveButton("Ok", null)
@@ -679,7 +681,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         if (remainingAmount < 0) {
             remainingAmount = 0; // lol. Just to cover my ass in case
         }
-        remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
+        remainingToSendTv.setText(String.format(Locale.getDefault(), "You can share a workout %d more times.", remainingAmount));
 
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
@@ -687,7 +689,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             workoutNameToId.put(workoutInfo.getWorkoutName(), workoutInfo.getWorkoutId());
             workoutNames.add(workoutInfo.getWorkoutName());
         }
-        ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
+        ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
         workoutSpinner.setAdapter(workoutsAdapter);
 
         TextView workoutTV = popupView.findViewById(R.id.my_workouts_tv);
@@ -707,7 +709,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
@@ -762,7 +764,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -802,7 +804,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             ConstraintLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                bottomSheetDialog = new BottomSheetDialog(requireContext());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend, null);
                 TextView shareWorkoutTV = sheetView.findViewById(R.id.share_workout_tv);
                 TextView removeFriendTV = sheetView.findViewById(R.id.remove_friend_tv);
@@ -923,7 +925,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 friendRequest.setSeen(true);
                 unseenTV.setVisibility(View.GONE);
 
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                bottomSheetDialog = new BottomSheetDialog(requireActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend_request, null);
                 TextView acceptFriendRequestTV = sheetView.findViewById(R.id.accept_friend_request_tv);
                 TextView declineFriendRequestTV = sheetView.findViewById(R.id.decline_friend_request_tv);

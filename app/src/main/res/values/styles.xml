@@ -2,6 +2,9 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/slide_left</item>
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="colorAccent">@color/color_accent</item>
@@ -27,8 +30,8 @@
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="checkboxStyle">@style/CheckBoxStyle</item>
         <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
-        <item name="android:textCursorDrawable">@null
-        </item> <!-- Hack. But for some reason this was not working on my phone, would only work on emulator. -->
+        <item name="android:textCursorDrawable">@null</item>
+        <!--  ^ ^ Hack. But for some reason the drawable i had was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
@@ -42,6 +45,9 @@
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="textInputStyle">@style/SignInTextInputLayoutStyle</item>
         <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/slide_left</item>
+
     </style>
 
     <style name="TextInputLayoutStyle" parent="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -66,22 +72,16 @@
     </style>
 
     <style name="RoundedButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="shapeAppearance">@style/buttonShape</item>
+        <item name="shapeAppearance">@style/RoundedButton</item>
         <item name="colorPrimary">@color/color_primary</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
-    <style name="buttonShape">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
-
-    <style name="roundedImageViewRounded">
+    <style name="RoundedImageViewRounded">
         <item name="cornerFamily">rounded</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="cornerSize">50%</item>
     </style>
-
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="android:colorBackground">@color/dialog_window_background</item>
@@ -128,7 +128,11 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
-    <style name="roundedButton">
+    <style name="RoundedOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/RoundedButton</item>
+    </style>
+
+    <style name="RoundedButton">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>

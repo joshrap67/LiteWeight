@@ -34,7 +34,7 @@
                         android:layout_gravity="center_horizontal"
                         android:contentDescription="@string/profile_picture"
                         android:foreground="?android:attr/selectableItemBackground"
-                        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                        app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
                         app:srcCompat="@drawable/default_profile_picture"
                         app:strokeColor="@color/subtitle_color"
                         app:strokeWidth="1dp" />
@@ -78,7 +78,7 @@
                     <TextView
                             android:id="@+id/username_tv"
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="4dp"
                             android:layout_marginBottom="16dp"
@@ -114,7 +114,7 @@
                     <TextView
                             android:id="@+id/email_tv"
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="4dp"
                             android:layout_marginBottom="16dp"
@@ -150,7 +150,7 @@
 
                     <TextView
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="4dp"
                             android:layout_marginBottom="16dp"
@@ -188,7 +188,7 @@
                     <TextView
                             android:id="@+id/settings_tv"
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="4dp"
                             android:layout_marginBottom="16dp"

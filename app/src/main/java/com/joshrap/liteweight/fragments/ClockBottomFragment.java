@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.joshrap.liteweight.R;
@@ -24,6 +25,8 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
+
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -58,9 +61,10 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Injector.getInjector(getContext()).inject(this);
+        FragmentActivity activity = requireActivity();
 
-        timer = ((MainActivity) getActivity()).getTimer();
-        stopwatch = ((MainActivity) getActivity()).getStopwatch();
+        timer = ((MainActivity) activity).getTimer();
+        stopwatch = ((MainActivity) activity).getStopwatch();
         editor = sharedPreferences.edit();
 
         View view = inflater.inflate(R.layout.bottom_sheet_clock, container, false);
@@ -111,12 +115,12 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         minutePicker.setMaxValue(59);
         minutePicker.setMinValue(0);
         minutePicker.setValue((int) (timer.timerDuration / (60 * Timer.timeUnit)));
-        minutePicker.setFormatter(i -> String.format("%02d", i));
+        minutePicker.setFormatter(i -> String.format(Locale.getDefault(), "%02d", i));
         final NumberPicker secondPicker = view.findViewById(R.id.seconds_picker);
         secondPicker.setMaxValue(59);
         secondPicker.setMinValue(0);
         secondPicker.setValue((int) (timer.timerDuration / Timer.timeUnit) % 60);
-        secondPicker.setFormatter(i -> String.format("%02d", i));
+        secondPicker.setFormatter(i -> String.format(Locale.getDefault(), "%02d", i));
 
         Button saveTimeDurationButton = view.findViewById(R.id.save_time_btn);
         Button timerPickerBackButton = view.findViewById(R.id.timer_picker_back_btn);
@@ -126,8 +130,8 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
             minutePicker.clearFocus();
             secondPicker.clearFocus();
             // hide keyboard
-            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+            final InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(requireView().getWindowToken(), 0);
 
             long minutes = minutePicker.getValue() * (60 * Timer.timeUnit);
             long seconds = secondPicker.getValue() * Timer.timeUnit;

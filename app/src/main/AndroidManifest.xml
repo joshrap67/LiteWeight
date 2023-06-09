@@ -56,6 +56,12 @@
                 android:windowSoftInputMode="adjustResize" />
 
         <activity
+                android:name=".activities.SignInWithEmailActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/SignInTheme"
+                android:windowSoftInputMode="adjustResize" />
+
+        <activity
                 android:name=".activities.SignInActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"

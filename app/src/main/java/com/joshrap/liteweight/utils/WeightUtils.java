@@ -2,6 +2,8 @@ package com.joshrap.liteweight.utils;
 
 import com.joshrap.liteweight.imports.Variables;
 
+import java.util.Locale;
+
 public class WeightUtils {
     //todo unit test all these
 
@@ -36,16 +38,16 @@ public class WeightUtils {
      */
     public static String getFormattedWeightForEditText(double weight) {
         String retVal;
-        String roundedWeight = String.format("%.2f", weight);
+        String roundedWeight = String.format(Locale.getDefault(), "%.2f", weight);
         double roundedWeightDouble = Double.parseDouble(roundedWeight);
 
         String[] fractionalPoints = Double.toString(roundedWeightDouble).split("\\.");
         if ((roundedWeightDouble == Math.floor(roundedWeightDouble)) && !Double.isInfinite(roundedWeightDouble)) {
             // Weight is a whole number. don't want to show any decimals
-            retVal = String.format("%.0f", roundedWeightDouble);
+            retVal = String.format(Locale.getDefault(), "%.0f", roundedWeightDouble);
         } else if (fractionalPoints[1].length() == 1) {
             // lil hacky, but prevents trailing zeros if user only enters one value after decimal point
-            retVal = String.format("%.1f", roundedWeightDouble);
+            retVal = String.format(Locale.getDefault(), "%.1f", roundedWeightDouble);
         } else {
             retVal = roundedWeight;
         }

@@ -2,6 +2,7 @@ package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.AutoTransition;
@@ -62,6 +64,7 @@ import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -99,22 +102,23 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        Activity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
 
         User user = currentUserModule.getUser();
         isMetricUnits = user.getSettings().isMetricUnits();
         exerciseIdToExercise = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, ownedExercise -> ownedExercise));
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).toggleBackButton(false);
 
         View view;
         if (currentUserModule.getCurrentWorkout() == null) {
             // user has no workouts, display special layout telling them to create one
-            ((MainActivity) getActivity()).updateToolbarTitle("LiteWeight");
+            ((MainActivity) activity).updateToolbarTitle("LiteWeight");
             view = inflater.inflate(R.layout.no_workouts_found_layout, container, false);
         } else {
-            ((MainActivity) getActivity()).updateToolbarTitle(currentUserModule.getCurrentWorkout().getName());
+            ((MainActivity) activity).updateToolbarTitle(currentUserModule.getCurrentWorkout().getName());
             view = inflater.inflate(R.layout.fragment_current_workout, container, false);
         }
         return view;
@@ -123,17 +127,18 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        FragmentActivity activity = requireActivity();
         if (currentUserModule.getCurrentWorkout() == null) {
             ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
-            createWorkoutBtn.setOnClickListener(v -> ((MainActivity) getActivity()).goToCreateWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((MainActivity) activity).goToCreateWorkout());
             return;
         }
 
         currentWeekIndex = currentUserModule.getCurrentWeek();
         currentDayIndex = currentUserModule.getCurrentDay();
 
-        timer = ((MainActivity) getActivity()).getTimer();
-        stopwatch = ((MainActivity) getActivity()).getStopwatch();
+        timer = ((MainActivity) activity).getTimer();
+        stopwatch = ((MainActivity) activity).getStopwatch();
         clockBottomFragment = ClockBottomFragment.newInstance();
 
         recyclerView = view.findViewById(R.id.routine_recycler_view);
@@ -143,7 +148,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         dayTagTV = view.findViewById(R.id.day_tag_tv);
 
         ImageButton clockButton = view.findViewById(R.id.timer_icon_btn);
-        clockButton.setOnClickListener(v -> clockBottomFragment.show(getActivity().getSupportFragmentManager(), ClockBottomFragment.TAG));
+        clockButton.setOnClickListener(v -> clockBottomFragment.show(activity.getSupportFragmentManager(), ClockBottomFragment.TAG));
         clockButton.setOnLongClickListener(v -> {
             boolean useTimer = false;
 
@@ -218,16 +223,17 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onResume() {
         super.onResume();
+        FragmentActivity activity = requireActivity();
         // when this fragment is visible again, the timer/stopwatch service is no longer needed so cancel it
         if (timer != null && timer.isTimerRunning()) {
-            ((MainActivity) getActivity()).cancelTimerService();
+            ((MainActivity) activity).cancelTimerService();
         }
         // remove timer finished notification if user comes back to this page
-        NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(TimerService.timerFinishedId);
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            ((MainActivity) getActivity()).cancelStopwatchService();
+            ((MainActivity) activity).cancelStopwatchService();
         }
     }
 
@@ -237,11 +243,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {
-            ((MainActivity) getActivity()).startTimerService();
+            ((MainActivity) requireActivity()).startTimerService();
         }
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
-            ((MainActivity) getActivity()).startStopwatchService();
+            ((MainActivity) requireActivity()).startStopwatchService();
         }
     }
 
@@ -439,7 +445,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         }
         int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
         workoutProgressBar.setProgress(percentage, true);
-        workoutProgressTV.setText(String.format("Workout Progress - %d %%", percentage));
+        workoutProgressTV.setText(String.format(Locale.getDefault(), "Workout Progress - %d %%", percentage));
     }
 
     /**
@@ -472,7 +478,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
@@ -516,9 +522,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         ProgressBar progressBar = popupView.findViewById(R.id.workout_progress_bar);
         progressBar.setProgress(percentage);
         TextView progressTV = popupView.findViewById(R.id.progress_bar_tv);
-        progressTV.setText(String.format("%d %%", percentage));
+        progressTV.setText(String.format(Locale.getDefault(), "%d %%", percentage));
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Restart Workout")
                 .setView(popupView)
                 .setPositiveButton("Yes", (dialog, which) -> restartWorkout())
@@ -654,7 +660,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             expandButton.setOnClickListener((v) -> {
-                ((MainActivity) getActivity()).hideKeyboard();
+                ((MainActivity) requireActivity()).hideKeyboard();
 
                 if (rowModel.isExpanded) {
                     boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
@@ -675,7 +681,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                         rowModel.isExpanded = false;
 
                         notifyItemChanged(position, true);
-                        ((MainActivity) getActivity()).hideKeyboard();
+                        ((MainActivity) requireActivity()).hideKeyboard();
                     }
 
                 } else {
@@ -692,7 +698,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             });
 
             videoButton.setOnClickListener(v -> {
-                alertDialog = new AlertDialog.Builder(getContext())
+                alertDialog = new AlertDialog.Builder(requireContext())
                         .setTitle("Launch Video")
                         .setMessage(R.string.launch_video_msg)
                         .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()))
@@ -726,8 +732,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
             holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
-            holder.setsInput.setText(Integer.toString(exercise.getSets()));
-            holder.repsInput.setText(Integer.toString(exercise.getReps()));
+            holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
+            holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
             holder.detailsInput.setText(exercise.getDetails());
         }
 

@@ -1,11 +1,11 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.Activity;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,7 +45,6 @@ import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -59,7 +59,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private String username, email, profilePictureUrl;
     private String profilePicUrl;
     private AlertDialog alertDialog;
-    private FirebaseAuth auth;
 
     @Inject
     UserManager userManager;
@@ -69,11 +68,12 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).updateToolbarTitle(Variables.ACCOUNT_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
         User user = currentUserModule.getUser();
         username = user.getUsername();
@@ -87,12 +87,12 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         TextView usernameTV = view.findViewById(R.id.username_tv);
         usernameTV.setText(username);
 
-        auth = FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
         LinearLayout passwordLayout = view.findViewById(R.id.password_layout);
         if (FirebaseUtils.userHasPassword(user)) {
             passwordLayout.setVisibility(View.VISIBLE);
-            passwordLayout.setOnClickListener(v -> ((MainActivity) getActivity()).goToChangePassword());
+            passwordLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToChangePassword());
         } else {
             passwordLayout.setVisibility(View.GONE);
         }
@@ -102,7 +102,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         emailTV.setText(email);
 
         LinearLayout settingsLayout = view.findViewById(R.id.settings_layout);
-        settingsLayout.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
+        settingsLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToAccountPreferences());
 
         LinearLayout logoutLayout = view.findViewById(R.id.log_out_container);
         logoutLayout.setOnClickListener(view1 -> promptLogout());
@@ -154,11 +154,11 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     final Uri uri = UCrop.getOutput(result.getData());
                     if (uri != null) {
                         profilePicture.setImageURI(uri);
-                        ((MainActivity) getActivity()).updateProfilePicture(uri); // update icon in nav view since it has old one
+                        ((MainActivity) requireActivity()).updateProfilePicture(uri); // update icon in nav view since it has old one
                         try {
-                            InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
+                            InputStream iStream = requireActivity().getContentResolver().openInputStream(uri);
                             updateProfilePicture(ImageUtils.getImageByteArray(iStream));
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             FirebaseCrashlytics.getInstance().recordException(e);
                         }
                         Picasso.get().invalidate(profilePicUrl); // since upload was successful,
@@ -187,29 +187,30 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
     private void performCrop(Uri picUri) {
         String destinationFileName = UUID.randomUUID().toString() + ".png";
-        UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(getActivity().getCacheDir(), destinationFileName)));
+        UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(requireActivity().getCacheDir(), destinationFileName)));
         cropper.withAspectRatio(1, 1);
         cropper.withMaxResultSize(600, 600);
 
         UCrop.Options options = new UCrop.Options();
         options.setHideBottomControls(true);
 
-        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
-        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
-        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.color_accent));
+        Context context = requireContext();
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary));
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.color_primary));
+        options.setToolbarWidgetColor(ContextCompat.getColor(context, R.color.color_accent));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);
-        cropper.getIntent(getContext());
-        cropPhotoLauncher.launch(cropper.getIntent(getContext()));
+        cropper.getIntent(context);
+        cropPhotoLauncher.launch(cropper.getIntent(context));
     }
 
     private void promptLogout() {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
-                .setPositiveButton("Yes", (dialog, which) -> ((MainActivity) getActivity()).logout())
+                .setPositiveButton("Yes", (dialog, which) -> ((MainActivity) requireActivity()).logout())
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();

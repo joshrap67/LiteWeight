@@ -27,6 +27,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -92,7 +93,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
 
@@ -103,8 +105,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         } else {
             return null;
         }
-        ((MainActivity) getActivity()).updateToolbarTitle(workoutName);
-        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) activity).updateToolbarTitle(workoutName);
+        ((MainActivity) activity).toggleBackButton(true);
 
         User user = currentUserModule.getUser();
         for (WorkoutInfo workoutInfo : user.getWorkouts()) {
@@ -173,7 +175,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -205,8 +207,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                    ((MainActivity) getActivity()).finishFragment();
+                    ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator();
+                    ((MainActivity) requireActivity()).finishFragment();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
@@ -224,8 +226,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
                     // if it was unread, then we need to make sure to decrease unseen count
-                    ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
-                    ((MainActivity) getActivity()).finishFragment();
+                    ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator();
+                    ((MainActivity) requireActivity()).finishFragment();
                 }
             });
         });
@@ -341,7 +343,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
         String dayTag = sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();
         dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
-        dayTagTV.setText(dayTag + " "); // android cuts off italics on wrap content without trailing whitespace
+        dayTagTV.setText(dayTag);
         updateButtonViews();
     }
 
@@ -374,7 +376,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(daysAsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Jump to Day")
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {

@@ -21,6 +21,7 @@ import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
 
 import java.util.List;
+import java.util.Locale;
 
 public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -136,8 +137,8 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
         holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
-        holder.setsInput.setText(Integer.toString(exercise.getSets()));
-        holder.repsInput.setText(Integer.toString(exercise.getReps()));
+        holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
+        holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
         holder.detailsInput.setText(exercise.getDetails());
     }
 

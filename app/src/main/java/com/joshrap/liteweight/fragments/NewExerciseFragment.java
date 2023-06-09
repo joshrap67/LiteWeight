@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,6 +51,7 @@ import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -79,13 +81,14 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).toggleBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.NEW_EXERCISE_TITLE);
+        ((MainActivity) activity).toggleBackButton(true);
+        ((MainActivity) activity).updateToolbarTitle(Variables.NEW_EXERCISE_TITLE);
 
-        clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+        clipboard = (ClipboardManager) activity.getSystemService(CLIPBOARD_SERVICE);
 
         User user = currentUserModule.getUser();
         for (OwnedExercise exercise : user.getExercises()) {
@@ -122,17 +125,17 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         weightInput = view.findViewById(R.id.default_weight_input);
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightLayout));
-        weightInput.setText(Integer.toString(Variables.DEFAULT_WEIGHT));
+        weightInput.setText(String.format(Locale.getDefault(), Integer.toString(Variables.DEFAULT_WEIGHT)));
 
         setsInput = view.findViewById(R.id.default_sets_input);
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsLayout));
-        setsInput.setText(Integer.toString(Variables.DEFAULT_SETS));
+        setsInput.setText(String.format(Locale.getDefault(), Integer.toString(Variables.DEFAULT_SETS)));
 
         repsInput = view.findViewById(R.id.default_reps_input);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsLayout));
-        repsInput.setText(Integer.toString(Variables.DEFAULT_REPS));
+        repsInput.setText(String.format(Locale.getDefault(), Integer.toString(Variables.DEFAULT_REPS)));
 
         detailsInput = view.findViewById(R.id.default_details_input);
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
@@ -147,7 +150,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
         Button previewBtn = view.findViewById(R.id.preview_video_btn);
         previewBtn.setOnClickListener(v -> {
-            alertDialog = new AlertDialog.Builder(getContext())
+            alertDialog = new AlertDialog.Builder(requireContext())
                     .setTitle("Launch Video")
                     .setMessage(R.string.launch_video_msg)
                     .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
@@ -156,7 +159,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             alertDialog.show();
         });
         clipboardBtn.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) requireActivity()).hideKeyboard();
             String url = urlInput.getText().toString().trim();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", url)));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
@@ -164,7 +167,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
         Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) requireActivity()).hideKeyboard();
             createExercise();
         });
 
@@ -176,7 +179,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         focusRelativeLayout = view.findViewById(R.id.focus_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) requireActivity()).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -264,7 +267,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
-                        ((MainActivity) getActivity()).finishFragment();
+                        ((MainActivity) requireActivity()).finishFragment();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                     }

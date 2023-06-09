@@ -39,4 +39,10 @@ public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
 
         return exerciseNameTV;
     }
+
+    public void updateExercises(List<OwnedExercise> exerciseList) {
+        this.exerciseList.clear();
+        this.exerciseList.addAll(exerciseList);
+        notifyDataSetChanged();
+    }
 }

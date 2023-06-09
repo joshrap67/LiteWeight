@@ -25,7 +25,7 @@ public class Routine implements Iterable<RoutineWeek> {
         return routine;
     }
 
-    Routine(Routine toBeCloned) {
+    public Routine(Routine toBeCloned) {
         // copy constructor
         this.weeks = new ArrayList<>();
         for (RoutineWeek week : toBeCloned) {
@@ -60,6 +60,13 @@ public class Routine implements Iterable<RoutineWeek> {
             for (RoutineDay day : week) {
                 int dayPosition = week.getDays().indexOf(day);
                 RoutineDay otherDay = otherWeek.get(dayPosition);
+                if (day.getTag() == null && otherDay.getTag() != null) {
+                    return true;
+                } else if (day.getTag() != null && otherDay.getTag() == null) {
+                    return true;
+                } else if (day.getTag() != null && otherDay.getTag() != null && !day.getTag().equals(otherDay.getTag())) {
+                    return true;
+                }
 
                 List<RoutineExercise> exercises1 = day.getExercises();
                 List<RoutineExercise> exercises2 = otherDay.getExercises();
@@ -112,7 +119,7 @@ public class Routine implements Iterable<RoutineWeek> {
     }
 
     public void appendDay(int weekIndex, RoutineDay day) {
-        if (this.getWeeks().get(weekIndex) == null) {
+        if (this.getWeeks().size() == weekIndex || this.getWeeks().get(weekIndex) == null) {
             // week with this index doesn't exist yet, so create it before appending the day
             this.addWeek(new RoutineWeek());
         }

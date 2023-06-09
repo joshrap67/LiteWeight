@@ -19,6 +19,9 @@ public class TimeUtils {
         dateFormatInput.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             Date date = dateFormatInput.parse(utcDateTime);
+            if (date == null) {
+                return "N/A";
+            }
 
             // format date to the user's local timezone
             DateFormat dateFormatOutput = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.ENGLISH);

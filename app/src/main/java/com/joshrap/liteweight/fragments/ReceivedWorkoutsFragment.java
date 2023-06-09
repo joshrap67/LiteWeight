@@ -2,6 +2,7 @@ package com.joshrap.liteweight.fragments;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,7 +52,6 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
 import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.user.User;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -73,6 +74,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+@SuppressLint({"InflateParams", "NotifyDataSetChanged"})
 public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private List<SharedWorkoutInfo> receivedWorkouts;
     private RelativeLayout topContainer;
@@ -97,12 +99,12 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity fragmentActivity = requireActivity();
+        fragmentActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) fragmentActivity).updateToolbarTitle(Variables.RECEIVED_WORKOUTS_TITLE);
+        ((MainActivity) fragmentActivity).toggleBackButton(false);
         Injector.getInjector(getContext()).inject(this);
-        User user = currentUserModule.getUser();
         receivedWorkouts = new ArrayList<>();
 
         View view = inflater.inflate(R.layout.fragment_received_workouts, container, false);
@@ -180,7 +182,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         receivedWorkoutsAdapter.notifyDataSetChanged();
 
         // get rid of push notification since user is currently on this page
-        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.cancel(sharedWorkoutInfo.getSharedWorkoutId().hashCode());
         }
@@ -204,7 +206,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             try {
                 Date date1 = dateFormatter.parse(r1.getSharedUtc());
                 Date date2 = dateFormatter.parse(r2.getSharedUtc());
-                retVal = date1 != null ? date2.compareTo(date1) : 0;
+                retVal = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
             }
@@ -217,7 +219,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         for (SharedWorkoutInfo sharedWorkoutInfo : receivedWorkouts) {
             if (!sharedWorkoutInfo.isSeen()) {
                 // get rid of any push notification that might be there
-                NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationManager notificationManager = (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     notificationManager.cancel(sharedWorkoutInfo.getSharedWorkoutId().hashCode());
                 }
@@ -258,7 +260,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         markAllReceivedWorkoutsSeenButton.setVisibility(totalUnseenWorkouts > 0 ? View.VISIBLE : View.INVISIBLE);
         topContainer.setVisibility(receivedWorkouts.isEmpty() ? View.GONE : View.VISIBLE);
-        totalReceivedTV.setText(totalReceivedWorkouts + (totalReceivedWorkouts == 1 ? " WORKOUT" : " WORKOUTS"));
+        totalReceivedTV.setText(String.format(Locale.getDefault(), "%d%s", totalReceivedWorkouts, totalReceivedWorkouts == 1 ? " WORKOUT" : " WORKOUTS"));
         emptyViewTV.setVisibility(receivedWorkouts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -275,7 +277,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Report", null)
@@ -308,7 +310,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    alertDialog = new AlertDialog.Builder(getContext())
+                    alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("User reported")
                             .setMessage("Complaint received. Save receipt below for your records.\n\n" + result.getData())
                             .setPositiveButton("Ok", null)
@@ -339,7 +341,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
                     removeWorkout(workoutToAccept.getSharedWorkoutId());
-                    ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
@@ -373,7 +375,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 loadingDialog.dismiss();
                 if (result.isSuccess() && ReceivedWorkoutsFragment.this.isResumed()) {
                     // if it was unread, then we need to make sure to decrease unseen count
-                    ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator();
+                    ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator();
                     removeWorkout(sharedWorkoutInfo.getSharedWorkoutId());
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
@@ -395,7 +397,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         span1.setSpan(new StyleSpan(Typeface.ITALIC), 0, span1.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Submit", null)
@@ -431,7 +433,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         receivedWorkouts.get(position).setSeen(true); // breaking pattern by duplicating the manager logic due to blind send
         receivedWorkoutsAdapter.notifyItemChanged(position, ReceivedWorkoutsAdapter.PAYLOAD_UPDATE_SEEN_STATUS);
-        ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator(totalUnseenWorkouts - 1);
+        ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator(totalUnseenWorkouts - 1);
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
@@ -445,7 +447,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             sharedWorkoutInfo.setSeen(true);
         }
         receivedWorkoutsAdapter.notifyItemRangeChanged(0, receivedWorkoutsAdapter.getItemCount(), ReceivedWorkoutsAdapter.PAYLOAD_UPDATE_SEEN_STATUS);
-        ((MainActivity) getActivity()).updateReceivedWorkoutNotificationIndicator(0);
+        ((MainActivity) requireActivity()).updateReceivedWorkoutNotificationIndicator(0);
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
@@ -461,7 +463,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -568,7 +570,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                     setReceivedWorkoutSeen(holder.getAdapterPosition(), receivedWorkout.getSharedWorkoutId());
                 }
 
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                bottomSheetDialog = new BottomSheetDialog(requireContext());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_received_workout, null);
                 TextView browseWorkout = sheetView.findViewById(R.id.browse_workout_tv);
                 TextView workoutNameBottomSheetTV = sheetView.findViewById(R.id.workout_name_tv);
@@ -583,7 +585,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
                 }
 
                 browseWorkout.setOnClickListener(v1 -> {
-                    ((MainActivity) getActivity()).goToBrowseReceivedWorkout(receivedWorkout.getSharedWorkoutId(), receivedWorkout.getWorkoutName());
+                    ((MainActivity) requireActivity()).goToBrowseReceivedWorkout(receivedWorkout.getSharedWorkoutId(), receivedWorkout.getWorkoutName());
                     bottomSheetDialog.dismiss();
                 });
 

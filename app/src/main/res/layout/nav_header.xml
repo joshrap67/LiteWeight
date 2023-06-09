@@ -24,7 +24,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginStart="8dp"
                 android:contentDescription="@string/profile_picture"
-                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
                 app:srcCompat="@mipmap/app_logo" />
 
         <TextView

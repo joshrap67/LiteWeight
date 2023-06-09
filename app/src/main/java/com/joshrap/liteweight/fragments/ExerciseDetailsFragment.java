@@ -25,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,6 +53,7 @@ import com.joshrap.liteweight.models.user.User;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -87,13 +89,14 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).toggleBackButton(true);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
+        ((MainActivity) activity).toggleBackButton(true);
+        ((MainActivity) activity).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
 
-        clipboard = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+        clipboard = (ClipboardManager) activity.getSystemService(CLIPBOARD_SERVICE);
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
         } else {
@@ -114,6 +117,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        FragmentActivity activity = requireActivity();
+
         List<String> workoutList = new ArrayList<>(originalExercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
         selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
 
@@ -123,7 +128,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
         deleteExercise.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             promptDelete();
         });
 
@@ -162,7 +167,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
         Button previewBtn = view.findViewById(R.id.preview_video_btn);
         previewBtn.setOnClickListener(v -> {
-            alertDialog = new AlertDialog.Builder(getContext())
+            alertDialog = new AlertDialog.Builder(requireContext())
                     .setTitle("Launch Video")
                     .setMessage(R.string.launch_video_msg)
                     .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
@@ -171,7 +176,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             alertDialog.show();
         });
         clipboardBtn.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));
             Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
         });
@@ -202,7 +207,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         Button saveButton = view.findViewById(R.id.save_fab);
         saveButton.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             saveExercise();
         });
 
@@ -215,7 +220,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusRelativeLayout = view.findViewById(R.id.focus_title_container);
 
         View.OnClickListener focusLayoutClicked = v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
             focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
@@ -252,8 +257,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private void initViews() {
         exerciseNameInput.setText(originalExercise.getName());
         weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
-        setsInput.setText(Integer.toString(originalExercise.getDefaultSets()));
-        repsInput.setText(Integer.toString(originalExercise.getDefaultReps()));
+        setsInput.setText(String.format(Locale.getDefault(), Integer.toString(originalExercise.getDefaultSets())));
+        repsInput.setText(String.format(Locale.getDefault(), Integer.toString(originalExercise.getDefaultReps())));
         detailsInput.setText(originalExercise.getDefaultDetails());
         urlInput.setText(originalExercise.getVideoUrl());
     }
@@ -345,7 +350,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Exercise")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> deleteExercise())
@@ -363,7 +368,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    ((MainActivity) getActivity()).finishFragment();
+                    ((MainActivity) requireActivity()).finishFragment();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
 

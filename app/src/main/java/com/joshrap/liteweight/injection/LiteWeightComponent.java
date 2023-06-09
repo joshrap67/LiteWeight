@@ -5,6 +5,7 @@ import com.joshrap.liteweight.activities.LandingActivity;
 import com.joshrap.liteweight.activities.ResetPasswordActivity;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.activities.SignInActivity;
+import com.joshrap.liteweight.activities.SignInWithEmailActivity;
 import com.joshrap.liteweight.activities.UnverifiedActivity;
 import com.joshrap.liteweight.fragments.AboutFragment;
 import com.joshrap.liteweight.fragments.ChangePasswordFragment;
@@ -37,7 +38,7 @@ public interface LiteWeightComponent {
 
     void inject(LandingActivity landingActivity);
 
-    void inject(SignInActivity signInActivity);
+    void inject(SignInWithEmailActivity signInWithEmailActivity);
 
     void inject(ExerciseDetailsFragment exerciseDetailsFragment);
 
@@ -74,4 +75,6 @@ public interface LiteWeightComponent {
     void inject(UnverifiedActivity unverifiedActivity);
 
     void inject(ChangePasswordFragment changePasswordFragment);
+
+    void inject(SignInActivity signInActivity);
 }

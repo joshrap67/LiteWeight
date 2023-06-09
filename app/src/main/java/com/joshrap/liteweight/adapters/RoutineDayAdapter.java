@@ -28,6 +28,7 @@ import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import lombok.Data;
@@ -239,8 +240,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
         holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
-        holder.setsInput.setText(Integer.toString(exercise.getSets()));
-        holder.repsInput.setText(Integer.toString(exercise.getReps()));
+        holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
+        holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
         holder.detailsInput.setText(exercise.getDetails());
     }
 

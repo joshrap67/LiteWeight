@@ -13,6 +13,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.os.Handler;
 import android.text.InputFilter;
@@ -67,6 +68,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -86,7 +88,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private List<WorkoutInfo> workoutList;
     private WorkoutsAdapter workoutsAdapter;
     private boolean isPremium;
-//    private int workoutsSent;
 
     @Inject
     AlertDialog loadingDialog;
@@ -100,12 +101,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
 
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).updateToolbarTitle(Variables.MY_WORKOUT_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
         Workout workout = currentUserModule.getCurrentWorkout();
         if (workout != null) {
@@ -115,7 +117,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         User user = currentUserModule.getUser();
         isPremium = user.isPremium();
         workoutList = new ArrayList<>(user.getWorkouts());
-//        workoutsSent = user.getWorkoutsSent();
 
         View view;
         if (currentWorkout == null) {
@@ -131,7 +132,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         super.onViewCreated(view, savedInstanceState);
         if (currentWorkout == null) {
             ExtendedFloatingActionButton createWorkoutBtn = view.findViewById(R.id.create_workout_fab);
-            createWorkoutBtn.setOnClickListener(v -> ((MainActivity) getActivity()).goToCreateWorkout());
+            createWorkoutBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).goToCreateWorkout());
             return;
         }
 
@@ -174,7 +175,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             switch (item.getItemId()) {
                 case editIndex:
                     dropDownMenu.dismiss();
-                    ((MainActivity) getActivity()).goToEditWorkout();
+                    ((MainActivity) requireActivity()).goToEditWorkout();
                     return true;
                 case renameIndex:
                     promptRename();
@@ -223,13 +224,13 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                 AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed. Delete some of your other ones if you wish to create a new one.", getContext());
             } else {
                 // no errors so let user create new workout
-                ((MainActivity) getActivity()).goToCreateWorkout();
+                ((MainActivity) requireActivity()).goToCreateWorkout();
             }
         });
 
         // initializes the main list view
         sortWorkouts();
-        workoutsAdapter = new WorkoutsAdapter(getContext(), workoutList);
+        workoutsAdapter = new WorkoutsAdapter(requireContext(), workoutList);
         workoutListView.setAdapter(workoutsAdapter);
         workoutListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         workoutListView.setOnItemClickListener((parent, _view, position, id) ->
@@ -259,7 +260,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             try {
                 Date date1 = dateFormatter.parse(r1.getLastSetAsCurrentUtc());
                 Date date2 = dateFormatter.parse(r2.getLastSetAsCurrentUtc());
-                retVal = date1 != null ? date2.compareTo(date1) : 0;
+                retVal = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
             }
@@ -277,8 +278,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         double average = currentWorkout.getAverageExercisesCompleted();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
 
-        timesCompletedTV.setText(Integer.toString(timesCompleted));
-        totalDaysTV.setText(Integer.toString(currentUserModule.getCurrentWorkout().getRoutine().totalDays()));
+        timesCompletedTV.setText(String.format(Locale.getDefault(), Integer.toString(timesCompleted)));
+        totalDaysTV.setText(String.format(Locale.getDefault(), Integer.toString(currentUserModule.getCurrentWorkout().getRoutine().totalDays())));
         completionRateTV.setText(formattedPercentage);
         mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(currentUserModule.getUser(), currentUserModule.getCurrentWorkout().getRoutine()).replaceAll(",", ", "));
 
@@ -295,7 +296,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Reset Statistics")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> resetWorkoutStatistics(currentWorkout.getWorkoutId()))
@@ -337,7 +338,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Save", null)
@@ -394,7 +395,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Copy", null)
@@ -483,7 +484,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton("Share", null)
@@ -539,7 +540,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Workout")
                 .setMessage(title)
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -613,7 +614,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void resetFragment() {
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+        requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new MyWorkoutsFragment(), Variables.MY_WORKOUT_TITLE).commit();
     }
 
@@ -630,6 +631,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         }
 
         @Override
+        @NonNull
         public Friend getItem(int position) {
             return this.displayFriends.get(position);
         }
@@ -694,7 +696,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayFriends.clear();
-                displayFriends.addAll((List) results.values);
+                displayFriends.addAll((Collection<? extends Friend>) results.values);
                 notifyDataSetChanged();
             }
 

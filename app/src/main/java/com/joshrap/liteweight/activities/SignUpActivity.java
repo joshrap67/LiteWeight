@@ -2,6 +2,7 @@ package com.joshrap.liteweight.activities;
 
 import static com.joshrap.liteweight.utils.ValidatorUtils.passwordNotMatchingMsg;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,12 +27,12 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText emailInput, passwordInput, passwordConfirmInput;
     private TextInputLayout emailLayout, passwordConfirmLayout, passwordLayout;
     private FirebaseAuth mAuth;
+    private boolean shouldFinish;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // todo i dont think the user will understand that they can sign in with google bypassing the sign up process. so this page should also have a sign up with google even though it is not technically necessary
         mAuth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_sign_up_layout);
@@ -51,7 +52,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         Button switchToSignIn = findViewById(R.id.back_to_sign_in_btn);
-        switchToSignIn.setOnClickListener(v -> finish());
+        switchToSignIn.setOnClickListener(v -> onBackPressed());
 
         initEditTexts();
         if (getIntent().getExtras() != null) {
@@ -139,14 +140,23 @@ public class SignUpActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
     }
 
     private void launchUnverifiedActivity() {
         Intent intent = new Intent(this, UnverifiedActivity.class);
-        startActivity(intent);
-        finish();
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        shouldFinish = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // prevents flash of activity being finished when transition animations are used
+        if (shouldFinish) {
+            finish();
+        }
     }
 
     private boolean validSignUpInput() {

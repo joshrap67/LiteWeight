@@ -1,6 +1,7 @@
 package com.joshrap.liteweight.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -27,6 +28,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.transition.AutoTransition;
 import androidx.transition.TransitionManager;
 
@@ -34,7 +36,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
@@ -85,10 +86,11 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity fragmentActivity = requireActivity();
+        fragmentActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.SETTINGS_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) fragmentActivity).updateToolbarTitle(Variables.SETTINGS_TITLE);
+        ((MainActivity) fragmentActivity).toggleBackButton(true);
         Injector.getInjector(getContext()).inject(this);
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
@@ -96,7 +98,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
                 .requestEmail()
                 .requestIdToken(BackendConfig.googleSignInClientId)
                 .build();
-        googleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
         auth = FirebaseAuth.getInstance();
 
         userSettings = currentUserModule.getUser().getSettings();
@@ -146,8 +148,8 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         stopwatchLayout.setOnClickListener(view1 -> stopwatchSwitch.performClick());
         stopwatchSwitch.setChecked(sharedPreferences.getBoolean(Variables.STOPWATCH_ENABLED, true));
         stopwatchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((MainActivity) getActivity()).cancelStopwatchService();
-            ((MainActivity) getActivity()).getStopwatch().stopStopwatch();
+            ((MainActivity) fragmentActivity).cancelStopwatchService();
+            ((MainActivity) fragmentActivity).getStopwatch().stopStopwatch();
             editor.putBoolean(Variables.STOPWATCH_ENABLED, isChecked);
             editor.apply();
         });
@@ -155,8 +157,8 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         timerLayout.setOnClickListener(view1 -> timerSwitch.performClick());
         timerSwitch.setChecked(sharedPreferences.getBoolean(Variables.TIMER_ENABLED, true));
         timerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((MainActivity) getActivity()).cancelTimerService();
-            ((MainActivity) getActivity()).getTimer().stopTimer();
+            ((MainActivity) fragmentActivity).cancelTimerService();
+            ((MainActivity) fragmentActivity).getTimer().stopTimer();
             editor.putBoolean(Variables.TIMER_ENABLED, isChecked);
             editor.apply();
         });
@@ -179,14 +181,15 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         TextView manageNotificationsTV = view.findViewById(R.id.manage_notifications_tv);
         manageNotificationsTV.setOnClickListener(view1 -> {
             Intent intent = new Intent();
+            Context context = requireContext();
             intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
-            getContext().startActivity(intent);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+            context.startActivity(intent);
         });
 
         // danger zone
         RelativeLayout dangerZoneLayout = view.findViewById(R.id.danger_zone_container);
-        TextView deleteAccountTV = view.findViewById(R.id.delete_account_tv); // todo perform delete
+        TextView deleteAccountTV = view.findViewById(R.id.delete_account_tv);
         ImageButton dangerZoneIcon = view.findViewById(R.id.danger_zone_icon_btn);
         View.OnClickListener dangerZoneClicked = v -> {
             boolean visible = deleteAccountTV.getVisibility() == View.VISIBLE;
@@ -217,7 +220,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
             passwordInputLayout.setVisibility(View.GONE);
         }
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Account")
                 .setView(popupView)
                 .setPositiveButton("Delete", null)
@@ -228,7 +231,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
             Button deleteButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button cancelButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
             cancelButton.setTextColor(Color.WHITE);
-            deleteButton.setTextColor(ContextCompat.getColor(getContext(), R.color.danger_zone));
+            deleteButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.danger_zone));
             deleteButton.setOnClickListener(view -> {
                 String password = passwordInput.getText().toString().trim();
                 if (requirePassword && password.isEmpty()) {
@@ -262,6 +265,10 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        if (!completedTask.isSuccessful()) {
+            return;
+        }
+
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (!account.getEmail().equals(currentUserModule.getUser().getEmail())) {
@@ -296,7 +303,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
                     handler.post(() -> {
                         loadingDialog.dismiss();
                         if (result.isSuccess()) {
-                            ((MainActivity) getActivity()).forceKill();
+                            ((MainActivity) requireActivity()).forceKill();
                         } else {
                             AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                         }
