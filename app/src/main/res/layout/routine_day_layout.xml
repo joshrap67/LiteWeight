@@ -50,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textAlignment="center"
-                    android:textColor="?subtitleColor"
+                    android:textColor="?attr/colorSubtitle"
                     android:textStyle="italic"
                     tools:text="Shoulders Day" />
         </LinearLayout>

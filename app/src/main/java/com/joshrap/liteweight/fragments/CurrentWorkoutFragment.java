@@ -548,9 +548,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final Button videoButton;
 
             final TextInputLayout weightInputLayout;
-            final TextInputLayout setsInputLayout;
-            final TextInputLayout repsInputLayout;
-            final TextInputLayout detailsInputLayout;
 
             ViewHolder(View itemView) {
                 super(itemView);
@@ -569,9 +566,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 repsInput = itemView.findViewById(R.id.reps_input);
 
                 weightInputLayout = itemView.findViewById(R.id.weight_input_layout);
-                setsInputLayout = itemView.findViewById(R.id.sets_input_layout);
-                repsInputLayout = itemView.findViewById(R.id.reps_input_layout);
-                detailsInputLayout = itemView.findViewById(R.id.details_input_layout);
             }
         }
 
@@ -620,6 +614,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final RoutineExercise exercise = rowModel.routineExercise;
             boolean isExpanded = rowModel.isExpanded;
 
+            // todo add this method to user object? user.getExerciseName(id)?
             String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;
             exerciseCheckbox.setText(currentExerciseName);
@@ -635,11 +630,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             EditText repsInput = holder.repsInput;
             EditText setsInput = holder.setsInput;
 
-            TextInputLayout detailsInputLayout = holder.detailsInputLayout;
-            TextInputLayout setsInputLayout = holder.setsInputLayout;
-            TextInputLayout repsInputLayout = holder.repsInputLayout;
-            TextInputLayout weightInputLayout = holder.weightInputLayout;
-
             Button videoButton = holder.videoButton;
             videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
 
@@ -648,10 +638,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
             detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-            weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightInputLayout));
-            setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsInputLayout));
-            repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsInputLayout));
-            detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsInputLayout));
+            AndroidUtils.setWeightTextWatcher(weightInput, exercise, isMetricUnits);
+            AndroidUtils.setSetsTextWatcher(setsInput, exercise);
+            AndroidUtils.setRepsTextWatcher(repsInput, exercise);
+            AndroidUtils.setDetailsTextWatcher(detailsInput, exercise);
 
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
@@ -663,27 +653,10 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                 ((MainActivity) requireActivity()).hideKeyboard();
 
                 if (rowModel.isExpanded) {
-                    boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
-                            weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+                    rowModel.isExpanded = false;
 
-                    if (validInput) {
-                        double newWeight = Double.parseDouble(weightInput.getText().toString());
-                        if (metricUnits) {
-                            // convert back to imperial if in metric since weight is stored in imperial on backend
-                            newWeight = WeightUtils.metricWeightToImperial(newWeight);
-                        }
-
-                        exercise.setWeight(newWeight);
-                        exercise.setDetails(detailsInput.getText().toString().trim());
-                        exercise.setReps(Integer.parseInt(repsInput.getText().toString().trim()));
-                        exercise.setSets(Integer.parseInt(setsInput.getText().toString().trim()));
-
-                        rowModel.isExpanded = false;
-
-                        notifyItemChanged(position, true);
-                        ((MainActivity) requireActivity()).hideKeyboard();
-                    }
-
+                    notifyItemChanged(position, true);
+                    ((MainActivity) requireActivity()).hideKeyboard();
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
                     rowModel.isExpanded = true;
@@ -735,38 +708,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
             holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
             holder.detailsInput.setText(exercise.getDetails());
-        }
-
-        private boolean inputValid(EditText weightInput, EditText detailsInput,
-                                   EditText setsInput, EditText repsInput, TextInputLayout weightLayout,
-                                   TextInputLayout detailsLayout, TextInputLayout setsLayout, TextInputLayout repsLayout) {
-            boolean valid = true;
-            if (weightInput.getText().toString().trim().isEmpty()) {
-                valid = false;
-                weightLayout.setError("Weight cannot be empty");
-            } else if (weightInput.getText().toString().trim().length() > Variables.MAX_WEIGHT_DIGITS) {
-                weightLayout.setError("Weight too large");
-                valid = false;
-            }
-
-            if (setsInput.getText().toString().trim().isEmpty() ||
-                    setsInput.getText().toString().length() > Variables.MAX_SETS_DIGITS) {
-                setsLayout.setError("Invalid");
-                valid = false;
-            }
-
-            if (repsInput.getText().toString().trim().isEmpty() ||
-                    repsInput.getText().toString().length() > Variables.MAX_REPS_DIGITS) {
-                repsLayout.setError("Invalid");
-                valid = false;
-            }
-
-            if (detailsInput.getText().toString().trim().length() > Variables.MAX_DETAILS_LENGTH) {
-                detailsLayout.setError("Too many characters");
-                valid = false;
-            }
-
-            return valid;
         }
 
         @Override

@@ -677,11 +677,14 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
         Spinner workoutSpinner = popupView.findViewById(R.id.workouts_spinner);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
-        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - workoutsSent;
-        if (remainingAmount < 0) {
-            remainingAmount = 0; // lol. Just to cover my ass in case
+
+        if (!isPremium) {
+            int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - currentUserModule.getUser().getWorkoutsSent();
+            if (remainingAmount <= 0) {
+                remainingToSendTv.setVisibility(View.VISIBLE);
+                remainingToSendTv.setText(R.string.max_workouts_sent);
+            }
         }
-        remainingToSendTv.setText(String.format(Locale.getDefault(), "You can share a workout %d more times.", remainingAmount));
 
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();

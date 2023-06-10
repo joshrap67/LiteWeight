@@ -33,7 +33,7 @@
             android:drawableEnd="@drawable/down_arrow_small"
             android:paddingHorizontal="2dp"
             android:textAllCaps="false"
-            android:textColor="?defaultTextColor"
+            android:textColor="?attr/colorDefaultText"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/exercise_checkbox"
@@ -139,6 +139,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/details_input_layout"
                 android:text="@string/watch_video"
-                android:textColor="?defaultTextColor" />
+                android:textColor="?attr/colorDefaultText" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

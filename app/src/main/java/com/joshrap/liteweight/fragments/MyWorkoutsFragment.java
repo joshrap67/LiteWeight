@@ -538,11 +538,11 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         SpannableString span3 = new SpannableString("?\n\nIf so, all statistics for it will also be deleted.");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
-        CharSequence title = TextUtils.concat(span1, span2, span3);
+        CharSequence message = TextUtils.concat(span1, span2, span3);
 
         alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Workout")
-                .setMessage(title)
+                .setMessage(message)
                 .setPositiveButton("Yes", (dialog, which) -> {
                     String nextWorkoutId = null;
                     if (workoutList.size() >= 2) {

@@ -26,7 +26,7 @@
                     android:layout_marginVertical="16dp"
                     android:paddingHorizontal="16dp"
                     android:text="@string/account_settings"
-                    android:textColor="?colorControl"
+                    android:textColor="?attr/colorControl"
                     android:textSize="16sp" />
 
             <LinearLayout
@@ -143,7 +143,7 @@
                     android:layout_marginVertical="16dp"
                     android:paddingHorizontal="16dp"
                     android:text="@string/app_settings"
-                    android:textColor="?colorControl"
+                    android:textColor="?attr/colorControl"
                     android:textSize="16sp" />
 
             <LinearLayout
@@ -176,7 +176,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/dark_theme_switch_description"
-                            android:textColor="?subtitleColor" />
+                            android:textColor="?attr/colorSubtitle" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -204,7 +204,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/stopwatch_switch_description"
-                            android:textColor="?subtitleColor" />
+                            android:textColor="?attr/colorSubtitle" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -232,7 +232,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/timer_switch_description"
-                            android:textColor="?subtitleColor" />
+                            android:textColor="?attr/colorSubtitle" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -260,7 +260,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/video_switch_description"
-                            android:textColor="?subtitleColor" />
+                            android:textColor="?attr/colorSubtitle" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -288,7 +288,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/workout_progress_description"
-                            android:textColor="?subtitleColor" />
+                            android:textColor="?attr/colorSubtitle" />
                 </LinearLayout>
 
                 <TextView
@@ -326,7 +326,7 @@
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/danger_zone_icon_btn"
                             android:text="@string/danger_zone"
-                            android:textColor="?dangerZone"
+                            android:textColor="?attr/colorDangerZone"
                             android:textSize="16sp" />
 
                     <ImageButton
@@ -339,7 +339,7 @@
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
                             android:src="@drawable/down_arrow"
-                            app:tint="@color/danger_zone" />
+                            app:tint="?attr/colorDangerZone" />
                 </RelativeLayout>
 
                 <TextView
@@ -353,7 +353,7 @@
                         android:focusable="true"
                         android:paddingVertical="16dp"
                         android:text="@string/delete_my_account"
-                        android:textColor="?dangerZone"
+                        android:textColor="?attr/colorDangerZone"
                         android:textSize="16sp"
                         android:visibility="gone"
                         tools:visibility="visible" />

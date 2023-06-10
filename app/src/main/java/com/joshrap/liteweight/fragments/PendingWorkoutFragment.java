@@ -224,10 +224,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final int copyDayToExistingId = 2;
         final int setDayTagId = 3;
         final int moveDayId = 4;
-        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
-        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
+        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
-        routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
+        routineDayMenu.add(0, moveDayId, 0, "Move To Week");
         routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
         dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
@@ -1275,13 +1275,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 CheckBox exerciseCheckbox = viewHolder.exerciseCheckbox;
                 exerciseCheckbox.setText(ownedExercise.getName());
                 // check if the exercise is already in this specific day
-                boolean isChecked = false;
-                for (RoutineExercise routineExercise : pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex)) {
-                    if (routineExercise.getExerciseId().equals(ownedExercise.getId())) {
-                        isChecked = true;
-                        break;
-                    }
-                }
+                boolean isChecked = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex)
+                        .stream().anyMatch(x -> x.getExerciseId().equals(ownedExercise.getId()));
                 exerciseCheckbox.setChecked(isChecked);
 
                 exerciseCheckbox.setOnClickListener(v -> {
@@ -1528,8 +1523,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             final int deleteWeekId = 0;
             final int copyAsNewWeekId = 1;
             final int copyToExistingWeekId = 2;
-            weekMenu.add(0, copyAsNewWeekId, 0, "Copy As New Week");
-            weekMenu.add(0, copyToExistingWeekId, 0, "Copy To Existing Week");
+            weekMenu.add(0, copyAsNewWeekId, 0, "Copy As New");
+            weekMenu.add(0, copyToExistingWeekId, 0, "Copy To Week");
             weekMenu.add(0, deleteWeekId, 0, "Delete Week");
 
             dropDownWeekMenu.setOnMenuItemClickListener(item -> {
@@ -1642,10 +1637,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             final int copyDayToExistingId = 2;
             final int setDayTagId = 3;
             final int moveDayId = 4;
-            routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
-            routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
+            routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
+            routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
             routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
-            routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
+            routineDayMenu.add(0, moveDayId, 0, "Move To Week");
             routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
             dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {

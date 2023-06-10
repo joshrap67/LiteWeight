@@ -3,14 +3,15 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingLeft="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp"
+        android:paddingRight="?attr/dialogPreferredPadding">
 
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/exercise_name_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp"
             android:hint="@string/name_hint"
             app:autoSizeTextType="uniform"
             app:expandedHintEnabled="false">
@@ -33,7 +34,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/exercise_name_input_layout"
             android:layout_alignParentStart="true"
-            android:layout_marginHorizontal="16dp"
             android:layout_marginVertical="8dp"
             android:text="@string/select_focus_title"
             android:textSize="20sp" />
@@ -43,7 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/focus_tv"
-            android:layout_marginHorizontal="16dp"
             tools:itemCount="1"
             tools:listitem="@android:layout/simple_selectable_list_item"
             tools:visibility="visible" />
@@ -53,7 +52,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pick_focuses_recycler_view"
-            android:layout_marginHorizontal="16dp"
             android:indeterminate="true"
             android:visibility="gone"
             tools:visibility="visible" />

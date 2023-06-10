@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.activities;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -112,14 +111,13 @@ public class SignInActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        // prevents flash of activity being finished when transition animations are used
         if (shouldFinish) {
             finish();
         }
@@ -127,11 +125,11 @@ public class SignInActivity extends AppCompatActivity {
 
     private void launchSignUp() {
         Intent intent = new Intent(this, SignUpActivity.class);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
     }
 
     private void launchSignInWithEmail() {
         Intent intent = new Intent(this, SignInWithEmailActivity.class);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
     }
 }

@@ -47,37 +47,37 @@
                 android:name=".activities.SignUpActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.ResetPasswordActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.SignInWithEmailActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.SignInActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.NewAccountActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.UnverifiedActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
-                android:windowSoftInputMode="adjustResize" />
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.LandingActivity"

@@ -16,7 +16,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/color_primary"
+                android:background="?colorPrimary"
                 android:theme="@style/ToolBarTheme"
                 android:elevation="4dp">
 
@@ -25,7 +25,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="24sp"
-                    android:textColor="?toolBarTextColor"
+                    android:textColor="?attr/colorToolBarText"
                     app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform"
                     tools:text="LiteWeight" />

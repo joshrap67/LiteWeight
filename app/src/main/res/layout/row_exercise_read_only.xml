@@ -36,7 +36,7 @@
             android:drawableEnd="@drawable/down_arrow_small"
             android:paddingHorizontal="2dp"
             android:textAllCaps="false"
-            android:textColor="?defaultTextColor"
+            android:textColor="?attr/colorDefaultText"
             tools:text="12345 lb" />
 
     <RelativeLayout

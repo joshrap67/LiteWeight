@@ -2,40 +2,40 @@
 <resources>
     <color name="color_primary">#2B8366</color>
     <color name="color_accent">#FFFFFF</color>
-    <color name="default_text_color">#FFFFFF</color>
-    <color name="hint_color">#BEFFFFFF</color>
-    <color name="delete_color">#B71C1C</color>
     <color name="color_control">#02F88F</color>
-    <color name="danger_zone">#D32F2F</color>
-    <color name="notification_color">#FFFFFF</color>
-    <color name="divider_color">#75FFFFFF</color>
-    <color name="nav_item_selected">#02F88F</color>
-    <color name="transparent">#00FFFFFF</color>
-    <color name="subtitle_color">#CDCDCD</color>
+    <color name="color_nav_item_selected">#02F88F</color>
+    <color name="color_row_activated">#414141</color>
+    <color name="color_options_background">#303030</color>
+    <color name="color_window_background">#121212</color>
+    <color name="color_dialog_window_background">#424242</color>
+    <color name="color_logo_background">#0b2027</color>
 
-    <color name="workout_progress_background">#41C6C6C6</color>
-    <color name="workout_progress_gradient_start">#216541</color>
-    <color name="workout_progress_gradient_end">#3fdf9a</color>
+    <color name="color_default_text">#FFFFFF</color>
+    <color name="color_subtitle">#CDCDCD</color>
+    <color name="color_hint">#BEFFFFFF</color>
+    <color name="color_danger_zone">#B71C1C</color>
+    <color name="color_divider">#75FFFFFF</color>
+    <color name="color_transparent">#00FFFFFF</color>
+    <color name="color_semi_transparent">#50000000</color>
 
-    <color name="row_activated">#414141</color>
-    <color name="options_background">#303030</color>
-    <color name="exercise_row_background">#202020</color>
-    <color name="exercise_row_selected_background">#4d4d4d</color>
-    <color name="week_card_background">#303030</color>
-    <color name="week_card_selected_background">#595959</color>
-    <color name="day_card_background">#424242</color>
-    <color name="day_card_selected_background">#686868</color>
-    <color name="window_background">#121212</color>
-    <color name="dialog_window_background">#424242</color>
-    <color name="logo_background">#0b2027</color>
+    <color name="color_exercise_row_background">#202020</color>
+    <color name="color_exercise_row_selected_background">#4d4d4d</color>
+    <color name="color_week_card_background">#303030</color>
+    <color name="color_week_card_selected_background">#595959</color>
+    <color name="color_day_card_background">#424242</color>
+    <color name="color_day_card_selected_background">#686868</color>
 
-    <color name="workout_activity_outline_box_unfocused_color">#BEFFFFFF</color>
-    <color name="workout_activity_outline_box_focused_color">#30C272</color>
+    <color name="color_workout_progress_background">#41C6C6C6</color>
+    <color name="color_workout_progress_gradient_start">#216541</color>
+    <color name="color_workout_progress_gradient_end">#3fdf9a</color>
 
-    <color name="login_divider_color">#c0c0c0</color>
-    <color name="semi_transparent">#50000000</color>
-    <color name="login_activity_outline_box_unfocused_color">#E6FFFFFF</color>
-    <color name="login_activity_outline_box_focused_color">#E600FF99</color>
-    <color name="login_gradient_start">@color/color_primary</color>
-    <color name="login_gradient_center">#FF16384B</color>
+    <color name="color_main_activity_outline_box_unfocused">#BEFFFFFF</color>
+    <color name="color_main_activity_outline_box_focused">#30C272</color>
+
+    <color name="color_login_activity_outline_box_unfocused">#E6FFFFFF</color>
+    <color name="color_login_activity_outline_box_focused">#E600FF99</color>
+
+    <color name="color_login_gradient_start">@color/color_primary</color>
+    <color name="color_login_gradient_center">#FF16384B</color>
+    <color name="color_login_divider">#c0c0c0</color>
 </resources>

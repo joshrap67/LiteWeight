@@ -65,7 +65,7 @@
                     android:hint="@string/password_hint"
                     android:transitionGroup="true"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/color_accent"
+                    app:passwordToggleTint="?colorAccent"
                     tools:style="@style/SignInTextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -89,7 +89,7 @@
                     android:hint="@string/password_confirm_hint"
                     android:transitionGroup="true"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/color_accent"
+                    app:passwordToggleTint="?colorAccent"
                     tools:style="@style/SignInTextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -103,6 +103,16 @@
                         android:longClickable="false"
                         android:visibility="visible" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                    android:id="@+id/sign_up_btn"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/password_confirm_input_layout"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/sign_up" />
+
         </RelativeLayout>
     </ScrollView>
 
@@ -114,19 +124,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-                android:id="@+id/sign_up_btn"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:text="@string/sign_up" />
-
         <LinearLayout
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/sign_up_btn"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical"
@@ -137,7 +138,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="@color/login_divider_color" />
+                    android:background="?attr/colorDivider" />
 
             <TextView
                     android:layout_width="wrap_content"
@@ -149,7 +150,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="@color/login_divider_color" />
+                    android:background="?attr/colorDivider" />
         </LinearLayout>
 
         <Button

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -239,8 +238,8 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.setOnShowListener(dialogInterface -> {
             Button deleteButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button cancelButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            cancelButton.setTextColor(Color.WHITE);
-            deleteButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.danger_zone));
+            cancelButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_danger_zone));
+            deleteButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_danger_zone));
             deleteButton.setOnClickListener(view -> {
                 String password = passwordInput.getText().toString().trim();
                 if (requirePassword && password.isEmpty()) {

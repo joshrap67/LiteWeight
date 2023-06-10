@@ -1,7 +1,6 @@
 package com.joshrap.liteweight.activities;
 
 import android.Manifest;
-import android.app.ActivityOptions;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -263,14 +262,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra(Variables.INTENT_ERROR_MESSAGE, errorMessage);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 
     private void launchAccountNotCreatedActivity() {
         Intent intent = new Intent(this, NewAccountActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 

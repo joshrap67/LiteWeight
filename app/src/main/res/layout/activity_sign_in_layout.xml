@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
+        android:background="@drawable/login_gradient"
         android:clickable="true"
         android:fitsSystemWindows="true"
         android:focusable="true"
@@ -14,23 +14,16 @@
             android:id="@+id/app_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_above="@id/test"
             android:layout_centerHorizontal="true"
+            android:layout_marginVertical="16dp"
             android:fontFamily="@font/roboto_thin"
             android:text="@string/app_name"
             android:textSize="36sp"
             android:textStyle="bold" />
 
-    <ImageView
-            android:id="@+id/sign_in_app_logo"
-            android:layout_width="185dp"
-            android:layout_height="140dp"
-            android:layout_below="@+id/app_title_tv"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:contentDescription="@string/app_logo"
-            app:srcCompat="@mipmap/app_logo_round" />
-
     <RelativeLayout
+            android:id="@+id/test"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true">
@@ -56,7 +49,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="@color/danger_zone"
+                android:backgroundTint="#303F9F"
                 android:text="@string/sign_in_with_email"
                 app:icon="@drawable/email_icon"
                 app:iconGravity="textStart"

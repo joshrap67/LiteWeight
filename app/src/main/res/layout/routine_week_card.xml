@@ -49,9 +49,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="5dp"
                 android:text="@string/add_day_msg"
-                android:textColor="?defaultTextColor"
+                android:textColor="?attr/colorDefaultText"
                 app:icon="@drawable/add_icon"
-                app:iconTint="?iconButtonColor"
+                app:iconTint="?attr/colorIconButton"
                 tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 

@@ -43,18 +43,11 @@ public class ValidatorUtils {
      * @return If no error, return null. Else return specific error.
      */
     public static String validWorkoutName(String workoutName, List<String> workoutNamesList) {
-        workoutName = workoutName.trim();
         String retVal = null;
-        if (workoutName.length() > 0 && workoutName.length() <= Variables.MAX_WORKOUT_NAME) {
-            // check if workout name has already been used before
-            for (String workout : workoutNamesList) {
-                if (workout.equals(workoutName)) {
-                    retVal = "Workout name already exists.";
-                    break;
-                }
-            }
-        } else {
+        if (workoutName.length() <= 0 || workoutName.length() > Variables.MAX_WORKOUT_NAME) {
             retVal = String.format("Name must have 1-%s characters.", Variables.MAX_WORKOUT_NAME);
+        } else if (workoutNamesList.stream().anyMatch(x -> x.equals(workoutName))) {
+            retVal = "Workout name already exists.";
         }
         return retVal;
     }
@@ -83,19 +76,13 @@ public class ValidatorUtils {
      * @return If no error, return null. Else return specific error.
      */
     public static String validNewExerciseName(String exerciseName, List<String> totalExercises) {
-        exerciseName = exerciseName.trim();
         String retVal = null;
         if (exerciseName.isEmpty()) {
             retVal = "Name cannot be empty.";
         } else if (exerciseName.length() > Variables.MAX_EXERCISE_NAME) {
             retVal = String.format("Name must have 1-%s characters.", Variables.MAX_EXERCISE_NAME);
-        } else {
-            for (String exercise : totalExercises) {
-                if (exercise.equals(exerciseName)) {
-                    retVal = "Exercise already exists.";
-                    break;
-                }
-            }
+        } else if (totalExercises.stream().anyMatch(x -> x.equals(exerciseName))) {
+            retVal = "Exercise already exists.";
         }
         return retVal;
     }

@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/day_title_tv"
                 android:layout_marginHorizontal="8dp"
-                android:textColor="?subtitleColor"
+                android:textColor="?attr/colorSubtitle"
                 android:textSize="13sp"
                 android:textStyle="italic"
                 tools:text="Shoulders Day" />

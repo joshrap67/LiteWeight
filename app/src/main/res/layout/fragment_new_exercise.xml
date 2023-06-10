@@ -258,7 +258,7 @@
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
                             android:text="@string/copy_url"
-                            android:textColor="?defaultTextColor"
+                            android:textColor="?attr/colorDefaultText"
                             app:icon="@drawable/copy_icon" />
 
                     <Button
@@ -268,7 +268,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/preview_url"
-                            android:textColor="?defaultTextColor"
+                            android:textColor="?attr/colorDefaultText"
                             app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>

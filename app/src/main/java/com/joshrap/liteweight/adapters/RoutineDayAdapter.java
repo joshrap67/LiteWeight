@@ -2,7 +2,9 @@ package com.joshrap.liteweight.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,9 +50,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final EditText repsInput;
 
         final TextInputLayout weightInputLayout;
-        final TextInputLayout setsInputLayout;
-        final TextInputLayout repsInputLayout;
-        final TextInputLayout detailsInputLayout;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -68,9 +67,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             repsInput = itemView.findViewById(R.id.reps_input);
 
             weightInputLayout = itemView.findViewById(R.id.weight_input_layout);
-            setsInputLayout = itemView.findViewById(R.id.sets_input_layout);
-            repsInputLayout = itemView.findViewById(R.id.reps_input_layout);
-            detailsInputLayout = itemView.findViewById(R.id.details_input_layout);
         }
     }
 
@@ -144,11 +140,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         EditText repsInput = holder.repsInput;
         EditText setsInput = holder.setsInput;
 
-        TextInputLayout detailsInputLayout = holder.detailsInputLayout;
-        TextInputLayout setsInputLayout = holder.setsInputLayout;
-        TextInputLayout repsInputLayout = holder.repsInputLayout;
-        TextInputLayout weightInputLayout = holder.weightInputLayout;
-
         ImageButton deleteButton = holder.deleteButton;
 
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
@@ -156,10 +147,39 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
         detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
 
-        weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightInputLayout));
-        setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsInputLayout));
-        repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsInputLayout));
-        detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsInputLayout));
+        AndroidUtils.setSetsTextWatcher(setsInput, exercise);
+        AndroidUtils.setRepsTextWatcher(repsInput, exercise);
+        AndroidUtils.setDetailsTextWatcher(detailsInput, exercise);
+
+        weightInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String weight = weightInput.getText().toString().trim();
+                if (!weight.isEmpty() && weight.length() <= Variables.MAX_WEIGHT_DIGITS) {
+                    double newWeight = Double.parseDouble(weight);
+                    if (metricUnits) {
+                        // convert back to imperial if in metric since weight is stored in imperial on backend
+                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                    }
+
+                    // breaking pattern of using shared util method due to this shortcut
+                    if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
+                        // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
+                        exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
+                    }
+
+                    exercise.setWeight(newWeight);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
 
         if (isExpanded) {
             setExpandedViews(holder, exercise);
@@ -179,30 +199,10 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             ((MainActivity) activity).hideKeyboard();
 
             if (rowModel.isExpanded) {
-                boolean validInput = inputValid(weightInput, detailsInput, setsInput, repsInput,
-                        weightInputLayout, detailsInputLayout, setsInputLayout, repsInputLayout);
+                rowModel.isExpanded = false;
 
-                if (validInput) {
-                    double newWeight = Double.parseDouble(weightInput.getText().toString());
-                    if (metricUnits) {
-                        // convert back to imperial if in metric since weight is stored in imperial on backend
-                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
-                    }
-
-                    exercise.setWeight(newWeight);
-                    exercise.setDetails(detailsInput.getText().toString().trim());
-                    exercise.setReps(Integer.parseInt(repsInput.getText().toString().trim()));
-                    exercise.setSets(Integer.parseInt(setsInput.getText().toString().trim()));
-                    if (exerciseIdToCurrentMaxWeight.containsKey(exercise.getExerciseId()) && exerciseIdToCurrentMaxWeight.get(exercise.getExerciseId()) < newWeight) {
-                        // shortcut used for first workout being created - prevents user from constantly having to change from 0lb
-                        exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), newWeight);
-                    }
-
-                    rowModel.isExpanded = false;
-
-                    notifyItemChanged(holder.getAdapterPosition(), true);
-                    ((MainActivity) activity).hideKeyboard();
-                }
+                notifyItemChanged(holder.getAdapterPosition(), true);
+                ((MainActivity) activity).hideKeyboard();
 
             } else {
                 // show all the extra details for this exercise so the user can edit/read them
@@ -243,38 +243,6 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
         holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
         holder.detailsInput.setText(exercise.getDetails());
-    }
-
-    private boolean inputValid(EditText weightInput, EditText detailsInput,
-                               EditText setsInput, EditText repsInput, TextInputLayout weightLayout,
-                               TextInputLayout detailsLayout, TextInputLayout setsLayout, TextInputLayout repsLayout) {
-        boolean valid = true;
-        if (weightInput.getText().toString().trim().isEmpty()) {
-            valid = false;
-            weightLayout.setError("Weight cannot be empty.");
-        } else if (weightInput.getText().toString().trim().length() > Variables.MAX_WEIGHT_DIGITS) {
-            weightLayout.setError("Weight is too large.");
-            valid = false;
-        }
-
-        if (setsInput.getText().toString().trim().isEmpty() ||
-                setsInput.getText().toString().length() > Variables.MAX_SETS_DIGITS) {
-            setsLayout.setError("Invalid");
-            valid = false;
-        }
-
-        if (repsInput.getText().toString().trim().isEmpty() ||
-                repsInput.getText().toString().length() > Variables.MAX_REPS_DIGITS) {
-            repsLayout.setError("Invalid");
-            valid = false;
-        }
-
-        if (detailsInput.getText().toString().length() > Variables.MAX_DETAILS_LENGTH) {
-            detailsLayout.setError("Too many characters.");
-            valid = false;
-        }
-
-        return valid;
     }
 
     @Override

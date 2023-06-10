@@ -2,63 +2,57 @@
 
     <!-- Base application theme. -->
     <style name="AppThemeLight" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:windowActivityTransitions">true</item>
-        <item name="android:windowEnterTransition">@android:transition/fade</item>
-        <item name="android:windowExitTransition">@android:transition/slide_left</item>
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
         <item name="colorAccent">@color/color_accent_light</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
-        <item name="android:textColor">@color/default_text_color_light</item>
-        <item name="android:textColorPrimary">@color/default_text_color_light</item>
-        <item name="android:textColorSecondary">@color/default_text_color_light</item>
-        <item name="android:textColorTertiary">@color/default_text_color_light</item>
-        <item name="android:textColorHint">@color/hint_color_light</item>
+        <item name="android:textColor">@color/color_default_text_light</item>
+        <item name="android:textColorPrimary">@color/color_default_text_light</item>
+        <item name="android:textColorSecondary">@color/color_default_text_light</item>
+        <item name="android:textColorTertiary">@color/color_default_text_light</item>
+        <item name="android:textColorHint">@color/color_hint_light</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="android:navigationBarColor">@android:color/black</item>
 
         <item name="android:itemBackground">@drawable/item_background_drawable</item>
-        <item name="actionMenuTextColor">@color/default_text_color_light</item>
+        <item name="actionMenuTextColor">@color/color_default_text_light</item>
 
-        <item name="navItemIconNotSelectedColor">@color/color_accent_light</item>
-        <item name="iconButtonColor">@color/color_accent_light</item>
-        <item name="borderColor">@color/divider_color_light</item>
-        <item name="coloredButtonColor">@color/color_primary</item>
-        <item name="dayCardBackground">@color/day_card_background_light</item>
-        <item name="dayCardSelectedBackground">@color/day_card_selected_background_light</item>
-        <item name="exerciseRowBackground">@color/exercise_row_background_light</item>
-        <item name="exerciseRowSelectedBackground">@color/exercise_row_selected_background_light
+        <item name="colorNavItemIconNotSelected">@color/color_accent_light</item>
+        <item name="colorIconButton">@color/color_accent_light</item>
+        <item name="colorDivider">@color/color_divider_light</item>
+        <item name="colorDayCardBackground">@color/color_day_card_background_light</item>
+        <item name="colorDayCardSelectedBackground">@color/color_day_card_selected_background_light</item>
+        <item name="colorExerciseRowBackground">@color/color_exercise_row_background_light</item>
+        <item name="colorExerciseRowSelectedBackground">@color/color_exercise_row_selected_background_light
         </item>
-        <item name="workoutProgressBackground">@color/workout_progress_background_light</item>
-        <item name="workoutProgressGradientStart">@color/workout_progress_gradient_start</item>
-        <item name="workoutProgressGradientEnd">@color/workout_progress_gradient_end</item>
-        <item name="optionsBackground">@color/options_background_light</item>
-        <item name="navItemSelected">@color/nav_item_selected_light</item>
-        <item name="weekCardBackground">@color/week_card_background_light</item>
-        <item name="weekCardSelectedBackground">@color/week_card_selected_background_light</item>
-        <item name="subtitleColor">@color/subtitle_color_light</item>
-        <item name="defaultTextColor">@color/default_text_color_light</item>
-        <item name="hintColor">@color/hint_color_light</item>
+        <item name="colorWorkoutProgressBackground">@color/color_workout_progress_background_light</item>
+        <item name="colorWorkoutProgressGradientStart">@color/color_workout_progress_gradient_start</item>
+        <item name="colorWorkoutProgressGradientEnd">@color/color_workout_progress_gradient_end</item>
+        <item name="colorOptionsBackground">@color/color_options_background_light</item>
+        <item name="colorNavItemSelected">@color/color_nav_item_selected_light</item>
+        <item name="colorWeekCardBackground">@color/color_week_card_background_light</item>
+        <item name="colorWeekCardSelectedBackground">@color/color_week_card_selected_background_light</item>
+        <item name="colorSubtitle">@color/color_subtitle_light</item>
+        <item name="colorDefaultText">@color/color_default_text_light</item>
+        <item name="colorHint">@color/color_hint_light</item>
         <item name="colorControl">@color/color_control_light</item>
-        <item name="dangerZone">@color/danger_zone</item>
-        <item name="rowActivated">@color/row_activated_light</item>
-        <item name="myAccountBackground">@android:color/white</item>
-        <item name="toolBarTextColor">@android:color/white</item>
-        <item name="headerBackground">@color/exercise_row_background_light</item>
-        <item name="boxFocusedColor">@color/workout_activity_outline_box_focused_color_light</item>
-        <item name="boxNotFocusedColor">@color/workout_activity_outline_box_unfocused_color_light
-        </item>
+        <item name="colorDangerZone">@color/color_danger_zone</item>
+        <item name="colorRowActivated">@color/color_row_activated_light</item>
+        <item name="colorCardBackground">@android:color/white</item>
+        <item name="colorToolBarText">@android:color/white</item>
+        <item name="colorBoxFocused">@color/color_workout_activity_outline_box_focused_light</item>
+        <item name="colorBoxNotFocused">@color/color_main_activity_outline_box_unfocused_light</item>
+        <item name="colorCheckBox">@color/color_primary</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control_light</item>
         <item name="android:colorForeground">@color/color_accent_light</item>
-
-        <item name="android:listDivider">@color/divider_color_light</item>
+        <item name="android:listDivider">@color/color_divider_light</item>
         <item name="spinnerStyle">@style/SpinnerStyle</item>
         <item name="android:dividerHeight">1dp</item>
         <item name="alertDialogTheme">@style/AlertDialogThemeLight</item>
-        <item name="checkboxStyle">@style/CheckBoxStyleLight</item>
+        <item name="checkboxStyle">@style/CheckBoxStyle</item>
         <item name="materialButtonStyle">@style/RoundedButtonStyle</item>
         <item name="android:textCursorDrawable">@null</item>
         <!--  ^ ^ Hack. But for some reason the drawable i had was not working on my phone, would only work on emulator. -->
@@ -74,10 +68,5 @@
         <item name="android:colorBackground">@android:color/white</item>
         <item name="dialogCornerRadius">6dp</item>
         <item name="colorPrimary">@color/color_primary</item>
-    </style>
-
-    <style name="CheckBoxStyleLight" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
-        <item name="android:textColor">@color/default_text_color_light</item>
-        <item name="android:buttonTint">@color/color_primary</item>
     </style>
 </resources>

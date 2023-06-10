@@ -1,6 +1,5 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -141,13 +140,13 @@ public class SignInWithEmailActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 
     private void launchUnverifiedActivity() {
         Intent intent = new Intent(this, UnverifiedActivity.class);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 
@@ -162,7 +161,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
 
     private void launchResetPassword() {
         Intent intent = new Intent(this, ResetPasswordActivity.class);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
     }
 
     private void hideKeyboard(View view) {

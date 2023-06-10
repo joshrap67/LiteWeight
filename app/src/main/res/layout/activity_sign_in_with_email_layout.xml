@@ -5,6 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
+        android:background="@drawable/login_gradient"
         android:clickable="true"
         android:fitsSystemWindows="true"
         android:focusable="true"
@@ -13,6 +14,7 @@
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:fillViewport="true"
             app:layout_constraintBottom_toTopOf="@+id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,7 +67,7 @@
                     android:hint="@string/password_hint"
                     android:transitionGroup="true"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/color_accent"
+                    app:passwordToggleTint="?colorAccent"
                     tools:style="@style/SignInTextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -89,8 +91,17 @@
                     android:background="?selectableItemBackground"
                     android:text="@string/forgot_password_link"
                     android:textAlignment="center"
-                    android:textColor="?defaultTextColor"
+                    android:textColor="?attr/colorDefaultText"
                     android:textStyle="italic" />
+
+            <Button
+                    android:id="@+id/sign_in_btn"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/forgot_password_tv"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/sign_in" />
         </RelativeLayout>
     </ScrollView>
 
@@ -102,19 +113,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-                android:id="@+id/sign_in_btn"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:text="@string/sign_in" />
-
         <LinearLayout
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/sign_in_btn"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical"
@@ -125,7 +127,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="@color/login_divider_color" />
+                    android:background="?attr/colorDivider" />
 
             <TextView
                     android:layout_width="wrap_content"
@@ -137,7 +139,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="@color/login_divider_color" />
+                    android:background="?attr/colorDivider" />
         </LinearLayout>
 
         <Button

@@ -13,6 +13,8 @@ import android.widget.EditText;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Strings;
+import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 public class AndroidUtils {
 
@@ -40,6 +42,97 @@ public class AndroidUtils {
             public void afterTextChanged(Editable s) {
             }
         };
+    }
+
+    public static void setWeightTextWatcher(final EditText input, final RoutineExercise exercise, boolean metricUnits) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String weight = input.getText().toString().trim();
+                if (!weight.isEmpty() && weight.length() <= Variables.MAX_WEIGHT_DIGITS) {
+                    double newWeight = Double.parseDouble(weight);
+                    if (metricUnits) {
+                        // convert back to imperial if in metric since weight is stored in imperial on backend
+                        newWeight = WeightUtils.metricWeightToImperial(newWeight);
+                    }
+                    exercise.setWeight(newWeight);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        input.addTextChangedListener(textWatcher);
+    }
+
+    public static void setRepsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String reps = input.getText().toString().trim();
+                if (!reps.isEmpty() && reps.length() <= Variables.MAX_REPS_DIGITS) {
+                    int newReps = Integer.parseInt(reps);
+                    exercise.setReps(newReps);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        input.addTextChangedListener(textWatcher);
+    }
+
+    public static void setSetsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String sets = input.getText().toString().trim();
+                if (!sets.isEmpty() && sets.length() <= Variables.MAX_SETS_DIGITS) {
+                    int newSets = Integer.parseInt(sets);
+                    exercise.setSets(newSets);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        input.addTextChangedListener(textWatcher);
+    }
+
+    public static void setDetailsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String details = input.getText().toString().trim();
+                if (details.length() <= Variables.MAX_DETAILS_LENGTH) {
+                    exercise.setDetails(details);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        input.addTextChangedListener(textWatcher);
     }
 
     public static void setPasswordRequirementsWatcher(EditText input1, TextInputLayout layout1, EditText input2, TextInputLayout layout2) {

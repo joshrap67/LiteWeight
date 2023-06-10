@@ -2,7 +2,6 @@ package com.joshrap.liteweight.activities;
 
 import static com.joshrap.liteweight.utils.ValidatorUtils.passwordNotMatchingMsg;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +14,10 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.joshrap.liteweight.BuildConfig;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -119,19 +120,18 @@ public class SignUpActivity extends AppCompatActivity {
                 if (user != null && user.isEmailVerified()) {
                     launchMainActivity();
                 } else if (user != null && !user.isEmailVerified()) {
-//                    ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-//                            // URL you want to redirect back to. The domain (www.example.com) for this
-//                            // URL must be whitelisted in the Firebase Console.
-//                            .setUrl("https://www.google.com") // todo a site
-//                            .setHandleCodeInApp(true)
-//                            .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
-//                            .build();
+                    ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
+                            // URL you want to redirect back to. The domain (www.example.com) for this
+                            // URL must be whitelisted in the Firebase Console.
+                            .setUrl("https://www.google.com") // todo a site
+                            .setHandleCodeInApp(true)
+                            .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
+                            .build();
                     user.sendEmailVerification();
                     launchUnverifiedActivity();
                 }
             } else {
-                // If sign in fails, display a message to the user.
-                AndroidUtils.showErrorDialog("Authentication failed", SignUpActivity.this);
+                AndroidUtils.showErrorDialog("There was a problem trying to sign up", SignUpActivity.this);
             }
         });
     }
@@ -140,13 +140,13 @@ public class SignUpActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 
     private void launchUnverifiedActivity() {
         Intent intent = new Intent(this, UnverifiedActivity.class);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        startActivity(intent);
         shouldFinish = true;
     }
 

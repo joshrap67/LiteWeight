@@ -35,10 +35,12 @@
                 android:id="@+id/date_sent_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:text="10/16/2020 09:32 AM    *" />
     </RelativeLayout>
 

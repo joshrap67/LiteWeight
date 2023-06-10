@@ -39,10 +39,10 @@
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="@color/transparent"
+            android:background="@color/color_transparent"
             android:clickable="false"
             android:focusable="true"
             android:textAllCaps="false"
-            android:textColor="?defaultTextColor"
+            android:textColor="?attr/colorDefaultText"
             tools:text="25 lb" />
 </RelativeLayout>

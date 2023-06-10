@@ -38,7 +38,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
             auth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(this, "Email sent successfully", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Email successfully sent", Toast.LENGTH_LONG).show();
                 }
             });
         });

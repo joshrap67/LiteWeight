@@ -5,8 +5,7 @@
     <string name="nav_draw_close">Close Nav</string>
     <string name="workout_name_title">Workout Name</string>
     <string name="empty_workout_day">No exercises for this day</string>
-    <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all changes
-    will be lost!\n\nAre you sure you wish to quit?</string>
+    <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all changes will be lost!\n\nAre you sure you wish to quit?</string>
     <string name="video_switch_description">Provides a button in the more details section for each exercise in the current workout page that, when
     clicked, launches a video using the provided URL for the specific exercise.</string>
     <string name="metric_switch_description">Converts all units from imperial units (lb) to metric units (kg).</string>
@@ -79,8 +78,6 @@
     <string name="update_default_weight_on_save">Update Default Weight on Save</string>
     <string name="update_default_weight_on_save_description">Upon creating or editing a workout, exercises will have their default weights updated if the weight of the exercise is higher than its current default.</string>
     <string name="workout_progress_indicator">Workout Progress Indicator</string>
-    <string name="accept">Accept</string>
-    <string name="decline">Decline</string>
     <string name="purpose_title">What is the purpose of LiteWeight?</string>
     <string name="faq_progress_title">Can I see previous progress of already restarted workouts?</string>
     <string name="faq_transfer_title">I’m getting a new phone - do I need to transfer my data over to it?</string>
@@ -142,7 +139,7 @@
     <string name="my_account">My Account</string>
     <string name="times_completed">Total Restarts</string>
     <string name="total_days">Total Days</string>
-    <string name="average_completion_rate">Exercise Completion Average</string>
+    <string name="average_completion_rate">Completion Average</string>
     <string name="most_frequent_focus">Most frequent focus</string>
     <string name="day_details">Day Details</string>
     <string name="launch_video_msg">Launch this video using an external application?</string>
@@ -161,13 +158,11 @@
     <string name="signed_in_as">Signed in as </string>
     <string name="email_not_verified">Email Not Verified</string>
     <string name="already_have_an_account">Already have an account?</string>
-    <string name="dont_have_an_account">Don\'t have an account?</string>
     <string name="create_account">Create Account</string>
     <string name="delete_my_account">Delete Account</string>
     <string name="username">Username</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="pw_placeholder">**********</string>
     <string name="app_settings">App Settings</string>
     <string name="account_settings">Account Settings</string>
     <string name="danger_zone">Danger Zone</string>

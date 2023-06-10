@@ -3,14 +3,16 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingLeft="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp"
+        android:paddingRight="?attr/dialogPreferredPadding">
 
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="8dp"
             android:hint="@string/username_hint"
             app:expandedHintEnabled="false">
@@ -24,7 +26,7 @@
                 android:dropDownHeight="180dp"
                 android:maxLines="1"
                 android:minWidth="75dp"
-                android:popupBackground="?optionsBackground"
+                android:popupBackground="?attr/colorOptionsBackground"
                 android:singleLine="true"
                 tools:text="username" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -35,7 +37,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/username_input_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="8dp"
             android:textAlignment="center"
             android:visibility="gone"

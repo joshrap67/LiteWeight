@@ -46,7 +46,7 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
                         app:srcCompat="@drawable/default_profile_picture"
-                        app:strokeColor="?subtitleColor"
+                        app:strokeColor="?attr/colorSubtitle"
                         app:strokeWidth="1dp" />
 
                 <ImageView
@@ -65,9 +65,9 @@
                     android:layout_below="@+id/frame_layout"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
-                    android:transitionGroup="true"
                     android:hint="@string/username_hint"
                     android:paddingHorizontal="16dp"
+                    android:transitionGroup="true"
                     tools:style="@style/SignInTextInputLayoutStyle">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -105,8 +105,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/metric_switch_description"
-                        android:textColor="?subtitleColor" />
+                        android:textColor="?attr/colorSubtitle" />
             </LinearLayout>
+
+            <Button
+                    android:id="@+id/create_user_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/metric_container"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginHorizontal="50dp"
+                    android:layout_marginVertical="8dp"
+                    android:text="@string/create_account" />
         </RelativeLayout>
     </ScrollView>
 
@@ -118,19 +128,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-                android:id="@+id/create_user_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginHorizontal="50dp"
-                android:text="@string/create_account" />
-
         <LinearLayout
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/create_user_btn"
                 android:layout_marginTop="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -140,7 +141,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="@color/login_divider_color" />
+                    android:background="?attr/colorDivider" />
         </LinearLayout>
 
         <TextView

@@ -23,7 +23,7 @@
 
     <style name="RoundedOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearance">@style/RoundedButton</item>
-        <item name="android:textColor">@color/default_text_color</item>
+        <item name="android:textColor">@color/color_default_text</item>
     </style>
 
     <style name="BottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
@@ -65,12 +65,16 @@
         <item name="expandedHintEnabled">false</item>
 
         <item name="boxStrokeColor">@color/text_input_box_color</item>
-        <item name="hintTextColor">@color/workout_activity_outline_box_focused_color</item>
-        <item name="android:textColorHint">@color/workout_activity_outline_box_unfocused_color</item>
+        <item name="hintTextColor">?attr/colorBoxFocused</item>
+        <item name="android:textColorHint">?attr/colorBoxNotFocused</item>
     </style>
 
     <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">
-        <item name="android:popupBackground">?optionsBackground</item>
+        <item name="android:popupBackground">?attr/colorOptionsBackground</item>
+    </style>
+
+    <style name="CheckBoxStyle" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="android:buttonTint">?attr/colorCheckBox</item>
     </style>
 
 </resources>
