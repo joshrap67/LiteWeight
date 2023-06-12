@@ -180,14 +180,12 @@ public class ValidatorUtils {
 
         if (username.isEmpty()) {
             retVal = "Username cannot be empty.";
-        } else if (username.contains("@")) {
-            retVal = "Username cannot have \"@\" symbol.";
         } else if (!validUsername.matcher(username).find()) {
             retVal = "Invalid characters.";
         } else if (Pattern.compile("\\s").matcher(username).find()) {
             retVal = "Username cannot have any whitespace.";
         } else if (username.length() > Variables.MAX_USERNAME_LENGTH) {
-            retVal = String.format("Enter value between 0-%s.", Variables.MAX_USERNAME_LENGTH);
+            retVal = String.format("Enter value between 1-%s.", Variables.MAX_USERNAME_LENGTH);
         }
         return retVal;
     }
@@ -287,7 +285,7 @@ public class ValidatorUtils {
         return retVal;
     }
 
-    public static String validUserToSendWorkout(String activeUser, String username) {
+    public static String validUserToShareWorkout(String activeUser, String username) {
         username = username.trim();
         String retVal = validUsername(username);
         if (retVal == null) {

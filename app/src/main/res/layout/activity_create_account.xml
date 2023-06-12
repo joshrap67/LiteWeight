@@ -54,6 +54,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|end"
                         android:layout_marginStart="8dp"
+                        android:background="@drawable/change_profile_picture_background"
+                        android:padding="3dp"
                         android:contentDescription="@string/profile_picture"
                         app:srcCompat="@drawable/change_profile_picture_icon" />
             </FrameLayout>

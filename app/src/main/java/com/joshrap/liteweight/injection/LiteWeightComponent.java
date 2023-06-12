@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.injection;
 
-import com.joshrap.liteweight.activities.NewAccountActivity;
+import com.joshrap.liteweight.activities.CreateAccountActivity;
 import com.joshrap.liteweight.activities.LandingActivity;
 import com.joshrap.liteweight.activities.ResetPasswordActivity;
 import com.joshrap.liteweight.activities.MainActivity;
@@ -68,7 +68,7 @@ public interface LiteWeightComponent {
 
     void inject(ResetPasswordActivity resetPasswordActivity);
 
-    void inject(NewAccountActivity newAccountActivity);
+    void inject(CreateAccountActivity createAccountActivity);
 
     void inject(MyFirebaseMessagingService myFirebaseMessagingService);
 

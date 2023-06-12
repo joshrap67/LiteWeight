@@ -43,7 +43,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|end"
+                        android:background="@drawable/change_profile_picture_background"
                         android:contentDescription="@string/profile_picture"
+                        android:padding="3dp"
                         app:srcCompat="@drawable/change_profile_picture_icon" />
             </FrameLayout>
 

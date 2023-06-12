@@ -53,6 +53,7 @@ class LiteWeightModule {
     }
 
     @Provides
+    @Singleton
     VersionModel provideVersionModel(final Context context) {
         String versionName = null;
         int versionCode = 0;

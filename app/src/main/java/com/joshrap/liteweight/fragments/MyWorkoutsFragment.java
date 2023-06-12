@@ -116,7 +116,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         }
         User user = currentUserModule.getUser();
         isPremium = user.isPremium();
-        workoutList = new ArrayList<>(user.getWorkouts());
+        workoutList = new ArrayList<>();
 
         View view;
         if (currentWorkout == null) {
@@ -229,7 +229,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         });
 
         // initializes the main list view
-        sortWorkouts();
+        getAndSortWorkouts();
         workoutsAdapter = new WorkoutsAdapter(requireContext(), workoutList);
         workoutListView.setAdapter(workoutsAdapter);
         workoutListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -243,7 +243,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void updateUI() {
         selectedWorkoutTV.setText(currentWorkout.getWorkoutName());
-        sortWorkouts();
+        getAndSortWorkouts();
         workoutsAdapter.notifyDataSetChanged();
         updateStatisticsTV();
     }
@@ -251,7 +251,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     /**
      * Sorts workouts by date last accessed and ensures currently selected workout is at the top of the list.
      */
-    private void sortWorkouts() {
+    private void getAndSortWorkouts() {
+        workoutList.clear();
+        workoutList.addAll(currentUserModule.getUser().getWorkouts());
         workoutList.removeIf(x -> x.getWorkoutId().equals(currentWorkout.getWorkoutId()));
         workoutList.sort((r1, r2) -> {
             DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
@@ -282,7 +284,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         totalDaysTV.setText(String.format(Locale.getDefault(), Integer.toString(currentUserModule.getCurrentWorkout().getRoutine().totalDays())));
         completionRateTV.setText(formattedPercentage);
         mostFrequentFocusTV.setText(WorkoutUtils.getMostFrequentFocus(currentUserModule.getUser(), currentUserModule.getCurrentWorkout().getRoutine()).replaceAll(",", ", "));
-
     }
 
     /**
@@ -431,7 +432,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    setCurrentWorkout(result.getData());
+//                    setCurrentWorkout(result.getData());
                     updateUI();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
@@ -495,7 +496,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             shareButton.setOnClickListener(view -> {
                 // usernames are case insensitive!
                 String username = usernameInput.getText().toString().trim().toLowerCase();
-                String errorMsg = ValidatorUtils.validUserToSendWorkout(currentUserModule.getUser().getUsername(), username);
+                String errorMsg = ValidatorUtils.validUserToShareWorkout(currentUserModule.getUser().getUsername(), username);
                 if (errorMsg != null) {
                     usernameInputLayout.setError(errorMsg);
                 } else {
@@ -570,7 +571,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                         // change view to tell user to create a workout
                         resetFragment();
                     } else {
-
                         updateUI();
                     }
                 } else {

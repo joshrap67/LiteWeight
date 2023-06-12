@@ -13,8 +13,7 @@
         <item name="colorDayCardBackground">@color/color_day_card_background</item>
         <item name="colorDayCardSelectedBackground">@color/color_day_card_selected_background</item>
         <item name="colorExerciseRowBackground">@color/color_exercise_row_background</item>
-        <item name="colorExerciseRowSelectedBackground">@color/color_exercise_row_selected_background
-        </item>
+        <item name="colorExerciseRowSelectedBackground">@color/color_exercise_row_selected_background</item>
         <item name="colorWorkoutProgressBackground">@color/color_workout_progress_background</item>
         <item name="colorWorkoutProgressGradientStart">@color/color_workout_progress_gradient_start</item>
         <item name="colorWorkoutProgressGradientEnd">@color/color_workout_progress_gradient_end</item>
@@ -33,6 +32,8 @@
         <item name="colorBoxFocused">@color/color_main_activity_outline_box_focused</item>
         <item name="colorBoxNotFocused">@color/color_main_activity_outline_box_unfocused</item>
         <item name="colorCheckBox">@color/color_accent</item>
+        <item name="colorChangeProfilePictureBackground">@color/color_change_profile_picture_background</item>
+        <item name="colorChangeProfilePictureIcon">@android:color/white</item>
 
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:textColor">@color/color_default_text</item>
@@ -59,8 +60,7 @@
         <!--  ^ ^ Hack. But for some reason the drawable i had was not working on my phone, would only work on emulator. -->
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
-        <item name="extendedFloatingActionButtonStyle">@style/ExtendedFloatingActionButtonStyle
-        </item>
+        <item name="extendedFloatingActionButtonStyle">@style/ExtendedFloatingActionButtonStyle</item>
         <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
         <item name="textInputStyle">@style/TextInputLayoutStyle</item>
         <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
@@ -76,7 +76,6 @@
         <item name="colorBoxFocused">@color/color_login_activity_outline_box_focused</item>
         <item name="colorBoxNotFocused">@color/color_login_activity_outline_box_unfocused</item>
         <item name="colorDivider">@color/color_login_divider</item>
-        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">

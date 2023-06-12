@@ -44,19 +44,11 @@ public class CurrentUserModule {
     }
 
     public User getUser() {
-        if (currentUserAndWorkout == null) {
-            return null;
-        } else {
-            return currentUserAndWorkout.getUser();
-        }
+        return currentUserAndWorkout == null ? null : currentUserAndWorkout.getUser();
     }
 
     public Workout getCurrentWorkout() {
-        if (currentUserAndWorkout == null) {
-            return null;
-        } else {
-            return currentUserAndWorkout.getWorkout();
-        }
+        return currentUserAndWorkout == null ? null : currentUserAndWorkout.getWorkout();
     }
 
     public void clear() {

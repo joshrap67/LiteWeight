@@ -46,7 +46,7 @@ public class WorkoutManager {
 
             user.setCurrentWorkoutId(response.getUser().getCurrentWorkoutId());
             user.addWorkout(response.getUser().getWorkout(newWorkoutId));
-            user.updateOwnedExercises(response.getUser().getExercises());
+            user.setExercises(response.getUser().getExercises());
 
             currentUserAndWorkout.setWorkout(response.getWorkout());
             result.setData(response);
@@ -62,24 +62,12 @@ public class WorkoutManager {
 
         try {
             User user = currentUserModule.getUser();
-            UserAndWorkout userAndWorkout = currentUserModule.getCurrentUserAndWorkout();
-
-            // make sure to update progress before switching
-            this.workoutRepository.updateWorkoutProgress(
-                    currentUserModule.getCurrentWeek(),
-                    currentUserModule.getCurrentDay(),
-                    userAndWorkout.getWorkout());
 
             UserAndWorkout copyResponse = this.workoutRepository.copyWorkout(workoutId, workoutName);
             Workout newWorkout = copyResponse.getWorkout();
-            this.selfRepository.setCurrentWorkout(newWorkout.getId());
 
             user.addWorkout(copyResponse.getUser().getWorkout(newWorkout.getId()));
-            userAndWorkout.setWorkout(newWorkout);
-            user.setCurrentWorkoutId(newWorkout.getId());
-            user.updateOwnedExercises(copyResponse.getUser().getExercises());
-
-            result.setData(newWorkout.getId());
+            user.setExercises(copyResponse.getUser().getExercises());
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem copying the workout.");
@@ -134,6 +122,7 @@ public class WorkoutManager {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem renaming the workout.");
         }
+
         return result;
     }
 
@@ -196,7 +185,7 @@ public class WorkoutManager {
             UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
             UserAndWorkout response = this.workoutRepository.setRoutine(workoutId, routine);
-            user.updateOwnedExercises(response.getUser().getExercises());
+            user.setExercises(response.getUser().getExercises());
             currentUserAndWorkout.setWorkout(response.getWorkout());
             WorkoutInfo workoutInfo = user.getWorkout(workoutId);
             WorkoutUtils.checkCurrentWeekAndDay(workoutInfo, response.getWorkout().getRoutine());
@@ -224,7 +213,7 @@ public class WorkoutManager {
             workoutInfo.update(newWorkoutInfo);
 
             // in case any default weights were updated
-            user.updateOwnedExercises(response.getUser().getExercises());
+            user.setExercises(response.getUser().getExercises());
 
             currentWorkout.setRoutine(response.getWorkout().getRoutine());
             workoutInfo.setCurrentDay(0);

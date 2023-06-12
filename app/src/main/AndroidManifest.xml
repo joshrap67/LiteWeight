@@ -68,7 +68,7 @@
                 android:windowSoftInputMode="adjustPan" />
 
         <activity
-                android:name=".activities.NewAccountActivity"
+                android:name=".activities.CreateAccountActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SignInTheme"
                 android:windowSoftInputMode="adjustPan" />

@@ -41,7 +41,6 @@ import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -49,7 +48,7 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-public class NewAccountActivity extends AppCompatActivity {
+public class CreateAccountActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private ImageView profilePicture;
@@ -73,7 +72,7 @@ public class NewAccountActivity extends AppCompatActivity {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
             launchSignInActivity("There was a problem with your account. Please try and login again.");
-            finish();
+            shouldFinish = true;
             return;
         }
 
@@ -81,11 +80,10 @@ public class NewAccountActivity extends AppCompatActivity {
 
         Button logoutButton = findViewById(R.id.log_out_btn);
         Button createUserButton = findViewById(R.id.create_user_btn);
-        TextView signedInAs = findViewById(R.id.signed_in_as_tv);
-        signedInAs.setText(String.format("%s %s", getString(R.string.signed_in_as), user.getEmail()));
+        TextView signedInAsTV = findViewById(R.id.signed_in_as_tv);
+        signedInAsTV.setText(String.format("%s %s", getString(R.string.signed_in_as), user.getEmail()));
 
         SwitchCompat metricSwitch = findViewById(R.id.metric_switch);
-
         LinearLayout metricLayout = findViewById(R.id.metric_container);
         metricLayout.setOnClickListener(view1 -> metricSwitch.performClick());
         metricSwitch.setChecked(metricUnits);
@@ -117,7 +115,7 @@ public class NewAccountActivity extends AppCompatActivity {
                 return;
             }
 
-            hideKeyboard(getCurrentFocus());
+            hideKeyboard();
             AndroidUtils.showLoadingDialog(loadingDialog, "Creating account...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
@@ -143,7 +141,6 @@ public class NewAccountActivity extends AppCompatActivity {
             launchSignInActivity(null);
         });
 
-
         if (getIntent().getExtras() != null) {
             String errorMessage = getIntent().getExtras().getString(Variables.INTENT_ERROR_MESSAGE);
             if (errorMessage != null) {
@@ -152,8 +149,7 @@ public class NewAccountActivity extends AppCompatActivity {
         }
     }
 
-    private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
+    private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result == null)
                     return;
@@ -178,16 +174,17 @@ public class NewAccountActivity extends AppCompatActivity {
                     return;
 
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    final Uri uri = UCrop.getOutput(result.getData());
-                    if (uri != null) {
-                        profilePicture.setImageURI(uri);
-                        try {
+                    try {
+                        final Uri uri = UCrop.getOutput(result.getData());
+                        if (uri != null) {
+                            profilePicture.setImageURI(uri);
                             InputStream iStream = getContentResolver().openInputStream(uri);
                             profileImageData = ImageUtils.getImageByteArray(iStream);
-                        } catch (IOException e) {
-                            FirebaseCrashlytics.getInstance().recordException(e);
                         }
+                    } catch (Exception e) {
+                        FirebaseCrashlytics.getInstance().recordException(e);
                     }
+
                 }
             });
 
@@ -242,10 +239,10 @@ public class NewAccountActivity extends AppCompatActivity {
         }
     }
 
-    private void hideKeyboard(View view) {
-        if (view != null) {
+    private void hideKeyboard() {
+        if (getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
 }

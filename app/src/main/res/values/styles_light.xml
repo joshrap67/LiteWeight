@@ -24,8 +24,7 @@
         <item name="colorDayCardBackground">@color/color_day_card_background_light</item>
         <item name="colorDayCardSelectedBackground">@color/color_day_card_selected_background_light</item>
         <item name="colorExerciseRowBackground">@color/color_exercise_row_background_light</item>
-        <item name="colorExerciseRowSelectedBackground">@color/color_exercise_row_selected_background_light
-        </item>
+        <item name="colorExerciseRowSelectedBackground">@color/color_exercise_row_selected_background_light</item>
         <item name="colorWorkoutProgressBackground">@color/color_workout_progress_background_light</item>
         <item name="colorWorkoutProgressGradientStart">@color/color_workout_progress_gradient_start</item>
         <item name="colorWorkoutProgressGradientEnd">@color/color_workout_progress_gradient_end</item>
@@ -44,6 +43,8 @@
         <item name="colorBoxFocused">@color/color_workout_activity_outline_box_focused_light</item>
         <item name="colorBoxNotFocused">@color/color_main_activity_outline_box_unfocused_light</item>
         <item name="colorCheckBox">@color/color_primary</item>
+        <item name="colorChangeProfilePictureBackground">@color/color_change_profile_picture_background</item>
+        <item name="colorChangeProfilePictureIcon">@android:color/white</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control_light</item>

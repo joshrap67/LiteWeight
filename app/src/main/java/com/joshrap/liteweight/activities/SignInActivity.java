@@ -40,6 +40,8 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
+        // the one tap UI had a lot of problems when i tried to use it, including this https://issuetracker.google.com/issues/270795461
+        // if they deprecate this one then I'm SOL
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestIdToken(BackendConfig.googleSignInClientId)
@@ -97,7 +99,7 @@ public class SignInActivity extends AppCompatActivity {
                     AndroidUtils.showErrorDialog("There was an error signing in with Google.", SignInActivity.this);
                 }
             });
-        } catch (ApiException e) {
+        } catch (Exception e) {
             AndroidUtils.showErrorDialog("There was an error signing in with Google.", this);
         }
     }

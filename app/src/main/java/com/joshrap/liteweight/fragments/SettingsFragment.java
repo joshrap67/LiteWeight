@@ -337,7 +337,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<String> result = this.userManager.updateUserPreferences(userSettings);
+                Result<String> result = this.userManager.setUserSettings(userSettings);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (result.isFailure()) {

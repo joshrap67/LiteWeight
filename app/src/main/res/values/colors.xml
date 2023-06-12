@@ -16,7 +16,7 @@
     <color name="color_danger_zone">#B71C1C</color>
     <color name="color_divider">#75FFFFFF</color>
     <color name="color_transparent">#00FFFFFF</color>
-    <color name="color_semi_transparent">#50000000</color>
+    <color name="color_change_profile_picture_background">#B25E5E5E</color>
 
     <color name="color_exercise_row_background">#202020</color>
     <color name="color_exercise_row_selected_background">#4d4d4d</color>

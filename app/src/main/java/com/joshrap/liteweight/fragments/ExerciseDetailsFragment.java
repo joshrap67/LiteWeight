@@ -66,7 +66,7 @@ import static android.os.Looper.getMainLooper;
 public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
-    private OwnedExercise originalExercise;
+    private OwnedExercise exercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
@@ -104,11 +104,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
 
         User user = currentUserModule.getUser();
-        originalExercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy?
+        exercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy?
         metricUnits = user.getSettings().isMetricUnits();
-        for (OwnedExercise exercise : user.getExercises()) {
-            existingExerciseNames.add(exercise.getName());
-        }
+        existingExerciseNames.addAll(user.getExercises().stream().map(OwnedExercise::getName).collect(Collectors.toList()));
         focusList = Variables.FOCUS_LIST;
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
@@ -119,8 +117,8 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         super.onViewCreated(view, savedInstanceState);
         FragmentActivity activity = requireActivity();
 
-        List<String> workoutList = new ArrayList<>(originalExercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
-        selectedFocuses = new ArrayList<>(originalExercise.getFocuses());
+        List<String> workoutList = new ArrayList<>(exercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
+        selectedFocuses = new ArrayList<>(exercise.getFocuses());
 
         focusesTV = view.findViewById(R.id.focus_list_tv);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
@@ -255,12 +253,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     }
 
     private void initViews() {
-        exerciseNameInput.setText(originalExercise.getName());
-        weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, originalExercise.getDefaultWeight())));
-        setsInput.setText(String.format(Locale.getDefault(), Integer.toString(originalExercise.getDefaultSets())));
-        repsInput.setText(String.format(Locale.getDefault(), Integer.toString(originalExercise.getDefaultReps())));
-        detailsInput.setText(originalExercise.getDefaultDetails());
-        urlInput.setText(originalExercise.getVideoUrl());
+        exerciseNameInput.setText(exercise.getName());
+        weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight())));
+        setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultSets())));
+        repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultReps())));
+        detailsInput.setText(exercise.getDefaultDetails());
+        urlInput.setText(exercise.getVideoUrl());
     }
 
     private void saveExercise() {
@@ -272,7 +270,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         String urlError = null;
         boolean focusError = false;
 
-        if (!exerciseNameInput.getText().toString().equals(originalExercise.getName())) {
+        if (!exerciseNameInput.getText().toString().equals(exercise.getName())) {
             // make sure that if the user doesn't change the name that they can still update other fields
             renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), existingExerciseNames);
             exerciseNameLayout.setError(renameError);
@@ -329,7 +327,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                     if (result.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
 
-                        originalExercise = result.getData();
+                        exercise = result.getData(); // todo deep copy. technically is not necessary
                         initViews();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
@@ -345,7 +343,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     private void promptDelete() {
         // exercise name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
-        SpannableString span2 = new SpannableString(originalExercise.getName());
+        SpannableString span2 = new SpannableString(exercise.getName());
         SpannableString span3 = new SpannableString("?\n\nIf so, this exercise will be removed from ALL workouts that contain it.");
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2, span3);

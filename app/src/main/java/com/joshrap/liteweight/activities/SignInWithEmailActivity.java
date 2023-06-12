@@ -119,7 +119,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
     }
 
     private void attemptSignIn(String email, String password) {
-        hideKeyboard(getCurrentFocus());
+        hideKeyboard();
         AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             loadingDialog.dismiss();
@@ -131,7 +131,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
                     launchUnverifiedActivity();
                 }
             } else {
-                AndroidUtils.showErrorDialog("Authentication failed", this);
+                AndroidUtils.showErrorDialog("Invalid email or password", this);
             }
         });
     }
@@ -164,10 +164,10 @@ public class SignInWithEmailActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void hideKeyboard(View view) {
-        if (view != null) {
+    private void hideKeyboard() {
+        if (getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
 }

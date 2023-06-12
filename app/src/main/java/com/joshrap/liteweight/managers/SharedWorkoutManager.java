@@ -20,7 +20,8 @@ import com.joshrap.liteweight.repositories.users.responses.SearchByUsernameRespo
 import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -117,12 +118,14 @@ public class SharedWorkoutManager {
 
             user.addWorkout(response.getNewWorkoutInfo());
             List<OwnedExercise> exercises = response.getUserExercises();
+            Map<String, OwnedExercise> idToExercise = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, x -> x));
             for (OwnedExercise ownedExercise : exercises) {
-                Optional<OwnedExercise> alreadyOwnedExercise = user.getExercises().stream().filter(x -> x.getId().equals(ownedExercise.getId())).findFirst();
-                if (alreadyOwnedExercise.isPresent()) {
+                OwnedExercise alreadyOwnedExercise = idToExercise.get(ownedExercise.getId());
+                if (alreadyOwnedExercise != null) {
                     // only the workouts would have changed from accepting
                     ownedExercise.getWorkouts().add(new OwnedExerciseWorkout(response.getNewWorkoutInfo().getWorkoutId(), response.getNewWorkoutInfo().getWorkoutName()));
                 } else {
+                    // newly added exercise from accepting the workout
                     user.addExercise(ownedExercise);
                 }
             }

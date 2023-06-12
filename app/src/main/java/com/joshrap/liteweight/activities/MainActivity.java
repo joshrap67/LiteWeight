@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void launchAccountNotCreatedActivity() {
-        Intent intent = new Intent(this, NewAccountActivity.class);
+        Intent intent = new Intent(this, CreateAccountActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         shouldFinish = true;

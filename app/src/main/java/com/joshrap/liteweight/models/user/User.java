@@ -109,13 +109,4 @@ public class User {
         return this.receivedWorkouts.size();
     }
 
-    /**
-     * Utilized when getting updated exercises from backend.
-     *
-     * @param newExercises exercises that may or may not all be updated.
-     */
-    public void updateOwnedExercises(List<OwnedExercise> newExercises) {
-        this.exercises = newExercises;
-    }
-
 }

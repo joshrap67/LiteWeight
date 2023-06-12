@@ -48,6 +48,8 @@ public class UserManager {
         this.workoutRepository = workoutRepository;
     }
 
+    // todo self manager?
+
     public Result<UserAndWorkout> getUserAndCurrentWorkout() {
         Result<UserAndWorkout> result = new Result<>();
 
@@ -95,7 +97,7 @@ public class UserManager {
             this.selfRepository.deleteSelf();
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem deleting the user.");
+            result.setErrorMessage("There was a problem deleting your account.");
         }
 
         return result;
@@ -176,7 +178,6 @@ public class UserManager {
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
         }
-
     }
 
     public void unlinkFirebaseMessagingToken() {
@@ -196,7 +197,7 @@ public class UserManager {
             SearchByUsernameResponse searchResult = this.usersRepository.searchByUsername(username);
             Friend friend = this.usersRepository.sendFriendRequest(searchResult.getId());
             user.addFriend(friend);
-            result.setData(friend);
+            result.setData(friend); // todo deep copy
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
                 if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.userNotFound)) {
@@ -233,7 +234,7 @@ public class UserManager {
         try {
             User user = currentUserModule.getUser();
 
-            // todo blind sends should happen here instead of on views
+            // todo blind sends should happen here instead of on views. essentially just swap these commands below
             this.selfRepository.setAllFriendRequestsSeen();
             for (FriendRequest friendRequest : user.getFriendRequests()) {
                 friendRequest.setSeen(true);
@@ -243,7 +244,7 @@ public class UserManager {
         }
     }
 
-    public Result<String> updateUserPreferences(UserSettings userSettings) {
+    public Result<String> setUserSettings(UserSettings userSettings) {
         Result<String> result = new Result<>();
 
         try {
@@ -253,7 +254,7 @@ public class UserManager {
             user.setSettings(userSettings);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem updating user preferences.");
+            result.setErrorMessage("There was a problem updating user settings.");
         }
 
         return result;
