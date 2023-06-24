@@ -255,7 +255,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutList.addAll(currentUserModule.getUser().getWorkouts());
         workoutList.removeIf(x -> x.getWorkoutId().equals(currentWorkout.getWorkoutId()));
         workoutList.sort((r1, r2) -> {
-            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
+            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.UTC_TIME_FORMAT, Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {

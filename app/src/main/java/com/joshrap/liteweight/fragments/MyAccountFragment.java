@@ -102,7 +102,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         emailTV.setText(email);
 
         LinearLayout settingsLayout = view.findViewById(R.id.settings_layout);
-        settingsLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToAccountPreferences());
+        settingsLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToSettings());
 
         LinearLayout logoutLayout = view.findViewById(R.id.log_out_container);
         logoutLayout.setOnClickListener(view1 -> promptLogout());

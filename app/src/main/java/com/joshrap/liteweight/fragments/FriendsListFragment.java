@@ -351,7 +351,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private void sortFriendRequestList() {
         // newest at the top
         friendRequests.sort((fr1, fr2) -> {
-            DateFormat df = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
+            DateFormat df = new SimpleDateFormat(TimeUtils.UTC_TIME_FORMAT, Locale.ENGLISH);
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {

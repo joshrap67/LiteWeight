@@ -276,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onStop() {
         super.onStop();
-        // prevents flash of activity being finished when transition animations are used
         if (shouldFinish) {
             finish();
         }
@@ -493,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 goToMyAccount();
                 break;
             case Variables.SETTINGS_TITLE:
-                goToAccountPreferences();
+                goToSettings();
                 break;
             case Variables.RECEIVED_WORKOUTS_TITLE:
                 goToReceivedWorkouts();
@@ -972,7 +971,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         closeDrawerFromNavigation();
     }
 
-    public void goToAccountPreferences() {
+    public void goToSettings() {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.SETTINGS_TITLE);
         fragmentStack.add(0, Variables.SETTINGS_TITLE);

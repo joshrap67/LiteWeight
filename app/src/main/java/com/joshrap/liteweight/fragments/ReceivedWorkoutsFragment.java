@@ -203,7 +203,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     private void sortReceivedWorkouts() {
         receivedWorkouts.sort((r1, r2) -> {
             // sort based on received workout sent time (newest at top)
-            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.ZULU_TIME_FORMAT, Locale.ENGLISH);
+            DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.UTC_TIME_FORMAT, Locale.ENGLISH);
             dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {

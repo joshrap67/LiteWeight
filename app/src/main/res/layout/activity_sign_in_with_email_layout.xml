@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -43,8 +42,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="20dp"
                     android:hint="@string/email_hint"
-                    android:transitionGroup="true"
-                    tools:style="@style/SignInTextInputLayoutStyle">
+                    android:transitionGroup="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/email_input"
@@ -67,8 +65,7 @@
                     android:hint="@string/password_hint"
                     android:transitionGroup="true"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="?colorAccent"
-                    tools:style="@style/SignInTextInputLayoutStyle">
+                    app:passwordToggleTint="?colorAccent">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/password_input"

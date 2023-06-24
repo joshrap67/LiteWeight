@@ -31,7 +31,7 @@
                     android:textStyle="bold" />
 
             <TextView
-                    android:id="@+id/reset_password_tv"
+                    android:id="@+id/verification_tv"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/app_title_tv"
@@ -45,7 +45,7 @@
                     android:id="@+id/retry_verification_btn"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/reset_password_tv"
+                    android:layout_below="@id/verification_tv"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="20dp"
                     android:text="@string/retry_login" />

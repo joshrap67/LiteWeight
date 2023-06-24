@@ -69,8 +69,7 @@
                     android:layout_marginTop="10dp"
                     android:hint="@string/username_hint"
                     android:paddingHorizontal="16dp"
-                    android:transitionGroup="true"
-                    tools:style="@style/SignInTextInputLayoutStyle">
+                    android:transitionGroup="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/username_input"

@@ -4,9 +4,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="?attr/dialogPreferredPadding"
-        android:paddingTop="8dp"
-        android:paddingRight="?attr/dialogPreferredPadding">
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
 
     <TextView
             android:layout_width="wrap_content"

@@ -153,7 +153,6 @@ public class SignInWithEmailActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        // prevents flash of activity being finished when transition animations are used
         if (shouldFinish) {
             finish();
         }
