@@ -49,7 +49,7 @@ import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.UserSettings;
 import com.joshrap.liteweight.managers.CurrentUserModule;
@@ -73,7 +73,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
     private FirebaseAuth auth;
 
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -136,7 +136,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
         updateOnSaveSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> saveChanged = isChecked != userSettings.isUpdateDefaultWeightOnSave());
 
-        // app settings todo it might be confusing that these are not saved in cloud. at least perhaps tell users this
+        // app settings
         SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
@@ -306,7 +306,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
             if (reAuthTask.isSuccessful()) {
                 Executor executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
-                    Result<String> result = this.userManager.deleteSelf();
+                    Result<String> result = this.selfManager.deleteSelf();
                     Handler handler = new Handler(getMainLooper());
                     handler.post(() -> {
                         loadingDialog.dismiss();
@@ -337,7 +337,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<String> result = this.userManager.setUserSettings(userSettings);
+                Result<String> result = this.selfManager.setUserSettings(userSettings);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     if (result.isFailure()) {

@@ -13,7 +13,7 @@
     <color name="color_default_text">#FFFFFF</color>
     <color name="color_subtitle">#CDCDCD</color>
     <color name="color_hint">#BEFFFFFF</color>
-    <color name="color_danger_zone">#B71C1C</color>
+    <color name="color_danger_zone">#E53935</color>
     <color name="color_divider">#75FFFFFF</color>
     <color name="color_transparent">#00FFFFFF</color>
     <color name="color_change_profile_picture_background">#B25E5E5E</color>

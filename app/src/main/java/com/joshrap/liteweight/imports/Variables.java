@@ -23,7 +23,7 @@ public class Variables {
     public static final int MAX_URL_LENGTH = 200;
     public static final int MAX_USERNAME_LENGTH = 50;
     public static final int MIN_PASSWORD_LENGTH = 8;
-    public static final int MAX_PASSWORD_LENGTH = 99;
+    public static final int MAX_PASSWORD_LENGTH = 120;
     public static final int MAX_STOPWATCH_TIME = 7200000;
     public static final int DEFAULT_TIMER_VALUE = 60000;
     public static final int MAX_FREE_WORKOUTS_SENT = 50;

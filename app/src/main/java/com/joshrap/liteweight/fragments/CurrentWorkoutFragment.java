@@ -399,7 +399,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private Routine getRoutine() {
-        // separate method to prevent accidental reassignment thus causing issues due to references differing in provider
+        // separate method to prevent accidental reassignment thus causing issues due to references differing in module
         return currentUserModule.getCurrentWorkout().getRoutine();
     }
 
@@ -614,7 +614,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final RoutineExercise exercise = rowModel.routineExercise;
             boolean isExpanded = rowModel.isExpanded;
 
-            // todo add this method to user object? user.getExerciseName(id)?
             String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;
             exerciseCheckbox.setText(currentExerciseName);

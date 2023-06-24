@@ -61,7 +61,7 @@ import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
@@ -122,7 +122,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -246,7 +246,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     return true;
                 case moveDayId:
                     if (pendingRoutine.get(currentWeekIndex).totalNumberOfDays() <= 1) {
-                        Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
                         return true;
                     }
                     promptMoveDay(currentWeekIndex, currentDayIndex);
@@ -686,9 +686,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 .setPositiveButton("Move", (dialog, which) -> {
                     int targetWeekIndex = weekPicker.getValue();
                     if (targetWeekIndex == weekIndex) {
-                        Toast.makeText(getContext(), "Day is already in that week", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Day is already in that week.", Toast.LENGTH_LONG).show();
                     } else if (pendingRoutine.get(targetWeekIndex).totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
-                        Toast.makeText(getContext(), "That week is full", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "That week is full.", Toast.LENGTH_LONG).show();
                     } else {
                         RoutineDay currentDay = pendingRoutine.get(weekIndex, dayIndex);
                         int targetDayIndex = pendingRoutine.get(targetWeekIndex).totalNumberOfDays();
@@ -934,7 +934,6 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
                     originalWorkout = new Workout(result.getData().getWorkout());
-                    // todo in general all fragments other than current workout should deep copy. verify im following this
                     pendingRoutine = new Routine(originalWorkout.getRoutine());
 
                     setWeekAdapter(); // since adapter holds old references to weeks
@@ -1122,7 +1121,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             if (selectedFocuses.isEmpty()) {
                 focusError = true;
                 focusTV.startAnimation(AndroidUtils.shakeError(4));
-                Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Must select at least one focus.", Toast.LENGTH_LONG).show();
             }
 
             if (nameError == null && !focusError) {
@@ -1132,7 +1131,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
                 Executor executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
-                    Result<OwnedExercise> result = userManager.newExercise(
+                    Result<OwnedExercise> result = selfManager.newExercise(
                             exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
                     Handler handler = new Handler(getMainLooper());
                     handler.post(() -> {
@@ -1661,7 +1660,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         return true;
                     case moveDayId:
                         if (pendingRoutine.get(weekPosition).totalNumberOfDays() <= 1) {
-                            Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
                             return true;
                         }
                         promptMoveDay(weekPosition, dayPosition);

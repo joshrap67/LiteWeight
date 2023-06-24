@@ -37,6 +37,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
@@ -91,6 +92,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     WorkoutManager workoutManager;
     @Inject
     SharedWorkoutManager sharedWorkoutManager;
+    @Inject
+    SelfManager selfManager;
     @Inject
     UserManager userManager;
     @Inject
@@ -437,7 +440,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> this.userManager.setReceivedWorkoutSeen(workoutId));
+        executor.execute(() -> this.selfManager.setReceivedWorkoutSeen(workoutId));
     }
 
     private void setAllReceivedWorkoutsSeen() {
@@ -451,7 +454,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> this.userManager.setAllReceivedWorkoutsSeen());
+        executor.execute(() -> this.selfManager.setAllReceivedWorkoutsSeen());
     }
 
     private void showBlownUpProfilePic(String username, String pfpUrl) {

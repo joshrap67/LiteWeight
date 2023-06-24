@@ -112,7 +112,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         Workout workout = currentUserModule.getCurrentWorkout();
         if (workout != null) {
             setCurrentWorkout(workout.getId());
-
         }
         User user = currentUserModule.getUser();
         isPremium = user.isPremium();
@@ -432,7 +431,6 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-//                    setCurrentWorkout(result.getData());
                     updateUI();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());

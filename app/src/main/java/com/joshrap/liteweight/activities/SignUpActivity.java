@@ -14,10 +14,8 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.joshrap.liteweight.BuildConfig;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -120,18 +118,11 @@ public class SignUpActivity extends AppCompatActivity {
                 if (user != null && user.isEmailVerified()) {
                     launchMainActivity();
                 } else if (user != null && !user.isEmailVerified()) {
-                    ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-                            // URL you want to redirect back to. The domain (www.example.com) for this
-                            // URL must be whitelisted in the Firebase Console.
-                            .setUrl("https://www.google.com") // todo a site
-                            .setHandleCodeInApp(true)
-                            .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
-                            .build();
                     user.sendEmailVerification();
                     launchUnverifiedActivity();
                 }
             } else {
-                AndroidUtils.showErrorDialog("There was a problem trying to sign up", SignUpActivity.this);
+                AndroidUtils.showErrorDialog("There was a problem trying to sign up.", SignUpActivity.this);
             }
         });
     }

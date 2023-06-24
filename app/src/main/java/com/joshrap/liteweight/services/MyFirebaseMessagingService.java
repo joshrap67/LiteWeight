@@ -16,7 +16,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
@@ -53,13 +53,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     ObjectMapper objectMapper;
 
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
 
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> userManager.setFirebaseMessagingToken(token));
+        executor.execute(() -> selfManager.setFirebaseMessagingToken(token));
     }
 
     @Override

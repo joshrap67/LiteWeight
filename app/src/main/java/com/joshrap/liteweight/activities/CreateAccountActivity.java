@@ -31,7 +31,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.managers.CurrentUserModule;
@@ -58,7 +58,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -119,7 +119,7 @@ public class CreateAccountActivity extends AppCompatActivity {
             AndroidUtils.showLoadingDialog(loadingDialog, "Creating account...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<User> userResult = this.userManager.createUser(username, profileImageData, metricUnits);
+                Result<User> userResult = this.selfManager.createUser(username, profileImageData, metricUnits);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();

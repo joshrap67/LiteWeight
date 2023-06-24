@@ -131,7 +131,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
                     launchUnverifiedActivity();
                 }
             } else {
-                AndroidUtils.showErrorDialog("Invalid email or password", this);
+                AndroidUtils.showErrorDialog("Invalid email or password.", this);
             }
         });
     }

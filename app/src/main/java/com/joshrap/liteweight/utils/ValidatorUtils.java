@@ -22,7 +22,7 @@ public class ValidatorUtils {
         url = url.trim();
         String retVal = null;
         if (url.isEmpty()) {
-            retVal = "URL cannot be empty.";
+            retVal = "URL required.";
         } else if (url.length() > Variables.MAX_URL_LENGTH) {
             retVal = "URL is too large. Compress it and try again.";
         } else {
@@ -44,10 +44,12 @@ public class ValidatorUtils {
      */
     public static String validWorkoutName(String workoutName, List<String> workoutNamesList) {
         String retVal = null;
-        if (workoutName.length() <= 0 || workoutName.length() > Variables.MAX_WORKOUT_NAME) {
-            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_WORKOUT_NAME);
+        if (workoutNamesList.isEmpty()) {
+            retVal = "Name required.";
+        } else if (workoutName.length() > Variables.MAX_WORKOUT_NAME) {
+            retVal = String.format("Name must have not exceed %s characters.", Variables.MAX_WORKOUT_NAME);
         } else if (workoutNamesList.stream().anyMatch(x -> x.equals(workoutName))) {
-            retVal = "Workout name already exists.";
+            retVal = "Name already exists.";
         }
         return retVal;
     }
@@ -61,8 +63,10 @@ public class ValidatorUtils {
     public static String validReportUserDescription(String description) {
         description = description.trim();
         String retVal = null;
-        if (description.length() <= 0 || description.length() > Variables.MAX_REPORT_DESCRIPTION) {
-            retVal = String.format("Description must have 1-%s characters.", Variables.MAX_REPORT_DESCRIPTION);
+        if (description.isEmpty()) {
+            retVal = "Description required.";
+        } else if (description.length() > Variables.MAX_REPORT_DESCRIPTION) {
+            retVal = String.format("Description must not exceed %s characters.", Variables.MAX_REPORT_DESCRIPTION);
         }
         return retVal;
     }
@@ -78,9 +82,9 @@ public class ValidatorUtils {
     public static String validNewExerciseName(String exerciseName, List<String> totalExercises) {
         String retVal = null;
         if (exerciseName.isEmpty()) {
-            retVal = "Name cannot be empty.";
+            retVal = "Name required.";
         } else if (exerciseName.length() > Variables.MAX_EXERCISE_NAME) {
-            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_EXERCISE_NAME);
+            retVal = String.format("Name must not exceed %s characters.", Variables.MAX_EXERCISE_NAME);
         } else if (totalExercises.stream().anyMatch(x -> x.equals(exerciseName))) {
             retVal = "Exercise already exists.";
         }
@@ -97,12 +101,12 @@ public class ValidatorUtils {
         weightString = weightString.trim();
         String retVal = null;
         if (weightString.isEmpty()) {
-            retVal = "Weight cannot be empty.";
+            retVal = "Weight required.";
         } else {
             try {
                 double weight = Double.parseDouble(weightString);
                 if (weight < 0 || weight > Variables.MAX_WEIGHT) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_WEIGHT);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_WEIGHT);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -121,12 +125,12 @@ public class ValidatorUtils {
         setsString = setsString.trim();
         String retVal = null;
         if (setsString.isEmpty()) {
-            retVal = "Sets cannot be empty.";
+            retVal = "Sets required.";
         } else {
             try {
                 int sets = Integer.parseInt(setsString);
                 if (sets < 0 || sets > Variables.MAX_SETS) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_SETS);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_SETS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -145,12 +149,12 @@ public class ValidatorUtils {
         repsString = repsString.trim();
         String retVal = null;
         if (repsString.isEmpty()) {
-            retVal = "Reps cannot be empty.";
+            retVal = "Reps required.";
         } else {
             try {
                 int reps = Integer.parseInt(repsString);
                 if (reps < 0 || reps > Variables.MAX_REPS) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_REPS);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_REPS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -179,7 +183,7 @@ public class ValidatorUtils {
         String retVal = null;
 
         if (username.isEmpty()) {
-            retVal = "Username cannot be empty.";
+            retVal = "Username required.";
         } else if (!validUsername.matcher(username).find()) {
             retVal = "Invalid characters.";
         } else if (Pattern.compile("\\s").matcher(username).find()) {
@@ -191,10 +195,8 @@ public class ValidatorUtils {
     }
 
     public static String validNewPassword(String password) {
-        password = password.trim();
         String retVal = null;
         String errorMsg = "";
-        // todo ease a bit
         if (password.length() < Variables.MIN_PASSWORD_LENGTH) {
             errorMsg += "Must have at least " + Variables.MIN_PASSWORD_LENGTH + " characters.\n";
         }
@@ -207,19 +209,11 @@ public class ValidatorUtils {
         if (!Pattern.compile("^.*\\d.*").matcher(password).find()) {
             errorMsg += "Must have at least one number.\n";
         }
-        if (!Pattern.compile("^.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=].*").matcher(password).find()) {
-            errorMsg += "Must have at least one special character.\n";
-        }
-        // invalid checks
         if (password.length() > Variables.MAX_PASSWORD_LENGTH) {
             errorMsg += "Too many characters.\n";
         }
         if (Pattern.compile("\\s").matcher(password).find()) {
             errorMsg += "Cannot have any whitespace.\n";
-        }
-        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
-            // sanity check to make sure no invalid characters.
-            errorMsg += "Invalid character detected.";
         }
 
         if (!errorMsg.isEmpty()) {
@@ -232,7 +226,7 @@ public class ValidatorUtils {
         username = username.trim();
         String retVal = null;
         if (username.isEmpty()) {
-            retVal = "Username cannot be empty.";
+            retVal = "Username required.";
         }
         return retVal;
     }
@@ -241,7 +235,7 @@ public class ValidatorUtils {
         email = email.trim();
         String retVal = null;
         if (email.isEmpty()) {
-            retVal = "Email cannot be empty.";
+            retVal = "Email required.";
         }
         return retVal;
     }
@@ -250,7 +244,7 @@ public class ValidatorUtils {
         password = password.trim();
         String retVal = null;
         if (password.isEmpty()) {
-            retVal = "Password cannot be empty.";
+            retVal = "Password required.";
         }
         return retVal;
     }

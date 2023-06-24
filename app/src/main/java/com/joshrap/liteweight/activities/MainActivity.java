@@ -48,7 +48,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.fragments.*;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.DeclinedFriendRequestMessage;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Stopwatch stopwatch;
 
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void loadCurrentUserAndWorkout() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<UserAndWorkout> result = this.userManager.getUserAndCurrentWorkout();
+            Result<UserAndWorkout> result = this.selfManager.getUserAndCurrentWorkout();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (result.isSuccess()) {
@@ -528,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             // blind send for now for unlinking firebase token
-            userManager.unlinkFirebaseMessagingToken();
+            selfManager.unlinkFirebaseMessagingToken();
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -689,7 +689,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 // blind send for now for updating notification token
-                userManager.setFirebaseMessagingToken(token);
+                selfManager.setFirebaseMessagingToken(token);
             });
         });
     }

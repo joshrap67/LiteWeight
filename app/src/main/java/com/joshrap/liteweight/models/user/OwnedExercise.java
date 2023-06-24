@@ -2,6 +2,7 @@ package com.joshrap.liteweight.models.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,18 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
     private String videoUrl;
     private List<String> focuses = new ArrayList<>();
     private List<OwnedExerciseWorkout> workouts = new ArrayList<>();
+
+    public OwnedExercise(OwnedExercise ownedExercise) {
+        this.id = ownedExercise.getId();
+        this.name = ownedExercise.getName();
+        this.defaultWeight = ownedExercise.getDefaultWeight();
+        this.defaultSets = ownedExercise.getDefaultSets();
+        this.defaultReps = ownedExercise.getDefaultReps();
+        this.defaultDetails = ownedExercise.getDefaultDetails();
+        this.videoUrl = ownedExercise.getVideoUrl();
+        this.focuses = new ArrayList<>(ownedExercise.getFocuses());
+        this.workouts = ownedExercise.getWorkouts().stream().map(OwnedExerciseWorkout::new).collect(Collectors.toList());
+    }
 
     public void update(OwnedExercise ownedExercise) {
         this.name = ownedExercise.name;
@@ -42,7 +55,7 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
 
     @Override
     public int compareTo(OwnedExercise o) {
-        return this.getName().toLowerCase().compareTo(o.getName().toLowerCase()); // todo?
+        return this.getName().toLowerCase().compareTo(o.getName().toLowerCase());
     }
 }
 

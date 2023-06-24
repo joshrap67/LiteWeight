@@ -36,7 +36,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.FocusAdapter;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -82,7 +82,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -104,7 +104,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
 
         User user = currentUserModule.getUser();
-        exercise = user.getExercise(exerciseId); // todo fragments should always do a deep copy?
+        exercise = new OwnedExercise(user.getExercise(exerciseId));
         metricUnits = user.getSettings().isMetricUnits();
         existingExerciseNames.addAll(user.getExercises().stream().map(OwnedExercise::getName).collect(Collectors.toList()));
         focusList = Variables.FOCUS_LIST;
@@ -297,7 +297,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         if (selectedFocuses.isEmpty()) {
             focusError = true;
             focusRelativeLayout.startAnimation(AndroidUtils.shakeError(4));
-            Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Must select at least one focus.", Toast.LENGTH_LONG).show();
         }
 
         if (renameError == null && weightError == null && setsError == null &&
@@ -320,15 +320,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                Result<OwnedExercise> result = this.userManager.updateExercise(exerciseId, updatedExercise);
+                Result<OwnedExercise> result = this.selfManager.updateExercise(exerciseId, updatedExercise);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-
-                        exercise = result.getData(); // todo deep copy. technically is not necessary
-                        initViews();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                     }
@@ -361,7 +358,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         AndroidUtils.showLoadingDialog(loadingDialog, "Deleting...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.userManager.deleteExercise(exerciseId);
+            Result<String> result = this.selfManager.deleteExercise(exerciseId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();

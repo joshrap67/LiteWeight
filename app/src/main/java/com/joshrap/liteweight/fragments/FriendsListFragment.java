@@ -45,6 +45,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
@@ -102,7 +103,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FriendsAdapter friendsAdapter;
     private FriendRequestsAdapter friendRequestsAdapter;
     private TabLayout tabLayout;
-    private int currentIndex, workoutsSent;
+    private int startingIndex, workoutsSent;
     private NotificationManager notificationManager;
     private boolean isPremium;
 
@@ -114,6 +115,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     SharedWorkoutManager sharedWorkoutManager;
     @Inject
     UserManager userManager;
+    @Inject
+    SelfManager selfManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -140,9 +143,9 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         Bundle args = getArguments();
         if (args != null) {
             // there are args which indicates user clicked on a notification, so bring them to the requests position
-            currentIndex = REQUESTS_POSITION;
+            startingIndex = REQUESTS_POSITION;
         } else {
-            currentIndex = FRIENDS_POSITION;
+            startingIndex = FRIENDS_POSITION;
         }
         return inflater.inflate(R.layout.fragment_friends_list, container, false);
     }
@@ -187,7 +190,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         });
 
-        if (currentIndex == REQUESTS_POSITION) {
+        if (startingIndex == REQUESTS_POSITION) {
             tabLayout.getTabAt(REQUESTS_POSITION).select();
         } else {
             switchToFriendsList();
@@ -198,8 +201,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Override
     public void onPause() {
         super.onPause();
-        // sanity check to determine if user has any unseen requests after this fragment is paused
-        markAllFriendRequestsSeen();
+        if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
+            // sanity check to determine if user has any unseen requests after this fragment is paused
+            markAllFriendRequestsSeen();
+        }
+
         EventBus.getDefault().unregister(this);
     }
 
@@ -438,7 +444,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
 
             Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> userManager.setAllFriendRequestsSeen());
+            executor.execute(() -> selfManager.setAllFriendRequestsSeen());
         }
     }
 

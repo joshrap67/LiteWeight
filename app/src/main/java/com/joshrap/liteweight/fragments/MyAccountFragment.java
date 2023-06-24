@@ -30,7 +30,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.FirebaseUtils;
@@ -61,7 +61,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private AlertDialog alertDialog;
 
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -169,7 +169,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
     private void updateProfilePicture(byte[] imageData) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.userManager.updateProfilePicture(imageData);
+            Result<String> result = this.selfManager.updateProfilePicture(imageData);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (result.isFailure()) {

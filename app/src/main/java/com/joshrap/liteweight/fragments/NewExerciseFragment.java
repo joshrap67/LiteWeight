@@ -40,7 +40,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.user.User;
@@ -74,7 +74,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     @Inject
     AlertDialog loadingDialog;
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -241,7 +241,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         if (selectedFocuses.isEmpty()) {
             focusError = true;
             focusRelativeLayout.startAnimation(AndroidUtils.shakeError(4));
-            Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Must select at least one focus.", Toast.LENGTH_LONG).show();
         }
 
         if (nameError == null && weightError == null && setsError == null &&
@@ -262,7 +262,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
             Executor executor = Executors.newSingleThreadExecutor();
             double finalWeight = weight; // java weirdness
             executor.execute(() -> {
-                Result<OwnedExercise> result = this.userManager.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
+                Result<OwnedExercise> result = this.selfManager.newExercise(exerciseName, selectedFocuses, finalWeight, sets, reps, details, videoURL);
                 Handler handler = new Handler(getMainLooper());
                 handler.post(() -> {
                     loadingDialog.dismiss();

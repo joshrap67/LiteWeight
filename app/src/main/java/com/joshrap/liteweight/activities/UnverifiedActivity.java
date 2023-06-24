@@ -9,10 +9,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.joshrap.liteweight.BuildConfig;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
@@ -53,16 +51,7 @@ public class UnverifiedActivity extends AppCompatActivity {
             launchSignInActivity();
         });
 
-        resendEmailVerificationButton.setOnClickListener(v -> {
-            ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-                    // URL you want to redirect back to. The domain (www.example.com) for this
-                    // URL must be whitelisted in the Firebase Console.
-                    .setUrl("https://www.google.com") // todo a site
-                    .setHandleCodeInApp(true)
-                    .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "14")
-                    .build();
-            user.sendEmailVerification().addOnCompleteListener(task -> Toast.makeText(this, "Email sent successfully", Toast.LENGTH_LONG).show());
-        });
+        resendEmailVerificationButton.setOnClickListener(v -> user.sendEmailVerification().addOnCompleteListener(task -> Toast.makeText(this, "Email successfully sent.", Toast.LENGTH_LONG).show()));
 
         retryVerificationButton.setOnClickListener(v -> {
             AndroidUtils.showLoadingDialog(loadingDialog, "Signing In...");
@@ -71,7 +60,7 @@ public class UnverifiedActivity extends AppCompatActivity {
                 if (auth.getCurrentUser().isEmailVerified()) {
                     launchMainActivity();
                 } else {
-                    Toast.makeText(UnverifiedActivity.this, "Email still not verified", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UnverifiedActivity.this, "Email still not verified.", Toast.LENGTH_SHORT).show();
                 }
             });
         });

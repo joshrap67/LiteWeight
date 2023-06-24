@@ -11,4 +11,9 @@ public class OwnedExerciseWorkout {
 
     private String workoutId;
     private String workoutName;
+
+    public OwnedExerciseWorkout(OwnedExerciseWorkout ownedExerciseWorkout){
+        this.workoutId = ownedExerciseWorkout.getWorkoutId();
+        this.workoutName = ownedExerciseWorkout.getWorkoutName();
+    }
 }

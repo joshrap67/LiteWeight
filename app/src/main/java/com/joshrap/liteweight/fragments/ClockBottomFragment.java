@@ -143,7 +143,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
                 editor.apply();
                 setTimerDurationVisibility(false);
             } else {
-                Toast.makeText(getActivity(), "Invalid time", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Invalid time.", Toast.LENGTH_SHORT).show();
             }
         });
         //endregion

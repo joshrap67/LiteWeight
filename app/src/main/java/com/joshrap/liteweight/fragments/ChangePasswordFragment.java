@@ -105,16 +105,16 @@ public class ChangePasswordFragment extends Fragment {
             if (reAuthTask.isSuccessful()) {
                 user.updatePassword(newPasswordInput.getText().toString().trim()).addOnCompleteListener(updatePwTask -> {
                     if (updatePwTask.isSuccessful()) {
-                        Toast.makeText(getContext(), "Password successfully reset", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Password successfully reset.", Toast.LENGTH_SHORT).show();
                         ((MainActivity) requireActivity()).finishFragment();
                     } else {
-                        AndroidUtils.showErrorDialog("There was a problem changing your password", getContext());
+                        AndroidUtils.showErrorDialog("There was a problem changing your password.", getContext());
                     }
                     loadingDialog.dismiss();
                 });
             } else {
                 loadingDialog.dismiss();
-                AndroidUtils.showErrorDialog("Invalid credentials", getContext());
+                AndroidUtils.showErrorDialog("Invalid credentials.", getContext());
             }
         });
     }

@@ -33,13 +33,13 @@ public class ResetPasswordActivity extends AppCompatActivity {
         sendResetPasswordEmailButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
             if (email.isEmpty()) {
-                emailInputLayout.setError("Email cannot be empty");
+                emailInputLayout.setError("Email required.");
                 return;
             }
 
             auth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(this, "Reset email successfully sent", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Reset email successfully sent.", Toast.LENGTH_LONG).show();
                 }
             });
         });
