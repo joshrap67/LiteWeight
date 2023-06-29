@@ -45,8 +45,8 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
 import com.joshrap.liteweight.managers.SelfManager;
-import com.joshrap.liteweight.managers.SharedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.messages.fragmentmessages.AcceptedFriendRequestFragmentMessage;
@@ -112,7 +112,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    SharedWorkoutManager sharedWorkoutManager;
+    ReceivedWorkoutManager receivedWorkoutManager;
     @Inject
     UserManager userManager;
     @Inject
@@ -679,7 +679,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         });
     }
 
-    private void promptShareWorkout(String userId, String username) {
+    private void promptSendWorkout(String userId, String username) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
         Spinner workoutSpinner = popupView.findViewById(R.id.workouts_spinner);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
@@ -713,7 +713,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         workoutNames.sort(String::compareToIgnoreCase);
 
         // username is italicized
-        SpannableString span1 = new SpannableString("Share a workout with ");
+        SpannableString span1 = new SpannableString("Send a workout to ");
         SpannableString span2 = new SpannableString(username);
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
@@ -721,7 +721,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
-                .setPositiveButton("Share", null)
+                .setPositiveButton("Send", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
@@ -733,12 +733,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 String selectedName = (String) workoutSpinner.getSelectedItem();
                 if (selectedName == null) {
                     // no workout is selected
-                    Toast.makeText(getContext(), "Please select a workout to share.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Please select a workout to send.", Toast.LENGTH_LONG).show();
                 } else {
                     if (!isPremium && workoutsSent >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
+                        AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
                     } else {
-                        shareWorkout(userId, workoutNameToId.get(selectedName));
+                        sendWorkout(userId, workoutNameToId.get(selectedName));
                     }
                     alertDialog.dismiss();
                 }
@@ -747,11 +747,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.show();
     }
 
-    private void shareWorkout(String recipientId, String workoutId) {
+    private void sendWorkout(String recipientId, String workoutId) {
         AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.sharedWorkoutManager.shareWorkoutByUserId(recipientId, workoutId);
+            Result<String> result = this.receivedWorkoutManager.sendWorkoutByUserId(recipientId, workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -815,15 +815,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             rootLayout.setOnClickListener(v -> {
                 bottomSheetDialog = new BottomSheetDialog(requireContext());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend, null);
-                TextView shareWorkoutTV = sheetView.findViewById(R.id.share_workout_tv);
+                TextView sendWorkoutTV = sheetView.findViewById(R.id.send_workout_tv);
                 TextView removeFriendTV = sheetView.findViewById(R.id.remove_friend_tv);
                 TextView cancelRequestTV = sheetView.findViewById(R.id.cancel_friend_request_tv);
                 TextView reportUserTV = sheetView.findViewById(R.id.report_user_tv);
 
-                shareWorkoutTV.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
-                shareWorkoutTV.setOnClickListener(view -> {
+                sendWorkoutTV.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                sendWorkoutTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    promptShareWorkout(friend.getUserId(), friend.getUsername());
+                    promptSendWorkout(friend.getUserId(), friend.getUsername());
                 });
                 removeFriendTV.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
                 removeFriendTV.setOnClickListener(view -> {

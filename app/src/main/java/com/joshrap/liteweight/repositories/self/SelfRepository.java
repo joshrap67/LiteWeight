@@ -126,8 +126,8 @@ public class SelfRepository {
         this.apiGateway.put(route);
     }
 
-    public void setReceivedWorkoutSeen(String sharedWorkoutId) throws IOException, LiteWeightNetworkException {
-        String route = getRoute(selfRoute, receivedWorkoutsRoute, sharedWorkoutId, setReceivedWorkoutSeenRoute);
+    public void setReceivedWorkoutSeen(String receivedWorkoutId) throws IOException, LiteWeightNetworkException {
+        String route = getRoute(selfRoute, receivedWorkoutsRoute, receivedWorkoutId, setReceivedWorkoutSeenRoute);
         this.apiGateway.put(route);
     }
 }

@@ -4,7 +4,7 @@ This app is a lightweight workout manager that allows for workouts to be created
 
 Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out.
 
-Friend requests can be sent to any other LiteWeight user and workouts can additionally be shared to any user.
+Friend requests can be sent to any other LiteWeight user and workouts can additionally be sent to any user.
 
 [Demo of v2.2.0](https://youtu.be/JLHczjjNDcw)
 

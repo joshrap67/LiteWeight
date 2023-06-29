@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SharedWorkoutInfo {
+public class ReceivedWorkoutInfo {
 
-    private String sharedWorkoutId;
+    private String receivedWorkoutId;
     private String workoutName;
-    private String sharedUtc;
+    private String receivedUtc;
     private boolean seen;
     private String senderId;
     private String senderUsername;

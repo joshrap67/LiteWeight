@@ -26,23 +26,23 @@ public class User {
     private List<OwnedExercise> exercises = new ArrayList<>();
     private List<Friend> friends = new ArrayList<>();
     private List<FriendRequest> friendRequests = new ArrayList<>();
-    private List<SharedWorkoutInfo> receivedWorkouts = new ArrayList<>();
+    private List<ReceivedWorkoutInfo> receivedWorkouts = new ArrayList<>();
 
     public boolean isPremium() {
         return this.premiumToken != null;
     }
 
-    public SharedWorkoutInfo getReceivedWorkout(String sharedWorkoutId) {
-        Optional<SharedWorkoutInfo> sharedWorkoutInfo = this.receivedWorkouts.stream().filter(x -> x.getSharedWorkoutId().equals(sharedWorkoutId)).findFirst();
-        return sharedWorkoutInfo.orElse(null);
+    public ReceivedWorkoutInfo getReceivedWorkout(String receivedWorkoutId) {
+        Optional<ReceivedWorkoutInfo> receivedWorkoutInfo = this.receivedWorkouts.stream().filter(x -> x.getReceivedWorkoutId().equals(receivedWorkoutId)).findFirst();
+        return receivedWorkoutInfo.orElse(null);
     }
 
-    public void addReceivedWorkout(SharedWorkoutInfo sharedWorkoutInfo) {
-        this.receivedWorkouts.add(sharedWorkoutInfo);
+    public void addReceivedWorkout(ReceivedWorkoutInfo receivedWorkoutInfo) {
+        this.receivedWorkouts.add(receivedWorkoutInfo);
     }
 
-    public void removeReceivedWorkout(String sharedWorkoutId) {
-        this.receivedWorkouts.removeIf(x -> x.getSharedWorkoutId().equals(sharedWorkoutId));
+    public void removeReceivedWorkout(String receivedWorkoutId) {
+        this.receivedWorkouts.removeIf(x -> x.getReceivedWorkoutId().equals(receivedWorkoutId));
     }
 
     public void removeExercise(String exerciseId) {

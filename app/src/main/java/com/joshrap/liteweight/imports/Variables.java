@@ -107,7 +107,7 @@ public class Variables {
     public static final String INTENT_CURRENT_WEEK = "currentWeek";
     public static final String INTENT_CURRENT_DAY = "currentDay";
     public static final String WORKOUT_NAME = "Workout_Name";
-    public static final String SHARED_WORKOUT_ID = "SharedWorkoutId";
+    public static final String RECEIVED_WORKOUT_ID = "ReceivedWorkoutId";
 
     // request codes for pending intents. These values are arbitrary
     public static final int TIMER_RUNNING_REQUEST_CODE = 67;

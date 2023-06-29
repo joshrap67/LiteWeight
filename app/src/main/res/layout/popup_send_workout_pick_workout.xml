@@ -28,5 +28,5 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="8dp"
             android:textAlignment="center"
-            tools:text="You can share a workout 20 more times" />
+            tools:text="You can send a workout 20 more times" />
 </LinearLayout>

@@ -8,10 +8,10 @@ import com.joshrap.liteweight.models.user.Friend;
 import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
 import com.joshrap.liteweight.repositories.users.requests.ReportUserRequest;
-import com.joshrap.liteweight.repositories.users.requests.ShareWorkoutRequest;
+import com.joshrap.liteweight.repositories.users.requests.SendWorkoutRequest;
 import com.joshrap.liteweight.repositories.users.responses.ReportUserResponse;
 import com.joshrap.liteweight.repositories.users.responses.SearchByUsernameResponse;
-import com.joshrap.liteweight.repositories.users.responses.ShareWorkoutResponse;
+import com.joshrap.liteweight.repositories.users.responses.SendWorkoutResponse;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 public class UsersRepository {
 
-    private static final String shareWorkoutRoute = "share-workout";
+    private static final String sendWorkoutRoute = "send-workout";
     private static final String searchByUsernameRoute = "search";
     private static final String sendFriendRequestRoute = "send-friend-request";
     private static final String acceptFriendRequestRoute = "accept-friend-request";
@@ -55,12 +55,12 @@ public class UsersRepository {
         return this.objectMapper.readValue(apiResponse, Friend.class);
     }
 
-    public void shareWorkout(String userId, String workoutId) throws IOException, LiteWeightNetworkException {
-        String route = getRoute(usersRoute, userId, shareWorkoutRoute);
-        BodyRequest body = new ShareWorkoutRequest(workoutId);
+    public void sendWorkout(String userId, String workoutId) throws IOException, LiteWeightNetworkException {
+        String route = getRoute(usersRoute, userId, sendWorkoutRoute);
+        BodyRequest body = new SendWorkoutRequest(workoutId);
         String apiResponse = this.apiGateway.post(route, body);
 
-        this.objectMapper.readValue(apiResponse, ShareWorkoutResponse.class);
+        this.objectMapper.readValue(apiResponse, SendWorkoutResponse.class);
     }
 
     public void cancelFriendRequest(String userId) throws IOException, LiteWeightNetworkException {

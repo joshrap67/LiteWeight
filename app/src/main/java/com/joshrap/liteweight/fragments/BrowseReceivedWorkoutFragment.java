@@ -34,12 +34,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
-import com.joshrap.liteweight.adapters.SharedRoutineAdapter;
-import com.joshrap.liteweight.managers.SharedWorkoutManager;
+import com.joshrap.liteweight.adapters.ReceivedRoutineAdapter;
+import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
-import com.joshrap.liteweight.models.sharedWorkout.SharedWeek;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedWeek;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -49,8 +49,8 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.sharedWorkout.SharedRoutine;
-import com.joshrap.liteweight.models.sharedWorkout.SharedWorkout;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedRoutine;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedWorkout;
 import com.joshrap.liteweight.models.user.User;
 
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ import static android.os.Looper.getMainLooper;
 public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentWithDialog {
     private ProgressBar loadingIcon;
     private RecyclerView browseRecyclerView;
-    private SharedRoutine sharedRoutine;
+    private ReceivedRoutine receivedRoutine;
     private TextView dayTV, dayTagTV;
     private String workoutName;
     private Button forwardButton, backButton;
@@ -82,7 +82,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    SharedWorkoutManager sharedWorkoutManager;
+    ReceivedWorkoutManager receivedWorkoutManager;
     @Inject
     UserManager userManager;
     @Inject
@@ -100,7 +100,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
 
         receivedWorkoutId = null;
         if (getArguments() != null) {
-            receivedWorkoutId = getArguments().getString(Variables.SHARED_WORKOUT_ID);
+            receivedWorkoutId = getArguments().getString(Variables.RECEIVED_WORKOUT_ID);
             workoutName = getArguments().getString(Variables.WORKOUT_NAME);
         } else {
             return null;
@@ -202,7 +202,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.sharedWorkoutManager.acceptReceivedWorkout(receivedWorkoutId, optionalName);
+            Result<String> result = this.receivedWorkoutManager.acceptReceivedWorkout(receivedWorkoutId, optionalName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -220,7 +220,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         AndroidUtils.showLoadingDialog(loadingDialog, "Declining...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.sharedWorkoutManager.declineReceivedWorkout(receivedWorkoutId);
+            Result<String> result = this.receivedWorkoutManager.declineReceivedWorkout(receivedWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
@@ -233,19 +233,19 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         });
     }
 
-    private void getReceivedWorkout(String sharedWorkoutId) {
+    private void getReceivedWorkout(String receivedWorkoutId) {
         browseContainer.setVisibility(View.GONE);
         loadingIcon.setVisibility(View.VISIBLE);
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<SharedWorkout> result = this.sharedWorkoutManager.getReceivedWorkout(sharedWorkoutId);
+            Result<ReceivedWorkout> result = this.receivedWorkoutManager.getReceivedWorkout(receivedWorkoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 if (this.isResumed()) {
                     loadingIcon.setVisibility(View.GONE);
                     if (result.isSuccess()) {
                         browseContainer.setVisibility(View.VISIBLE);
-                        sharedRoutine = result.getData().getRoutine();
+                        receivedRoutine = result.getData().getRoutine();
                         setupButtons();
                         updateRoutineListUI(AnimationDirection.NONE);
                     } else {
@@ -270,16 +270,16 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             } else if (currentWeekIndex > 0) {
                 // there are more previous weeks
                 currentWeekIndex--;
-                currentDayIndex = sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
+                currentDayIndex = receivedRoutine.getWeek(currentWeekIndex).getNumberOfDays() - 1;
                 updateRoutineListUI(AnimationDirection.FROM_LEFT);
             }
         });
         forwardButton.setOnClickListener(v -> {
-            if (currentDayIndex + 1 < sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
+            if (currentDayIndex + 1 < receivedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
                 // if can progress further in this week, do so
                 currentDayIndex++;
                 updateRoutineListUI(AnimationDirection.FROM_RIGHT);
-            } else if (currentWeekIndex + 1 < sharedRoutine.getNumberOfWeeks()) {
+            } else if (currentWeekIndex + 1 < receivedRoutine.getNumberOfWeeks()) {
                 // there are more weeks
                 currentDayIndex = 0;
                 currentWeekIndex++;
@@ -296,16 +296,16 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             // means it's the first day in weeks, so hide the back button
             backButton.setVisibility(View.INVISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
-            if (currentWeekIndex + 1 == sharedRoutine.getNumberOfWeeks() && sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
+            if (currentWeekIndex + 1 == receivedRoutine.getNumberOfWeeks() && receivedRoutine.getWeek(currentWeekIndex).getNumberOfDays() == 1) {
                 // a one day workout
                 forwardButton.setVisibility(View.INVISIBLE);
             }
-        } else if (currentWeekIndex + 1 == sharedRoutine.getNumberOfWeeks()
-                && currentDayIndex + 1 == sharedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
+        } else if (currentWeekIndex + 1 == receivedRoutine.getNumberOfWeeks()
+                && currentDayIndex + 1 == receivedRoutine.getWeek(currentWeekIndex).getNumberOfDays()) {
             // last day, so hide forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.INVISIBLE);
-        } else if (currentWeekIndex < sharedRoutine.getNumberOfWeeks()) {
+        } else if (currentWeekIndex < receivedRoutine.getNumberOfWeeks()) {
             // not first day, not last. So show back and forward button
             backButton.setVisibility(View.VISIBLE);
             forwardButton.setVisibility(View.VISIBLE);
@@ -316,13 +316,13 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
-        List<SharedRoutineAdapter.SharedRoutineRowModel> sharedRoutineRowModels = new ArrayList<>();
-        for (SharedExercise exercise : sharedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-            SharedRoutineAdapter.SharedRoutineRowModel exerciseRowModel = new SharedRoutineAdapter.SharedRoutineRowModel(exercise, false);
-            sharedRoutineRowModels.add(exerciseRowModel);
+        List<ReceivedRoutineAdapter.ReceivedRoutineRowModel> receivedRoutineRowModels = new ArrayList<>();
+        for (ReceivedExercise exercise : receivedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
+            ReceivedRoutineAdapter.ReceivedRoutineRowModel exerciseRowModel = new ReceivedRoutineAdapter.ReceivedRoutineRowModel(exercise, false);
+            receivedRoutineRowModels.add(exerciseRowModel);
         }
 
-        SharedRoutineAdapter routineAdapter = new SharedRoutineAdapter(sharedRoutineRowModels, isMetricUnits);
+        ReceivedRoutineAdapter routineAdapter = new ReceivedRoutineAdapter(receivedRoutineRowModels, isMetricUnits);
         browseRecyclerView.setAdapter(routineAdapter);
         browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -341,7 +341,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         }
 
         dayTV.setText(WorkoutUtils.generateDayTitle(currentWeekIndex, currentDayIndex));
-        String dayTag = sharedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();
+        String dayTag = receivedRoutine.getDay(currentWeekIndex, currentDayIndex).getTag();
         dayTagTV.setVisibility(dayTag == null ? View.INVISIBLE : View.VISIBLE);
         dayTagTV.setText(dayTag);
         updateButtonViews();
@@ -354,8 +354,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         int totalDays = 0;
         int selectedVal = 0;
         List<String> days = new ArrayList<>();
-        for (int weekIndex = 0; weekIndex < sharedRoutine.getNumberOfWeeks(); weekIndex++) {
-            SharedWeek week = sharedRoutine.getWeek(weekIndex);
+        for (int weekIndex = 0; weekIndex < receivedRoutine.getNumberOfWeeks(); weekIndex++) {
+            ReceivedWeek week = receivedRoutine.getWeek(weekIndex);
             for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
                 if (weekIndex == currentWeekIndex && dayIndex == currentDayIndex) {
                     selectedVal = totalDays;
@@ -381,8 +381,8 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
                 .setView(popupView)
                 .setPositiveButton("Go", (dialog, which) -> {
                     int count = 0;
-                    for (int weekIndex = 0; weekIndex < sharedRoutine.getNumberOfWeeks(); weekIndex++) {
-                        SharedWeek week = sharedRoutine.getWeek(weekIndex);
+                    for (int weekIndex = 0; weekIndex < receivedRoutine.getNumberOfWeeks(); weekIndex++) {
+                        ReceivedWeek week = receivedRoutine.getWeek(weekIndex);
                         for (int dayIndex = 0; dayIndex < week.getNumberOfDays(); dayIndex++) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = weekIndex;

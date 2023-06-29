@@ -72,7 +72,7 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.models.user.FriendRequest;
-import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
+import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.services.StopwatchService;
@@ -665,13 +665,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleReceivedWorkoutMessage(ReceivedWorkoutMessage event) {
-        SharedWorkoutInfo sharedWorkoutInfo = event.getSharedWorkoutInfo();
+        ReceivedWorkoutInfo receivedWorkoutInfo = event.getReceivedWorkoutInfo();
 
-        currentUserModule.getUser().addReceivedWorkout(sharedWorkoutInfo);
+        currentUserModule.getUser().addReceivedWorkout(receivedWorkoutInfo);
         updateReceivedWorkoutNotificationIndicator();
 
         // send broadcast to any fragments waiting on this model update
-        ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(sharedWorkoutInfo);
+        ReceivedWorkoutFragmentMessage fragmentMessage = new ReceivedWorkoutFragmentMessage(receivedWorkoutInfo);
         EventBus.getDefault().post(fragmentMessage);
     }
 
@@ -1027,7 +1027,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentStack.add(0, Variables.RECEIVED_WORKOUT_TITLE);
 
         Bundle arguments = new Bundle();
-        arguments.putString(Variables.SHARED_WORKOUT_ID, workoutId);
+        arguments.putString(Variables.RECEIVED_WORKOUT_ID, workoutId);
         arguments.putString(Variables.WORKOUT_NAME, workoutName);
         Fragment fragment = new BrowseReceivedWorkoutFragment();
         fragment.setArguments(arguments);

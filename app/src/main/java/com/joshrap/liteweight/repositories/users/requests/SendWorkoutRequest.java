@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.sharedWorkouts.requests;
+package com.joshrap.liteweight.repositories.users.requests;
 
 import com.joshrap.liteweight.repositories.BodyRequest;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class AcceptSharedWorkoutRequest extends BodyRequest {
+public class SendWorkoutRequest extends BodyRequest {
 
-    private String workoutName;
+    private String workoutId;
 }

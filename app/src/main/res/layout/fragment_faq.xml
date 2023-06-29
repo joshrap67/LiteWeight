@@ -179,7 +179,7 @@
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_3_icon_btn"
                             android:paddingHorizontal="4dp"
-                            android:text="@string/faq_shared_workout_tv"
+                            android:text="@string/faq_sent_workout_tv"
                             android:textSize="20sp" />
 
                     <ImageButton
@@ -200,7 +200,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:paddingHorizontal="4dp"
-                        android:text="@string/share_workout_explanation"
+                        android:text="@string/send_workout_explanation"
                         android:visibility="gone"
                         tools:visibility="visible" />
             </LinearLayout>

@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.repositories.sharedWorkouts.responses;
+package com.joshrap.liteweight.repositories.receivedWorkouts.responses;
 
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.user.WorkoutInfo;

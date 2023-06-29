@@ -30,7 +30,7 @@ import com.joshrap.liteweight.models.notifications.RemovedAsFriendNotification;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.user.FriendRequest;
 import com.joshrap.liteweight.models.notifications.PushNotification;
-import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
+import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -185,7 +185,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotificationReceivedWorkout(final String jsonData) throws IOException {
-        final SharedWorkoutInfo sharedWorkoutInfo = objectMapper.readValue(jsonData, SharedWorkoutInfo.class);
+        final ReceivedWorkoutInfo receivedWorkoutInfo = objectMapper.readValue(jsonData, ReceivedWorkoutInfo.class);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(Variables.NOTIFICATION_ACTION, Variables.RECEIVED_WORKOUT_CLICK);
@@ -195,7 +195,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Notification notification = new NotificationCompat.Builder(this, Variables.RECEIVED_WORKOUT_CHANNEL)
                 .setContentTitle("Workout Received!")
                 .setContentText(String.format("%s sent you a workout: %s. Click to respond.",
-                        sharedWorkoutInfo.getSenderUsername(), sharedWorkoutInfo.getWorkoutName()))
+                        receivedWorkoutInfo.getSenderUsername(), receivedWorkoutInfo.getWorkoutName()))
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -203,10 +203,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .build();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (mNotificationManager != null) {
-            mNotificationManager.notify(sharedWorkoutInfo.getSharedWorkoutId().hashCode(), notification);
+            mNotificationManager.notify(receivedWorkoutInfo.getReceivedWorkoutId().hashCode(), notification);
         }
 
-        ReceivedWorkoutMessage message = new ReceivedWorkoutMessage(sharedWorkoutInfo);
+        ReceivedWorkoutMessage message = new ReceivedWorkoutMessage(receivedWorkoutInfo);
         EventBus.getDefault().post(message);
     }
 }

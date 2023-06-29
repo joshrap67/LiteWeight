@@ -9,7 +9,7 @@ import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.user.FriendRequest;
 import com.joshrap.liteweight.models.user.OwnedExercise;
-import com.joshrap.liteweight.models.user.SharedWorkoutInfo;
+import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.user.UserSettings;
 import com.joshrap.liteweight.models.workout.Workout;
@@ -218,8 +218,8 @@ public class SelfManager {
             User user = currentUserModule.getUser();
 
             // blind send
-            for (SharedWorkoutInfo sharedWorkoutInfo : user.getReceivedWorkouts()) {
-                sharedWorkoutInfo.setSeen(true);
+            for (ReceivedWorkoutInfo receivedWorkoutInfo : user.getReceivedWorkouts()) {
+                receivedWorkoutInfo.setSeen(true);
             }
             this.selfRepository.setAllReceivedWorkoutsSeen();
         } catch (Exception e) {
@@ -232,8 +232,8 @@ public class SelfManager {
             User user = currentUserModule.getUser();
 
             // blind send
-            SharedWorkoutInfo sharedWorkoutInfo = user.getReceivedWorkout(workoutId);
-            sharedWorkoutInfo.setSeen(true);
+            ReceivedWorkoutInfo receivedWorkoutInfo = user.getReceivedWorkout(workoutId);
+            receivedWorkoutInfo.setSeen(true);
             this.selfRepository.setReceivedWorkoutSeen(workoutId);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);

@@ -7,14 +7,14 @@ import com.joshrap.liteweight.models.ErrorTypes;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.models.sharedWorkout.SharedWorkout;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedWorkout;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.repositories.self.SelfRepository;
-import com.joshrap.liteweight.repositories.sharedWorkouts.SharedWorkoutRepository;
-import com.joshrap.liteweight.repositories.sharedWorkouts.responses.AcceptWorkoutResponse;
+import com.joshrap.liteweight.repositories.receivedWorkouts.ReceivedWorkoutRepository;
+import com.joshrap.liteweight.repositories.receivedWorkouts.responses.AcceptWorkoutResponse;
 import com.joshrap.liteweight.repositories.users.UsersRepository;
 import com.joshrap.liteweight.repositories.users.responses.SearchByUsernameResponse;
 import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-public class SharedWorkoutManager {
+public class ReceivedWorkoutManager {
 
     @Inject
     WorkoutRepository workoutRepository;
     @Inject
-    SharedWorkoutRepository sharedWorkoutRepository;
+    ReceivedWorkoutRepository receivedWorkoutRepository;
     @Inject
     UsersRepository usersRepository;
     @Inject
@@ -39,23 +39,23 @@ public class SharedWorkoutManager {
     CurrentUserModule currentUserModule;
 
     @Inject
-    public SharedWorkoutManager(WorkoutRepository workoutRepository, CurrentUserModule currentUserModule,
-                                SharedWorkoutRepository sharedWorkoutRepository, UsersRepository usersRepository, SelfRepository selfRepository) {
+    public ReceivedWorkoutManager(WorkoutRepository workoutRepository, CurrentUserModule currentUserModule,
+                                  ReceivedWorkoutRepository receivedWorkoutRepository, UsersRepository usersRepository, SelfRepository selfRepository) {
         this.currentUserModule = currentUserModule;
         this.workoutRepository = workoutRepository;
-        this.sharedWorkoutRepository = sharedWorkoutRepository;
+        this.receivedWorkoutRepository = receivedWorkoutRepository;
         this.usersRepository = usersRepository;
         this.selfRepository = selfRepository;
     }
 
-    public Result<String> shareWorkoutByUsername(String recipientUsername, String workoutId) {
+    public Result<String> sendWorkoutByUsername(String recipientUsername, String workoutId) {
         Result<String> result = new Result<>();
 
         try {
             User user = currentUserModule.getUser();
 
             SearchByUsernameResponse searchResult = this.usersRepository.searchByUsername(recipientUsername);
-            this.usersRepository.shareWorkout(searchResult.getId(), workoutId);
+            this.usersRepository.sendWorkout(searchResult.getId(), workoutId);
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
         } catch (Exception e) {
             if (e instanceof LiteWeightNetworkException) {
@@ -71,13 +71,13 @@ public class SharedWorkoutManager {
         return result;
     }
 
-    public Result<String> shareWorkoutByUserId(String recipientId, String workoutId) {
+    public Result<String> sendWorkoutByUserId(String recipientId, String workoutId) {
         Result<String> result = new Result<>();
 
         try {
             User user = currentUserModule.getUser();
 
-            this.usersRepository.shareWorkout(recipientId, workoutId);
+            this.usersRepository.sendWorkout(recipientId, workoutId);
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
@@ -86,12 +86,12 @@ public class SharedWorkoutManager {
         return result;
     }
 
-    public Result<SharedWorkout> getReceivedWorkout(final String sharedWorkoutId) {
-        Result<SharedWorkout> result = new Result<>();
+    public Result<ReceivedWorkout> getReceivedWorkout(final String receivedWorkoutId) {
+        Result<ReceivedWorkout> result = new Result<>();
 
         try {
-            SharedWorkout sharedWorkout = this.sharedWorkoutRepository.getReceivedWorkout(sharedWorkoutId);
-            result.setData(sharedWorkout);
+            ReceivedWorkout receivedWorkout = this.receivedWorkoutRepository.getReceivedWorkout(receivedWorkoutId);
+            result.setData(receivedWorkout);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem getting the workout.");
@@ -99,14 +99,14 @@ public class SharedWorkoutManager {
         return result;
     }
 
-    public Result<String> acceptReceivedWorkout(final String sharedWorkoutId, final String optionalName) {
+    public Result<String> acceptReceivedWorkout(final String receivedWorkoutId, final String optionalName) {
         Result<String> result = new Result<>();
 
         try {
             User user = currentUserModule.getUser();
             UserAndWorkout currentUserAndWorkout = currentUserModule.getCurrentUserAndWorkout();
 
-            AcceptWorkoutResponse response = this.sharedWorkoutRepository.acceptReceivedWorkout(sharedWorkoutId, optionalName);
+            AcceptWorkoutResponse response = this.receivedWorkoutRepository.acceptReceivedWorkout(receivedWorkoutId, optionalName);
             if (user.getCurrentWorkoutId() == null) {
                 // this newly accepted workout is the only workout the user now owns, so make it the current one
                 String newWorkoutId = response.getNewWorkoutInfo().getWorkoutId();
@@ -129,7 +129,7 @@ public class SharedWorkoutManager {
                     user.addExercise(ownedExercise);
                 }
             }
-            user.removeReceivedWorkout(sharedWorkoutId);
+            user.removeReceivedWorkout(receivedWorkoutId);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem accepting the workout.");
@@ -137,14 +137,14 @@ public class SharedWorkoutManager {
         return result;
     }
 
-    public Result<String> declineReceivedWorkout(String sharedWorkoutId) {
+    public Result<String> declineReceivedWorkout(String receivedWorkoutId) {
         Result<String> result = new Result<>();
 
         try {
             User user = currentUserModule.getUser();
 
-            this.sharedWorkoutRepository.declineReceivedWorkout(sharedWorkoutId);
-            user.removeReceivedWorkout(sharedWorkoutId);
+            this.receivedWorkoutRepository.declineReceivedWorkout(receivedWorkoutId);
+            user.removeReceivedWorkout(receivedWorkoutId);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem declining the workout.");

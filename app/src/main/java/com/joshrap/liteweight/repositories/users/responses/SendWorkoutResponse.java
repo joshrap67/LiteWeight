@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShareWorkoutResponse {
+public class SendWorkoutResponse {
 
-    private String sharedWorkoutId;
+    private String receivedWorkoutId;
 }

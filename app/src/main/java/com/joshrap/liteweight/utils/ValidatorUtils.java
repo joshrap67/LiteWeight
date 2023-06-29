@@ -279,7 +279,7 @@ public class ValidatorUtils {
         return retVal;
     }
 
-    public static String validUserToShareWorkout(String activeUser, String username) {
+    public static String validUserToSendWorkout(String activeUser, String username) {
         username = username.trim();
         String retVal = validUsername(username);
         if (retVal == null) {

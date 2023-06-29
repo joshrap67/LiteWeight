@@ -45,7 +45,7 @@ import com.joshrap.liteweight.*;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
 import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.managers.SharedWorkoutManager;
+import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.user.Friend;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -94,7 +94,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    SharedWorkoutManager sharedWorkoutManager;
+    ReceivedWorkoutManager receivedWorkoutManager;
     @Inject
     CurrentUserModule currentUserModule;
 
@@ -164,7 +164,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         final int resetIndex = 4;
         final int deleteIndex = 5;
         menu.add(0, editIndex, 0, "Edit Workout");
-        menu.add(0, sendIndex, 0, "Share Workout");
+        menu.add(0, sendIndex, 0, "Send Workout");
         menu.add(0, copyIndex, 0, "Copy Workout");
         menu.add(0, renameIndex, 0, "Rename Workout");
         menu.add(0, resetIndex, 0, "Reset Statistics");
@@ -187,9 +187,9 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
                     return true;
                 case sendIndex:
                     if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
-                        promptShare();
+                        promptSend();
                     } else {
-                        AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
+                        AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
                     }
                     return true;
                 case copyIndex:
@@ -442,7 +442,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     /**
      * Prompt user to send workout to a friend or any other user
      */
-    private void promptShare() {
+    private void promptSend() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_user, null);
         TextInputLayout usernameInputLayout = popupView.findViewById(R.id.username_input_layout);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
@@ -478,7 +478,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         usernameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
 
         // workout name is italicized
-        SpannableString span1 = new SpannableString("Share ");
+        SpannableString span1 = new SpannableString("Send ");
         SpannableString span2 = new SpannableString(currentWorkout.getWorkoutName());
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
@@ -486,24 +486,24 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
-                .setPositiveButton("Share", null)
+                .setPositiveButton("Send", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
-            Button shareButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            shareButton.setOnClickListener(view -> {
+            Button sendButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            sendButton.setOnClickListener(view -> {
                 // usernames are case insensitive!
                 String username = usernameInput.getText().toString().trim().toLowerCase();
-                String errorMsg = ValidatorUtils.validUserToShareWorkout(currentUserModule.getUser().getUsername(), username);
+                String errorMsg = ValidatorUtils.validUserToSendWorkout(currentUserModule.getUser().getUsername(), username);
                 if (errorMsg != null) {
                     usernameInputLayout.setError(errorMsg);
                 } else {
                     // no problems so go ahead and send
                     alertDialog.dismiss();
                     if (!isPremium && currentUserModule.getUser().getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed to share.", getContext());
+                        AndroidUtils.showErrorDialog("You have reached the maximum amount of workouts allowed to send.", getContext());
                     } else {
-                        shareWorkout(username, currentWorkout.getWorkoutId());
+                        sendWorkout(username, currentWorkout.getWorkoutId());
                     }
                 }
             });
@@ -511,16 +511,16 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         alertDialog.show();
     }
 
-    private void shareWorkout(String recipientUsername, String workoutId) {
-        AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
+    private void sendWorkout(String recipientUsername, String workoutId) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Sending...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            Result<String> result = this.sharedWorkoutManager.shareWorkoutByUsername(recipientUsername, workoutId);
+            Result<String> result = this.receivedWorkoutManager.sendWorkoutByUsername(recipientUsername, workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
                 if (result.isSuccess()) {
-                    Toast.makeText(getContext(), "Workout successfully shared.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
                 } else {
                     AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }

@@ -18,12 +18,12 @@ import androidx.transition.TransitionManager;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.models.sharedWorkout.SharedExercise;
+import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
 
 import java.util.List;
 import java.util.Locale;
 
-public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdapter.ViewHolder> {
+public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutineAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
         final CheckBox exerciseName; // checkbox just to make layout consistent
         final Button expandButton;
@@ -55,18 +55,18 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         }
     }
 
-    private final List<SharedRoutineRowModel> sharedRoutineRowModels;
+    private final List<ReceivedRoutineRowModel> receivedRoutineRowModels;
     private final boolean metricUnits;
 
-    public SharedRoutineAdapter(List<SharedRoutineRowModel> sharedRoutineRowModels, boolean metricUnits) {
-        this.sharedRoutineRowModels = sharedRoutineRowModels;
+    public ReceivedRoutineAdapter(List<ReceivedRoutineRowModel> receivedRoutineRowModels, boolean metricUnits) {
+        this.receivedRoutineRowModels = receivedRoutineRowModels;
         this.metricUnits = metricUnits;
     }
 
 
     @NonNull
     @Override
-    public SharedRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ReceivedRoutineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View exerciseView = inflater.inflate(R.layout.row_exercise_read_only, parent, false);
@@ -77,8 +77,8 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
         // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            final SharedRoutineRowModel routineRowModel = sharedRoutineRowModels.get(position);
-            final SharedExercise exercise = routineRowModel.sharedExercise;
+            final ReceivedRoutineRowModel routineRowModel = receivedRoutineRowModels.get(position);
+            final ReceivedExercise exercise = routineRowModel.receivedExercise;
             boolean isExpanded = routineRowModel.isExpanded;
 
             if (isExpanded) {
@@ -92,9 +92,9 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
     }
 
     @Override
-    public void onBindViewHolder(SharedRoutineAdapter.ViewHolder holder, int position) {
-        final SharedRoutineRowModel rowModel = sharedRoutineRowModels.get(position);
-        final SharedExercise exercise = rowModel.sharedExercise;
+    public void onBindViewHolder(ReceivedRoutineAdapter.ViewHolder holder, int position) {
+        final ReceivedRoutineRowModel rowModel = receivedRoutineRowModels.get(position);
+        final ReceivedExercise exercise = rowModel.receivedExercise;
         boolean isExpanded = rowModel.isExpanded;
 
         final String currentExercise = exercise.getExerciseName();
@@ -132,7 +132,7 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         });
     }
 
-    private void setInputs(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+    private void setInputs(ReceivedRoutineAdapter.ViewHolder holder, ReceivedExercise exercise) {
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
         holder.weightInputLayout.setHint("Weight (" + (metricUnits ? "kg)" : "lb)"));
 
@@ -142,14 +142,14 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
         holder.detailsInput.setText(exercise.getDetails());
     }
 
-    private void setExpandedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+    private void setExpandedViews(ReceivedRoutineAdapter.ViewHolder holder, ReceivedExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.VISIBLE);
         holder.expandButton.setText(R.string.done_all_caps);
         holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
         setInputs(holder, exercise);
     }
 
-    private void setCollapsedViews(SharedRoutineAdapter.ViewHolder holder, SharedExercise exercise) {
+    private void setCollapsedViews(ReceivedRoutineAdapter.ViewHolder holder, ReceivedExercise exercise) {
         holder.extraInfoContainer.setVisibility(View.GONE);
 
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getWeight());
@@ -160,16 +160,16 @@ public class SharedRoutineAdapter extends RecyclerView.Adapter<SharedRoutineAdap
 
     @Override
     public int getItemCount() {
-        return sharedRoutineRowModels.size();
+        return receivedRoutineRowModels.size();
     }
 
-    // separate class that wraps the shared exercise and holds data about the state of the row in the recycler view
-    public static class SharedRoutineRowModel {
-        private final SharedExercise sharedExercise;
+    // separate class that wraps the received exercise and holds data about the state of the row in the recycler view
+    public static class ReceivedRoutineRowModel {
+        private final ReceivedExercise receivedExercise;
         private boolean isExpanded;
 
-        public SharedRoutineRowModel(SharedExercise sharedExercise, boolean isExpanded) {
-            this.sharedExercise = sharedExercise;
+        public ReceivedRoutineRowModel(ReceivedExercise receivedExercise, boolean isExpanded) {
+            this.receivedExercise = receivedExercise;
             this.isExpanded = isExpanded;
         }
     }

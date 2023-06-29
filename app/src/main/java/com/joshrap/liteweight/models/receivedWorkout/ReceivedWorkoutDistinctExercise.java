@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.models.sharedWorkout;
+package com.joshrap.liteweight.models.receivedWorkout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SharedWorkoutDistinctExercise {
+public class ReceivedWorkoutDistinctExercise {
 
     private String exerciseName;
     private List<String> focuses = new ArrayList<>();

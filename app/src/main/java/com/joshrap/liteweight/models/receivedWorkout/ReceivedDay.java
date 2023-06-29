@@ -1,4 +1,4 @@
-package com.joshrap.liteweight.models.sharedWorkout;
+package com.joshrap.liteweight.models.receivedWorkout;
 
 import androidx.annotation.NonNull;
 
@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SharedDay implements Iterable<SharedExercise> {
+public class ReceivedDay implements Iterable<ReceivedExercise> {
 
-    private List<SharedExercise> exercises = new ArrayList<>();
+    private List<ReceivedExercise> exercises = new ArrayList<>();
     private String tag;
 
     @NonNull
     @Override
-    public Iterator<SharedExercise> iterator() {
+    public Iterator<ReceivedExercise> iterator() {
         return this.exercises.iterator();
     }
 }
