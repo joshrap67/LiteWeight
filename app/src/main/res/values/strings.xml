@@ -139,7 +139,7 @@
     <string name="my_account">My Account</string>
     <string name="times_completed">Total Restarts</string>
     <string name="total_days">Total Days</string>
-    <string name="average_completion_rate">Completion Average</string>
+    <string name="average_workout_completion">Avg Workout Completion</string>
     <string name="most_frequent_focus">Most frequent focus</string>
     <string name="day_details">Day Details</string>
     <string name="launch_video_msg">Launch this video using an external application?</string>

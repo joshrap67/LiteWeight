@@ -276,7 +276,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void updateStatisticsTV() {
         int timesCompleted = currentWorkout.getTimesRestarted();
-        double average = currentWorkout.getAverageExercisesCompleted();
+        double average = currentWorkout.getAverageWorkoutCompletion();
         String formattedPercentage = StatisticsUtils.getFormattedAverageCompleted(average);
 
         timesCompletedTV.setText(String.format(Locale.getDefault(), Integer.toString(timesCompleted)));

@@ -44,7 +44,7 @@ public class ValidatorUtils {
      */
     public static String validWorkoutName(String workoutName, List<String> workoutNamesList) {
         String retVal = null;
-        if (workoutNamesList.isEmpty()) {
+        if (workoutName.isEmpty()) {
             retVal = "Name required.";
         } else if (workoutName.length() > Variables.MAX_WORKOUT_NAME) {
             retVal = String.format("Name must have not exceed %s characters.", Variables.MAX_WORKOUT_NAME);

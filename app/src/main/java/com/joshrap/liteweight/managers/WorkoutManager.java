@@ -161,7 +161,7 @@ public class WorkoutManager {
             this.workoutRepository.resetWorkoutStatistics(workoutId);
             WorkoutInfo workoutInfo = user.getWorkout(workoutId);
             workoutInfo.setTimesRestarted(0);
-            workoutInfo.setAverageExercisesCompleted(0.0);
+            workoutInfo.setAverageWorkoutCompletion(0.0);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
             result.setErrorMessage("There was a problem resetting the workout statistics.");

@@ -135,7 +135,7 @@
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/average_completion_rate"
+                        android:text="@string/average_workout_completion"
                         android:textAllCaps="true"
                         android:textColor="?attr/colorSubtitle"
                         android:textSize="12sp"

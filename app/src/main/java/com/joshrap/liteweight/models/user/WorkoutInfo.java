@@ -13,7 +13,7 @@ public class WorkoutInfo {
     private String workoutName;
     private String lastSetAsCurrentUtc;
     private int timesRestarted;
-    private double averageExercisesCompleted;
+    private double averageWorkoutCompletion;
     private Integer currentWeek;
     private Integer currentDay;
 
@@ -36,7 +36,7 @@ public class WorkoutInfo {
         this.workoutName = newWorkoutInfo.workoutName;
         this.lastSetAsCurrentUtc = newWorkoutInfo.lastSetAsCurrentUtc;
         this.timesRestarted = newWorkoutInfo.timesRestarted;
-        this.averageExercisesCompleted = newWorkoutInfo.averageExercisesCompleted;
+        this.averageWorkoutCompletion = newWorkoutInfo.averageWorkoutCompletion;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class WorkoutInfo {
         result = 31 * result + workoutName.hashCode();
         result = 31 * result + lastSetAsCurrentUtc.hashCode();
         result = 31 * result + timesRestarted;
-        result = (int) (31 * result + averageExercisesCompleted);
+        result = (int) (31 * result + averageWorkoutCompletion);
         result = 31 * result + workoutId.hashCode();
         return result;
     }
