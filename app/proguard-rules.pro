@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Jackson. without below was getting problems serializing/deserializing
+# https://stackoverflow.com/questions/41757975/proguard-causes-100-cant-find-referenced-class-warnings-ignores-keep-rules-f
+-keep @com.fasterxml.jackson.annotation.JsonIgnoreProperties class * { *; }
+-keep class com.fasterxml.** { *; }
+-keepnames class com.fasterxml.jackson.** { *; }
+-keepclassmembers public final enum com.fasterxml.jackson.annotation.JsonAutoDetect$Visibility {
+    public static final com.fasterxml.jackson.annotation.JsonAutoDetect$Visibility *;
+}
+-keep class com.fasterxml.jackson.databind.ObjectMapper {
+    public <methods>;
+    protected <methods>;
+}
+-keep class com.fasterxml.jackson.databind.ObjectWriter {
+    public ** writeValueAsString(**);
+}
+-keepclassmembers class com.joshrap.liteweight.models.** { *; }
+-keepclassmembers class com.joshrap.liteweight.repositories.** { *; }
+-keepclassmembers class com.joshrap.liteweight.messages.** { *; }
+
+-keep class com.fasterxml.jackson.annotation.** { *; }
+# General
+-keepattributes SourceFile,LineNumberTable,*Annotation*,EnclosingMethod,Signature,Exceptions,InnerClasses
