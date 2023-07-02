@@ -38,7 +38,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
-import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
@@ -92,8 +91,6 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
     WorkoutManager workoutManager;
     @Inject
     ReceivedWorkoutManager receivedWorkoutManager;
-    @Inject
-    SelfManager selfManager;
     @Inject
     UserManager userManager;
     @Inject
@@ -440,7 +437,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> this.selfManager.setReceivedWorkoutSeen(workoutId));
+        executor.execute(() -> this.receivedWorkoutManager.setReceivedWorkoutSeen(workoutId));
     }
 
     private void setAllReceivedWorkoutsSeen() {
@@ -454,7 +451,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
 
         // blind send
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> this.selfManager.setAllReceivedWorkoutsSeen());
+        executor.execute(() -> this.receivedWorkoutManager.setAllReceivedWorkoutsSeen());
     }
 
     private void showBlownUpProfilePic(String username, String pfpUrl) {

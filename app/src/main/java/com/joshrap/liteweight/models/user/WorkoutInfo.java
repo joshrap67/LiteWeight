@@ -14,8 +14,8 @@ public class WorkoutInfo {
     private String lastSetAsCurrentUtc;
     private int timesRestarted;
     private double averageWorkoutCompletion;
-    private Integer currentWeek;
-    private Integer currentDay;
+    private int currentWeek;
+    private int currentDay;
 
     @Override
     public boolean equals(Object other) {
@@ -42,9 +42,12 @@ public class WorkoutInfo {
     @Override
     public int hashCode() {
         int result = 17;
+        result = 31 * result + workoutId.hashCode();
         result = 31 * result + workoutName.hashCode();
         result = 31 * result + lastSetAsCurrentUtc.hashCode();
         result = 31 * result + timesRestarted;
+        result = 31 * result + currentWeek;
+        result = 31 * result + currentDay;
         result = (int) (31 * result + averageWorkoutCompletion);
         result = 31 * result + workoutId.hashCode();
         return result;

@@ -87,7 +87,7 @@
                             android:layout_height="wrap_content"
                             android:layout_toStartOf="@id/faq_1_icon_btn"
                             android:paddingHorizontal="4dp"
-                            android:text="@string/faq_progress_title"
+                            android:text="@string/faq_current_workout_title"
                             android:textSize="20sp" />
 
                     <ImageButton
@@ -108,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:paddingHorizontal="4dp"
-                        android:text="@string/restart_workout_explanation"
+                        android:text="@string/current_workout_explanation"
                         android:visibility="gone"
                         tools:visibility="visible" />
             </LinearLayout>

@@ -137,6 +137,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void launchUnverifiedActivity() {
         Intent intent = new Intent(this, UnverifiedActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         shouldFinish = true;
     }
@@ -145,7 +146,7 @@ public class SignUpActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         if (shouldFinish) {
-            finish();
+            finishAffinity();
         }
     }
 

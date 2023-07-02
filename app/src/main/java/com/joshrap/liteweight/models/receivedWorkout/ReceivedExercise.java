@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class ReceivedExercise {
 
     private String exerciseName;
-    private Double weight;
-    private Integer sets;
-    private Integer reps;
+    private double weight;
+    private int sets;
+    private int reps;
     private String details;
 }

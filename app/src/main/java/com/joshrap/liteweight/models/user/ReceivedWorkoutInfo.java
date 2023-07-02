@@ -16,6 +16,6 @@ public class ReceivedWorkoutInfo {
     private String senderId;
     private String senderUsername;
     private String senderProfilePicture;
-    private Integer totalDays;
+    private int totalDays;
     private String mostFrequentFocus;
 }

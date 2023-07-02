@@ -253,7 +253,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         // user is on this page, so no need to show a push notification
         if (notificationManager != null) {
-            notificationManager.cancel(newFriendRequest.getUsername().hashCode());
+            notificationManager.cancel(newFriendRequest.getUserId().hashCode());
         }
     }
 
@@ -748,7 +748,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     }
 
     private void sendWorkout(String recipientId, String workoutId) {
-        AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
+        AndroidUtils.showLoadingDialog(loadingDialog, "Sending...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             Result<String> result = this.receivedWorkoutManager.sendWorkoutByUserId(recipientId, workoutId);

@@ -809,7 +809,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
                     if (pendingRoutine.get(targetWeek).totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
                         alertDialog.dismiss();
-                        Toast.makeText(getContext(), "Copy would exceed maximum number of days allowed in week.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Too many days in target week.", Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -1533,7 +1533,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         return true;
                     case copyAsNewWeekId:
                         if (this.routine.totalWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
-                            Toast.makeText(getContext(), "Copy would exceed maximum number of weeks allowed in workout.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Max weeks already reached.", Toast.LENGTH_LONG).show();
                             return true;
                         }
                         copyWeekAsNew(weekViewHolder.getAdapterPosition());

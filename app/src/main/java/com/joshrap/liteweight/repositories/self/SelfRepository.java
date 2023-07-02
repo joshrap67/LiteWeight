@@ -33,10 +33,7 @@ public class SelfRepository {
     private static final String setAllFriendRequestsSeenRoute = "all-friend-requests-seen";
     private static final String setSettingsRoute = "settings";
     private static final String setCurrentWorkoutRoute = "current-workout";
-    private static final String setAllReceivedWorkoutsSeenRoute = "all-seen";
-    private static final String setReceivedWorkoutSeenRoute = "seen";
 
-    private static final String receivedWorkoutsRoute = "received-workouts";
     private static final String selfRoute = "self";
     private static final String usersCollection = "users";
 
@@ -121,13 +118,5 @@ public class SelfRepository {
         this.apiGateway.put(route, body);
     }
 
-    public void setAllReceivedWorkoutsSeen() throws IOException, LiteWeightNetworkException {
-        String route = getRoute(selfRoute, receivedWorkoutsRoute, setAllReceivedWorkoutsSeenRoute);
-        this.apiGateway.put(route);
-    }
 
-    public void setReceivedWorkoutSeen(String receivedWorkoutId) throws IOException, LiteWeightNetworkException {
-        String route = getRoute(selfRoute, receivedWorkoutsRoute, receivedWorkoutId, setReceivedWorkoutSeenRoute);
-        this.apiGateway.put(route);
-    }
 }

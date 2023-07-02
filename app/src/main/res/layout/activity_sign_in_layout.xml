@@ -49,7 +49,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="#303F9F"
+                android:backgroundTint="#305C9F"
                 android:text="@string/sign_in_with_email"
                 app:icon="@drawable/email_icon"
                 app:iconGravity="textStart"

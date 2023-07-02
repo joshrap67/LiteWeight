@@ -26,6 +26,8 @@ public class ReceivedWorkoutRepository {
 
     private static final String acceptReceivedWorkoutRoute = "accept";
     private static final String declineReceivedWorkoutRoute = "decline";
+    private static final String setAllReceivedWorkoutsSeenRoute = "all-seen";
+    private static final String setReceivedWorkoutSeenRoute = "seen";
 
     private static final String receivedWorkoutsRoute = "received-workouts";
     private static final String receivedWorkoutsCollection = "receivedWorkouts";
@@ -73,5 +75,15 @@ public class ReceivedWorkoutRepository {
         String route = getRoute(receivedWorkoutsRoute, receivedWorkoutId, declineReceivedWorkoutRoute);
 
         this.apiGateway.delete(route);
+    }
+
+    public void setAllReceivedWorkoutsSeen() throws IOException, LiteWeightNetworkException {
+        String route = getRoute(receivedWorkoutsRoute, setAllReceivedWorkoutsSeenRoute);
+        this.apiGateway.put(route);
+    }
+
+    public void setReceivedWorkoutSeen(String receivedWorkoutId) throws IOException, LiteWeightNetworkException {
+        String route = getRoute(receivedWorkoutsRoute, receivedWorkoutId, setReceivedWorkoutSeenRoute);
+        this.apiGateway.put(route);
     }
 }

@@ -10,6 +10,7 @@ import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.receivedWorkout.ReceivedWorkout;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
+import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.repositories.self.SelfRepository;
@@ -64,7 +65,7 @@ public class ReceivedWorkoutManager {
                 }
             } else {
                 FirebaseCrashlytics.getInstance().recordException(e);
-                result.setErrorMessage("There was a problem sharing the workout.");
+                result.setErrorMessage("There was a problem sending the workout.");
             }
         }
 
@@ -81,7 +82,7 @@ public class ReceivedWorkoutManager {
             user.setWorkoutsSent(user.getWorkoutsSent() + 1);
         } catch (Exception e) {
             FirebaseCrashlytics.getInstance().recordException(e);
-            result.setErrorMessage("There was a problem sharing the workout.");
+            result.setErrorMessage("There was a problem sending the workout.");
         }
         return result;
     }
@@ -150,5 +151,32 @@ public class ReceivedWorkoutManager {
             result.setErrorMessage("There was a problem declining the workout.");
         }
         return result;
+    }
+
+    public void setAllReceivedWorkoutsSeen() {
+        try {
+            User user = currentUserModule.getUser();
+
+            // blind send
+            for (ReceivedWorkoutInfo receivedWorkoutInfo : user.getReceivedWorkouts()) {
+                receivedWorkoutInfo.setSeen(true);
+            }
+            this.receivedWorkoutRepository.setAllReceivedWorkoutsSeen();
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
+    }
+
+    public void setReceivedWorkoutSeen(String workoutId) {
+        try {
+            User user = currentUserModule.getUser();
+
+            // blind send
+            ReceivedWorkoutInfo receivedWorkoutInfo = user.getReceivedWorkout(workoutId);
+            receivedWorkoutInfo.setSeen(true);
+            this.receivedWorkoutRepository.setReceivedWorkoutSeen(workoutId);
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
     }
 }

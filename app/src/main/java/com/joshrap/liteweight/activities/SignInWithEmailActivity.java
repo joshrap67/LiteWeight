@@ -154,7 +154,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         if (shouldFinish) {
-            finish();
+            finishAffinity();
         }
     }
 
