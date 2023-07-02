@@ -4,6 +4,7 @@ import static android.os.Looper.getMainLooper;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,19 +60,19 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.DraggableViewHolder;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.managers.UserManager;
+import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.OwnedExercise;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineDay;
-import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.RoutineWeek;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineWeek;
+import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.models.Workout;
-import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.models.workout.Workout;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -85,9 +87,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+@SuppressLint("NotifyDataSetChanged")
 public class PendingWorkoutFragment extends Fragment implements FragmentWithDialog {
 
     private RecyclerView weeksRecyclerView, routineDayRecyclerView, pickExerciseRecyclerView;
@@ -96,12 +100,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private String selectedFocus;
     private HashMap<String, List<OwnedExercise>> allOwnedExercises; // focus -> exercises
     private int currentWeekIndex, currentDayIndex;
-    private User user;
     private Map<String, String> exerciseIdToName;
     private ImageButton sortExercisesButton, routineDayMoreIcon;
     private Routine pendingRoutine;
-    private UserAndWorkout currentUserAndWorkout;
-    private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises;
+    private boolean isRoutineDayViewShown, isSortingExercises, isRearranging, isExistingWorkout, firstWorkout, isSearchingExercises, isMetricUnits;
     private OnBackPressedCallback backPressedCallback;
     private ConstraintLayout routineDayView, routineView;
     private Button addWeekButton, saveWorkoutButton, rearrangeButton, doneRearrangingButton;
@@ -109,7 +111,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private AddExerciseAdapter addExerciseAdapter;
     private WeekAdapter weekAdapter;
     private RoutineDayAdapter routineDayAdapter;
-    private Workout pendingWorkout;
+    private Workout originalWorkout; // used to determine if workout changed
     private EditText searchExerciseInput;
     private Map<String, Double> exerciseIdToCurrentMaxWeight; // shortcut for first workout being created - prevents user from constantly having to change from 0lb
 
@@ -120,19 +122,20 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     @Inject
     WorkoutManager workoutManager;
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
     SharedPreferences sharedPreferences;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) activity).toggleBackButton(true);
 
         if (this.getArguments() != null) {
             isExistingWorkout = this.getArguments().getBoolean(Variables.EXISTING_WORKOUT);
@@ -141,31 +144,29 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         currentDayIndex = 0;
         currentWeekIndex = 0;
         allOwnedExercises = new HashMap<>();
-        currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
-        user = currentUserAndWorkout.getUser();
+        User user = currentUserModule.getUser();
+        isMetricUnits = user.getSettings().isMetricUnits();
 
         if (isExistingWorkout) {
-            pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
-            pendingRoutine = pendingWorkout.getRoutine();
+            originalWorkout = new Workout(currentUserModule.getCurrentWorkout());
+            pendingRoutine = new Routine(originalWorkout.getRoutine());
         } else {
             pendingRoutine = Routine.emptyRoutine();
-            firstWorkout = !currentUserAndWorkout.isWorkoutPresent();
+            firstWorkout = !currentUserModule.isWorkoutPresent();
         }
 
         setToolbarTitle();
 
-        exerciseIdToName = new HashMap<>();
-        exerciseIdToCurrentMaxWeight = new HashMap<>();
-        for (OwnedExercise exercise : user.getOwnedExercises().values()) {
-            exerciseIdToName.put(exercise.getExerciseId(), exercise.getExerciseName());
-            exerciseIdToCurrentMaxWeight.put(exercise.getExerciseId(), exercise.getDefaultWeight());
-        }
+        exerciseIdToName = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, OwnedExercise::getName));
+        exerciseIdToCurrentMaxWeight = user.getExercises().stream().collect(Collectors.toMap(OwnedExercise::getId, OwnedExercise::getDefaultWeight));
 
         return inflater.inflate(R.layout.fragment_pending_workout, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        FragmentActivity activity = requireActivity();
+
         routineDayView = view.findViewById(R.id.routine_day_layout);
         routineView = view.findViewById(R.id.routine_week_layout);
 
@@ -223,10 +224,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         final int copyDayToExistingId = 2;
         final int setDayTagId = 3;
         final int moveDayId = 4;
-        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
-        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
+        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
         routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
-        routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
+        routineDayMenu.add(0, moveDayId, 0, "Move To Week");
         routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
         dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
@@ -244,8 +245,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     promptSetDayTag(currentWeekIndex, currentDayIndex);
                     return true;
                 case moveDayId:
-                    if (pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays() <= 1) {
-                        Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                    if (pendingRoutine.get(currentWeekIndex).totalNumberOfDays() <= 1) {
+                        Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
                         return true;
                     }
                     promptMoveDay(currentWeekIndex, currentDayIndex);
@@ -254,13 +255,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             return false;
         });
         routineDayMoreIcon.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             dropDownRoutineDayMenu.show();
         });
 
         addExercisesButton = view.findViewById(R.id.add_exercises_fab);
         addExercisesButton.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).hideKeyboard();
+            ((MainActivity) activity).hideKeyboard();
             popupAddExercises();
         });
         //endregion
@@ -271,13 +272,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         addWeekButton = view.findViewById(R.id.add_week_btn);
         addWeekButton.setOnClickListener(v -> {
-            if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
+            if (pendingRoutine.totalWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                 // otherwise user can bypass by clicking quickly
                 return;
             }
             pendingRoutine.addEmptyWeek();
-            weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
-            if (pendingRoutine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
+            weekAdapter.notifyItemInserted(pendingRoutine.totalWeeks() - 1);
+            if (pendingRoutine.totalWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
                 addWeekButton.setVisibility(View.GONE);
             }
 
@@ -298,7 +299,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
         saveWorkoutButton.setOnClickListener(v -> {
             if (isExistingWorkout) {
-                saveWorkout();
+                saveRoutine();
             } else {
                 promptCreate();
             }
@@ -314,23 +315,23 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 } else if (isRearranging) {
                     finishRearrangeMode();
                 } else if (isRoutineDayViewShown) {
-                    ((MainActivity) getActivity()).hideKeyboard();
+                    ((MainActivity) activity).hideKeyboard();
                     switchToRoutineView();
                 } else if (isRoutineModified()) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
-                    alertDialog = new AlertDialog.Builder(getContext())
+                    alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("Unsaved Changes")
                             .setMessage(R.string.unsaved_workout_msg)
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 remove();
-                                requireActivity().onBackPressed();
+                                activity.onBackPressed();
                             })
                             .setNegativeButton("No", null)
                             .create();
                     alertDialog.show();
                 } else {
                     remove();
-                    requireActivity().onBackPressed();
+                    activity.onBackPressed();
                 }
             }
         };
@@ -350,8 +351,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void setToolbarTitle() {
-        ((MainActivity) getActivity()).updateToolbarTitle(isExistingWorkout
-                ? pendingWorkout.getWorkoutName()
+        ((MainActivity) requireActivity()).updateToolbarTitle(isExistingWorkout
+                ? originalWorkout.getName()
                 : Variables.CREATE_WORKOUT_TITLE);
     }
 
@@ -386,7 +387,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         isRoutineDayViewShown = true;
         routineDayView.setVisibility(View.VISIBLE);
         routineView.setVisibility(View.GONE);
-        ((MainActivity) getActivity()).updateToolbarTitle(getString(R.string.day_details));
+        ((MainActivity) requireActivity()).updateToolbarTitle(getString(R.string.day_details));
 
         currentDayIndex = day;
         currentWeekIndex = week;
@@ -407,19 +408,20 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private boolean isRoutineModified() {
         if (isExistingWorkout) {
-            return Routine.routinesDifferent(pendingRoutine, currentUserAndWorkout.getWorkout().getRoutine());
+            return Routine.routinesDifferent(pendingRoutine, originalWorkout.getRoutine());
         }
 
-        if (pendingRoutine.getTotalNumberOfDays() > 1) {
+        if (pendingRoutine.totalDays() > 1) {
             return true;
         }
 
-        // essentially routine is only not modified for new workout if not a single exercise or day has been added
-        return pendingRoutine.getDay(0, 0).getExercises().size() != 0;
+        // essentially routine is only not modified for new workout if the first day has not been modified
+        RoutineDay firstDay = pendingRoutine.get(0, 0);
+        return firstDay.getExercises().size() != 0 || firstDay.getTag() != null;
     }
 
     private void updateRoutineDayExerciseList() {
-        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, user.getUserPreferences().isMetricUnits(), getActivity());
+        routineDayAdapter = new RoutineDayAdapter(exerciseIdToName, exerciseIdToCurrentMaxWeight, pendingRoutine, currentWeekIndex, currentDayIndex, isMetricUnits, getActivity());
         routineDayRecyclerView.setAdapter(routineDayAdapter);
         routineDayRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         routineDayAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -454,13 +456,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void setRoutineDayTagTV(int weekIndex, int dayIndex) {
-        RoutineDay day = pendingRoutine.getDay(weekIndex, dayIndex);
+        RoutineDay day = pendingRoutine.get(weekIndex, dayIndex);
         routineDayTagTV.setVisibility(day.getTag() == null ? View.INVISIBLE : View.VISIBLE);
-        routineDayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+        routineDayTagTV.setText(day.getTag());
     }
 
     private void checkEmptyView() {
-        emptyDayTV.setVisibility(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
+        emptyDayTV.setVisibility(pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex).isEmpty()
                 ? View.VISIBLE : View.GONE);
     }
 
@@ -471,7 +473,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         sortExercisesButton.setVisibility(View.INVISIBLE);
         routineDayMoreIcon.setVisibility(View.INVISIBLE);
 
-        CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
+        CustomSortAdapter routineAdapter = new CustomSortAdapter(pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToName, false);
         customExerciseSortDispatcher.attachToRecyclerView(routineDayRecyclerView);
         routineDayRecyclerView.setAdapter(routineAdapter);
     }
@@ -503,7 +505,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void finishRearrangeMode() {
         isRearranging = false;
         saveWorkoutButton.setVisibility(View.VISIBLE);
-        addWeekButton.setVisibility(View.VISIBLE);
+        if (pendingRoutine.totalWeeks() < Variables.MAX_NUMBER_OF_WEEKS) {
+            addWeekButton.setVisibility(View.VISIBLE);
+        }
         rearrangeButton.setVisibility(View.VISIBLE);
 
         rearrangeHintTV.setVisibility(View.GONE);
@@ -589,7 +593,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 DraggableViewHolder itemViewHolder = (DraggableViewHolder) viewHolder;
                 itemViewHolder.onItemCleared();
             }
-            recyclerView.getAdapter().notifyItemRangeChanged(0, pendingRoutine.getNumberOfWeeks(), WeekAdapter.PAYLOAD_UPDATE_ONLY_WEEK_LABEL); // ensure week numbers are updated
+            recyclerView.getAdapter().notifyItemRangeChanged(0, pendingRoutine.totalWeeks(), WeekAdapter.PAYLOAD_UPDATE_ONLY_WEEK_LABEL); // ensure week numbers are updated
         }
 
         @Override
@@ -610,11 +614,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     });
 
     private void promptDeleteWeek(int weekIndex) {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Week " + (weekIndex + 1))
                 .setMessage(R.string.remove_week_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (pendingRoutine.getNumberOfWeeks() > 1) {
+                    if (pendingRoutine.totalWeeks() > 1) {
                         deleteWeek(weekIndex);
                     } else {
                         Toast.makeText(getContext(), "Cannot delete only week from workout.", Toast.LENGTH_LONG).show();
@@ -640,10 +644,10 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         dayTagInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DAY_TAG_LENGTH)});
         dayTagInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(dayTagInputLayout));
 
-        RoutineDay currentDay = pendingRoutine.getDay(weekIndex, dayIndex);
+        RoutineDay currentDay = pendingRoutine.get(weekIndex, dayIndex);
         dayTagInput.setText(currentDay.getTag());
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Set Day Tag")
                 .setView(popupView)
                 .setPositiveButton("Save", (dialog, which) -> {
@@ -663,7 +667,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void promptMoveDay(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_move_routine_day, null);
 
-        int totalWeeks = pendingRoutine.getNumberOfWeeks();
+        int totalWeeks = pendingRoutine.totalWeeks();
 
         String[] weekDisplays = new String[totalWeeks];
         for (int i = 0; i < totalWeeks; i++) {
@@ -676,20 +680,20 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Move " + WorkoutUtils.generateDayTitle(weekIndex, dayIndex))
                 .setView(popupView)
                 .setPositiveButton("Move", (dialog, which) -> {
                     int targetWeekIndex = weekPicker.getValue();
                     if (targetWeekIndex == weekIndex) {
-                        Toast.makeText(getContext(), "Day is already in that week", Toast.LENGTH_LONG).show();
-                    } else if (pendingRoutine.getWeek(targetWeekIndex).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
-                        Toast.makeText(getContext(), "That week is full", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Day is already in that week.", Toast.LENGTH_LONG).show();
+                    } else if (pendingRoutine.get(targetWeekIndex).totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                        Toast.makeText(getContext(), "That week is full.", Toast.LENGTH_LONG).show();
                     } else {
-                        RoutineDay currentDay = pendingRoutine.getDay(weekIndex, dayIndex);
-                        int targetDayIndex = pendingRoutine.getWeek(targetWeekIndex).getNumberOfDays();
-                        pendingRoutine.getWeek(targetWeekIndex).addDay(currentDay);
-                        pendingRoutine.getWeek(weekIndex).removeDay(currentDay);
+                        RoutineDay currentDay = pendingRoutine.get(weekIndex, dayIndex);
+                        int targetDayIndex = pendingRoutine.get(targetWeekIndex).totalNumberOfDays();
+                        pendingRoutine.get(targetWeekIndex).addDay(currentDay);
+                        pendingRoutine.get(weekIndex).removeDay(currentDay);
 
                         weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
                         weekAdapter.notifyItemChanged(targetWeekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
@@ -707,11 +711,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void promptDeleteDay(int weekIndex, int dayIndex) {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Delete " + (WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setMessage(R.string.remove_day_warning_msg)
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (pendingRoutine.getWeek(weekIndex).getNumberOfDays() > 1) {
+                    if (pendingRoutine.get(weekIndex).totalNumberOfDays() > 1) {
                         deleteDay(weekIndex, dayIndex);
                     } else {
                         Toast.makeText(getContext(), "Cannot delete only day from week.", Toast.LENGTH_LONG).show();
@@ -735,33 +739,33 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void promptCopyToExistingDay(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_to_existing, null);
         List<String> dayLabels = new ArrayList<>();
-        for (int weekPosition = 0; weekPosition < pendingRoutine.getNumberOfWeeks(); weekPosition++) {
-            RoutineWeek week = pendingRoutine.getWeek(weekPosition);
-            for (int dayPosition = 0; dayPosition < week.getNumberOfDays(); dayPosition++) {
+        for (int weekPosition = 0; weekPosition < pendingRoutine.totalWeeks(); weekPosition++) {
+            RoutineWeek week = pendingRoutine.get(weekPosition);
+            for (int dayPosition = 0; dayPosition < week.totalNumberOfDays(); dayPosition++) {
                 String dayTitle = WorkoutUtils.generateDayTitle(weekPosition, dayPosition);
                 dayLabels.add(dayTitle);
             }
         }
-        String[] dayLabelsArray = new String[pendingRoutine.getTotalNumberOfDays()];
+        String[] dayLabelsArray = new String[pendingRoutine.totalDays()];
         dayLabels.toArray(dayLabelsArray);
 
         NumberPicker dayPicker = popupView.findViewById(R.id.day_picker);
         dayPicker.setMinValue(0);
-        dayPicker.setMaxValue(pendingRoutine.getTotalNumberOfDays() - 1);
+        dayPicker.setMaxValue(pendingRoutine.totalDays() - 1);
         dayPicker.setValue(0);
         dayPicker.setWrapSelectorWheel(false);
         dayPicker.setDisplayedValues(dayLabelsArray);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
 
-                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(weekIndex, dayIndex).clone();
+                    final RoutineDay dayToBeCopied = pendingRoutine.get(weekIndex, dayIndex).clone();
                     int count = 0;
-                    for (int weekPosition = 0; weekPosition < pendingRoutine.getNumberOfWeeks(); weekPosition++) {
-                        RoutineWeek week = pendingRoutine.getWeek(weekPosition);
-                        for (int dayPosition = 0; dayPosition < week.getNumberOfDays(); dayPosition++) {
+                    for (int weekPosition = 0; weekPosition < pendingRoutine.totalWeeks(); weekPosition++) {
+                        RoutineWeek week = pendingRoutine.get(weekPosition);
+                        for (int dayPosition = 0; dayPosition < week.totalNumberOfDays(); dayPosition++) {
                             if (count == dayPicker.getValue()) {
                                 currentWeekIndex = weekPosition;
                                 currentDayIndex = dayPosition;
@@ -784,7 +788,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void copyDayToWeek(final int weekIndex, final int dayIndex) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_day_to_week, null);
-        int totalWeeks = pendingRoutine.getNumberOfWeeks();
+        int totalWeeks = pendingRoutine.totalWeeks();
 
         String[] weekDisplays = new String[totalWeeks];
         for (int i = 0; i < totalWeeks; i++) {
@@ -797,22 +801,22 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format("Copy %s", WorkoutUtils.generateDayTitle(weekIndex, dayIndex)))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
                     int targetWeek = weekPicker.getValue();
 
-                    if (pendingRoutine.getWeek(targetWeek).getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                    if (pendingRoutine.get(targetWeek).totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
                         alertDialog.dismiss();
-                        Toast.makeText(getContext(), "Copy would exceed maximum number of days allowed in week.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Too many days in target week.", Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     currentWeekIndex = targetWeek;
 
-                    final RoutineDay dayToBeCopied = pendingRoutine.getDay(weekIndex, dayIndex).clone();
-                    currentDayIndex = pendingRoutine.getWeek(currentWeekIndex).getNumberOfDays();
+                    final RoutineDay dayToBeCopied = pendingRoutine.get(weekIndex, dayIndex).clone();
+                    currentDayIndex = pendingRoutine.get(currentWeekIndex).totalNumberOfDays();
                     pendingRoutine.appendDay(currentWeekIndex, dayToBeCopied);
 
                     weekAdapter.notifyItemChanged(weekIndex, WeekAdapter.PAYLOAD_UPDATE_DAYS);
@@ -828,7 +832,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
     private void promptCopyToExistingWeek(int currentWeek) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_copy_week_to_existing, null);
-        int totalWeeks = pendingRoutine.getNumberOfWeeks();
+        int totalWeeks = pendingRoutine.totalWeeks();
 
         String[] weekDisplays = new String[totalWeeks];
         for (int i = 0; i < totalWeeks; i++) {
@@ -841,13 +845,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         weekPicker.setWrapSelectorWheel(false);
         weekPicker.setDisplayedValues(weekDisplays);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(String.format(Locale.US, "Copy Week %d", currentWeek + 1))
                 .setView(popupView)
                 .setPositiveButton("Copy", (dialog, which) -> {
                     int targetWeek = weekPicker.getValue();
 
-                    final RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeek);
+                    final RoutineWeek weekToBeCopied = pendingRoutine.get(currentWeek);
                     pendingRoutine.putWeek(targetWeek, weekToBeCopied.clone());
                     weekAdapter.notifyItemChanged(targetWeek);
 
@@ -859,9 +863,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void copyWeekAsNew(int currentWeek) {
-        RoutineWeek weekToBeCopied = pendingRoutine.getWeek(currentWeek);
+        RoutineWeek weekToBeCopied = pendingRoutine.get(currentWeek);
         pendingRoutine.addWeek(weekToBeCopied.clone());
-        weekAdapter.notifyItemInserted(pendingRoutine.getNumberOfWeeks() - 1);
+        weekAdapter.notifyItemInserted(pendingRoutine.totalWeeks() - 1);
     }
 
     private void promptCreate() {
@@ -871,7 +875,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         workoutNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(workoutNameInputLayout));
         workoutNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WORKOUT_NAME)});
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Create workout")
                 .setView(popupView)
                 .setPositiveButton("Create", null)
@@ -882,8 +886,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             createButton.setOnClickListener(view -> {
                 String workoutName = workoutNameInput.getText().toString().trim();
                 List<String> workoutNames = new ArrayList<>();
-                for (WorkoutMeta workoutMeta : user.getWorkoutMetas().values()) {
-                    workoutNames.add(workoutMeta.getWorkoutName());
+                for (WorkoutInfo workoutInfo : currentUserModule.getUser().getWorkouts()) {
+                    workoutNames.add(workoutInfo.getWorkoutName());
                 }
                 String errorMsg = ValidatorUtils.validWorkoutName(workoutName, workoutNames);
                 if (errorMsg != null) {
@@ -901,40 +905,41 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         AndroidUtils.showLoadingDialog(loadingDialog, "Creating...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.createWorkout(pendingRoutine, workoutName);
+            Result<UserAndWorkout> result = this.workoutManager.createWorkout(pendingRoutine, workoutName);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
+                if (result.isSuccess()) {
                     isExistingWorkout = true;
-                    pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
-                    pendingRoutine = pendingWorkout.getRoutine();
+                    originalWorkout = new Workout(result.getData().getWorkout());
+                    pendingRoutine = new Routine(originalWorkout.getRoutine());
+
                     setToolbarTitle();
                     setWeekAdapter(); // since adapter holds old references to weeks
                     saveWorkoutButton.setText(R.string.save_workout);
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void saveWorkout() {
+    private void saveRoutine() {
         AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<UserAndWorkout> resultStatus = this.workoutManager.editWorkout(pendingWorkout.getWorkoutId(), pendingWorkout);
+            Result<UserAndWorkout> result = this.workoutManager.setRoutine(originalWorkout.getId(), pendingRoutine);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
-                    pendingWorkout = new Workout(currentUserAndWorkout.getWorkout());
-                    pendingRoutine = pendingWorkout.getRoutine();
+                if (result.isSuccess()) {
+                    originalWorkout = new Workout(result.getData().getWorkout());
+                    pendingRoutine = new Routine(originalWorkout.getRoutine());
 
                     setWeekAdapter(); // since adapter holds old references to weeks
                     Toast.makeText(getContext(), "Workout saved.", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
@@ -955,7 +960,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             allOwnedExercises.put(focus, new ArrayList<>());
         }
 
-        for (OwnedExercise exercise : user.getOwnedExercises().values()) {
+        for (OwnedExercise exercise : currentUserModule.getUser().getExercises()) {
             List<String> focusesOfExercise = exercise.getFocuses();
             for (String focus : focusesOfExercise) {
                 if (!allOwnedExercises.containsKey(focus)) {
@@ -996,14 +1001,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 searchExerciseInput.requestFocus();
 
                 // android is so beautiful. Show keyboard after requesting focus
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(searchExerciseInput, 0);
             } else {
                 // reset all search views
                 searchExerciseInput.clearFocus();
 
                 // can't use shared hide keyboard method since this is in an alertdialog apparently
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchExerciseInput.getWindowToken(), 0);
 
                 searchButton.setImageResource(R.drawable.search_icon);
@@ -1033,13 +1038,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusList.sort(String.CASE_INSENSITIVE_ORDER);
         focusList.add(0, AllFocus);
 
-        ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
+        ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new PendingWorkoutFragment.FocusSpinnerListener());
         // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
         focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Add Exercises To Day")
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -1054,7 +1059,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         my opinion that would break the flow for creating a workout as it would take the user to a whole new page.
      */
     private void popupCreateExercise() {
-        if (user.getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
+        if (currentUserModule.getUser().getTotalExerciseCount() >= Variables.MAX_NUMBER_OF_EXERCISES) {
             Toast.makeText(getContext(), "You already have the maximum number of exercises allowed. To create more, delete some in the My Exercises page.", Toast.LENGTH_LONG).show();
             return;
         }
@@ -1087,7 +1092,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         focusRecyclerView.setAdapter(addFocusAdapter);
         focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
-        createExerciseDialog = new AlertDialog.Builder(getContext())
+        createExerciseDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Create New Exercise")
                 .setView(popupView)
                 .setPositiveButton("Create and Add", null)
@@ -1107,8 +1112,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             boolean focusError = false;
 
             List<String> exerciseNames = new ArrayList<>();
-            for (OwnedExercise exercise : user.getOwnedExercises().values()) {
-                exerciseNames.add(exercise.getExerciseName());
+            for (OwnedExercise exercise : currentUserModule.getUser().getExercises()) {
+                exerciseNames.add(exercise.getName());
             }
             nameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), exerciseNames);
             exerciseNameLayout.setError(nameError);
@@ -1116,7 +1121,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             if (selectedFocuses.isEmpty()) {
                 focusError = true;
                 focusTV.startAnimation(AndroidUtils.shakeError(4));
-                Toast.makeText(getContext(), "Must select at least one focus", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Must select at least one focus.", Toast.LENGTH_LONG).show();
             }
 
             if (nameError == null && !focusError) {
@@ -1126,22 +1131,22 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
                 Executor executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
-                    ResultStatus<OwnedExercise> resultStatus = userManager.newExercise(
+                    Result<OwnedExercise> result = selfManager.newExercise(
                             exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
                     Handler handler = new Handler(getMainLooper());
                     handler.post(() -> {
                         loadingBar.setVisibility(View.GONE);
                         createExerciseDialog.setCancelable(true);
-                        if (resultStatus.isSuccess()) {
-                            OwnedExercise newExercise = resultStatus.getData();
+                        if (result.isSuccess()) {
+                            OwnedExercise newExercise = result.getData();
 
-                            exerciseIdToName.putIfAbsent(newExercise.getExerciseId(), newExercise.getExerciseName());
-                            exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getExerciseId(), newExercise.getDefaultWeight());
+                            exerciseIdToName.putIfAbsent(newExercise.getId(), newExercise.getName());
+                            exerciseIdToCurrentMaxWeight.putIfAbsent(newExercise.getId(), newExercise.getDefaultWeight());
                             addOwnedExerciseToRoutine(newExercise);
 
                             createExerciseDialog.dismiss();
                         } else {
-                            AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                            AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                         }
                     });
                 });
@@ -1150,15 +1155,15 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void addOwnedExerciseToRoutine(OwnedExercise ownedExercise) {
-        RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getExerciseId());
+        RoutineExercise exercise = new RoutineExercise(ownedExercise, ownedExercise.getId());
         pendingRoutine.addExercise(currentWeekIndex, currentDayIndex, exercise);
 
         // shortcut for first users so their exercises don't all just have 0 for default weight even after creating a workout
-        if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getExerciseId())) {
-            exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getExerciseId()));
+        if (firstWorkout && exercise.getWeight() == 0 && exerciseIdToCurrentMaxWeight.containsKey(ownedExercise.getId())) {
+            exercise.setWeight(exerciseIdToCurrentMaxWeight.get(ownedExercise.getId()));
         }
 
-        int newPosition = pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
+        int newPosition = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
         // adapter uses list of separate models to maintain expanded state, need to add it there too
         routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
         routineDayAdapter.notifyItemInserted(newPosition);
@@ -1267,24 +1272,19 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 AddExerciseViewHolder viewHolder = (AddExerciseViewHolder) holder;
                 final OwnedExercise ownedExercise = displayList.get(position);
                 CheckBox exerciseCheckbox = viewHolder.exerciseCheckbox;
-                exerciseCheckbox.setText(ownedExercise.getExerciseName());
+                exerciseCheckbox.setText(ownedExercise.getName());
                 // check if the exercise is already in this specific day
-                boolean isChecked = false;
-                for (RoutineExercise routineExercise : pendingRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-                    if (routineExercise.getExerciseId().equals(ownedExercise.getExerciseId())) {
-                        isChecked = true;
-                        break;
-                    }
-                }
+                boolean isChecked = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex)
+                        .stream().anyMatch(x -> x.getExerciseId().equals(ownedExercise.getId()));
                 exerciseCheckbox.setChecked(isChecked);
 
                 exerciseCheckbox.setOnClickListener(v -> {
                     if (exerciseCheckbox.isChecked()) {
                         addOwnedExerciseToRoutine(ownedExercise);
                     } else {
-                        pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getExerciseId());
+                        pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getId());
                         // adapter uses list of separate models to maintain expanded state, need to remove it there too
-                        routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getExerciseId()));
+                        routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getId()));
                         // too much of a pain to get the index in that adapter that this exercise could have been removed from
                         routineDayAdapter.notifyDataSetChanged();
                     }
@@ -1309,7 +1309,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 } else {
                     String filterPattern = constraint.toString().toLowerCase().trim();
                     for (OwnedExercise ownedExercise : allExercises) {
-                        if (ownedExercise.getExerciseName().toLowerCase().contains(filterPattern)) {
+                        if (ownedExercise.getName().toLowerCase().contains(filterPattern)) {
                             filteredList.add(ownedExercise);
                         }
                     }
@@ -1322,7 +1322,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayList.clear();
-                displayList.addAll((List) results.values);
+                displayList.addAll((List<? extends OwnedExercise>) results.values);
                 notifyDataSetChanged();
             }
         };
@@ -1386,7 +1386,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             if (recyclerViewItemTouchHelperMap.containsKey(holder.dayRecyclerView)) {
-                // prevents memory leak happening when day recycler is recycled. the original dispatcher is still attached to old list once the viewholder is created, causing weird graphical bugs
+                // prevents memory leak happening when day recycler is recycled. the original dispatcher is still attached to old list once the viewHolder is created, causing weird graphical bugs
                 ItemTouchHelper dispatcher = recyclerViewItemTouchHelperMap.get(holder.dayRecyclerView);
                 if (dispatcher != null)
                     dispatcher.attachToRecyclerView(null);
@@ -1408,7 +1408,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         @Override
         public void onBindViewHolder(@NonNull WeekViewHolder weekViewHolder, int position, List<Object> payloads) {
             if (!payloads.isEmpty()) {
-                final RoutineWeek week = this.routine.getWeek(position);
+                final RoutineWeek week = this.routine.get(position);
                 for (final Object payload : payloads) {
                     if (payload.equals(PAYLOAD_UPDATE_ONLY_WEEK_LABEL)) {
                         // very important to only update label. if day recycler view is refreshed then the day drag dispatcher won't work on it
@@ -1427,7 +1427,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         @Override
         public void onBindViewHolder(@NonNull WeekViewHolder weekViewHolder, int weekPosition) {
             // as a warning don't use weekPosition var since when dragging that variable can be outdated and can cause weird bugs
-            final RoutineWeek week = this.routine.getWeek(weekViewHolder.getAdapterPosition());
+            final RoutineWeek week = this.routine.get(weekViewHolder.getAdapterPosition());
             setWeekLabel(weekViewHolder);
             Button addDayButton = weekViewHolder.addDayButton;
             setWeekCardButtonsVisibility(week, weekViewHolder);
@@ -1502,13 +1502,13 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             }
 
             addDayButton.setOnClickListener(v -> {
-                if (week.getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+                if (week.totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
                     // a little paranoid, but once was able to click fast enough to get past max days
                     return;
                 }
 
                 this.routine.appendEmptyDay(weekViewHolder.getAdapterPosition());
-                daysAdapter.notifyItemInserted(week.getNumberOfDays());
+                daysAdapter.notifyItemInserted(week.totalNumberOfDays());
 
                 setWeekCardButtonsVisibility(week, weekViewHolder);
 
@@ -1522,8 +1522,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             final int deleteWeekId = 0;
             final int copyAsNewWeekId = 1;
             final int copyToExistingWeekId = 2;
-            weekMenu.add(0, copyAsNewWeekId, 0, "Copy As New Week");
-            weekMenu.add(0, copyToExistingWeekId, 0, "Copy To Existing Week");
+            weekMenu.add(0, copyAsNewWeekId, 0, "Copy As New");
+            weekMenu.add(0, copyToExistingWeekId, 0, "Copy To Week");
             weekMenu.add(0, deleteWeekId, 0, "Delete Week");
 
             dropDownWeekMenu.setOnMenuItemClickListener(item -> {
@@ -1532,8 +1532,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         promptDeleteWeek(weekViewHolder.getAdapterPosition());
                         return true;
                     case copyAsNewWeekId:
-                        if (this.routine.getNumberOfWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
-                            Toast.makeText(getContext(), "Copy would exceed maximum number of weeks allowed in workout.", Toast.LENGTH_LONG).show();
+                        if (this.routine.totalWeeks() >= Variables.MAX_NUMBER_OF_WEEKS) {
+                            Toast.makeText(getContext(), "Max weeks already reached.", Toast.LENGTH_LONG).show();
                             return true;
                         }
                         copyWeekAsNew(weekViewHolder.getAdapterPosition());
@@ -1556,18 +1556,18 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 weekViewHolder.weekMoreButton.setVisibility(View.VISIBLE);
             }
 
-            if (week.getNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
+            if (week.totalNumberOfDays() >= Variables.WORKOUT_MAX_NUMBER_OF_DAYS) {
                 weekViewHolder.addDayButton.setVisibility(View.INVISIBLE);
             }
         }
 
         private void setWeekLabel(@NonNull WeekViewHolder weekViewHolder) {
-            weekViewHolder.weekTitle.setText("Week " + (weekViewHolder.getAdapterPosition() + 1));
+            weekViewHolder.weekTitle.setText(String.format(Locale.getDefault(), "Week %d", weekViewHolder.getAdapterPosition() + 1));
         }
 
         @Override
         public int getItemCount() {
-            return this.routine.getNumberOfWeeks();
+            return this.routine.totalWeeks();
         }
     }
 
@@ -1618,12 +1618,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             String dayText = "Day " + (dayIndex + 1);
             TextView exerciseCountTV = dayViewHolder.exerciseCountTV;
             TextView dayTagTV = dayViewHolder.dayTagTV;
-            exerciseCountTV.setText(Integer.toString(day.getNumberOfExercises()));
+            exerciseCountTV.setText(String.format(Locale.getDefault(), Integer.toString(day.totalNumberOfExercises())));
             dayViewHolder.dayTitleTV.setText(dayText);
 
 
             if (day.getTag() != null) {
-                dayTagTV.setText(day.getTag() + " "); // android cuts off italics on wrap content without trailing whitespace
+                dayTagTV.setText(day.getTag());
             } else {
                 dayTagTV.setText(null); // otherwise when recycled, days without tags may have a tag shown
             }
@@ -1636,14 +1636,14 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             final int copyDayToExistingId = 2;
             final int setDayTagId = 3;
             final int moveDayId = 4;
-            routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Existing Day");
-            routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Another Week");
+            routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
+            routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
             routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
-            routineDayMenu.add(0, moveDayId, 0, "Move To Another Week");
+            routineDayMenu.add(0, moveDayId, 0, "Move To Week");
             routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
 
             dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
-                int weekPosition = pendingRoutine.getWeekIndexOfDay(day);
+                int weekPosition = pendingRoutine.findWeekIndexOfDay(day);
                 int dayPosition = dayViewHolder.getAdapterPosition();
                 switch (item.getItemId()) {
                     case deleteDayId:
@@ -1659,8 +1659,8 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                         promptSetDayTag(weekPosition, dayPosition);
                         return true;
                     case moveDayId:
-                        if (pendingRoutine.getWeek(weekPosition).getNumberOfDays() <= 1) {
-                            Toast.makeText(getContext(), "Cannot move only day from week", Toast.LENGTH_LONG).show();
+                        if (pendingRoutine.get(weekPosition).totalNumberOfDays() <= 1) {
+                            Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
                             return true;
                         }
                         promptMoveDay(weekPosition, dayPosition);
@@ -1675,7 +1675,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayViewHolder.dayCard.setOnLongClickListener(null);
             } else {
                 dayViewHolder.dayCard.setOnClickListener(v -> {
-                    int weekPosition = pendingRoutine.getWeekIndexOfDay(day);
+                    int weekPosition = pendingRoutine.findWeekIndexOfDay(day);
                     int dayPosition = dayViewHolder.getAdapterPosition();
                     if (weekPosition >= 0)
                         switchToRoutineDayView(weekPosition, dayPosition);

@@ -3,7 +3,9 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
 
     <RelativeLayout
             android:id="@+id/top_container"
@@ -14,7 +16,6 @@
                 android:id="@+id/focus_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_toStartOf="@id/search_icon_button"
@@ -25,7 +26,6 @@
                 android:id="@+id/search_exercises_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_toStartOf="@id/search_icon_button"
@@ -60,10 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:layout_below="@id/top_container"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
             android:scrollbarStyle="outsideInset"
             android:scrollbars="vertical"
             tools:listitem="@layout/row_add_exercise" />

@@ -47,7 +47,7 @@
                     android:layout_gravity="center"
                     android:text="@string/rearrange_hint"
                     android:textAlignment="center"
-                    android:textColor="@color/subtitle_color"
+                    android:textColor="?attr/colorSubtitle"
                     android:visibility="gone" />
 
             <Button
@@ -57,9 +57,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:text="@string/rearrange"
-                    android:textColor="@color/color_accent"
+                    android:textColor="?attr/colorDefaultText"
                     app:icon="@drawable/move_icon"
-                    app:iconTint="@color/color_accent" />
+                    app:iconTint="?attr/colorIconButton" />
 
             <Button
                     android:id="@+id/add_week_btn"
@@ -69,24 +69,26 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="5dp"
                     android:text="@string/add_week_msg"
-                    android:textColor="@color/color_accent"
+                    android:textColor="?attr/colorDefaultText"
                     app:icon="@drawable/add_icon"
-                    app:iconTint="@color/color_accent" />
+                    app:iconTint="?attr/colorIconButton" />
         </RelativeLayout>
 
         <Button
                 android:id="@+id/save_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/save_workout" />
 
         <Button
                 android:id="@+id/done_rearranging_btn"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/done_rearranging"
                 android:visibility="gone"

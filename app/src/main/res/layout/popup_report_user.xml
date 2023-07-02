@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/report_user_msg"
+            android:textSize="16sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/report_user_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:hint="@string/description"
+            app:expandedHintEnabled="false">
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/report_user_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:minWidth="75dp"
+                android:scrollbars="vertical"
+                app:autoSizeTextType="uniform" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

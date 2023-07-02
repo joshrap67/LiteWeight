@@ -3,7 +3,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
             android:layout_width="0dp"

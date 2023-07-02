@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorNavItemIconNotSelected" format="color" />
+    <attr name="colorNavItemSelected" format="color" />
+    <attr name="colorOptionsBackground" format="color" />
+    <attr name="colorIconButton" format="color" />
+    <attr name="colorDivider" format="color" />
+    <attr name="colorCardBackground" format="color" />
+    <attr name="colorDayCardBackground" format="color" />
+    <attr name="colorDayCardSelectedBackground" format="color" />
+    <attr name="colorWeekCardBackground" format="color" />
+    <attr name="colorWeekCardSelectedBackground" format="color" />
+    <attr name="colorExerciseRowBackground" format="color" />
+    <attr name="colorExerciseRowSelectedBackground" format="color" />
+    <attr name="colorRowActivated" format="color" />
+    <attr name="colorWorkoutProgressBackground" format="color" />
+    <attr name="colorWorkoutProgressGradientStart" format="color" />
+    <attr name="colorWorkoutProgressGradientEnd" format="color" />
+    <attr name="colorSubtitle" format="color" />
+    <attr name="colorDefaultText" format="color" />
+    <attr name="colorHint" format="color" />
+    <attr name="colorControl" format="color" />
+    <attr name="colorDangerZone" format="color" />
+    <attr name="colorToolBarText" format="color" />
+    <attr name="colorBoxFocused" format="color" />
+    <attr name="colorBoxNotFocused" format="color" />
+    <attr name="colorCheckBox" format="color" />
+    <attr name="colorChangeProfilePictureIcon" format="color" />
+    <attr name="colorChangeProfilePictureBackground" format="color" />
+</resources>

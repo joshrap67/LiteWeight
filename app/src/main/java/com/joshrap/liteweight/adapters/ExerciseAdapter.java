@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.joshrap.liteweight.models.OwnedExercise;
+import com.joshrap.liteweight.models.user.OwnedExercise;
 
 import java.util.List;
 
@@ -35,8 +35,14 @@ public class ExerciseAdapter extends ArrayAdapter<OwnedExercise> {
         OwnedExercise currentExercise = exerciseList.get(position);
 
         TextView exerciseNameTV = listItem.findViewById(android.R.id.text1);
-        exerciseNameTV.setText(currentExercise.getExerciseName());
+        exerciseNameTV.setText(currentExercise.getName());
 
         return exerciseNameTV;
+    }
+
+    public void updateExercises(List<OwnedExercise> exerciseList) {
+        this.exerciseList.clear();
+        this.exerciseList.addAll(exerciseList);
+        notifyDataSetChanged();
     }
 }

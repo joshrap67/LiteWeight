@@ -17,7 +17,7 @@
             android:layout_height="0dp"
             android:fadeScrollbars="true"
             android:fillViewport="true"
-            app:layout_constraintBottom_toTopOf="@id/save_fab"
+            app:layout_constraintBottom_toTopOf="@id/save_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -41,8 +41,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/name_hint"
                         app:autoSizeTextType="uniform"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
+                        app:expandedHintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/exercise_name_input"
@@ -131,8 +130,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         app:expandedHintEnabled="false"
-                        tools:hint="Default Weight (lb)"
-                        tools:style="@style/TextInputLayoutStyle">
+                        tools:hint="Default Weight (lb)">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_weight_input"
@@ -162,8 +160,7 @@
                             android:layout_marginEnd="8dp"
                             android:layout_weight=".67"
                             android:hint="@string/default_sets_hint"
-                            app:expandedHintEnabled="false"
-                            tools:style="@style/TextInputLayoutStyle">
+                            app:expandedHintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_sets_input"
@@ -184,8 +181,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight=".67"
                             android:hint="@string/default_reps_hint"
-                            app:expandedHintEnabled="false"
-                            tools:style="@style/TextInputLayoutStyle">
+                            app:expandedHintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/default_reps_input"
@@ -209,8 +205,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/default_details_hint"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
+                        app:expandedHintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/default_details_input"
@@ -234,8 +229,7 @@
                         android:layout_marginBottom="8dp"
                         android:hint="@string/url_hint"
                         app:autoSizeTextType="uniform"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
+                        app:expandedHintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/url_input"
@@ -264,7 +258,7 @@
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
                             android:text="@string/copy_url"
-                            android:textColor="@color/color_accent"
+                            android:textColor="?attr/colorDefaultText"
                             app:icon="@drawable/copy_icon" />
 
                     <Button
@@ -274,7 +268,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/preview_url"
-                            android:textColor="@color/color_accent"
+                            android:textColor="?attr/colorDefaultText"
                             app:icon="@drawable/preview_icon" />
                 </LinearLayout>
             </RelativeLayout>
@@ -283,13 +277,11 @@
 
 
     <Button
-            android:id="@+id/save_fab"
+            android:id="@+id/save_btn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/save"
-            android:textColor="@color/color_accent"
-            app:backgroundTint="@color/color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -5,6 +5,8 @@
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="5dp"
+        android:layout_marginHorizontal="4dp"
         android:layout_marginVertical="10dp"
         android:animateLayoutChanges="true"
         android:background="@drawable/exercise_row_background"
@@ -31,6 +33,7 @@
             android:drawableEnd="@drawable/down_arrow_small"
             android:paddingHorizontal="2dp"
             android:textAllCaps="false"
+            android:textColor="?attr/colorDefaultText"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/exercise_checkbox"
@@ -54,8 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:hint="@string/sets"
-                app:autoSizeTextType="uniform"
-                tools:style="@style/TextInputLayoutStyle">
+                app:autoSizeTextType="uniform">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/sets_input"
@@ -77,8 +79,7 @@
                 android:layout_marginHorizontal="10dp"
                 android:layout_toStartOf="@id/reps_input_layout"
                 android:layout_toEndOf="@id/sets_input_layout"
-                android:hint="@string/weight_lbs"
-                tools:style="@style/TextInputLayoutStyle">
+                android:hint="@string/weight_lbs">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/weight_input"
@@ -97,8 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:hint="@string/reps"
-                tools:style="@style/TextInputLayoutStyle">
+                android:hint="@string/reps">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/reps_input"
@@ -119,8 +119,7 @@
                 android:layout_below="@id/weight_input_layout"
                 android:layout_marginTop="4dp"
                 android:hint="@string/details"
-                app:autoSizeTextType="uniform"
-                tools:style="@style/TextInputLayoutStyle">
+                app:autoSizeTextType="uniform">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/details_input"
@@ -140,6 +139,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/details_input_layout"
                 android:text="@string/watch_video"
-                android:textColor="@color/color_accent" />
+                android:textColor="?attr/colorDefaultText" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

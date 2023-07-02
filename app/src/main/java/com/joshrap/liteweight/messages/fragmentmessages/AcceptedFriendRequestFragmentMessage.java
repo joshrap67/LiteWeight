@@ -5,9 +5,9 @@ import lombok.Getter;
 public class AcceptedFriendRequestFragmentMessage {
 
     @Getter
-    private final String acceptedUsername;
+    private final String acceptedUserId;
 
-    public AcceptedFriendRequestFragmentMessage(String acceptedUsername) {
-        this.acceptedUsername = acceptedUsername;
+    public AcceptedFriendRequestFragmentMessage(String acceptedUserId) {
+        this.acceptedUserId = acceptedUserId;
     }
 }

@@ -2,12 +2,13 @@ package com.joshrap.liteweight.messages.activitymessages;
 
 import lombok.Getter;
 
+
 public class CanceledFriendRequestMessage {
 
     @Getter
-    private final String usernameToRemove; // user who canceled the friend request
+    private final String userIdToRemove; // user who canceled the friend request
 
-    public CanceledFriendRequestMessage(String usernameToRemove) {
-        this.usernameToRemove = usernameToRemove;
+    public CanceledFriendRequestMessage(String userIdToRemove) {
+        this.userIdToRemove = userIdToRemove;
     }
 }

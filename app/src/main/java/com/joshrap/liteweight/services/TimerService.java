@@ -39,11 +39,6 @@ public class TimerService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         startForeground(timerRunningId, timerRunningNotification("Timer starting..."));
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

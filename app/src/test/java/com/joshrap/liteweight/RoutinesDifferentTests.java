@@ -5,8 +5,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.joshrap.liteweight.helpers.RoutineExerciseBuilder;
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 public class RoutinesDifferentTests {
 
@@ -89,6 +90,61 @@ public class RoutinesDifferentTests {
         routine2.appendEmptyDay(0);
         RoutineExercise exercise3 = new RoutineExerciseBuilder().build();
         RoutineExercise exercise4 = new RoutineExerciseBuilder().build();
+        routine2.addExercise(0, 0, exercise3);
+        routine2.addExercise(0, 0, exercise4);
+
+        boolean doRoutinesDiffer = Routine.routinesDifferent(routine1, routine2);
+        assertTrue("Routines differ from exercise mismatch", doRoutinesDiffer);
+    }
+
+    @Test
+    public void routines_differ_day_tag_mismatch() {
+        Routine routine1 = new Routine();
+        routine1.addEmptyWeek();
+        routine1.appendEmptyDay(0);
+        RoutineDay routineDay1 = new RoutineDay();
+        routineDay1.setTag("A");
+        routine1.appendDay(1, routineDay1);
+        RoutineExercise exercise1 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("details")
+                .build();
+        RoutineExercise exercise2 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("details")
+                .build();
+        routine1.addExercise(0, 0, exercise1);
+        routine1.addExercise(0, 0, exercise2);
+
+        Routine routine2 = new Routine();
+        routine2.addEmptyWeek();
+        RoutineDay routineDay2 = new RoutineDay();
+        routineDay2.setTag("B");
+        routine2.appendDay(1, routineDay2);
+        RoutineExercise exercise3 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("details")
+                .build();
+        RoutineExercise exercise4 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("details")
+                .build();
         routine2.addExercise(0, 0, exercise3);
         routine2.addExercise(0, 0, exercise4);
 

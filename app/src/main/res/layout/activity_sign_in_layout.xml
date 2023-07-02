@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/login_gradient"
+        android:clickable="true"
+        android:fitsSystemWindows="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+    <TextView
+            android:id="@+id/app_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/test"
+            android:layout_centerHorizontal="true"
+            android:layout_marginVertical="16dp"
+            android:fontFamily="@font/roboto_thin"
+            android:text="@string/app_name"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+    <RelativeLayout
+            android:id="@+id/test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+
+        <Button
+                android:id="@+id/google_sign_in_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:backgroundTint="@android:color/white"
+                android:text="@string/sign_in_with_google"
+                android:textColor="@android:color/black"
+                app:icon="@drawable/googleg_standard_color_18"
+                app:iconGravity="textStart"
+                app:iconTint="#00FFFFFF"
+                app:iconTintMode="src_atop" />
+
+        <Button
+                android:id="@+id/sign_in_with_email_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/google_sign_in_btn"
+                android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#305C9F"
+                android:text="@string/sign_in_with_email"
+                app:icon="@drawable/email_icon"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white" />
+
+        <Button
+                android:id="@+id/sign_up_with_email_btn"
+                style="@style/RoundedOutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sign_in_with_email_btn"
+                android:layout_centerHorizontal="true"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="16dp"
+                android:text="@string/sign_up_with_email" />
+    </RelativeLayout>
+</RelativeLayout>

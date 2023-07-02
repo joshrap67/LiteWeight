@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_accent_light">#000000</color>
+    <color name="color_control_light">@color/color_primary</color>
+    <color name="color_nav_item_selected_light">@color/color_primary</color>
+    <color name="color_row_activated_light">#C3C3C3</color>
+    <color name="color_options_background_light">#ffffff</color>
+
+    <color name="color_default_text_light">#000000</color>
+    <color name="color_subtitle_light">#393939</color>
+    <color name="color_hint_light">#BE454545</color>
+    <color name="color_divider_light">#75232323</color>
+
+    <color name="color_exercise_row_background_light">#ffffff</color>
+    <color name="color_exercise_row_selected_background_light">#e0e0e0</color>
+    <color name="color_week_card_background_light">#ffffff</color>
+    <color name="color_week_card_selected_background_light">#e0e0e0</color>
+    <color name="color_day_card_background_light">#ffffff</color>
+    <color name="color_day_card_selected_background_light">#e0e0e0</color>
+
+    <color name="color_workout_progress_background_light">#333333</color>
+
+    <color name="color_main_activity_outline_box_unfocused_light">#000000</color>
+    <color name="color_workout_activity_outline_box_focused_light">@color/color_primary</color>
+</resources>

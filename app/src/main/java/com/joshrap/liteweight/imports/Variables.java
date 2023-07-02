@@ -10,6 +10,7 @@ public class Variables {
     public static final int WORKOUT_MAX_NUMBER_OF_DAYS = 7;
     public static final int MAX_NUMBER_OF_WEEKS = 10;
     public static final int MAX_WORKOUT_NAME = 40;
+    public static final int MAX_REPORT_DESCRIPTION = 400;
     public static final int MAX_DAY_TAG_LENGTH = 50;
     public static final int MAX_EXERCISE_NAME = 40;
     public static final int MAX_WEIGHT = 99999;
@@ -20,17 +21,15 @@ public class Variables {
     public static final int MAX_REPS_DIGITS = Integer.toString(MAX_REPS).length();
     public static final int MAX_DETAILS_LENGTH = 120;
     public static final int MAX_URL_LENGTH = 200;
-    public static final int EMAIL_CODE_LENGTH = 6;
     public static final int MAX_USERNAME_LENGTH = 50;
     public static final int MIN_PASSWORD_LENGTH = 8;
-    public static final int MAX_PASSWORD_LENGTH = 99;
+    public static final int MAX_PASSWORD_LENGTH = 120;
     public static final int MAX_STOPWATCH_TIME = 7200000;
     public static final int DEFAULT_TIMER_VALUE = 60000;
     public static final int MAX_FREE_WORKOUTS_SENT = 50;
     public static final int MAX_FREE_WORKOUTS = 10;
+    public static final int MAX_FRIENDS = 1000;
     public static final int MAX_WORKOUTS = 20;
-    public static final int MAX_FEEDBACK = 2000;
-    public static final int BATCH_SIZE = 25; // THIS MUST MATCH VALUE ON BACKEND
     public static final int DEFAULT_WEIGHT = 0;
     public static final int DEFAULT_SETS = 3;
     public static final int DEFAULT_REPS = 15;
@@ -60,12 +59,11 @@ public class Variables {
     public static final String EXERCISE_DETAILS_TITLE = "Exercise Details";
     public static final String NEW_EXERCISE_TITLE = "New Exercise";
     public static final String ACCOUNT_TITLE = "My Account";
-    public static final String ACCOUNT_PREFS_TITLE = "Account Preferences";
+    public static final String SETTINGS_TITLE = "Settings";
+    public static final String CHANGE_PASSWORD = "Change Password";
     public static final String FRIENDS_LIST_TITLE = "Friends List";
-    public static final String BLOCKED_LIST_TITLE = "Blocked List";
     public static final String RECEIVED_WORKOUTS_TITLE = "Received Workouts";
     public static final String RECEIVED_WORKOUT_TITLE = "Received Workout";
-    public static final String SETTINGS_TITLE = "App Settings";
     public static final String ABOUT_TITLE = "About";
     public static final String FAQ_TITLE = "FAQ";
 
@@ -84,8 +82,6 @@ public class Variables {
     public static final String EXISTING_WORKOUT = "existingWorkout";
 
     // shared pref keys/values
-    public static final String ID_TOKEN_KEY = "IdToken";
-    public static final String REFRESH_TOKEN_KEY = "RefreshToken";
     public static final String TIMER_ENABLED = "TimerEnabled";
     public static final String STOPWATCH_ENABLED = "StopwatchEnabled";
     public static final String LAST_CLOCK_MODE = "DefaultClock";
@@ -94,6 +90,7 @@ public class Variables {
     public static final String TIMER = "Timer";
     public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";
     public static final String TIMER_DURATION = "TimerValue";
+    public static final String DARK_THEME_ENABLED = "DarkThemeEnabled";
 
     // intent keys
     public static final String INTENT_ABSOLUTE_START_TIME = "Absolute_Time";
@@ -102,12 +99,15 @@ public class Variables {
     public static final String INTENT_TIMER_DURATION = "Timer_duration";
     public static final String INTENT_TIMER_NOTIFICATION_CLICK = "Timer_notification_clicked";
     public static final String INTENT_STOPWATCH_NOTIFICATION_CLICK = "Stopwatch_notification_clicked";
-    public static final String INTENT_ID_TOKEN = "idToken";
-    public static final String INTENT_REFRESH_TOKEN = "refreshToken";
     public static final String NEW_FRIEND_REQUEST_CLICK = "Friend_Request_Clicked";
     public static final String ACCEPTED_FRIEND_REQUEST_CLICK = "Accepted_Request_Clicked";
     public static final String RECEIVED_WORKOUT_CLICK = "Received_Workout_Clicked";
-    public static final String ERROR_MESSAGE = "Error_Message";
+    public static final String INTENT_ERROR_MESSAGE = "Error_Message";
+    public static final String INTENT_WORKOUT = "Workout";
+    public static final String INTENT_CURRENT_WEEK = "currentWeek";
+    public static final String INTENT_CURRENT_DAY = "currentDay";
+    public static final String WORKOUT_NAME = "Workout_Name";
+    public static final String RECEIVED_WORKOUT_ID = "ReceivedWorkoutId";
 
     // request codes for pending intents. These values are arbitrary
     public static final int TIMER_RUNNING_REQUEST_CODE = 67;

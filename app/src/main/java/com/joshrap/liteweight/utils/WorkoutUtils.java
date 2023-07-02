@@ -1,10 +1,11 @@
 package com.joshrap.liteweight.utils;
 
-import com.joshrap.liteweight.models.Routine;
-import com.joshrap.liteweight.models.RoutineDay;
-import com.joshrap.liteweight.models.RoutineExercise;
-import com.joshrap.liteweight.models.RoutineWeek;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
+import com.joshrap.liteweight.models.workout.Routine;
+import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineWeek;
+import com.joshrap.liteweight.models.user.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,5 +61,30 @@ public class WorkoutUtils {
             }
         }
         return retVal;
+    }
+
+    // as a result of editing the routine, it is possible the current week/index are out of bounds
+    public static void checkCurrentWeekAndDay(WorkoutInfo workoutInfo, Routine routine) {
+        int currentWeek = workoutInfo.getCurrentWeek();
+        int currentDay = workoutInfo.getCurrentDay();
+
+        if (currentWeek >= routine.getWeeks().size()) {
+            int newWeekIndex = routine.getWeeks().size() - 1;
+            if (newWeekIndex < 0) {
+                newWeekIndex = 0;
+            }
+            int newDayIndex = routine.get(newWeekIndex).getDays().size() - 1;
+            if (newDayIndex < 0) {
+                newDayIndex = 0;
+            }
+            workoutInfo.setCurrentDay(newDayIndex);
+            workoutInfo.setCurrentWeek(newWeekIndex);
+        } else if (currentDay >= routine.get(currentWeek).getDays().size()) {
+            int newDayIndex = routine.get(currentWeek).getDays().size() - 1;
+            if (newDayIndex < 0) {
+                newDayIndex = 0;
+            }
+            workoutInfo.setCurrentDay(newDayIndex);
+        }
     }
 }

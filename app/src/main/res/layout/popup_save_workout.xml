@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
 
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/workout_name_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:hint="@string/workout_name"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
             app:autoSizeTextType="uniform"
-            app:expandedHintEnabled="false"
-            tools:style="@style/TextInputLayoutStyle">
+            app:expandedHintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/workout_name_input"

@@ -1,198 +1,158 @@
 package com.joshrap.liteweight.managers;
 
-import com.joshrap.liteweight.models.Friend;
-import com.joshrap.liteweight.models.FriendRequest;
-import com.joshrap.liteweight.models.OwnedExercise;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.SharedWorkoutMeta;
-import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.UserPreferences;
-import com.joshrap.liteweight.models.UserAndWorkout;
-import com.joshrap.liteweight.network.repos.UserRepository;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import static com.joshrap.liteweight.utils.NetworkUtils.getLiteWeightError;
 
-import java.util.List;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.joshrap.liteweight.models.ErrorTypes;
+import com.joshrap.liteweight.models.LiteWeightNetworkException;
+import com.joshrap.liteweight.models.user.Friend;
+import com.joshrap.liteweight.models.user.FriendRequest;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.repositories.self.SelfRepository;
+import com.joshrap.liteweight.repositories.exercises.ExerciseRepository;
+import com.joshrap.liteweight.repositories.users.UsersRepository;
+import com.joshrap.liteweight.repositories.users.responses.ReportUserResponse;
+import com.joshrap.liteweight.repositories.users.responses.SearchByUsernameResponse;
+import com.joshrap.liteweight.repositories.workouts.WorkoutRepository;
 
 import javax.inject.Inject;
 
 public class UserManager {
 
     @Inject
-    UserRepository userRepository;
+    SelfRepository selfRepository;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    UsersRepository usersRepository;
+    @Inject
+    ExerciseRepository exerciseRepository;
+    @Inject
+    WorkoutRepository workoutRepository;
+    @Inject
+    CurrentUserModule currentUserModule;
 
     @Inject
-    public UserManager(UserRepository userRepository, CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider) {
-        this.currentUserAndWorkoutProvider = currentUserAndWorkoutProvider;
-        this.userRepository = userRepository;
+    public UserManager(SelfRepository selfRepository, CurrentUserModule currentUserModule,
+                       UsersRepository usersRepository, ExerciseRepository exerciseRepository, WorkoutRepository workoutRepository) {
+        this.currentUserModule = currentUserModule;
+        this.selfRepository = selfRepository;
+        this.usersRepository = usersRepository;
+        this.exerciseRepository = exerciseRepository;
+        this.workoutRepository = workoutRepository;
     }
 
-    public ResultStatus<UserAndWorkout> getUserAndCurrentWorkout() {
-        return this.userRepository.getUserAndCurrentWorkout();
-    }
+    public Result<Friend> sendFriendRequest(String username) {
+        Result<Friend> result = new Result<>();
 
-    public ResultStatus<User> updateExercise(String exerciseId, OwnedExercise ownedExercise) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<User> resultStatus = this.userRepository.updateExercise(exerciseId, ownedExercise);
-        if (resultStatus.isSuccess()) {
-            user.putExercise(resultStatus.getData().getExercise(exerciseId));
-        }
-        return resultStatus;
-    }
+        try {
+            User user = currentUserModule.getUser();
 
-    public ResultStatus<OwnedExercise> newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String details, String videoURL) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<OwnedExercise> resultStatus = userRepository.newExercise(exerciseName, focuses, weight, sets, reps, details, videoURL);
-        if (resultStatus.isSuccess()) {
-            OwnedExercise newExercise = resultStatus.getData();
-            user.putExercise(newExercise);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> deleteExercise(String exerciseId) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        UserAndWorkout currentUserAndWorkout = currentUserAndWorkoutProvider.provideCurrentUserAndWorkout();
-        ResultStatus<String> resultStatus = this.userRepository.deleteExercise(exerciseId);
-
-        if (resultStatus.isSuccess()) {
-            user.removeExercise(exerciseId);
-            if (currentUserAndWorkout.getWorkout() != null) {
-                currentUserAndWorkout.getWorkout().getRoutine().deleteExerciseFromRoutine(exerciseId);
-            }
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> updateProfilePicture(String pictureData) {
-        return this.userRepository.updateProfilePicture(pictureData);
-    }
-
-    public ResultStatus<String> updatePushEndpointId(String tokenId) {
-        return this.userRepository.updatePushEndpointId(tokenId);
-    }
-
-    public ResultStatus<String> removePushEndpointId() {
-        return this.userRepository.removePushEndpointId();
-    }
-
-    public ResultStatus<Friend> sendFriendRequest(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<Friend> resultStatus = this.userRepository.sendFriendRequest(username);
-        if (resultStatus.isSuccess()) {
-            user.addFriend(resultStatus.getData());
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> cancelFriendRequest(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.cancelFriendRequest(username);
-        if (resultStatus.isSuccess()) {
-            user.removeFriend(username);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> setAllRequestsSeen() {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.setAllRequestsSeen();
-        if (resultStatus.isSuccess()) {
-            for (FriendRequest friendRequest : user.getFriendRequests().values()) {
-                friendRequest.setSeen(true);
-            }
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> updateUserPreferences(UserPreferences userPreferences) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.updateUserPreferences(userPreferences);
-        if (resultStatus.isSuccess()) {
-            user.setUserPreferences(userPreferences);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> acceptFriendRequest(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.acceptFriendRequest(username);
-        if (resultStatus.isSuccess()) {
-            FriendRequest friendRequest = user.getFriendRequest(username);
-            user.removeFriendRequest(username);
-
-            Friend friend = new Friend(friendRequest.getIcon(), true, username);
+            SearchByUsernameResponse searchResult = this.usersRepository.searchByUsername(username);
+            Friend friend = this.usersRepository.sendFriendRequest(searchResult.getId());
             user.addFriend(friend);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> removeFriend(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.removeFriend(username);
-        if (resultStatus.isSuccess()) {
-            user.removeFriend(username);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> declineFriendRequest(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.declineFriendRequest(username);
-        if (resultStatus.isSuccess()) {
-            user.removeFriendRequest(username);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> unblockUser(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        user.removeBlockedUser(username);
-
-        ResultStatus<String> resultStatus = userRepository.unblockUser(username);
-        if (resultStatus.isSuccess()) {
-            user.removeBlockedUser(username);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> sendFeedback(String feedback, String feedbackTime) {
-        return this.userRepository.sendFeedback(feedback, feedbackTime);
-    }
-
-    public ResultStatus<String> blockUser(String username) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-
-        ResultStatus<String> resultStatus = this.userRepository.blockUser(username);
-        if (resultStatus.isSuccess()) {
-            user.putBlocked(username, resultStatus.getData());
-            user.removeFriendRequest(username);
-            user.removeFriend(username);
-        }
-        return resultStatus;
-    }
-
-    public ResultStatus<String> setAllReceivedWorkoutsSeen() {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.setAllReceivedWorkoutsSeen();
-        if (resultStatus.isSuccess()) {
-            user.setUnseenReceivedWorkouts(0);
-            for (SharedWorkoutMeta sharedWorkoutMeta : user.getReceivedWorkouts().values()) {
-                sharedWorkoutMeta.setSeen(true);
+            result.setData(friend);
+        } catch (Exception e) {
+            if (e instanceof LiteWeightNetworkException) {
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.userNotFound)) {
+                    result.setErrorMessage("User does not exist.");
+                } else if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.maxLimit)) {
+                    result.setErrorMessage("Recipient user received too many friend requests.");
+                }
+            } else {
+                FirebaseCrashlytics.getInstance().recordException(e);
+                result.setErrorMessage("There was a problem sending the friend request.");
             }
         }
-        return resultStatus;
+
+        return result;
     }
 
-    public ResultStatus<String> setReceivedWorkoutSeen(String workoutId) {
-        User user = currentUserAndWorkoutProvider.provideCurrentUser();
-        ResultStatus<String> resultStatus = this.userRepository.setReceivedWorkoutSeen(workoutId);
-        if (resultStatus.isSuccess()) {
-            SharedWorkoutMeta sharedWorkoutMeta = user.getReceivedWorkout(workoutId);
-            sharedWorkoutMeta.setSeen(true);
-            user.setUnseenReceivedWorkouts(user.getUnseenReceivedWorkouts() - 1);
+    public Result<String> cancelFriendRequest(String userId) {
+        Result<String> result = new Result<>();
+
+        try {
+            User user = currentUserModule.getUser();
+
+            this.usersRepository.cancelFriendRequest(userId);
+            user.removeFriend(userId);
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            result.setErrorMessage("There was a problem canceling the friend request.");
         }
-        return resultStatus;
+
+        return result;
+    }
+
+    public Result<String> acceptFriendRequest(String userId) {
+        Result<String> result = new Result<>();
+
+        try {
+            User user = currentUserModule.getUser();
+
+            this.usersRepository.acceptFriendRequest(userId);
+
+            FriendRequest friendRequest = user.getFriendRequest(userId);
+            user.removeFriendRequest(userId);
+
+            Friend friend = new Friend(friendRequest.getUserId(), friendRequest.getUsername(), friendRequest.getProfilePicture(), true);
+            user.addFriend(friend);
+        } catch (Exception e) {
+            if (e instanceof LiteWeightNetworkException) {
+                if (getLiteWeightError((LiteWeightNetworkException) e).equals(ErrorTypes.maxLimit)) {
+                    result.setErrorMessage("Accepting this would put you over the maximum allowed number of friends.");
+                }
+            } else {
+                FirebaseCrashlytics.getInstance().recordException(e);
+                result.setErrorMessage("There was a problem accepting the friend request.");
+            }
+        }
+
+        return result;
+    }
+
+    public Result<String> removeFriend(String userId) {
+        Result<String> result = new Result<>();
+
+        try {
+            User user = currentUserModule.getUser();
+
+            this.usersRepository.removeFriend(userId);
+            user.removeFriend(userId);
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            result.setErrorMessage("There was a problem removing the friend.");
+        }
+
+        return result;
+    }
+
+    public Result<String> declineFriendRequest(String userId) {
+        Result<String> result = new Result<>();
+
+        try {
+            User user = currentUserModule.getUser();
+
+            this.usersRepository.declineFriendRequest(userId);
+            user.removeFriendRequest(userId);
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            result.setErrorMessage("There was a problem declining the friend request.");
+        }
+
+        return result;
+    }
+
+    public Result<String> reportUser(String userId, String complaint) {
+        Result<String> result = new Result<>();
+
+        try {
+            ReportUserResponse response = this.usersRepository.reportUser(userId, complaint);
+            result.setData(response.getId());
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            result.setErrorMessage("There was a problem reporting the user.");
+        }
+
+        return result;
     }
 }

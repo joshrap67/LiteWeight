@@ -3,7 +3,7 @@
         android:color="?colorControlHighlight">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/exercise_row_background" />
+            <solid android:color="?attr/colorExerciseRowBackground" />
 
             <corners android:radius="8dp" />
         </shape>

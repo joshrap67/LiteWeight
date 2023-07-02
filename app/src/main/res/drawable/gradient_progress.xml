@@ -4,7 +4,7 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="5dp" />
-            <solid android:color="@color/workout_progress_background" />
+            <solid android:color="?attr/colorWorkoutProgressBackground" />
         </shape>
     </item>
 
@@ -13,8 +13,8 @@
             <shape>
                 <corners android:radius="5dp" />
                 <gradient
-                        android:endColor="@color/workout_progress_gradient_end"
-                        android:startColor="@color/workout_progress_gradient_start" />
+                        android:endColor="?attr/colorWorkoutProgressGradientEnd"
+                        android:startColor="?attr/colorWorkoutProgressGradientStart" />
             </shape>
         </clip>
     </item>

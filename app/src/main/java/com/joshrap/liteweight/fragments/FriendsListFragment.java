@@ -2,11 +2,10 @@ package com.joshrap.liteweight.fragments;
 
 import static android.os.Looper.getMainLooper;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
@@ -30,9 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,11 +38,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.messages.fragmentmessages.AcceptedFriendRequestFragmentMessage;
@@ -52,12 +54,11 @@ import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFra
 import com.joshrap.liteweight.messages.fragmentmessages.DeclinedFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
-import com.joshrap.liteweight.models.Friend;
-import com.joshrap.liteweight.models.FriendRequest;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.User;
-import com.joshrap.liteweight.models.WorkoutMeta;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.models.user.Friend;
+import com.joshrap.liteweight.models.user.FriendRequest;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
@@ -85,11 +86,13 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+@SuppressLint({"NotifyDataSetChanged", "InflateParams"})
 public class FriendsListFragment extends Fragment implements FragmentWithDialog {
     private static final int FRIENDS_POSITION = 0;
     public static final int REQUESTS_POSITION = 1;
 
-    private User user;
+    private String username;
+    private final List<WorkoutInfo> workouts = new ArrayList<>();
     private FloatingActionButton floatingActionButton;
     private TextView emptyView;
     private RecyclerView recyclerView;
@@ -100,45 +103,55 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private FriendsAdapter friendsAdapter;
     private FriendRequestsAdapter friendRequestsAdapter;
     private TabLayout tabLayout;
-    private int currentIndex;
+    private int startingIndex, workoutsSent;
     private NotificationManager notificationManager;
+    private boolean isPremium;
 
     @Inject
     AlertDialog loadingDialog;
     @Inject
     WorkoutManager workoutManager;
     @Inject
+    ReceivedWorkoutManager receivedWorkoutManager;
+    @Inject
     UserManager userManager;
     @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    SelfManager selfManager;
+    @Inject
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(true);
+        ((MainActivity) activity).updateToolbarTitle(Variables.FRIENDS_LIST_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
-        notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        User user = currentUserModule.getUser();
+        username = user.getUsername();
+        workoutsSent = user.getWorkoutsSent();
+        friends = new ArrayList<>(user.getFriends());
+        friendRequests = new ArrayList<>(user.getFriendRequests());
+        workouts.addAll(user.getWorkouts());
+        isPremium = user.isPremium();
+
+        notificationManager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Bundle args = getArguments();
         if (args != null) {
             // there are args which indicates user clicked on a notification, so bring them to the requests position
-            currentIndex = REQUESTS_POSITION;
+            startingIndex = REQUESTS_POSITION;
         } else {
-            currentIndex = FRIENDS_POSITION;
+            startingIndex = FRIENDS_POSITION;
         }
         return inflater.inflate(R.layout.fragment_friends_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        friends = new ArrayList<>(user.getFriends().values());
-        friendRequests = new ArrayList<>(user.getFriendRequests().values());
-
         sortFriendRequestList();
         sortFriendsList();
 
@@ -177,7 +190,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
         });
 
-        if (currentIndex == REQUESTS_POSITION) {
+        if (startingIndex == REQUESTS_POSITION) {
             tabLayout.getTabAt(REQUESTS_POSITION).select();
         } else {
             switchToFriendsList();
@@ -188,8 +201,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     @Override
     public void onPause() {
         super.onPause();
-        // sanity check to determine if user has any unseen requests after this fragment is paused
-        markAllFriendRequestsSeen();
+        if (tabLayout.getSelectedTabPosition() == REQUESTS_POSITION) {
+            // sanity check to determine if user has any unseen requests after this fragment is paused
+            markAllFriendRequestsSeen();
+        }
+
         EventBus.getDefault().unregister(this);
     }
 
@@ -198,13 +214,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         super.onResume();
         clearFriendsNotifications();
         // when resuming, a notification could have affected these data. Need to populate what is missing into the local view variables
-        if (user.getFriendRequests().size() != friendRequests.size()) {
-            friendRequests = new ArrayList<>(user.getFriendRequests().values());
+        if (currentUserModule.getUser().getFriendRequests().size() != friendRequests.size()) {
+            friendRequests = new ArrayList<>(currentUserModule.getUser().getFriendRequests());
             sortFriendRequestList();
             friendRequestsAdapter.notifyDataSetChanged();
         }
-        if (user.getFriends().size() != friends.size()) {
-            friends = new ArrayList<>(user.getFriends().values());
+        if (currentUserModule.getUser().getFriends().size() != friends.size()) {
+            friends = new ArrayList<>(currentUserModule.getUser().getFriends());
             sortFriendsList();
             friendsAdapter.notifyDataSetChanged();
         }
@@ -237,13 +253,13 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         // user is on this page, so no need to show a push notification
         if (notificationManager != null) {
-            notificationManager.cancel(newFriendRequest.getUsername().hashCode());
+            notificationManager.cancel(newFriendRequest.getUserId().hashCode());
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleCanceledFriendRequestMessage(CanceledFriendRequestFragmentMessage message) {
-        String usernameToRemove = message.getUsernameToRemove();
+        String usernameToRemove = message.getUserIdToRemove();
         int index = getFriendRequestPosition(usernameToRemove);
 
         if (index >= 0) {
@@ -254,17 +270,17 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleDeclinedFriendRequestMessage(DeclinedFriendRequestFragmentMessage message) {
-        removeFriendFromList(message.getUsernameToRemove());
+        removeFriendFromList(message.getUserIdToRemove());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleRemovedFriendMessage(RemovedFriendFragmentMessage message) {
-        removeFriendFromList(message.getUsernameToRemove());
+        removeFriendFromList(message.getUserIdToRemove());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void handleAcceptedFriendRequestMessage(AcceptedFriendRequestFragmentMessage message) {
-        int index = getFriendPosition(message.getAcceptedUsername());
+        int index = getFriendPosition(message.getAcceptedUserId());
         if (index >= 0) {
             friendsAdapter.notifyItemChanged(index);
         }
@@ -278,8 +294,8 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             return;
         }
 
-        for (String username : user.getFriends().keySet()) {
-            notificationManager.cancel(username.hashCode());
+        for (Friend friend : friends) {
+            notificationManager.cancel(friend.getUserId().hashCode());
         }
     }
 
@@ -290,16 +306,16 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         for (FriendRequest friendRequest : friendRequests) {
             if (!friendRequest.isSeen()) {
-                notificationManager.cancel(friendRequest.getUsername().hashCode());
+                notificationManager.cancel(friendRequest.getUserId().hashCode());
             }
         }
     }
 
-    private int getFriendRequestPosition(String username) {
+    private int getFriendRequestPosition(String userId) {
         int index = -1;
         for (int i = 0; i < friendRequests.size(); i++) {
             FriendRequest friendRequest = friendRequests.get(i);
-            if (friendRequest.getUsername().equals(username)) {
+            if (friendRequest.getUserId().equals(userId)) {
                 index = i;
                 break;
             }
@@ -307,11 +323,11 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         return index;
     }
 
-    private int getFriendPosition(String username) {
+    private int getFriendPosition(String userId) {
         int index = -1;
         for (int i = 0; i < friends.size(); i++) {
             Friend friend = friends.get(i);
-            if (friend.getUsername().equals(username)) {
+            if (friend.getUserId().equals(userId)) {
                 index = i;
                 break;
             }
@@ -335,15 +351,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
     private void sortFriendRequestList() {
         // newest at the top
         friendRequests.sort((fr1, fr2) -> {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            DateFormat df = new SimpleDateFormat(TimeUtils.UTC_TIME_FORMAT, Locale.ENGLISH);
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
             int retVal = 0;
             try {
-                Date date1 = df.parse(fr1.getRequestTimeStamp());
-                Date date2 = df.parse(fr2.getRequestTimeStamp());
-                retVal = date1 != null ? date2.compareTo(date1) : 0;
+                Date date1 = df.parse(fr1.getSentUtc());
+                Date date2 = df.parse(fr2.getSentUtc());
+                retVal = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
             } catch (ParseException e) {
-                e.printStackTrace();
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
             return retVal;
         });
@@ -428,7 +444,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             }
 
             Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> userManager.setAllRequestsSeen());
+            executor.execute(() -> selfManager.setAllFriendRequestsSeen());
         }
     }
 
@@ -438,7 +454,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         EditText friendInput = popupView.findViewById(R.id.username_input);
         friendInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(friendNameLayout));
         friendInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_USERNAME_LENGTH)});
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Add Friend")
                 .setView(popupView)
                 .setPositiveButton("Send Request", null)
@@ -448,7 +464,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             Button saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(view -> {
                 // usernames are case insensitive!
-                String friendUsername = friendInput.getText().toString().trim().toLowerCase();
+                String friendUsername = friendInput.getText().toString().trim();
                 List<String> existingFriends = new ArrayList<>();
                 List<String> existingFriendRequests = new ArrayList<>();
                 for (Friend friend : friends) {
@@ -457,7 +473,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 for (FriendRequest friendRequest : friendRequests) {
                     existingFriendRequests.add(friendRequest.getUsername());
                 }
-                String errorMsg = ValidatorUtils.validNewFriend(user.getUsername(), friendUsername, existingFriends, existingFriendRequests);
+                String errorMsg = ValidatorUtils.validNewFriend(username, friendUsername, existingFriends, existingFriendRequests);
                 if (errorMsg != null) {
                     friendNameLayout.setError(errorMsg);
                 } else {
@@ -474,71 +490,24 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         AndroidUtils.showLoadingDialog(loadingDialog, "Sending request...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<Friend> resultStatus = this.userManager.sendFriendRequest(username);
+            Result<Friend> result = this.userManager.sendFriendRequest(username);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
-                    friends.add(resultStatus.getData());
+                if (result.isSuccess() && FriendsListFragment.this.isResumed()) {
+                    friends.add(result.getData());
                     sortFriendsList();
                     int index = getFriendPosition(username);
                     friendsAdapter.notifyItemInserted(index);
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void blockUserPopup(String username) {
-        // username is italicized
-        SpannableString span1 = new SpannableString("Are you sure you wish to block ");
-        SpannableString span2 = new SpannableString(username);
-        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
-        SpannableString span3 = new SpannableString("? They will no longer be able to add you as a friend or send you any workouts.");
-        CharSequence title = TextUtils.concat(span1, span2, span3);
-
-        alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Block User")
-                .setMessage(title)
-                .setPositiveButton("Yes", (dialog, which) -> blockUser(username))
-                .setNegativeButton("No", null)
-                .create();
-        alertDialog.show();
-    }
-
-    private void blockUser(String username) {
-        AndroidUtils.showLoadingDialog(loadingDialog, "Blocking user...");
-
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.blockUser(username);
-            Handler handler = new Handler(getMainLooper());
-            handler.post(() -> {
-                loadingDialog.dismiss();
-                if (resultStatus.isSuccess() && FriendsListFragment.this.isResumed()) {
-                    if (tabLayout.getSelectedTabPosition() == FRIENDS_POSITION) {
-                        int index = getFriendPosition(username);
-                        if (index >= 0) {
-                            friends.remove(index);
-                            friendsAdapter.notifyItemRemoved(index);
-                        }
-                    } else {
-                        int index = getFriendRequestPosition(username);
-                        if (index >= 0) {
-                            friendRequests.remove(index);
-                            friendsAdapter.notifyItemRemoved(index);
-                        }
-                    }
-                } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
-                }
-            });
-        });
-    }
-
-    private void acceptFriendRequest(String username) {
-        int index = getFriendRequestPosition(username);
+    private void acceptFriendRequest(String userId) {
+        int index = getFriendRequestPosition(userId);
         if (index < 0) {
             return;
         }
@@ -547,29 +516,29 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         FriendRequest friendRequest = friendRequests.remove(index);
         friendRequestsAdapter.notifyItemRemoved(index);
 
-        Friend friend = new Friend(friendRequest.getIcon(), true, username);
+        Friend friend = new Friend(friendRequest.getUserId(), friendRequest.getUsername(), friendRequest.getProfilePicture(), true);
         friends.add(friend);
         sortFriendsList();
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.acceptFriendRequest(username);
+            Result<String> result = this.userManager.acceptFriendRequest(userId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                if (resultStatus.isFailure() && FriendsListFragment.this.isResumed()) {
+                if (result.isFailure() && FriendsListFragment.this.isResumed()) {
                     // on off chance it failed, put the request back
                     friendRequests.add(index, friendRequest);
                     friendRequestsAdapter.notifyItemInserted(index);
 
                     friends.remove(friend);
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void declineFriendRequest(String username) {
-        int index = getFriendRequestPosition(username);
+    private void declineFriendRequest(String userId) {
+        int index = getFriendRequestPosition(userId);
         if (index < 0) {
             return;
         }
@@ -580,22 +549,22 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.declineFriendRequest(username);
+            Result<String> result = this.userManager.declineFriendRequest(userId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                if (resultStatus.isFailure() && FriendsListFragment.this.isResumed()) {
+                if (result.isFailure() && FriendsListFragment.this.isResumed()) {
                     // on off chance it failed, put the request back
                     friendRequests.add(index, friendRequest);
                     friendRequestsAdapter.notifyItemInserted(index);
 
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void removeFriend(String username) {
-        int index = getFriendPosition(username);
+    private void removeFriend(String userId) {
+        int index = getFriendPosition(userId);
         if (index < 0) {
             return;
         }
@@ -606,22 +575,22 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.removeFriend(username);
+            Result<String> result = this.userManager.removeFriend(userId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                if (resultStatus.isFailure() && FriendsListFragment.this.isResumed()) {
+                if (result.isFailure() && FriendsListFragment.this.isResumed()) {
                     // on off chance it failed, put the friend back
                     friends.add(index, friend);
                     friendsAdapter.notifyItemInserted(index);
 
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void cancelFriendRequest(String username) {
-        int index = getFriendPosition(username);
+    private void cancelFriendRequest(String userId) {
+        int index = getFriendPosition(userId);
         if (index < 0) {
             return;
         }
@@ -632,36 +601,104 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.userManager.cancelFriendRequest(username);
+            Result<String> result = this.userManager.cancelFriendRequest(userId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
-                if (resultStatus.isFailure()) {
+                if (result.isFailure()) {
                     // on off chance it failed, put the friend back
                     friends.add(index, friend);
                     friendsAdapter.notifyItemInserted(index);
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void promptShareWorkout(String friendUsername) {
+    private void promptReportUser(String userId, String username) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_report_user, null);
+        EditText reportInput = popupView.findViewById(R.id.report_user_input);
+        TextInputLayout reportInputLayout = popupView.findViewById(R.id.report_user_input_layout);
+        reportInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPORT_DESCRIPTION)});
+        reportInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(reportInputLayout));
+
+        // username is italicized
+        SpannableString span1 = new SpannableString("Report ");
+        SpannableString span2 = new SpannableString(username);
+        span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
+        CharSequence title = TextUtils.concat(span1, span2);
+
+        alertDialog = new AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setView(popupView)
+                .setPositiveButton("Report", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button reportButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            reportButton.setOnClickListener(view -> {
+                String reportDescription = reportInput.getText().toString();
+                String errorMsg = ValidatorUtils.validReportUserDescription(reportDescription);
+                if (errorMsg == null) {
+                    reportUser(userId, reportInput.getText().toString());
+                    alertDialog.dismiss();
+                } else {
+                    reportInputLayout.setError(errorMsg);
+                }
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void reportUser(String userId, String complaint) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Reporting...");
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Result<String> result = this.userManager.reportUser(userId, complaint);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                loadingDialog.dismiss();
+                if (result.isSuccess()) {
+                    alertDialog = new AlertDialog.Builder(requireContext())
+                            .setTitle("User reported")
+                            .setMessage("Complaint received. Save receipt below for your records.\n\n" + result.getData())
+                            .setPositiveButton("Ok", null)
+                            .create();
+                    alertDialog.setOnShowListener(dialogInterface -> {
+                        View messageView = alertDialog.findViewById(android.R.id.message);
+                        if (messageView instanceof TextView) {
+                            // allow the complaint id to be selected and copied
+                            ((TextView) messageView).setTextIsSelectable(true);
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
+                }
+            });
+        });
+    }
+
+    private void promptSendWorkout(String userId, String username) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_send_workout_pick_workout, null);
         Spinner workoutSpinner = popupView.findViewById(R.id.workouts_spinner);
         TextView remainingToSendTv = popupView.findViewById(R.id.remaining_workouts_to_send_tv);
-        int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - user.getWorkoutsSent();
-        if (remainingAmount < 0) {
-            remainingAmount = 0; // lol. Just to cover my ass in case
+
+        if (!isPremium) {
+            int remainingAmount = Variables.MAX_FREE_WORKOUTS_SENT - currentUserModule.getUser().getWorkoutsSent();
+            if (remainingAmount <= 0) {
+                remainingToSendTv.setVisibility(View.VISIBLE);
+                remainingToSendTv.setText(R.string.max_workouts_sent);
+            }
         }
-        remainingToSendTv.setText(String.format("You can share a workout %d more times.", remainingAmount));
 
         List<String> workoutNames = new ArrayList<>();
         Map<String, String> workoutNameToId = new HashMap<>();
-        for (WorkoutMeta workoutMeta : user.getWorkoutMetas().values()) {
-            workoutNameToId.put(workoutMeta.getWorkoutName(), workoutMeta.getWorkoutId());
-            workoutNames.add(workoutMeta.getWorkoutName());
+        for (WorkoutInfo workoutInfo : workouts) {
+            workoutNameToId.put(workoutInfo.getWorkoutName(), workoutInfo.getWorkoutId());
+            workoutNames.add(workoutInfo.getWorkoutName());
         }
-        ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
+        ArrayAdapter<String> workoutsAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, workoutNames);
         workoutSpinner.setAdapter(workoutsAdapter);
 
         TextView workoutTV = popupView.findViewById(R.id.my_workouts_tv);
@@ -676,15 +713,15 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         workoutNames.sort(String::compareToIgnoreCase);
 
         // username is italicized
-        SpannableString span1 = new SpannableString("Share a workout with ");
-        SpannableString span2 = new SpannableString(friendUsername);
+        SpannableString span1 = new SpannableString("Send a workout to ");
+        SpannableString span2 = new SpannableString(username);
         span2.setSpan(new StyleSpan(Typeface.ITALIC), 0, span2.length(), 0);
         CharSequence title = TextUtils.concat(span1, span2);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setView(popupView)
-                .setPositiveButton("Share", null)
+                .setPositiveButton("Send", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         alertDialog.setOnShowListener(dialogInterface -> {
@@ -696,12 +733,12 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
                 String selectedName = (String) workoutSpinner.getSelectedItem();
                 if (selectedName == null) {
                     // no workout is selected
-                    Toast.makeText(getContext(), "Please select a workout to share.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Please select a workout to send.", Toast.LENGTH_LONG).show();
                 } else {
-                    if (user.getPremiumToken() == null && user.getWorkoutsSent() >= Variables.MAX_FREE_WORKOUTS_SENT) {
-                        AndroidUtils.showErrorDialog("You have shared the maximum allowed amount of workouts.", getContext());
+                    if (!isPremium && workoutsSent >= Variables.MAX_FREE_WORKOUTS_SENT) {
+                        AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
                     } else {
-                        shareWorkout(friendUsername, workoutNameToId.get(selectedName));
+                        sendWorkout(userId, workoutNameToId.get(selectedName));
                     }
                     alertDialog.dismiss();
                 }
@@ -710,33 +747,33 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         alertDialog.show();
     }
 
-    private void shareWorkout(String recipientUsername, String workoutId) {
-        AndroidUtils.showLoadingDialog(loadingDialog, "Sharing...");
+    private void sendWorkout(String recipientId, String workoutId) {
+        AndroidUtils.showLoadingDialog(loadingDialog, "Sending...");
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            ResultStatus<String> resultStatus = this.workoutManager.sendWorkout(recipientUsername, workoutId);
+            Result<String> result = this.receivedWorkoutManager.sendWorkoutByUserId(recipientId, workoutId);
             Handler handler = new Handler(getMainLooper());
             handler.post(() -> {
                 loadingDialog.dismiss();
-                if (resultStatus.isSuccess()) {
+                if (result.isSuccess()) {
                     Toast.makeText(getContext(), "Workout successfully sent.", Toast.LENGTH_LONG).show();
                 } else {
-                    AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                 }
             });
         });
     }
 
-    private void showBlownUpProfilePic(String username, String iconUrl) {
+    private void showBlownUpProfilePic(String username, String pfpUrl) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_blown_up_profile_picture, null);
         ImageView profilePicture = popupView.findViewById(R.id.profile_picture_image);
         Picasso.get()
-                .load(ImageUtils.getIconUrl(iconUrl))
+                .load(ImageUtils.getProfilePictureUrl(pfpUrl))
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
                 .into(profilePicture);
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle(username)
                 .setView(popupView)
                 .setPositiveButton("Done", null)
@@ -776,61 +813,44 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
 
             ConstraintLayout rootLayout = holder.rootLayout;
             rootLayout.setOnClickListener(v -> {
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
-                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_accepted_friend, null);
-                TextView sendWorkout = sheetView.findViewById(R.id.share_workout_tv);
-                TextView removeFriend = sheetView.findViewById(R.id.remove_friend_tv);
-                TextView blockFriend = sheetView.findViewById(R.id.block_friend_tv);
-                TextView cancelRequest = sheetView.findViewById(R.id.cancel_friend_request_tv);
+                bottomSheetDialog = new BottomSheetDialog(requireContext());
+                View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend, null);
+                TextView sendWorkoutTV = sheetView.findViewById(R.id.send_workout_tv);
+                TextView removeFriendTV = sheetView.findViewById(R.id.remove_friend_tv);
+                TextView cancelRequestTV = sheetView.findViewById(R.id.cancel_friend_request_tv);
+                TextView reportUserTV = sheetView.findViewById(R.id.report_user_tv);
 
-                sendWorkout.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
-                sendWorkout.setOnClickListener(view -> {
+                sendWorkoutTV.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                sendWorkoutTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    promptShareWorkout(friend.getUsername());
+                    promptSendWorkout(friend.getUserId(), friend.getUsername());
                 });
-                removeFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
-                removeFriend.setOnClickListener(view -> {
+                removeFriendTV.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
+                removeFriendTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    removeFriend(friend.getUsername());
+                    removeFriend(friend.getUserId());
                 });
-                blockFriend.setVisibility((friend.isConfirmed() ? View.VISIBLE : View.GONE));
-                blockFriend.setOnClickListener(view -> {
+                cancelRequestTV.setVisibility((friend.isConfirmed() ? View.GONE : View.VISIBLE));
+                cancelRequestTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    blockUserPopup(friend.getUsername());
+                    cancelFriendRequest(friend.getUserId());
                 });
-                cancelRequest.setVisibility((friend.isConfirmed() ? View.GONE : View.VISIBLE));
-                cancelRequest.setOnClickListener(view -> {
+                reportUserTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    cancelFriendRequest(friend.getUsername());
+                    promptReportUser(friend.getUserId(), friend.getUsername());
                 });
 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
-                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend.getUsername(), friend.getIcon()));
+                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friend.getUsername(), friend.getProfilePicture()));
                 TextView usernameTV = sheetView.findViewById(R.id.username_tv);
                 usernameTV.setText(friend.getUsername());
 
                 ImageView profilePicture = sheetView.findViewById(R.id.profile_picture_image);
                 Picasso.get()
-                        .load(ImageUtils.getIconUrl(friend.getIcon()))
+                        .load(ImageUtils.getProfilePictureUrl(friend.getProfilePicture()))
                         .error(R.drawable.picture_load_error)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                        .into(profilePicture, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                if (!FriendsListFragment.this.isResumed()) {
-                                    return;
-                                }
-                                Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                                imageDrawable.setCircular(true);
-                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                                profilePicture.setImageDrawable(imageDrawable);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                            }
-                        });
+                        .into(profilePicture);
 
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();
@@ -841,26 +861,10 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             ImageView profilePicture = holder.profilePicture;
             usernameTV.setText(friend.getUsername());
             Picasso.get()
-                    .load(ImageUtils.getIconUrl(friend.getIcon()))
+                    .load(ImageUtils.getProfilePictureUrl(friend.getProfilePicture()))
                     .error(R.drawable.picture_load_error)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                    .into(profilePicture, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            if (!FriendsListFragment.this.isResumed()) {
-                                return;
-                            }
-                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                            imageDrawable.setCircular(true);
-                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                            profilePicture.setImageDrawable(imageDrawable);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
+                    .into(profilePicture);
         }
 
         @Override
@@ -917,83 +921,51 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
             TextView unseenTV = holder.unseenTV;
 
             unseenTV.setVisibility(friendRequest.isSeen() ? View.GONE : View.VISIBLE);
-            profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
+            profilePicture.setOnClickListener(v -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getProfilePicture()));
             usernameTV.setText(friendRequest.getUsername());
 
             Picasso.get()
-                    .load(ImageUtils.getIconUrl(friendRequest.getIcon()))
+                    .load(ImageUtils.getProfilePictureUrl(friendRequest.getProfilePicture()))
                     .error(R.drawable.picture_load_error)
                     .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                    .into(profilePicture, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            if (!FriendsListFragment.this.isResumed()) {
-                                return;
-                            }
-                            Bitmap imageBitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
-                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                            imageDrawable.setCircular(true);
-                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                            profilePicture.setImageDrawable(imageDrawable);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
+                    .into(profilePicture);
 
             holder.rootLayout.setOnClickListener(v -> {
                 friendRequest.setSeen(true);
                 unseenTV.setVisibility(View.GONE);
 
-                bottomSheetDialog = new BottomSheetDialog(getActivity());
+                bottomSheetDialog = new BottomSheetDialog(requireActivity());
                 View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_friend_request, null);
                 TextView acceptFriendRequestTV = sheetView.findViewById(R.id.accept_friend_request_tv);
                 TextView declineFriendRequestTV = sheetView.findViewById(R.id.decline_friend_request_tv);
-                TextView blockUserTV = sheetView.findViewById(R.id.block_user_tv);
                 TextView dateReceivedTV = sheetView.findViewById(R.id.date_received_tv);
                 TextView dialogUsernameTV = sheetView.findViewById(R.id.username_tv);
+                TextView reportUserTV = sheetView.findViewById(R.id.report_user_tv);
 
                 dialogUsernameTV.setText(friendRequest.getUsername());
-                dateReceivedTV.setText(TimeUtils.getFormattedLocalDateTime(friendRequest.getRequestTimeStamp()));
+                dateReceivedTV.setText(TimeUtils.getFormattedLocalDateTime(friendRequest.getSentUtc()));
                 acceptFriendRequestTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    acceptFriendRequest(friendRequest.getUsername());
+                    acceptFriendRequest(friendRequest.getUserId());
                 });
                 declineFriendRequestTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    declineFriendRequest(friendRequest.getUsername());
+                    declineFriendRequest(friendRequest.getUserId());
                 });
-                blockUserTV.setOnClickListener(view -> {
+                reportUserTV.setOnClickListener(view -> {
                     bottomSheetDialog.dismiss();
-                    blockUserPopup(friendRequest.getUsername());
+                    promptReportUser(friendRequest.getUserId(), friendRequest.getUsername());
                 });
 
                 RelativeLayout relativeLayout = sheetView.findViewById(R.id.username_pic_container);
-                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getIcon()));
+                relativeLayout.setOnClickListener(v1 -> showBlownUpProfilePic(friendRequest.getUsername(), friendRequest.getProfilePicture()));
                 ImageView dialogProfilePicture = sheetView.findViewById(R.id.profile_picture_image);
 
                 Picasso.get()
-                        .load(ImageUtils.getIconUrl(friendRequest.getIcon()))
+                        .load(ImageUtils.getProfilePictureUrl(friendRequest.getProfilePicture()))
                         .error(R.drawable.picture_load_error)
                         .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                        .into(dialogProfilePicture, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                if (!FriendsListFragment.this.isResumed()) {
-                                    return;
-                                }
-                                Bitmap imageBitmap = ((BitmapDrawable) dialogProfilePicture.getDrawable()).getBitmap();
-                                RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                                imageDrawable.setCircular(true);
-                                imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                                dialogProfilePicture.setImageDrawable(imageDrawable);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                            }
-                        });
+                        .into(dialogProfilePicture);
 
                 bottomSheetDialog.setContentView(sheetView);
                 bottomSheetDialog.show();

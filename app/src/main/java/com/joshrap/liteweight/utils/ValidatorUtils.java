@@ -10,6 +10,7 @@ public class ValidatorUtils {
 
     // todo unit test all these
     private static final Pattern validUsername = Pattern.compile(".*[A-Z\\d._%+-].*", Pattern.CASE_INSENSITIVE);
+    public static final String passwordNotMatchingMsg = "Passwords do not match.";
 
     /**
      * Ensures that a URL has the correct format.
@@ -21,7 +22,7 @@ public class ValidatorUtils {
         url = url.trim();
         String retVal = null;
         if (url.isEmpty()) {
-            retVal = "URL cannot be empty.";
+            retVal = "URL required.";
         } else if (url.length() > Variables.MAX_URL_LENGTH) {
             retVal = "URL is too large. Compress it and try again.";
         } else {
@@ -42,18 +43,30 @@ public class ValidatorUtils {
      * @return If no error, return null. Else return specific error.
      */
     public static String validWorkoutName(String workoutName, List<String> workoutNamesList) {
-        workoutName = workoutName.trim();
         String retVal = null;
-        if ((workoutName.length() > 0) && (workoutName.length() <= Variables.MAX_WORKOUT_NAME)) {
-            // check if workout name has already been used before
-            for (String workout : workoutNamesList) {
-                if (workout.equals(workoutName)) {
-                    retVal = "Workout name already exists.";
-                    break;
-                }
-            }
-        } else {
-            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_WORKOUT_NAME);
+        if (workoutName.isEmpty()) {
+            retVal = "Name required.";
+        } else if (workoutName.length() > Variables.MAX_WORKOUT_NAME) {
+            retVal = String.format("Name must have not exceed %s characters.", Variables.MAX_WORKOUT_NAME);
+        } else if (workoutNamesList.stream().anyMatch(x -> x.equals(workoutName))) {
+            retVal = "Name already exists.";
+        }
+        return retVal;
+    }
+
+    /**
+     * Ensures that the report description is valid
+     *
+     * @param description description for the user's complaint.
+     * @return If no error, return null. Else return specific error.
+     */
+    public static String validReportUserDescription(String description) {
+        description = description.trim();
+        String retVal = null;
+        if (description.isEmpty()) {
+            retVal = "Description required.";
+        } else if (description.length() > Variables.MAX_REPORT_DESCRIPTION) {
+            retVal = String.format("Description must not exceed %s characters.", Variables.MAX_REPORT_DESCRIPTION);
         }
         return retVal;
     }
@@ -67,19 +80,13 @@ public class ValidatorUtils {
      * @return If no error, return null. Else return specific error.
      */
     public static String validNewExerciseName(String exerciseName, List<String> totalExercises) {
-        exerciseName = exerciseName.trim();
         String retVal = null;
         if (exerciseName.isEmpty()) {
-            retVal = "Name cannot be empty.";
+            retVal = "Name required.";
         } else if (exerciseName.length() > Variables.MAX_EXERCISE_NAME) {
-            retVal = String.format("Name must have 1-%s characters.", Variables.MAX_EXERCISE_NAME);
-        } else {
-            for (String exercise : totalExercises) {
-                if (exercise.equals(exerciseName)) {
-                    retVal = "Exercise already exists.";
-                    break;
-                }
-            }
+            retVal = String.format("Name must not exceed %s characters.", Variables.MAX_EXERCISE_NAME);
+        } else if (totalExercises.stream().anyMatch(x -> x.equals(exerciseName))) {
+            retVal = "Exercise already exists.";
         }
         return retVal;
     }
@@ -94,12 +101,12 @@ public class ValidatorUtils {
         weightString = weightString.trim();
         String retVal = null;
         if (weightString.isEmpty()) {
-            retVal = "Weight cannot be empty.";
+            retVal = "Weight required.";
         } else {
             try {
                 double weight = Double.parseDouble(weightString);
                 if (weight < 0 || weight > Variables.MAX_WEIGHT) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_WEIGHT);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_WEIGHT);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -118,12 +125,12 @@ public class ValidatorUtils {
         setsString = setsString.trim();
         String retVal = null;
         if (setsString.isEmpty()) {
-            retVal = "Sets cannot be empty.";
+            retVal = "Sets required.";
         } else {
             try {
                 int sets = Integer.parseInt(setsString);
                 if (sets < 0 || sets > Variables.MAX_SETS) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_SETS);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_SETS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -142,12 +149,12 @@ public class ValidatorUtils {
         repsString = repsString.trim();
         String retVal = null;
         if (repsString.isEmpty()) {
-            retVal = "Reps cannot be empty.";
+            retVal = "Reps required.";
         } else {
             try {
                 int reps = Integer.parseInt(repsString);
                 if (reps < 0 || reps > Variables.MAX_REPS) {
-                    retVal = String.format("Enter value between 1-%s.", Variables.MAX_REPS);
+                    retVal = String.format("Enter value between 0-%s.", Variables.MAX_REPS);
                 }
             } catch (Exception e) {
                 retVal = "Enter a valid number.";
@@ -176,21 +183,18 @@ public class ValidatorUtils {
         String retVal = null;
 
         if (username.isEmpty()) {
-            retVal = "Username cannot be empty.";
-        } else if (username.contains("@")) {
-            retVal = "Username cannot have \"@\" symbol.";
+            retVal = "Username required.";
         } else if (!validUsername.matcher(username).find()) {
             retVal = "Invalid characters.";
         } else if (Pattern.compile("\\s").matcher(username).find()) {
             retVal = "Username cannot have any whitespace.";
         } else if (username.length() > Variables.MAX_USERNAME_LENGTH) {
-            retVal = String.format("Enter value between 0-%s.", Variables.MAX_USERNAME_LENGTH);
+            retVal = String.format("Enter value between 1-%s.", Variables.MAX_USERNAME_LENGTH);
         }
         return retVal;
     }
 
     public static String validNewPassword(String password) {
-        password = password.trim();
         String retVal = null;
         String errorMsg = "";
         if (password.length() < Variables.MIN_PASSWORD_LENGTH) {
@@ -205,19 +209,11 @@ public class ValidatorUtils {
         if (!Pattern.compile("^.*\\d.*").matcher(password).find()) {
             errorMsg += "Must have at least one number.\n";
         }
-        if (!Pattern.compile("^.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=].*").matcher(password).find()) {
-            errorMsg += "Must have at least one special character.\n";
-        }
-        // invalid checks
         if (password.length() > Variables.MAX_PASSWORD_LENGTH) {
             errorMsg += "Too many characters.\n";
         }
         if (Pattern.compile("\\s").matcher(password).find()) {
             errorMsg += "Cannot have any whitespace.\n";
-        }
-        if (errorMsg.isEmpty() && !Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\^$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><’:;|_~`+=])\\S{8,99}$").matcher(password).find()) {
-            // sanity check to make sure no invalid characters.
-            errorMsg += "Invalid character detected.";
         }
 
         if (!errorMsg.isEmpty()) {
@@ -230,13 +226,16 @@ public class ValidatorUtils {
         username = username.trim();
         String retVal = null;
         if (username.isEmpty()) {
-            retVal = "Username cannot be empty.";
-        } else if (!validUsername.matcher(username).find()) {
-            retVal = "Invalid characters.";
-        } else if (Pattern.compile("\\s").matcher(username).find()) {
-            retVal = "Username cannot have any whitespace.";
-        } else if (username.length() > Variables.MAX_USERNAME_LENGTH) {
-            retVal = String.format("Enter value between 0-%s.", Variables.MAX_USERNAME_LENGTH);
+            retVal = "Username required.";
+        }
+        return retVal;
+    }
+
+    public static String validEmail(String email) {
+        email = email.trim();
+        String retVal = null;
+        if (email.isEmpty()) {
+            retVal = "Email required.";
         }
         return retVal;
     }
@@ -245,7 +244,7 @@ public class ValidatorUtils {
         password = password.trim();
         String retVal = null;
         if (password.isEmpty()) {
-            retVal = "Password cannot be empty.";
+            retVal = "Password required.";
         }
         return retVal;
     }
@@ -273,20 +272,8 @@ public class ValidatorUtils {
                 retVal = "Already friends with this user.";
             } else if (activeUser.equals(username)) {
                 retVal = "Can't be friends with yourself. Sorry.";
-            }
-        }
-        return retVal;
-    }
-
-    public static String validUserToBlock(String activeUser, String username, List<String> users) {
-        username = username.trim();
-        String retVal = validUsername(username);
-        if (retVal == null) {
-            // means no issue with base username
-            if (users.contains(username)) {
-                retVal = "User already blocked.";
-            } else if (activeUser.equals(username)) {
-                retVal = "If only it were that simple to block yourself.";
+            } else if (existingFriends.size() >= Variables.MAX_FRIENDS) {
+                retVal = "You're too popular! You have reached the maximum number of friends allowed at this time.";
             }
         }
         return retVal;
@@ -300,17 +287,6 @@ public class ValidatorUtils {
             if (activeUser.equals(username)) {
                 retVal = "Cannot send a workout to yourself.";
             }
-        }
-        return retVal;
-    }
-
-    public static String validFeedback(String feedback) {
-        feedback = feedback.trim();
-        String retVal = null;
-        if (feedback.isEmpty()) {
-            retVal = "Feedback cannot be empty.";
-        } else if (feedback.length() > Variables.MAX_FEEDBACK) {
-            retVal = "Feedback is too large.";
         }
         return retVal;
     }

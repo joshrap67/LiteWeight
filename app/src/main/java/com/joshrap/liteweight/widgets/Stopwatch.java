@@ -9,7 +9,6 @@ import com.joshrap.liteweight.imports.Variables;
 public class Stopwatch {
 
     public final MutableLiveData<Boolean> stopwatchRunning;
-    public static final long timeUnit = 1000; // in SI units of milliseconds
     public long startTimeAbsolute; // in SI units of milliseconds (UNIX Timestamp)
     public long initialElapsedTime; // in SI units of milliseconds. utilized when pausing the stopwatch to keep the latest time on the clock
     public final MutableLiveData<Long> elapsedTime; // in SI units of milliseconds

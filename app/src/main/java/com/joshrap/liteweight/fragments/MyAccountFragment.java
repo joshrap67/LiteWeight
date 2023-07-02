@@ -1,14 +1,13 @@
 package com.joshrap.liteweight.fragments;
 
-import android.app.Activity;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,43 +15,37 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
-import com.joshrap.liteweight.managers.UserManager;
-import com.joshrap.liteweight.messages.fragmentmessages.CanceledFriendRequestFragmentMessage;
-import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragmentMessage;
-import com.joshrap.liteweight.models.Tokens;
-import com.joshrap.liteweight.providers.CurrentUserAndWorkoutProvider;
+import com.joshrap.liteweight.managers.SelfManager;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.FirebaseUtils;
 import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.ResultStatus;
-import com.joshrap.liteweight.models.User;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.User;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -61,116 +54,68 @@ import javax.inject.Inject;
 
 import static android.os.Looper.getMainLooper;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 public class MyAccountFragment extends Fragment implements FragmentWithDialog {
-    private User user;
     private ImageView profilePicture;
+    private String username, email, profilePictureUrl;
     private String profilePicUrl;
     private AlertDialog alertDialog;
-    private TextView friendsListTV;
 
     @Inject
-    UserManager userManager;
+    SelfManager selfManager;
     @Inject
-    Tokens tokens;
-    @Inject
-    CurrentUserAndWorkoutProvider currentUserAndWorkoutProvider;
+    CurrentUserModule currentUserModule;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FragmentActivity activity = requireActivity();
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         Injector.getInjector(getContext()).inject(this);
-        ((MainActivity) getActivity()).updateToolbarTitle(Variables.ACCOUNT_TITLE);
-        ((MainActivity) getActivity()).toggleBackButton(false);
+        ((MainActivity) activity).updateToolbarTitle(Variables.ACCOUNT_TITLE);
+        ((MainActivity) activity).toggleBackButton(false);
 
-        user = currentUserAndWorkoutProvider.provideCurrentUser();
+        User user = currentUserModule.getUser();
+        username = user.getUsername();
+        profilePictureUrl = user.getProfilePicture();
+        email = user.getEmail();
         return inflater.inflate(R.layout.fragment_my_account, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView usernameTV = view.findViewById(R.id.username_tv);
-        usernameTV.setText(user.getUsername());
-        Button changePictureButton = view.findViewById(R.id.change_picture_btn);
-        changePictureButton.setVisibility(View.GONE);
-        changePictureButton.setOnClickListener(v -> launchPhotoPicker());
+        usernameTV.setText(username);
 
-        String email = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            // yes this is a war crime but it beats refactoring the database to add emails to it
-            String[] jwtParts = tokens.getIdToken().split("\\.");
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String payloadJson = new String(decoder.decode(jwtParts[1]));
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Map<String, String> map = mapper.readValue(payloadJson, Map.class);
-                email = map.get("email").toLowerCase(Locale.ROOT);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+        LinearLayout passwordLayout = view.findViewById(R.id.password_layout);
+        if (FirebaseUtils.userHasPassword(user)) {
+            passwordLayout.setVisibility(View.VISIBLE);
+            passwordLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToChangePassword());
+        } else {
+            passwordLayout.setVisibility(View.GONE);
         }
 
         TextView emailTV = view.findViewById(R.id.email_tv);
         emailTV.setVisibility(email == null ? View.GONE : View.VISIBLE);
         emailTV.setText(email);
 
-        friendsListTV = view.findViewById(R.id.friends_list_tv);
-        friendsListTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToFriendsList(null));
-        TextView accountPrefsTV = view.findViewById(R.id.account_preferences_tv);
-        accountPrefsTV.setOnClickListener(v -> ((MainActivity) getActivity()).goToAccountPreferences());
-        TextView blockedListTV = view.findViewById(R.id.blocked_list_tv);
-        blockedListTV.setOnClickListener(view1 -> ((MainActivity) getActivity()).goToBlockedList());
+        LinearLayout settingsLayout = view.findViewById(R.id.settings_layout);
+        settingsLayout.setOnClickListener(v -> ((MainActivity) requireActivity()).goToSettings());
 
-        Button logoutButton = view.findViewById(R.id.log_out_btn);
-        logoutButton.setOnClickListener(view1 -> promptLogout());
+        LinearLayout logoutLayout = view.findViewById(R.id.log_out_container);
+        logoutLayout.setOnClickListener(view1 -> promptLogout());
         profilePicture = view.findViewById(R.id.profile_picture_image);
         profilePicture.setOnClickListener(v -> launchPhotoPicker());
-        updateFriendsTVNotification();
 
-        profilePicUrl = ImageUtils.getIconUrl(user.getIcon());
+        profilePicUrl = ImageUtils.getProfilePictureUrl(profilePictureUrl);
         Picasso.get()
                 .load(profilePicUrl)
                 .error(R.drawable.picture_load_error)
                 .networkPolicy(NetworkPolicy.NO_CACHE) // on first loading in app, always fetch online
-                .into(profilePicture, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        changePictureButton.setVisibility(View.VISIBLE);
-                        setCircularImage(profilePicture);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        changePictureButton.setVisibility(View.VISIBLE);
-                    }
-                });
+                .into(profilePicture);
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void setCircularImage(ImageView profilePictureImageView) {
-        Bitmap imageBitmap = ((BitmapDrawable) profilePictureImageView.getDrawable()).getBitmap();
-        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-        imageDrawable.setCircular(true);
-        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-        profilePictureImageView.setImageDrawable(imageDrawable);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateFriendsTVNotification();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -178,16 +123,6 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void handleNewFriendRequestMessage(NewFriendRequestFragmentMessage message) {
-        updateFriendsTVNotification();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void handleCanceledFriendRequestMessage(CanceledFriendRequestFragmentMessage message) {
-        updateFriendsTVNotification();
     }
 
     private final ActivityResultLauncher<Intent> pickPhotoLauncher = registerForActivityResult(
@@ -203,7 +138,7 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                             final Uri selectedUri = result.getData().getData();
                             performCrop(selectedUri);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            FirebaseCrashlytics.getInstance().recordException(e);
                         }
                     }
                 }
@@ -219,44 +154,28 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
                     final Uri uri = UCrop.getOutput(result.getData());
                     if (uri != null) {
                         profilePicture.setImageURI(uri);
-                        setCircularImage(profilePicture);
-                        ((MainActivity) getActivity()).updateUserIcon(uri); // update icon in nav view since it has old one
+                        ((MainActivity) requireActivity()).updateProfilePicture(uri); // update icon in nav view since it has old one
                         try {
-                            InputStream iStream = getActivity().getContentResolver().openInputStream(uri);
-                            updateIcon(ImageUtils.getImageByteArray(iStream));
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            InputStream iStream = requireActivity().getContentResolver().openInputStream(uri);
+                            updateProfilePicture(ImageUtils.getImageByteArray(iStream));
+                        } catch (Exception e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
                         }
                         Picasso.get().invalidate(profilePicUrl); // since upload was successful,
                     }
                 }
             });
 
-    /**
-     * Updates whether an indicator should be shown on the view that takes users to their friend's list.
-     */
-    private void updateFriendsTVNotification() {
-        if (user.getFriendRequests().values().stream().anyMatch(x -> !x.isSeen())) {
-            friendsListTV.setText(R.string.friends_list_alert);
-        } else {
-            friendsListTV.setText(R.string.friends_list);
-        }
-    }
-
-    private void updateIcon(byte[] imageData) {
+    private void updateProfilePicture(byte[] imageData) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            try {
-                ResultStatus<String> resultStatus = this.userManager.updateProfilePicture(new ObjectMapper().writeValueAsString(imageData));
-                Handler handler = new Handler(getMainLooper());
-                handler.post(() -> {
-                    if (resultStatus.isFailure()) {
-                        AndroidUtils.showErrorDialog(resultStatus.getErrorMessage(), getContext());
-                    }
-                });
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            Result<String> result = this.selfManager.updateProfilePicture(imageData);
+            Handler handler = new Handler(getMainLooper());
+            handler.post(() -> {
+                if (result.isFailure()) {
+                    AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
+                }
+            });
         });
     }
 
@@ -268,29 +187,30 @@ public class MyAccountFragment extends Fragment implements FragmentWithDialog {
 
     private void performCrop(Uri picUri) {
         String destinationFileName = UUID.randomUUID().toString() + ".png";
-        UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(getActivity().getCacheDir(), destinationFileName)));
+        UCrop cropper = UCrop.of(picUri, Uri.fromFile(new File(requireActivity().getCacheDir(), destinationFileName)));
         cropper.withAspectRatio(1, 1);
         cropper.withMaxResultSize(600, 600);
 
         UCrop.Options options = new UCrop.Options();
         options.setHideBottomControls(true);
 
-        options.setToolbarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
-        options.setStatusBarColor(ContextCompat.getColor(getContext(), R.color.color_primary));
-        options.setToolbarWidgetColor(ContextCompat.getColor(getContext(), R.color.color_accent));
+        Context context = requireContext();
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary));
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.color_primary));
+        options.setToolbarWidgetColor(ContextCompat.getColor(context, R.color.color_accent));
         options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         options.setToolbarTitle("Crop Profile Picture");
 
         cropper.withOptions(options);
-        cropper.getIntent(getContext());
-        cropPhotoLauncher.launch(cropper.getIntent(getContext()));
+        cropper.getIntent(context);
+        cropPhotoLauncher.launch(cropper.getIntent(context));
     }
 
     private void promptLogout() {
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Log Out")
                 .setMessage("Are you sure you want to log out? If so, all your data will be saved in the cloud.")
-                .setPositiveButton("Yes", (dialog, which) -> ((MainActivity) getActivity()).logout())
+                .setPositiveButton("Yes", (dialog, which) -> ((MainActivity) requireActivity()).logout())
                 .setNegativeButton("No", null)
                 .create();
         alertDialog.show();

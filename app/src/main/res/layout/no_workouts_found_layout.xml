@@ -27,8 +27,5 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="16dp"
             android:text="@string/create_workout"
-            android:textColor="@color/color_accent"
-            app:backgroundTint="@color/color_primary"
-            app:icon="@drawable/add_icon"
-            app:iconTint="@color/color_accent" />
+            app:icon="@drawable/add_icon" />
 </RelativeLayout>

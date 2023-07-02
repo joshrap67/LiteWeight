@@ -3,15 +3,15 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
 
     <ImageView
             android:id="@+id/profile_picture_image"
             android:layout_width="400dp"
             android:layout_height="400dp"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
             android:contentDescription="@string/profile_picture"
-            android:paddingHorizontal="16dp"
             tools:srcCompat="@mipmap/app_logo" />
 </LinearLayout>

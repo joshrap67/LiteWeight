@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.interfaces.DraggableViewHolder;
-import com.joshrap.liteweight.models.RoutineExercise;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.List;

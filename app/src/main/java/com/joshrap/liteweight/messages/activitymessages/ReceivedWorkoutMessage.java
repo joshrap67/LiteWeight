@@ -1,15 +1,15 @@
 package com.joshrap.liteweight.messages.activitymessages;
 
-import com.joshrap.liteweight.models.SharedWorkoutMeta;
+import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 
 import lombok.Getter;
 
 public class ReceivedWorkoutMessage {
 
     @Getter
-    private final SharedWorkoutMeta sharedWorkoutMeta;
+    private final ReceivedWorkoutInfo receivedWorkoutInfo;
 
-    public ReceivedWorkoutMessage(SharedWorkoutMeta sharedWorkoutMeta) {
-        this.sharedWorkoutMeta = sharedWorkoutMeta;
+    public ReceivedWorkoutMessage(ReceivedWorkoutInfo receivedWorkoutInfo) {
+        this.receivedWorkoutInfo = receivedWorkoutInfo;
     }
 }

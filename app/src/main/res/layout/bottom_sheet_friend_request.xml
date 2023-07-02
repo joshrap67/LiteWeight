@@ -24,13 +24,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profile_picture_image"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="8dp"
-                android:contentDescription="@string/profile_picture" />
+                android:contentDescription="@string/profile_picture"
+                app:shapeAppearanceOverlay="@style/RoundedImageViewRounded"
+                tools:src="@mipmap/app_logo" />
 
         <TextView
                 android:id="@+id/username_tv"
@@ -83,7 +85,7 @@
             app:drawableStartCompat="@drawable/remove_friend_icon" />
 
     <TextView
-            android:id="@+id/block_user_tv"
+            android:id="@+id/report_user_tv"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="?android:selectableItemBackground"
@@ -93,6 +95,6 @@
             android:gravity="center_vertical"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:text="@string/block_user"
-            app:drawableStartCompat="@drawable/block_user_icon" />
+            android:text="@string/report_user"
+            app:drawableStartCompat="@drawable/report_user_icon" />
 </LinearLayout>

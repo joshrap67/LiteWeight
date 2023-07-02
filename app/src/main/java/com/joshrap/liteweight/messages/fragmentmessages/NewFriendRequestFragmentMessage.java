@@ -1,6 +1,6 @@
 package com.joshrap.liteweight.messages.fragmentmessages;
 
-import com.joshrap.liteweight.models.FriendRequest;
+import com.joshrap.liteweight.models.user.FriendRequest;
 
 import lombok.Getter;
 
