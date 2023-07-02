@@ -1,6 +1,6 @@
 # LiteWeight - Simple Workout Manager
 
-This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a Java backend hosted on AWS: [LiteWeight_Webservice](https://github.com/joshrap67/LiteWeight_WebService). LiteWeight is currently compatible with versions 2.x.x of the web service.
+This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a .Net Core backend hosted on Firebase: [LiteWeightApi](https://github.com/joshrap67/LiteWeightApi). LiteWeight is currently compatible with versions 1.x.x of the API.
 
 Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out.
 
@@ -12,7 +12,7 @@ Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on
 
 ## Prerequisites
 
-This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 24. The targeted SDK for this application is: 33.
+This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 26. The targeted SDK for this application is: 33.
 
 An internet connection is required to run this application.
 
