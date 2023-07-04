@@ -1,12 +1,12 @@
 # LiteWeight - Simple Workout Manager
 
-This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a .Net Core backend hosted on Firebase: [LiteWeightApi](https://github.com/joshrap67/LiteWeightApi). LiteWeight is currently compatible with versions 1.x.x of the API.
+This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a .Net Core backend hosted on Google Cloud: [LiteWeightApi](https://github.com/joshrap67/LiteWeightApi). LiteWeight is currently compatible with versions 1.x.x of the API.
 
 Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out.
 
 Friend requests can be sent to any other LiteWeight user and workouts can additionally be sent to any user.
 
-[Demo of v2.2.0](https://youtu.be/JLHczjjNDcw)
+[Demo of v3.0.0](https://youtu.be/eTNm_Hre1ns)
 
 Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on the application logic.
 
