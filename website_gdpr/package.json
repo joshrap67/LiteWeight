@@ -1,7 +1,7 @@
 {
   "name": "website_data_safety",
   "version": "0.1.0",
-  "homepage": "http://joshrap67.github.io/LiteWeight",
+  "homepage": "https://joshrap67.github.io/LiteWeight",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -18,8 +18,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "^5.0.1",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -31,8 +30,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {
