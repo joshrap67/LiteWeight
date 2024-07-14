@@ -97,7 +97,7 @@
 
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Foreground service needed to run a timer. Use case would be running a timer in between exercise sets." />
+                android:value="Foreground service needed to run a stopwatch. Use case would be running a stopwatch to time a set in a workout." />
         </service>
 
         <service
