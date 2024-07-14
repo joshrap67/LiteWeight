@@ -4,9 +4,9 @@ import com.joshrap.liteweight.models.user.FriendRequest;
 
 import lombok.Getter;
 
+@Getter
 public class NewFriendRequestFragmentMessage {
 
-    @Getter
     private final FriendRequest friendRequest;
 
     public NewFriendRequestFragmentMessage(FriendRequest friendRequest) {

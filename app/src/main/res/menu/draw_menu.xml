@@ -22,7 +22,7 @@
                 app:actionLayout="@layout/menu_counter" />
     </group>
     <group
-            android:id="@+id/unique-id-5487653"
+            android:id="@+id/otherMenuOptions"
             android:checkableBehavior="single">
         <item
                 android:id="@+id/nav_my_account"

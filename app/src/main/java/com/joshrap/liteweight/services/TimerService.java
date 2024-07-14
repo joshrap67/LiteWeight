@@ -58,7 +58,7 @@ public class TimerService extends Service {
         }
 
         timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 long elapsedTime = System.currentTimeMillis() - startTimeAbsolute;

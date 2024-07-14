@@ -526,30 +526,8 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             TextView dateSentTv = holder.dateSentTV;
             Button respondButton = holder.respondButton;
 
-            final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), respondButton);
-            Menu moreMenu = dropDownRoutineDayMenu.getMenu();
-            final int acceptWorkoutId = 0;
-            final int declineWorkoutId = 1;
-            moreMenu.add(0, acceptWorkoutId, 0, "Accept Workout");
-            moreMenu.add(0, declineWorkoutId, 0, "Decline Workout");
-
-            dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case acceptWorkoutId:
-                        boolean workoutNameExists = currentUserModule.getUser().getWorkouts().stream().anyMatch(x -> x.getWorkoutName().equals(receivedWorkout.getWorkoutName()));
-                        if (workoutNameExists) {
-                            workoutNameAlreadyExistsPopup(receivedWorkout);
-                        } else {
-                            acceptWorkout(receivedWorkout, null);
-                        }
-                        return true;
-                    case declineWorkoutId:
-                        declineWorkout(receivedWorkout);
-                        return true;
-                }
-                return false;
-            });
-            respondButton.setOnClickListener(v -> dropDownRoutineDayMenu.show());
+	        final PopupMenu dropDownRoutineDayMenu = getPopupMenu(respondButton, receivedWorkout);
+	        respondButton.setOnClickListener(v -> dropDownRoutineDayMenu.show());
 
             senderTV.setText(String.format("Sent by: %s", receivedWorkout.getSenderUsername()));
 
@@ -613,7 +591,34 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             });
         }
 
-        @Override
+	    private PopupMenu getPopupMenu(Button respondButton, ReceivedWorkoutInfo receivedWorkout) {
+		    final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), respondButton);
+		    Menu moreMenu = dropDownRoutineDayMenu.getMenu();
+		    final int acceptWorkoutId = 0;
+		    final int declineWorkoutId = 1;
+		    moreMenu.add(0, acceptWorkoutId, 0, "Accept Workout");
+		    moreMenu.add(0, declineWorkoutId, 0, "Decline Workout");
+
+		    dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
+		        switch (item.getItemId()) {
+		            case acceptWorkoutId:
+		                boolean workoutNameExists = currentUserModule.getUser().getWorkouts().stream().anyMatch(x -> x.getWorkoutName().equals(receivedWorkout.getWorkoutName()));
+		                if (workoutNameExists) {
+		                    workoutNameAlreadyExistsPopup(receivedWorkout);
+		                } else {
+		                    acceptWorkout(receivedWorkout, null);
+		                }
+		                return true;
+		            case declineWorkoutId:
+		                declineWorkout(receivedWorkout);
+		                return true;
+		        }
+		        return false;
+		    });
+		    return dropDownRoutineDayMenu;
+	    }
+
+	    @Override
         public int getItemCount() {
             return receivedWorkouts.size();
         }

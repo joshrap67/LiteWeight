@@ -64,7 +64,7 @@ public class Routine implements Iterable<RoutineWeek> {
                     return true;
                 } else if (day.getTag() != null && otherDay.getTag() == null) {
                     return true;
-                } else if (day.getTag() != null && otherDay.getTag() != null && !day.getTag().equals(otherDay.getTag())) {
+                } else if (day.getTag() != null && !day.getTag().equals(otherDay.getTag())) {
                     return true;
                 }
 

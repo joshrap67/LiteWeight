@@ -2,25 +2,11 @@ package com.joshrap.liteweight.fragments;
 
 import static android.os.Looper.getMainLooper;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.os.Bundle;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -49,6 +35,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
@@ -63,16 +61,16 @@ import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.workout.RoutineDay;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.models.workout.RoutineWeek;
-import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.workout.Workout;
-import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -181,79 +179,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         // set up sorting options
         sortExercisesButton = view.findViewById(R.id.sort_icon_button);
-        final PopupMenu dropDownSortMenu = new PopupMenu(getContext(), sortExercisesButton);
-        Menu sortMenu = dropDownSortMenu.getMenu();
-        sortMenu.add(0, RoutineDay.alphabeticalSortAscending, 0, "Alphabetical (A-Z)");
-        sortMenu.add(0, RoutineDay.alphabeticalSortDescending, 0, "Alphabetical (Z-A)");
-        sortMenu.add(0, RoutineDay.weightSortAscending, 0, "Weight (Ascending)");
-        sortMenu.add(0, RoutineDay.weightSortDescending, 0, "Weight (Descending)");
-        sortMenu.add(0, RoutineDay.customSort, 0, "Drag 'n Drop");
-
-        dropDownSortMenu.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case RoutineDay.alphabeticalSortAscending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortAscending, exerciseIdToName);
-                    updateRoutineDayExerciseList();
-                    return true;
-                case RoutineDay.alphabeticalSortDescending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortDescending, exerciseIdToName);
-                    updateRoutineDayExerciseList();
-                    return true;
-                case RoutineDay.weightSortDescending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortDescending, exerciseIdToName);
-                    updateRoutineDayExerciseList();
-                    return true;
-                case RoutineDay.weightSortAscending:
-                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortAscending, exerciseIdToName);
-                    updateRoutineDayExerciseList();
-                    return true;
-                case RoutineDay.customSort:
-                    enableExerciseCustomSortMode();
-                    return true;
-            }
-            return false;
-        });
+        final PopupMenu dropDownSortMenu = getSortMenu();
         sortExercisesButton.setOnClickListener(v -> dropDownSortMenu.show());
 
         // set up more details for day
         routineDayMoreIcon = view.findViewById(R.id.day_more_icon_btn);
-        final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), routineDayMoreIcon);
-        Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
-        final int deleteDayId = 0;
-        final int copyDayToWeekId = 1;
-        final int copyDayToExistingId = 2;
-        final int setDayTagId = 3;
-        final int moveDayId = 4;
-        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
-        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
-        routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
-        routineDayMenu.add(0, moveDayId, 0, "Move To Week");
-        routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
-
-        dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case deleteDayId:
-                    promptDeleteDay(currentWeekIndex, currentDayIndex);
-                    return true;
-                case copyDayToExistingId:
-                    promptCopyToExistingDay(currentWeekIndex, currentDayIndex);
-                    return true;
-                case copyDayToWeekId:
-                    copyDayToWeek(currentWeekIndex, currentDayIndex);
-                    return true;
-                case setDayTagId:
-                    promptSetDayTag(currentWeekIndex, currentDayIndex);
-                    return true;
-                case moveDayId:
-                    if (pendingRoutine.get(currentWeekIndex).totalNumberOfDays() <= 1) {
-                        Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
-                        return true;
-                    }
-                    promptMoveDay(currentWeekIndex, currentDayIndex);
-                    return true;
-            }
-            return false;
-        });
+        final PopupMenu dropDownRoutineDayMenu = getDayPopupMenu();
         routineDayMoreIcon.setOnClickListener(v -> {
             ((MainActivity) activity).hideKeyboard();
             dropDownRoutineDayMenu.show();
@@ -324,19 +255,96 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                             .setMessage(R.string.unsaved_workout_msg)
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 remove();
-                                activity.onBackPressed();
+                                activity.getOnBackPressedDispatcher().onBackPressed();
                             })
                             .setNegativeButton("No", null)
                             .create();
                     alertDialog.show();
                 } else {
                     remove();
-                    activity.onBackPressed();
+                    activity.getOnBackPressedDispatcher().onBackPressed();
                 }
             }
         };
 
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    private @NonNull PopupMenu getSortMenu() {
+        final PopupMenu dropDownSortMenu = new PopupMenu(getContext(), sortExercisesButton);
+        Menu sortMenu = dropDownSortMenu.getMenu();
+        sortMenu.add(0, RoutineDay.alphabeticalSortAscending, 0, "Alphabetical (A-Z)");
+        sortMenu.add(0, RoutineDay.alphabeticalSortDescending, 0, "Alphabetical (Z-A)");
+        sortMenu.add(0, RoutineDay.weightSortAscending, 0, "Weight (Ascending)");
+        sortMenu.add(0, RoutineDay.weightSortDescending, 0, "Weight (Descending)");
+        sortMenu.add(0, RoutineDay.customSort, 0, "Drag 'n Drop");
+
+        dropDownSortMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case RoutineDay.alphabeticalSortAscending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortAscending, exerciseIdToName);
+                    updateRoutineDayExerciseList();
+                    return true;
+                case RoutineDay.alphabeticalSortDescending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.alphabeticalSortDescending, exerciseIdToName);
+                    updateRoutineDayExerciseList();
+                    return true;
+                case RoutineDay.weightSortDescending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortDescending, exerciseIdToName);
+                    updateRoutineDayExerciseList();
+                    return true;
+                case RoutineDay.weightSortAscending:
+                    this.pendingRoutine.sortDay(currentWeekIndex, currentDayIndex, RoutineDay.weightSortAscending, exerciseIdToName);
+                    updateRoutineDayExerciseList();
+                    return true;
+                case RoutineDay.customSort:
+                    enableExerciseCustomSortMode();
+                    return true;
+            }
+            return false;
+        });
+        return dropDownSortMenu;
+    }
+
+    private PopupMenu getDayPopupMenu() {
+        final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), routineDayMoreIcon);
+        Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
+        final int deleteDayId = 0;
+        final int copyDayToWeekId = 1;
+        final int copyDayToExistingId = 2;
+        final int setDayTagId = 3;
+        final int moveDayId = 4;
+        routineDayMenu.add(0, copyDayToExistingId, 0, "Copy To Day");
+        routineDayMenu.add(0, copyDayToWeekId, 0, "Copy To Week");
+        routineDayMenu.add(0, deleteDayId, 0, "Delete Day");
+        routineDayMenu.add(0, moveDayId, 0, "Move To Week");
+        routineDayMenu.add(0, setDayTagId, 0, "Set Tag");
+
+        dropDownRoutineDayMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case deleteDayId:
+                    promptDeleteDay(currentWeekIndex, currentDayIndex);
+                    return true;
+                case copyDayToExistingId:
+                    promptCopyToExistingDay(currentWeekIndex, currentDayIndex);
+                    return true;
+                case copyDayToWeekId:
+                    copyDayToWeek(currentWeekIndex, currentDayIndex);
+                    return true;
+                case setDayTagId:
+                    promptSetDayTag(currentWeekIndex, currentDayIndex);
+                    return true;
+                case moveDayId:
+                    if (pendingRoutine.get(currentWeekIndex).totalNumberOfDays() <= 1) {
+                        Toast.makeText(getContext(), "Cannot move only day from week.", Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    promptMoveDay(currentWeekIndex, currentDayIndex);
+                    return true;
+            }
+            return false;
+        });
+        return dropDownRoutineDayMenu;
     }
 
     private void addBackPressedCallback() {
@@ -417,7 +425,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         // essentially routine is only not modified for new workout if the first day has not been modified
         RoutineDay firstDay = pendingRoutine.get(0, 0);
-        return firstDay.getExercises().size() != 0 || firstDay.getTag() != null;
+        return !firstDay.getExercises().isEmpty() || firstDay.getTag() != null;
     }
 
     private void updateRoutineDayExerciseList() {
@@ -1259,7 +1267,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public int getItemCount() {
-            if (displayList.size() == 0) {
+            if (displayList.isEmpty()) {
                 // always want one item for the footer
                 return 1;
             }
@@ -1517,6 +1525,11 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
             });
 
             // set up more details for this week
+            final PopupMenu dropDownWeekMenu = getWeekPopupMenu(weekViewHolder);
+            weekViewHolder.weekMoreButton.setOnClickListener(v -> dropDownWeekMenu.show());
+        }
+
+        private PopupMenu getWeekPopupMenu(@NonNull WeekViewHolder weekViewHolder) {
             final PopupMenu dropDownWeekMenu = new PopupMenu(getContext(), weekViewHolder.weekMoreButton);
             Menu weekMenu = dropDownWeekMenu.getMenu();
             final int deleteWeekId = 0;
@@ -1544,7 +1557,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 }
                 return false;
             });
-            weekViewHolder.weekMoreButton.setOnClickListener(v -> dropDownWeekMenu.show());
+            return dropDownWeekMenu;
         }
 
         private void setWeekCardButtonsVisibility(RoutineWeek week, WeekViewHolder weekViewHolder) {
@@ -1628,6 +1641,27 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 dayTagTV.setText(null); // otherwise when recycled, days without tags may have a tag shown
             }
 
+            PopupMenu dropDownRoutineDayMenu = getShortcutPopupMenu(dayViewHolder, day);
+
+            if (isRearranging) {
+                // disable listeners for dragging to prevent accidental clicks
+                dayViewHolder.dayCard.setOnClickListener(null);
+                dayViewHolder.dayCard.setOnLongClickListener(null);
+            } else {
+                dayViewHolder.dayCard.setOnClickListener(v -> {
+                    int weekPosition = pendingRoutine.findWeekIndexOfDay(day);
+                    int dayPosition = dayViewHolder.getAdapterPosition();
+                    if (weekPosition >= 0)
+                        switchToRoutineDayView(weekPosition, dayPosition);
+                });
+                dayViewHolder.dayCard.setOnLongClickListener(view -> {
+                    dropDownRoutineDayMenu.show();
+                    return true;
+                });
+            }
+        }
+
+        private PopupMenu getShortcutPopupMenu(@NonNull DayViewHolder dayViewHolder, RoutineDay day) {
             PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), dayViewHolder.exerciseCountTV);
             Menu routineDayMenu = dropDownRoutineDayMenu.getMenu();
 
@@ -1668,23 +1702,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 }
                 return false;
             });
-
-            if (isRearranging) {
-                // disable listeners for dragging to prevent accidental clicks
-                dayViewHolder.dayCard.setOnClickListener(null);
-                dayViewHolder.dayCard.setOnLongClickListener(null);
-            } else {
-                dayViewHolder.dayCard.setOnClickListener(v -> {
-                    int weekPosition = pendingRoutine.findWeekIndexOfDay(day);
-                    int dayPosition = dayViewHolder.getAdapterPosition();
-                    if (weekPosition >= 0)
-                        switchToRoutineDayView(weekPosition, dayPosition);
-                });
-                dayViewHolder.dayCard.setOnLongClickListener(view -> {
-                    dropDownRoutineDayMenu.show();
-                    return true;
-                });
-            }
+            return dropDownRoutineDayMenu;
         }
 
         @Override

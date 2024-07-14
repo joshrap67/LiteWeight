@@ -22,7 +22,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
@@ -80,21 +79,7 @@ public class ApiGateway {
         return response;
     }
 
-    public String post(String route) throws IOException, LiteWeightNetworkException {
-        URL url = new URL(BackendConfig.baseUrl + route);
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-        httpURLConnection.setRequestMethod("POST");
-        setConnectionProperties(httpURLConnection, getToken());
-        httpURLConnection.setDoOutput(true);
-
-        httpURLConnection.connect();
-        String response = handleResponse(httpURLConnection);
-        httpURLConnection.disconnect();
-
-        return response;
-    }
-
-    public String put(String route, BodyRequest body) throws IOException, LiteWeightNetworkException {
+	public String put(String route, BodyRequest body) throws IOException, LiteWeightNetworkException {
         URL url = new URL(BackendConfig.baseUrl + route);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setRequestMethod("PUT");
@@ -184,7 +169,7 @@ public class ApiGateway {
 
     private String getJsonFromStream(InputStream stream) {
         StringBuilder jsonResponse = new StringBuilder();
-        try (Reader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+        try (Reader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             int c;
             while ((c = reader.read()) != -1) {
                 jsonResponse.append((char) c);
