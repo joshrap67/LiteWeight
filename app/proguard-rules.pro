@@ -46,3 +46,7 @@
 -keep class androidx.credentials.playservices.** {
   *;
 }
+
+-dontwarn java.beans.ConstructorProperties
+-dontwarn java.beans.Transient
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
