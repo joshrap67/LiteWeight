@@ -13,7 +13,7 @@ android {
         namespace "com.joshrap.liteweight"
         compileSdk 34
         targetSdkVersion 34
-        versionCode 16
+        versionCode 17
         versionName "3.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
