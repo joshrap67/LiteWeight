@@ -431,20 +431,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Updates the progress of the current workout. Is called anytime an exercise is checked.
      */
     private void updateWorkoutProgressBar() {
-        int exercisesCompleted = 0;
-        int totalExercises = 0;
-        for (RoutineWeek week : getRoutine()) {
-            for (RoutineDay day : week) {
-                for (RoutineExercise routineExercise : day) {
-                    totalExercises++;
-                    if (routineExercise.isCompleted()) {
-                        exercisesCompleted++;
-                    }
-                }
-            }
-        }
-        int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
-        workoutProgressBar.setProgress(percentage, true);
+	    int percentage = getExerciseCompletedPercentage();
+	    workoutProgressBar.setProgress(percentage, true);
         workoutProgressTV.setText(String.format(Locale.getDefault(), "Workout Progress - %d %%", percentage));
     }
 
@@ -504,21 +492,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Prompt the user if they wish to restart the current workout.
      */
     private void showRestartPopup() {
-        int exercisesCompleted = 0;
-        int totalExercises = 0;
-        for (RoutineWeek week : getRoutine()) {
-            for (RoutineDay day : week) {
-                for (RoutineExercise routineExercise : day) {
-                    totalExercises++;
-                    if (routineExercise.isCompleted()) {
-                        exercisesCompleted++;
-                    }
-                }
-            }
-        }
-        int percentage = (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
+	    int percentage = getExerciseCompletedPercentage();
 
-        View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
+	    View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
         ProgressBar progressBar = popupView.findViewById(R.id.workout_progress_bar);
         progressBar.setProgress(percentage);
         TextView progressTV = popupView.findViewById(R.id.progress_bar_tv);
@@ -533,7 +509,23 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-    private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
+	private int getExerciseCompletedPercentage() {
+		int exercisesCompleted = 0;
+		int totalExercises = 0;
+		for (RoutineWeek week : getRoutine()) {
+		    for (RoutineDay day : week) {
+		        for (RoutineExercise routineExercise : day) {
+		            totalExercises++;
+		            if (routineExercise.isCompleted()) {
+		                exercisesCompleted++;
+		            }
+		        }
+		    }
+		}
+		return (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
+	}
+
+	private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final CheckBox exerciseCheckbox;

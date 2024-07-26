@@ -51,7 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         Button switchToSignIn = findViewById(R.id.back_to_sign_in_btn);
-        switchToSignIn.setOnClickListener(v -> onBackPressed());
+        switchToSignIn.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         initEditTexts();
         if (getIntent().getExtras() != null) {

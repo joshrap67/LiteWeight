@@ -40,7 +40,7 @@ public class StopwatchService extends Service {
         initialElapsedTime = intent.getLongExtra(Variables.INTENT_STOPWATCH_INITIAL_ELAPSED_TIME, 0);
 
         stopwatch = new Timer();
-        stopwatch.scheduleAtFixedRate(new TimerTask() {
+        stopwatch.schedule(new TimerTask() {
             @Override
             public void run() {
                 long elapsedTimeAbsolute = System.currentTimeMillis() - startTimeAbsolute;

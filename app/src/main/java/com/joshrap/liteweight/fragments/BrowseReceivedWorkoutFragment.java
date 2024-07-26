@@ -126,6 +126,14 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
         backButton = view.findViewById(R.id.previous_day_btn);
 
         Button respondButton = view.findViewById(R.id.respond_btn);
+        final PopupMenu dropDownRoutineDayMenu = getPopupMenu(respondButton, user);
+        respondButton.setOnClickListener(v -> dropDownRoutineDayMenu.show());
+
+        getReceivedWorkout(receivedWorkoutId);
+        return view;
+    }
+
+    private @NonNull PopupMenu getPopupMenu(Button respondButton, User user) {
         final PopupMenu dropDownRoutineDayMenu = new PopupMenu(getContext(), respondButton);
         Menu moreMenu = dropDownRoutineDayMenu.getMenu();
         final int acceptWorkoutId = 0;
@@ -149,10 +157,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
             }
             return false;
         });
-        respondButton.setOnClickListener(v -> dropDownRoutineDayMenu.show());
-
-        getReceivedWorkout(receivedWorkoutId);
-        return view;
+        return dropDownRoutineDayMenu;
     }
 
     @Override

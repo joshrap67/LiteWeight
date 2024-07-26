@@ -155,56 +155,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void initViews(View view) {
         ImageButton workoutOptionsButton = view.findViewById(R.id.workout_options_btn);
-        PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
-        Menu menu = dropDownMenu.getMenu();
-        final int editIndex = 0;
-        final int sendIndex = 1;
-        final int copyIndex = 2;
-        final int renameIndex = 3;
-        final int resetIndex = 4;
-        final int deleteIndex = 5;
-        menu.add(0, editIndex, 0, "Edit Workout");
-        menu.add(0, sendIndex, 0, "Send Workout");
-        menu.add(0, copyIndex, 0, "Copy Workout");
-        menu.add(0, renameIndex, 0, "Rename Workout");
-        menu.add(0, resetIndex, 0, "Reset Statistics");
-        menu.add(0, deleteIndex, 0, "Delete Workout");
-
-        dropDownMenu.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case editIndex:
-                    dropDownMenu.dismiss();
-                    ((MainActivity) requireActivity()).goToEditWorkout();
-                    return true;
-                case renameIndex:
-                    promptRename();
-                    return true;
-                case resetIndex:
-                    promptResetStatistics();
-                    return true;
-                case deleteIndex:
-                    promptDelete();
-                    return true;
-                case sendIndex:
-                    if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
-                        promptSend();
-                    } else {
-                        AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
-                    }
-                    return true;
-                case copyIndex:
-                    if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-                        AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
-                    } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
-                        AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
-                    } else {
-                        promptCopy();
-                    }
-                    return true;
-            }
-            return false;
-        });
-        workoutOptionsButton.setOnClickListener(v -> dropDownMenu.show());
+	    PopupMenu dropDownMenu = getPopupMenu(workoutOptionsButton);
+	    workoutOptionsButton.setOnClickListener(v -> dropDownMenu.show());
 
         workoutListView = view.findViewById(R.id.workout_list_view);
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_tv);
@@ -237,7 +189,60 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
-    /**
+	private PopupMenu getPopupMenu(ImageButton workoutOptionsButton) {
+		PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
+		Menu menu = dropDownMenu.getMenu();
+		final int editIndex = 0;
+		final int sendIndex = 1;
+		final int copyIndex = 2;
+		final int renameIndex = 3;
+		final int resetIndex = 4;
+		final int deleteIndex = 5;
+		menu.add(0, editIndex, 0, "Edit Workout");
+		menu.add(0, sendIndex, 0, "Send Workout");
+		menu.add(0, copyIndex, 0, "Copy Workout");
+		menu.add(0, renameIndex, 0, "Rename Workout");
+		menu.add(0, resetIndex, 0, "Reset Statistics");
+		menu.add(0, deleteIndex, 0, "Delete Workout");
+
+		dropDownMenu.setOnMenuItemClickListener(item -> {
+		    switch (item.getItemId()) {
+		        case editIndex:
+		            dropDownMenu.dismiss();
+		            ((MainActivity) requireActivity()).goToEditWorkout();
+		            return true;
+		        case renameIndex:
+		            promptRename();
+		            return true;
+		        case resetIndex:
+		            promptResetStatistics();
+		            return true;
+		        case deleteIndex:
+		            promptDelete();
+		            return true;
+		        case sendIndex:
+		            if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
+		                promptSend();
+		            } else {
+		                AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
+		            }
+		            return true;
+		        case copyIndex:
+		            if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+		                AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
+		            } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
+		                AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
+		            } else {
+		                promptCopy();
+		            }
+		            return true;
+		    }
+		    return false;
+		});
+		return dropDownMenu;
+	}
+
+	/**
      * Updates all UI with the newly changed current workout.
      */
     private void updateUI() {
@@ -468,7 +473,7 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         usernameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (v.hasFocus()) {
                 // show suggestions when user clicks input for first time
-                if (friends.size() > 0) {
+                if (!friends.isEmpty()) {
                     usernameInput.showDropDown();
                 }
             }

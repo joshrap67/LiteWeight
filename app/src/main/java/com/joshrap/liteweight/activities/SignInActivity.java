@@ -1,21 +1,22 @@
 package com.joshrap.liteweight.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.widget.Button;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -25,13 +26,20 @@ import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.utils.AndroidUtils;
 
+import java.util.concurrent.Executors;
+
 import javax.inject.Inject;
+
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private GoogleSignInClient googleSignInClient;
     private FirebaseAuth auth;
     private boolean shouldFinish;
+    private CredentialManager credentialManager;
 
     @Inject
     AlertDialog loadingDialog;
@@ -40,13 +48,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.getInjector(this).inject(this);
-        // the one tap UI had a lot of problems when i tried to use it, including this https://issuetracker.google.com/issues/270795461
-        // if they deprecate this one then I'm SOL
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestIdToken(BackendConfig.googleSignInClientId)
-                .build();
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
+        credentialManager = CredentialManager.create(this);
         auth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_sign_in_layout);
@@ -67,26 +69,34 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result == null)
-                    return;
-
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                    handleGoogleSignInResult(task);
-                }
-            });
-
     private void googleSignIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        googleSignInLauncher.launch(signInIntent);
+        GetSignInWithGoogleOption googleIdOption = new GetSignInWithGoogleOption(BackendConfig.googleSignInClientId, null, null);
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build();
+        credentialManager.getCredentialAsync(this,
+                request,
+                new CancellationSignal(),
+                Executors.newSingleThreadExecutor(),
+                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                    @Override
+                    public void onResult(GetCredentialResponse result) {
+                        GoogleIdTokenCredential googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.getCredential().getData());
+                        runOnUiThread(() -> handleGoogleSignInResult(googleIdTokenCredential));
+                    }
+
+                    @Override
+                    public void onError(@NonNull GetCredentialException exception) {
+                        runOnUiThread(() -> AndroidUtils.showErrorDialog("There was an error signing in with Google.", getBaseContext()));
+                    }
+                }
+        );
     }
 
-    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+    private void handleGoogleSignInResult(GoogleIdTokenCredential googleIdTokenCredential) {
         try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            String idToken = account.getIdToken();
+            String idToken = googleIdTokenCredential.getIdToken();
             AuthCredential firebaseCredential = GoogleAuthProvider.getCredential(idToken, null);
 
             AndroidUtils.showLoadingDialog(loadingDialog, "Signing in...");
@@ -100,13 +110,25 @@ public class SignInActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e) {
-            AndroidUtils.showErrorDialog("There was an error signing in with Google.", this);
+            AndroidUtils.showErrorDialog("There was an error signing in with Google.", getApplicationContext());
         }
     }
 
     private void googleSignOut() {
         // only using google sign in for getting id token to link to firebase. Can immediately log out once getting that token
-        googleSignInClient.signOut();
+        Continuation<Unit> continuation = new Continuation<Unit>() {
+            @NonNull
+            @Override
+            public CoroutineContext getContext() {
+                return EmptyCoroutineContext.INSTANCE;
+            }
+
+            @Override
+            public void resumeWith(@NonNull Object o) {
+
+            }
+        };
+        credentialManager.clearCredentialState(new ClearCredentialStateRequest(), continuation);
     }
 
     private void launchMainActivity() {

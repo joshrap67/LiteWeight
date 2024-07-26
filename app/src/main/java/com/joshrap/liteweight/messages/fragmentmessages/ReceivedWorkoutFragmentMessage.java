@@ -4,9 +4,9 @@ import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 
 import lombok.Getter;
 
+@Getter
 public class ReceivedWorkoutFragmentMessage {
 
-    @Getter
     private final ReceivedWorkoutInfo receivedWorkoutInfo;
 
     public ReceivedWorkoutFragmentMessage(ReceivedWorkoutInfo receivedWorkoutInfo) {

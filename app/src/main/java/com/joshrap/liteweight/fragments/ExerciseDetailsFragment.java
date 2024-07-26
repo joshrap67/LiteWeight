@@ -184,23 +184,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             workoutListTv.setText(R.string.none);
         } else {
             workoutList.sort(Comparator.comparing(String::toLowerCase));
-            StringBuilder workouts = new StringBuilder();
-            int maxSize = 5; // only show 5 workouts
-            if (workoutList.size() <= maxSize) {
-                // don't append the "+ x more"
-                for (int i = 0; i < workoutList.size(); i++) {
-                    // don't have comma at last entry
-                    workouts.append(workoutList.get(i)).append((i < workoutList.size() - 1) ? ", " : "");
-                }
-            } else {
-                for (int i = 0; i < maxSize; i++) {
-                    // don't have comma at last entry
-                    workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
-                }
-                workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
-            }
+	        StringBuilder workouts = getWorkoutsDisplay(workoutList);
 
-            workoutListTv.setText(workouts.toString());
+	        workoutListTv.setText(workouts.toString());
         }
 
         Button saveButton = view.findViewById(R.id.save_fab);
@@ -234,7 +220,26 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         initViews();
     }
 
-    private void setFocusTextView(String title) {
+	private static StringBuilder getWorkoutsDisplay(List<String> workoutList) {
+		StringBuilder workouts = new StringBuilder();
+		int maxSize = 5; // only show 5 workouts
+		if (workoutList.size() <= maxSize) {
+		    // don't append the "+ x more"
+		    for (int i = 0; i < workoutList.size(); i++) {
+		        // don't have comma at last entry
+		        workouts.append(workoutList.get(i)).append((i < workoutList.size() - 1) ? ", " : "");
+		    }
+		} else {
+		    for (int i = 0; i < maxSize; i++) {
+		        // don't have comma at last entry
+		        workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
+		    }
+		    workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
+		}
+		return workouts;
+	}
+
+	private void setFocusTextView(String title) {
         if (title == null) {
             focusesTV.setText(R.string.none);
         } else {

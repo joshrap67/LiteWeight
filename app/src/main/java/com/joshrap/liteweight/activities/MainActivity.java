@@ -509,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     This would happen for example if clicking on notification when on the edit workout fragment. When clicking back the edit workout fragment
                     is immediately discarded it.
                  */
-                onBackPressed();
+	            getOnBackPressedDispatcher().onBackPressed();
                 break;
         }
     }
@@ -765,7 +765,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // show back button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             if (!drawerListenerIsRegistered) {
-                toggle.setToolbarNavigationClickListener(v -> onBackPressed());
+                toggle.setToolbarNavigationClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
                 drawerListenerIsRegistered = true;
             }
         } else {
@@ -814,7 +814,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * the back stack appropriately.
      */
     public void finishFragment() {
-        onBackPressed();
+	    getOnBackPressedDispatcher().onBackPressed();
     }
 
     public void updateFriendsListIndicator() {

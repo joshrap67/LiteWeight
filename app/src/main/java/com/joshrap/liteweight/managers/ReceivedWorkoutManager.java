@@ -124,7 +124,7 @@ public class ReceivedWorkoutManager {
                 OwnedExercise alreadyOwnedExercise = idToExercise.get(ownedExercise.getId());
                 if (alreadyOwnedExercise != null) {
                     // only the workouts would have changed from accepting
-                    ownedExercise.getWorkouts().add(new OwnedExerciseWorkout(response.getNewWorkoutInfo().getWorkoutId(), response.getNewWorkoutInfo().getWorkoutName()));
+                    alreadyOwnedExercise.getWorkouts().add(new OwnedExerciseWorkout(response.getNewWorkoutInfo().getWorkoutId(), response.getNewWorkoutInfo().getWorkoutName()));
                 } else {
                     // newly added exercise from accepting the workout
                     user.addExercise(ownedExercise);

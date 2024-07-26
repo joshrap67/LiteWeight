@@ -50,7 +50,7 @@ public class SignInWithEmailActivity extends AppCompatActivity {
 
         Button signInButton = findViewById(R.id.sign_in_btn);
         Button backButton = findViewById(R.id.back_to_sign_in_btn);
-        backButton.setOnClickListener(view -> onBackPressed());
+        backButton.setOnClickListener(view -> getOnBackPressedDispatcher().onBackPressed());
         signInButton.setOnClickListener(view -> {
             if (validSignInInput()) {
                 attemptSignIn(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim());
