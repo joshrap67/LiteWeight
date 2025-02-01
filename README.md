@@ -10,8 +10,6 @@ Friend requests can be sent to any other LiteWeight user and workouts can additi
 
 Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on the application logic.
 
-Google Play Store requires a website to request for account deletion for GDPR compliance. I just did a quick and dirty react app to accomplish this. It is hosted on Github Pages and is accessible from [this link](https://joshrap67.github.io/LiteWeight/#/home).
-
 ## Prerequisites
 
 This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 26. The targeted SDK for this application is: 33.
@@ -24,11 +22,7 @@ If deploying the GH pages app, node is required.
 
 ## Deployment
 
-If downloading from the [Google Play Store](https://play.google.com/store/apps/details?id=com.joshrap.liteweight&fbclid=IwAR3tvspaMUvVOcPjw1NHzb0wUL9l5aDlZ9ferGfqPbp9ev7__Ob-D6hP5lw), simply download it and ensure enough space is available on the device.
-
-If pulling from this repository, open the project in Android Studio and run it. If doing it this way, you may need to ensure that you have developer options enabled on your device.
-
-To publish the GH pages website run `npm run deploy` in the directory.
+Build the app APK using the proper keys in Android Studio.
 
 ## Built With
 
