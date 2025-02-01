@@ -101,7 +101,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/expand_collapse"
                             android:focusable="true"
-                            android:src="@drawable/down_arrow" />
+                            android:src="@drawable/down_arrow_small" />
                 </RelativeLayout>
 
 
