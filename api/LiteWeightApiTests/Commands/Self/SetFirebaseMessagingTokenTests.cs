@@ -36,7 +36,7 @@ public class SetFirebaseMessagingTokenTests : BaseTest
 	[Fact]
 	public async Task Should_Set_Current_Workout_Null()
 	{
-		var command = Fixture.Build<SetFirebaseMessagingToken>().With(x => x.Token, (string)null).Create();
+		var command = Fixture.Build<SetFirebaseMessagingToken>().With(x => x.Token, (string?)null).Create();
 		var user = Fixture.Build<User>().With(x => x.Id, command.UserId).Create();
 
 		_mockRepository

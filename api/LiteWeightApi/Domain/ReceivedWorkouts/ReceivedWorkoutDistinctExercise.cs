@@ -19,11 +19,11 @@ public class ReceivedWorkoutDistinctExercise
 	}
 
 	[FirestoreProperty("exerciseName")]
-	public string ExerciseName { get; set; }
+	public string ExerciseName { get; set; } = null!;
 
 	[FirestoreProperty("videoUrl")]
 	public string? VideoUrl { get; set; }
 
 	[FirestoreProperty("focuses")]
-	public IList<string> Focuses { get; set; }
+	public IList<string> Focuses { get; set; } = [];
 }

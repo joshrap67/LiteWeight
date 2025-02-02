@@ -55,7 +55,7 @@ public class CreateExerciseTests : BaseTest
 		_mockRepository
 			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
 			.ReturnsAsync(Fixture.Build<User>()
-				.With(x => x.Exercises, [new() { Name = "Name" }])
+				.With(x => x.Exercises, [new OwnedExercise { Name = "Name" }])
 				.Create()
 			);
 
@@ -74,7 +74,7 @@ public class CreateExerciseTests : BaseTest
 			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
 			.ReturnsAsync(Fixture.Build<User>()
 				.With(x => x.Exercises, exercises)
-				.With(x => x.PremiumToken, (string)null)
+				.With(x => x.PremiumToken, (string?)null)
 				.Create());
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));

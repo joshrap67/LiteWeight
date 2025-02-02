@@ -6,7 +6,7 @@ namespace LiteWeightAPI.Errors.Exceptions;
 
 public class InvalidRequestException : BadRequestException
 {
-	public InvalidRequestException(string message, IEnumerable<ModelBindingError> bindingErrors = null) :
+	public InvalidRequestException(string message, IEnumerable<ModelBindingError>? bindingErrors = null) :
 		base(GetFormattedResponse(message, ErrorTypes.InvalidRequest, bindingErrors))
 	{
 	}

@@ -4,7 +4,6 @@ using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Imports;
-using ILogger = Serilog.ILogger;
 
 namespace LiteWeightAPI.Commands.Exercises;
 

@@ -8,7 +8,7 @@ public static class ReceivedWorkoutHelper
 {
 	private static readonly Fixture Fixture = new();
 
-	public static ReceivedWorkout GetReceivedWorkout(string recipientId = null, string receivedWorkoutId = null)
+	public static ReceivedWorkout GetReceivedWorkout(string? recipientId = null, string? receivedWorkoutId = null)
 	{
 		var workout = Fixture.Create<Workout>();
 		var workoutExerciseIds = workout.Routine.Weeks.SelectMany(x => x.Days).SelectMany(x => x.Exercises)

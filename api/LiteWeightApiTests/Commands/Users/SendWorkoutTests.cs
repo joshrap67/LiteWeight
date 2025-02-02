@@ -54,7 +54,7 @@ public class SendWorkoutTests : BaseTest
 		var senderUser = Fixture.Build<User>()
 			.With(x => x.Id, command.SenderUserId)
 			.With(x => x.Exercises, ownedExercises)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.With(x => x.WorkoutsSent, Globals.MaxFreeWorkoutsSent - 1)
 			.Create();
 
@@ -102,7 +102,7 @@ public class SendWorkoutTests : BaseTest
 		var senderUser = Fixture.Build<User>()
 			.With(x => x.Id, command.SenderUserId)
 			.With(x => x.Exercises, ownedExercises)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.With(x => x.WorkoutsSent, Globals.MaxFreeWorkoutsSent - 1)
 			.Create();
 
@@ -137,7 +137,7 @@ public class SendWorkoutTests : BaseTest
 
 		var senderUser = Fixture.Build<User>()
 			.With(x => x.Id, command.SenderUserId)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.With(x => x.WorkoutsSent, Globals.MaxFreeWorkoutsSent)
 			.Create();
 
@@ -244,7 +244,7 @@ public class SendWorkoutTests : BaseTest
 
 		_mockRepository
 			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync((Workout)null);
+			.ReturnsAsync((Workout?)null);
 
 		await Assert.ThrowsAsync<WorkoutNotFoundException>(() => _handler.HandleAsync(command));
 	}

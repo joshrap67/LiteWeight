@@ -130,7 +130,7 @@ public static class ServiceCollectionExtensions
 			{
 				Property = key,
 				Message = x.ErrorMessage
-			}))
+			}) ?? [])
 			.ToList();
 		throw new InvalidRequestException("Invalid request", errors);
 	}

@@ -41,7 +41,6 @@ public class CreateWorkoutHandler : ICommandHandler<CreateWorkout, UserAndWorkou
 
 		if (user.Workouts.Count >= Globals.MaxFreeWorkouts && user.PremiumToken == null)
 		{
-			// TODO update test
 			throw new MaxLimitException("Max amount of free workouts reached");
 		}
 

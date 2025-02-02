@@ -12,16 +12,16 @@ public class SetRoutineWeek
 
 public class SetRoutineDay
 {
-	public string Tag { get; set; }
+	public string? Tag { get; set; }
 	public IList<SetRoutineExercise> Exercises { get; set; } = new List<SetRoutineExercise>();
 }
 
 public class SetRoutineExercise
 {
-	public string ExerciseId { get; set; }
+	public required string ExerciseId { get; set; }
 	public bool Completed { get; set; }
 	public double Weight { get; set; }
 	public int Sets { get; set; }
 	public int Reps { get; set; }
-	public string Details { get; set; }
+	public string? Details { get; set; }
 }

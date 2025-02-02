@@ -23,9 +23,9 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 	}
 
 	[Theory]
-	[InlineData((string)null)]
+	[InlineData((string?)null)]
 	[InlineData("abc")]
-	public async Task Should_Delete_And_Set_Current(string currentWorkoutId)
+	public async Task Should_Delete_And_Set_Current(string? currentWorkoutId)
 	{
 		var command = Fixture.Build<DeleteWorkoutAndSetCurrent>()
 			.With(x => x.CurrentWorkoutId, currentWorkoutId)
@@ -142,7 +142,7 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 
 		_mockRepository
 			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutToDeleteId)))
-			.ReturnsAsync((Workout)null);
+			.ReturnsAsync((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

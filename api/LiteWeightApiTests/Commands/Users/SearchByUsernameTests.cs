@@ -64,7 +64,7 @@ public class SearchByUsernameTests : BaseTest
 
 		_mockRepository
 			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync((User)null);
+			.ReturnsAsync((User?)null);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Null(response);

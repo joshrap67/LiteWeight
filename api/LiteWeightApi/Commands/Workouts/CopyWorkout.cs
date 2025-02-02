@@ -44,12 +44,12 @@ public class CopyWorkoutHandler : ICommandHandler<CopyWorkout, UserAndWorkoutRes
 
 		ValidationUtils.EnsureWorkoutOwnership(user.Id, workoutToCopy);
 
-		if (user.Workouts.Count > Globals.MaxFreeWorkouts && user.PremiumToken == null)
+		if (user.Workouts.Count >= Globals.MaxFreeWorkouts && user.PremiumToken == null)
 		{
 			throw new MaxLimitException("Max amount of free workouts reached");
 		}
 
-		if (user.Workouts.Count > Globals.MaxWorkouts && user.PremiumToken != null)
+		if (user.Workouts.Count >= Globals.MaxWorkouts && user.PremiumToken != null)
 		{
 			throw new MaxLimitException("Maximum workouts exceeded");
 		}

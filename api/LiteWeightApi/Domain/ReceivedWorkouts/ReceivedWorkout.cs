@@ -37,24 +37,24 @@ public class ReceivedWorkout
 	}
 
 	[FirestoreDocumentId]
-	public string Id { get; set; }
+	public string Id { get; set; } = null!;
 
 	[FirestoreProperty("workoutName")]
-	public string WorkoutName { get; set; }
+	public string WorkoutName { get; set; } = null!;
 
 	[FirestoreProperty("senderId")]
-	public string SenderId { get; set; }
+	public string SenderId { get; set; } = null!;
 
 	[FirestoreProperty("senderUsername")]
-	public string SenderUsername { get; set; }
+	public string SenderUsername { get; set; } = null!;
 
 	[FirestoreProperty("recipientId")]
-	public string RecipientId { get; set; }
+	public string RecipientId { get; set; } = null!;
 
 	[FirestoreProperty("routine")]
-	public ReceivedRoutine Routine { get; set; }
+	public ReceivedRoutine Routine { get; set; } = null!;
 
 	// on the surface this property seems unnecessary, but it's required since the sender user can change their exercises. Need to preserve the original values of the exercise
 	[FirestoreProperty("distinctExercises")]
-	public IList<ReceivedWorkoutDistinctExercise> DistinctExercises { get; set; }
+	public IList<ReceivedWorkoutDistinctExercise> DistinctExercises { get; set; } = [];
 }

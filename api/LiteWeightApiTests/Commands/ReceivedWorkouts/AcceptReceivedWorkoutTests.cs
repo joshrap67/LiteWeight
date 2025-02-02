@@ -63,7 +63,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 	[Fact]
 	public async Task Should_Accept_Workout_Name_Not_Specified()
 	{
-		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string)null).Create();
+		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string?)null).Create();
 
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 
@@ -139,7 +139,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var user = Fixture.Build<User>()
 			.With(x => x.Id, command.UserId)
 			.With(x => x.Workouts, workouts)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.Create();
 
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
@@ -208,7 +208,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 	[Fact]
 	public async Task Should_Throw_Exception_Workout_Name_Duplicate()
 	{
-		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string)null).Create();
+		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string?)null).Create();
 		var workoutName = Fixture.Create<string>();
 		var workouts = Enumerable.Range(0, Globals.MaxWorkouts / 2)
 			.Select(_ => Fixture.Build<WorkoutInfo>().With(y => y.WorkoutName, workoutName).Create())
@@ -235,7 +235,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 	[Fact]
 	public async Task Should_Throw_Exception_Max_Free_Exercises_Exceeded()
 	{
-		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string)null).Create();
+		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string?)null).Create();
 
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 
@@ -251,7 +251,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var user = Fixture.Build<User>()
 			.With(x => x.Id, command.UserId)
 			.With(x => x.Workouts, workouts)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.With(x => x.Exercises, ownedExercises)
 			.Create();
 
@@ -269,7 +269,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 	[Fact]
 	public async Task Should_Throw_Exception_Max_Exercises_Exceeded()
 	{
-		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string)null).Create();
+		var command = Fixture.Build<AcceptReceivedWorkout>().With(x => x.NewName, (string?)null).Create();
 
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 

@@ -97,7 +97,7 @@ public class CopyWorkoutTests : BaseTest
 	public async Task Should_Throw_Exception_Max_Workouts()
 	{
 		var command = Fixture.Create<CopyWorkout>();
-		var workouts = Enumerable.Range(0, Globals.MaxWorkouts + 1)
+		var workouts = Enumerable.Range(0, Globals.MaxWorkouts)
 			.Select(_ => Fixture.Build<WorkoutInfo>().Create())
 			.ToList();
 		var user = Fixture.Build<User>()
@@ -123,13 +123,13 @@ public class CopyWorkoutTests : BaseTest
 	public async Task Should_Throw_Exception_Max_Free_Workouts()
 	{
 		var command = Fixture.Create<CopyWorkout>();
-		var workouts = Enumerable.Range(0, Globals.MaxFreeWorkouts + 1)
+		var workouts = Enumerable.Range(0, Globals.MaxFreeWorkouts)
 			.Select(_ => Fixture.Build<WorkoutInfo>().Create())
 			.ToList();
 		var user = Fixture.Build<User>()
 			.With(x => x.Id, command.UserId)
 			.With(x => x.Workouts, workouts)
-			.With(x => x.PremiumToken, (string)null)
+			.With(x => x.PremiumToken, (string?)null)
 			.Create();
 		var workout = Fixture.Build<Workout>()
 			.With(x => x.CreatorId, user.Id)
@@ -170,7 +170,7 @@ public class CopyWorkoutTests : BaseTest
 
 		_mockRepository
 			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync((Workout)null);
+			.ReturnsAsync((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

@@ -50,7 +50,7 @@ public class DeclineReceivedWorkoutTests : BaseTest
 
 		_mockRepository
 			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync((ReceivedWorkout)null);
+			.ReturnsAsync((ReceivedWorkout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}
