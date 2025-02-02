@@ -95,6 +95,52 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
+                .withDetails("a")
+                .build();
+        RoutineExercise exercise2 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("b")
+                .build();
+
+        boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
+        assertTrue("Exercises differ by details", doExercisesDiffer);
+    }
+
+    @Test
+    public void exercises_differ_by_details_one_null() {
+        RoutineExercise exercise1 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .build();
+        RoutineExercise exercise2 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("test")
+                .build();
+
+        boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
+        assertTrue("Exercises differ by details", doExercisesDiffer);
+    }
+
+    @Test
+    public void exercises_differ_by_details_other_null() {
+        RoutineExercise exercise1 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("test")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -106,6 +152,50 @@ public class ExercisesDifferentTests {
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
         assertTrue("Exercises differ by details", doExercisesDiffer);
+    }
+
+    @Test
+    public void exercises_do_not_differ_by_details() {
+        RoutineExercise exercise1 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("test")
+                .build();
+        RoutineExercise exercise2 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .withDetails("test")
+                .build();
+
+        boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
+        assertFalse("Exercises do not differ by details", doExercisesDiffer);
+    }
+
+    @Test
+    public void exercises_do_not_differ_by_details_null() {
+        RoutineExercise exercise1 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .build();
+        RoutineExercise exercise2 = new RoutineExerciseBuilder()
+                .withCompleted(true)
+                .withExerciseId("exerciseId")
+                .withWeight(24.0)
+                .withSets(3)
+                .withReps(15)
+                .build();
+
+        boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
+        assertFalse("Exercises do not differ by details", doExercisesDiffer);
     }
 
     @Test

@@ -88,7 +88,7 @@ public class SignInActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull GetCredentialException exception) {
-                        runOnUiThread(() -> AndroidUtils.showErrorDialog("There was an error signing in with Google.", getBaseContext()));
+                        runOnUiThread(() -> AndroidUtils.showErrorDialog("There was an error signing in with Google.", SignInActivity.this));
                     }
                 }
         );
