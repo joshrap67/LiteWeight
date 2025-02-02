@@ -1,0 +1,4374 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "LiteWeight API",
+    "version": "v1"
+  },
+  "paths": {
+    "/complaints/{complaintId}": {
+      "get": {
+        "tags": [
+          "Complaints"
+        ],
+        "summary": "Get Complaint",
+        "description": "Gets a complaint that was filed by the authenticated user.",
+        "parameters": [
+          {
+            "name": "complaintId",
+            "in": "path",
+            "description": "Id of the complaint to get",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplaintResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exercises": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Create Exercise",
+        "description": "Creates an exercise to be owned by the authenticated user. The name of the exercise must not already exist for the user.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest, MaxLimit</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnedExerciseResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exercises/{exerciseId}": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Update Exercise",
+        "description": "Updates an exercise owned by the authenticated user, if it exists. Note that any new name for the exercise must not already exist.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "exerciseId",
+            "in": "path",
+            "description": "Id of the exercise to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExerciseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Delete Exercise",
+        "description": "Deletes an exercise owned by the authenticated user. Removes the deleted exercise from any workout it was a part of.",
+        "parameters": [
+          {
+            "name": "exerciseId",
+            "in": "path",
+            "description": "Id of the exercise to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/received-workouts/{receivedWorkoutId}": {
+      "get": {
+        "tags": [
+          "ReceivedWorkouts"
+        ],
+        "summary": "Get Received Workout",
+        "description": "Gets a received workout. Conditional that it was sent to the authenticated user.",
+        "parameters": [
+          {
+            "name": "receivedWorkoutId",
+            "in": "path",
+            "description": "Id of the received workout to get",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivedWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/received-workouts/{receivedWorkoutId}/accept": {
+      "post": {
+        "tags": [
+          "ReceivedWorkouts"
+        ],
+        "summary": "Accept Received Workout",
+        "description": "Accepts a received workout and adds any exercises that the user doesn't already own to their owned exercises.\r\n\r\n\r\nAccepting a workout deletes the received workout from the database and creates a workout with the values of that received workout.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest, MaxLimit</b></div>",
+        "parameters": [
+          {
+            "name": "receivedWorkoutId",
+            "in": "path",
+            "description": "Id of the received workout to accept",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptReceivedWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptReceivedWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptReceivedWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptReceivedWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/received-workouts/{receivedWorkoutId}/decline": {
+      "delete": {
+        "tags": [
+          "ReceivedWorkouts"
+        ],
+        "summary": "Decline Received Workout",
+        "description": "Declines a workout and deletes it from the database. Conditional that the recipient matches the authenticated user.",
+        "parameters": [
+          {
+            "name": "receivedWorkoutId",
+            "in": "path",
+            "description": "Id of the received workout to decline",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/received-workouts/all-seen": {
+      "put": {
+        "tags": [
+          "ReceivedWorkouts"
+        ],
+        "summary": "Set All Received Workouts Seen",
+        "description": "Sets all received workouts for the authenticated user as seen.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/received-workouts/{receivedWorkoutId}/seen": {
+      "put": {
+        "tags": [
+          "ReceivedWorkouts"
+        ],
+        "summary": "Set Received Workout Seen",
+        "description": "Sets a given received workout for the authenticated user as seen.",
+        "parameters": [
+          {
+            "name": "receivedWorkoutId",
+            "in": "path",
+            "description": "Received workout to set as seen",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self": {
+      "get": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Get Self",
+        "description": "Returns the user that is currently authenticated.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Create Self",
+        "description": "Creates a user in the database using the email/firebase id in the authenticated token.\r\n\r\n\r\nNote that a single verified, authenticated user can only exist once in the database - this is determined by the firebase UUID in the authenticated token.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSelfRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSelfRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSelfRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Delete Self",
+        "description": "Deletes a user and all data associated with it.\r\n\r\n\r\nData deleted: user, workouts belonging to user, images belonging to user. The user is also removed as a friend from any other users, and any friend requests they sent are canceled.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self/profile-picture": {
+      "put": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Update Profile Picture",
+        "description": "Updates the user's profile picture. Note that it simply replaces the old picture using the same image url.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfilePictureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfilePictureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfilePictureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self/set-firebase-messaging-token": {
+      "put": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Set Firebase Messaging Token",
+        "description": "Sets the firebase messaging token to the authenticated user. This enables the authenticated user's ability to receive push notifications, or removes it if the token is null.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFirebaseMessagingTokenRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFirebaseMessagingTokenRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFirebaseMessagingTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self/all-friend-requests-seen": {
+      "put": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Set All Friend Requests Seen",
+        "description": "Sets all friend requests on the authenticated user as seen.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self/settings": {
+      "put": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Set Settings",
+        "description": "Sets the settings on the authenticated user.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsResponse"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsResponse"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/self/current-workout": {
+      "put": {
+        "tags": [
+          "Self"
+        ],
+        "summary": "Set Current Workout",
+        "description": "Sets the current workout of the authenticated user to the specified workout, if it exists.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>WorkoutNotFound</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/search": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Search by Username",
+        "description": "Searches for a user by username. If the user is not found, a 400 response will be returned.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest, UserNotFound</b></div>",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "Username to search by",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/send-friend-request": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Send Friend Request",
+        "description": "Sends a friend request to the specified user. Conditional that both the authenticated user and the recipient have not reached the maximum number of friends allowed.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>MaxLimit, MiscError</b></div><br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to send the friend request to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/send-workout": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Send Workout",
+        "description": "Send a workout to a user. This creates a received workout that the recipient can accept or decline.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest, MaxLimit, MiscError, WorkoutNotFound</b></div><br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to send the workout to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/accept-friend-request": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Accept Friend Request",
+        "description": "Accepts a friend request and make the specified user a friend. Conditional that the authenticated user has not reached the maximum number of friends allowed.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>MaxLimit</b></div><br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to accept as a friend",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/friend": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Remove Friend",
+        "description": "Removes the specified user from the authenticated user's friend's list. This action also removes the authenticated user from the specified user's friend's list.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to remove as a friend",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/cancel-friend-request": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Cancel Friend Request",
+        "description": "Cancels a friend request sent to the specified user.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to cancel the friend request of",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/decline-friend-request": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Decline Friend Request",
+        "description": "Declines a friend request that was sent from the specified user. This action removes the authenticated user from the specified user's friend's list.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #02F88F;\"><b>Sends Push Notification</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to cancel the pending friend request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/report": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Report User",
+        "description": "Creates a complaint against the specified user for the developers to review.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id of the user to report",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUserRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUserRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplaintResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Create Workout",
+        "description": "Creates a workout and adds it to the authenticated user's list of workouts. Any exercises that were added to the workout are updated.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest, MaxLimit</b></div>",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAndWorkoutResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}": {
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get Workout",
+        "description": "Gets a workout. Conditional that the creator matches the authenticated user.",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to get",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Delete Workout",
+        "description": "Deletes a given workout. Removes it from the authenticated user's list of workouts, and from the list of workouts on the exercises of the deleted workout.",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/copy": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Copy Workout",
+        "description": "Copies a workout as a new workout. Any exercises that are now apart of the copied workout are updated.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest, MaxLimit</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to copy",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAndWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/routine": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Set Routine",
+        "description": "Sets the routine of a given workout. Any exercises that are now apart of the updated routine are updated.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout of the routine",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRoutineRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRoutineRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRoutineRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAndWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/update-progress": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Update Workout Progress",
+        "description": "Updates the specified workout's progress.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to update the progress of",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutProgressRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutProgressRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutProgressRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/reset-statistics": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Reset Statistics",
+        "description": "Resets the statistics for a given workout, if it exists.",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to reset the statistics of",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/restart": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Restart Workout",
+        "description": "Restarts the workout to have all exercises set to incomplete, and updates the statistics of the authenticated user using the state of the workout before it was restarted.\r\n\r\n\r\nIf enabled on the authenticated user's preferences, the default weights of any completed exercises will be updated if their completed weight is greater than the current default weight.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to restart",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestartWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestartWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestartWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAndWorkoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/rename": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Rename Workout",
+        "description": "Renames a given workout. Name must be unique.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>AlreadyExists, InvalidRequest</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to rename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workoutId}/delete-and-set-current": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Delete Workout and Set Current",
+        "description": "Deletes a given workout. Removes it from the authenticated user's list of workouts, and from the list of workouts on the exercises of the deleted workout.\r\n\r\n\r\n Also sets the current workout to the specified workout, if it exists.<br/><br/><div style=\"background-color: #2f3031;padding: 12px 0px 12px 12px;border-left: 5px solid #F90258;\">Potential 400 Errors: <b>WorkoutNotFound</b></div>",
+        "parameters": [
+          {
+            "name": "workoutId",
+            "in": "path",
+            "description": "Id of the workout to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrentWorkoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceNotFoundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AcceptReceivedWorkoutRequest": {
+        "type": "object",
+        "properties": {
+          "workoutName": {
+            "maxLength": 40,
+            "type": "string",
+            "description": "Optional name to set for the workout once accepted. Must be unique. If not specified, the created workout will have the name of the received workout.",
+            "nullable": true,
+            "example": "Olympic Routine"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AcceptReceivedWorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "newWorkoutInfo": {
+            "$ref": "#/components/schemas/WorkoutInfoResponse"
+          },
+          "userExercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnedExerciseResponse"
+            },
+            "description": "New total list of exercises owned by the user as a result of accepting this workout. New exercises may have been added if the user did not already have them.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Message describing the error.",
+            "nullable": true,
+            "example": "An example error message"
+          },
+          "errorType": {
+            "type": "string",
+            "description": "Specific type of error.",
+            "nullable": true,
+            "example": "InvalidRequest"
+          },
+          "requestErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelBindingError"
+            },
+            "description": "Lists any errors associated when binding the request.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComplaintResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the complaint.",
+            "nullable": true,
+            "example": "29062e23-fa61-4977-af93-aa4fdb177247"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the complaint.",
+            "nullable": true,
+            "example": "Inappropriate workout name."
+          },
+          "claimantUserId": {
+            "type": "string",
+            "description": "User id of the user who made the complaint.",
+            "nullable": true,
+            "example": "3f96d8c2-127c-4605-8272-003630d8c1a1"
+          },
+          "reportedUserId": {
+            "type": "string",
+            "description": "User id of the user who was reported.",
+            "nullable": true,
+            "example": "b36291c6-19ee-4bd0-b1f2-1d092a2e831e"
+          },
+          "reportedUsername": {
+            "type": "string",
+            "description": "Username of the user who was reported. Note this is the username at the time of being reported.",
+            "nullable": true,
+            "example": "pepe_silvia"
+          },
+          "reportedUtc": {
+            "type": "string",
+            "description": "Timestamp of when the complaint was created (UTC).",
+            "nullable": true,
+            "example": "2023-05-20T08:43:44.685341Z"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CopyWorkoutRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name for the workout created from the copy. Must be unique.",
+            "example": "After-Work Workout"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSelfRequest": {
+        "required": [
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string",
+            "description": "Username of the new user - must be unique. Note that the username will be converted to lowercase.",
+            "example": "randy_bo_bandy"
+          },
+          "profilePictureData": {
+            "type": "string",
+            "description": "Base 64 encoding of the image to upload. If not specified, then the user will have a default profile picture.",
+            "format": "byte",
+            "nullable": true,
+            "example": "iVBORw0KGgoAAAANSUhEUgAAAlgAAAJ"
+          },
+          "metricUnits": {
+            "type": "boolean",
+            "description": "Should the created user have metric units enabled?"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateWorkoutRequest": {
+        "required": [
+          "name",
+          "routine"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the workout.",
+            "example": "High Intensity Workout"
+          },
+          "routine": {
+            "$ref": "#/components/schemas/SetRoutineRequest"
+          },
+          "setAsCurrentWorkout": {
+            "type": "boolean",
+            "description": "If true, set this new workout to be the current workout for the user creating the workout."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ForbiddenResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "nullable": true,
+            "example": "Forbidden access"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendRequestResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Unique identifier of the user who sent the friend request.",
+            "nullable": true,
+            "example": "dcceafca-7055-4c0d-81f8-0e9ef16c7bdc"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of the user who sent the friend request.",
+            "nullable": true,
+            "example": "arthur_v"
+          },
+          "profilePicture": {
+            "type": "string",
+            "description": "File path of the sender's profile picture.",
+            "nullable": true,
+            "example": "f5b17d02-0a8f-45b5-a2c9-3410fceb5cd3.jpg"
+          },
+          "seen": {
+            "type": "boolean",
+            "description": "Is this friend request seen by the user?"
+          },
+          "sentUtc": {
+            "type": "string",
+            "description": "Timestamp of when the request was sent (UTC).",
+            "nullable": true,
+            "example": "2023-04-19T13:43:44.685341Z"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Unique identifier of the user who is a friend.",
+            "nullable": true,
+            "example": "53c68af6-9400-438b-aece-344d4d2024c6"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of the friend.",
+            "nullable": true,
+            "example": "greg_egg"
+          },
+          "profilePicture": {
+            "type": "string",
+            "description": "File path of the friend's profile picture.",
+            "nullable": true,
+            "example": "66fcc4c3-700e-41e3-b0e5-9f121eb97fa9.jpg"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "description": "Is the friend confirmed? If yes they are a friend, else they are a pending friend (pending until this user accepts the friend request)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModelBindingError": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "description": "Property that is causing the error.",
+            "nullable": true,
+            "example": "name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message for problematic property.",
+            "nullable": true,
+            "example": "The name property cannot be empty"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OwnedExerciseResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the exercise.",
+            "nullable": true,
+            "example": "88a54457-2253-404e-ac09-82a8f2ce5fb8"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the exercise.",
+            "nullable": true,
+            "example": "Barbell Curl"
+          },
+          "defaultWeight": {
+            "type": "number",
+            "description": "Default weight of the exercise (lb). Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "double",
+            "example": 65
+          },
+          "defaultSets": {
+            "type": "integer",
+            "description": "Default sets of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "int32",
+            "example": 3
+          },
+          "defaultReps": {
+            "type": "integer",
+            "description": "Default reps of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "int32",
+            "example": 15
+          },
+          "defaultDetails": {
+            "type": "string",
+            "description": "Default details of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "nullable": true,
+            "example": "Don't overextend arms."
+          },
+          "videoUrl": {
+            "type": "string",
+            "description": "Video url of the exercise. Suggested use case is a video of how to perform the exercise.",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=kwG2ipFRgfo"
+          },
+          "focuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of focuses of the exercise.",
+            "nullable": true,
+            "example": [
+              "Biceps",
+              "Forearms"
+            ]
+          },
+          "workouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnedExerciseWorkoutResponse"
+            },
+            "description": "List of workouts this exercise is associated with.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OwnedExerciseWorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "workoutId": {
+            "type": "string",
+            "description": "Id of the workout.",
+            "nullable": true,
+            "example": "b7c3c321-d5a0-4448-978c-0a8b7709ceb2"
+          },
+          "workoutName": {
+            "type": "string",
+            "description": "Name of the workout.",
+            "nullable": true,
+            "example": "Main Workout"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ReceivedDayResponse": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "Arbitrary tag of the day.",
+            "nullable": true,
+            "example": "Cardio and Legs Day"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedExerciseResponse"
+            },
+            "description": "List of exercises for the given day.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedExerciseResponse": {
+        "type": "object",
+        "properties": {
+          "exerciseName": {
+            "type": "string",
+            "description": "Name of the exercise.",
+            "nullable": true,
+            "example": "Squat"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight of the exercise (lb).",
+            "format": "double",
+            "example": 215
+          },
+          "sets": {
+            "type": "integer",
+            "description": "Number of sets for the exercise.",
+            "format": "int32",
+            "example": 3
+          },
+          "reps": {
+            "type": "integer",
+            "description": "Number of reps for the exercise.",
+            "format": "int32",
+            "example": 15
+          },
+          "details": {
+            "type": "string",
+            "description": "Details of the exercise.",
+            "nullable": true,
+            "example": "Don't lock knees."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedRoutineResponse": {
+        "type": "object",
+        "properties": {
+          "weeks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedWeekResponse"
+            },
+            "description": "List of weeks in the routine.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedWeekResponse": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedDayResponse"
+            },
+            "description": "List of days in the routine.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedWorkoutDistinctExerciseResponse": {
+        "type": "object",
+        "properties": {
+          "exerciseName": {
+            "type": "string",
+            "description": "Name of the exercise.",
+            "nullable": true,
+            "example": "Squat"
+          },
+          "videoUrl": {
+            "type": "string",
+            "description": "Video url of the exercise.",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=Dy28eq2PjcM"
+          },
+          "focuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of focuses of the exercise.",
+            "nullable": true,
+            "example": [
+              "Legs",
+              "Strength Training"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedWorkoutInfoResponse": {
+        "type": "object",
+        "properties": {
+          "receivedWorkoutId": {
+            "type": "string",
+            "description": "Id of the received workout.",
+            "nullable": true,
+            "example": "194939d5-c40d-43e5-b40a-7d30d764b7f7"
+          },
+          "workoutName": {
+            "type": "string",
+            "description": "Name of the received workout.",
+            "nullable": true,
+            "example": "High Intensity Workout"
+          },
+          "receivedUtc": {
+            "type": "string",
+            "description": "Timestamp of when the workout was received (UTC).",
+            "nullable": true,
+            "example": "2023-04-23T13:43:44.685341Z"
+          },
+          "seen": {
+            "type": "boolean",
+            "description": "Is this received workout seen by the user?"
+          },
+          "senderId": {
+            "type": "string",
+            "description": "Id of the user who sent the workout.",
+            "nullable": true,
+            "example": "37386768-da24-47ba-b081-6493df36686f"
+          },
+          "senderUsername": {
+            "type": "string",
+            "description": "Username of who sent the workout.",
+            "nullable": true,
+            "example": "jessica78"
+          },
+          "senderProfilePicture": {
+            "type": "string",
+            "description": "File path of the sender's profile picture.",
+            "nullable": true,
+            "example": "61fcf9b4-15f1-4413-9534-683b085875b9.jpg"
+          },
+          "totalDays": {
+            "type": "integer",
+            "description": "Total number of days in the received workout.",
+            "format": "int32",
+            "example": 16
+          },
+          "mostFrequentFocus": {
+            "type": "string",
+            "description": "Most frequent exercise focus of the received workout.",
+            "nullable": true,
+            "example": "Biceps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceivedWorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the received workout.",
+            "nullable": true,
+            "example": "3ac84a61-4822-4ba3-ac93-626fdf087acf"
+          },
+          "workoutName": {
+            "type": "string",
+            "description": "Name of the received workout.",
+            "nullable": true,
+            "example": "Legs Galore"
+          },
+          "senderId": {
+            "type": "string",
+            "description": "Id of the user who sent the workout.",
+            "nullable": true,
+            "example": "juo06et3-n81k-9bb1-61dj-j12k1152hae1"
+          },
+          "senderUsername": {
+            "type": "string",
+            "description": "Username of the user who sent the workout.",
+            "nullable": true,
+            "example": "arthur_v"
+          },
+          "recipientId": {
+            "type": "string",
+            "description": "Id of the recipient of the received workout.",
+            "nullable": true,
+            "example": "f1e03cd1-e62c-4a53-84ed-498c72776fc2"
+          },
+          "routine": {
+            "$ref": "#/components/schemas/ReceivedRoutineResponse"
+          },
+          "distinctExercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedWorkoutDistinctExerciseResponse"
+            },
+            "description": "List of distinct exercises in the routine of the received workout. May contain exercises the recipient does not have (by name).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RenameWorkoutRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string",
+            "description": "New name of the workout. Must be unique."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReportUserRequest": {
+        "required": [
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "description": {
+            "maxLength": 400,
+            "minLength": 1,
+            "type": "string",
+            "description": "Description of the complaint.",
+            "example": "Inappropriate username."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResourceNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "nullable": true,
+            "example": "The workout with id=cfbb1fd4-6d29-465c-9ea0-4938407ac65b was not found"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RestartWorkoutRequest": {
+        "required": [
+          "routine"
+        ],
+        "type": "object",
+        "properties": {
+          "routine": {
+            "$ref": "#/components/schemas/SetRoutineRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoutineDayResponse": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "Arbitrary tag of the day.",
+            "nullable": true,
+            "example": "Back and Biceps Day"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineExerciseResponse"
+            },
+            "description": "List of exercises for the given day.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoutineExerciseResponse": {
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "Id of the exercise (reference to the list of exercises on the user).",
+            "nullable": true,
+            "example": "88a54457-2253-404e-ac09-82a8f2ce5fb8"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Has the user completed this exercise?"
+          },
+          "weight": {
+            "maximum": 99999,
+            "minimum": 0,
+            "type": "number",
+            "description": "Weight of the exercise (lb).",
+            "format": "double",
+            "example": 30
+          },
+          "sets": {
+            "maximum": 99,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of sets for the exercise.",
+            "format": "int32",
+            "example": 3
+          },
+          "reps": {
+            "maximum": 999,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of reps for the exercise.",
+            "format": "int32",
+            "example": 15
+          },
+          "details": {
+            "maxLength": 120,
+            "type": "string",
+            "description": "Details of the exercise.",
+            "nullable": true,
+            "example": "Don't overextend arms."
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoutineResponse": {
+        "type": "object",
+        "properties": {
+          "weeks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineWeekResponse"
+            },
+            "description": "List of weeks in the routine.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoutineWeekResponse": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineDayResponse"
+            },
+            "description": "List of days in the routine.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchUserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the user.",
+            "nullable": true,
+            "example": "27342d1c-8324-448c-8d57-9c345d319953"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of the user",
+            "nullable": true,
+            "example": "greg_egg"
+          },
+          "profilePicture": {
+            "type": "string",
+            "description": "File path of the user's profile picture.",
+            "nullable": true,
+            "example": "0f1d96c3-ca22-4657-9f9b-136bb4621985.jpg"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendWorkoutRequest": {
+        "required": [
+          "workoutId"
+        ],
+        "type": "object",
+        "properties": {
+          "workoutId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Id of the workout to send.",
+            "example": "718e6712-744a-4075-897e-185d8c455c6a"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendWorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "receivedWorkoutId": {
+            "type": "string",
+            "description": "Id of the received workout that was created as a result of sending the workout.",
+            "nullable": true,
+            "example": "3ac84a61-4822-4ba3-ac93-626fdf087acf"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServerErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "nullable": true,
+            "example": "The server has encountered an error"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetCurrentWorkoutRequest": {
+        "type": "object",
+        "properties": {
+          "currentWorkoutId": {
+            "type": "string",
+            "description": "Id of the workout to set as the current workout. Null signifies no workout is selected as current.",
+            "nullable": true,
+            "example": "4d17e3e7-edf6-41c0-ade2-fdd624b5c9bb"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetExerciseRequest": {
+        "required": [
+          "defaultReps",
+          "defaultSets",
+          "defaultWeight",
+          "focuses",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the exercise.",
+            "example": "Bench Press"
+          },
+          "defaultWeight": {
+            "maximum": 99999,
+            "minimum": 0,
+            "type": "number",
+            "description": "Default weight of the exercise (lb). Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "double",
+            "example": 225.5
+          },
+          "defaultSets": {
+            "maximum": 99,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Default sets of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "int32",
+            "example": 3
+          },
+          "defaultReps": {
+            "maximum": 999,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Default reps of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "format": "int32",
+            "example": 12
+          },
+          "focuses": {
+            "maxItems": 20,
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of focuses of the exercise.",
+            "example": [
+              "Chest",
+              "Strength Training"
+            ]
+          },
+          "defaultDetails": {
+            "maxLength": 120,
+            "type": "string",
+            "description": "Default details of the exercise. Value that the exercise will be defaulted to when adding it to a workout.",
+            "nullable": true,
+            "example": "Make sure to get a spotter."
+          },
+          "videoUrl": {
+            "maxLength": 200,
+            "type": "string",
+            "description": "Video URL of the exercise. Suggested use case is a video of how to perform the exercise.",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=rT7DgCr-3pg"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetFirebaseMessagingTokenRequest": {
+        "type": "object",
+        "properties": {
+          "firebaseMessagingToken": {
+            "type": "string",
+            "description": "Firebase token to associate with the user. Enables push notifications to be sent to the device associated with the token. Null removes the ability for the user to receive notifications.",
+            "nullable": true,
+            "example": "c_-_jNKuQI-9USNk0c9uEY:APA91bG53pjv4wNcg7m2h2d1yfCjVfidEj7AXyIu8ddNYz2_Stwy0J7znQayzltXDgEL8Q9tSj8i2yx8hQiSuNDKlZtGm3cEmJTlLMupmJVTc1g_LdMPdx9VOL2hC3vBTseIcmBDYjRG"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRoutineDayRequest": {
+        "required": [
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "tag": {
+            "maxLength": 50,
+            "type": "string",
+            "description": "Arbitrary tag of the day.",
+            "nullable": true,
+            "example": "Back and Biceps Day"
+          },
+          "exercises": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetRoutineExerciseRequest"
+            },
+            "description": "List of exercises for the given day."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRoutineExerciseRequest": {
+        "required": [
+          "exerciseId",
+          "reps",
+          "sets",
+          "weight"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Id of the exercise (reference to the list of exercises on the user).",
+            "example": "88a54457-2253-404e-ac09-82a8f2ce5fb8"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Has the user completed this exercise?"
+          },
+          "weight": {
+            "maximum": 99999,
+            "minimum": 0,
+            "type": "number",
+            "description": "Weight of the exercise.",
+            "format": "double",
+            "example": 30
+          },
+          "sets": {
+            "maximum": 99,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of sets for the exercise.",
+            "format": "int32",
+            "example": 3
+          },
+          "reps": {
+            "maximum": 999,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of reps for the exercise.",
+            "format": "int32",
+            "example": 15
+          },
+          "details": {
+            "maxLength": 120,
+            "type": "string",
+            "description": "Details of the exercise.",
+            "nullable": true,
+            "example": "Don't overextend arms."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRoutineRequest": {
+        "required": [
+          "weeks"
+        ],
+        "type": "object",
+        "properties": {
+          "weeks": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetRoutineWeekRequest"
+            },
+            "description": "Weeks of the routine"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRoutineWeekRequest": {
+        "required": [
+          "days"
+        ],
+        "type": "object",
+        "properties": {
+          "days": {
+            "maxItems": 7,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetRoutineDayRequest"
+            },
+            "description": "Days of the routine"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TooManyRequestsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "nullable": true,
+            "example": "Too many requests. Please try again later."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "nullable": true,
+            "example": "Unauthorized access"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProfilePictureRequest": {
+        "required": [
+          "profilePictureData"
+        ],
+        "type": "object",
+        "properties": {
+          "profilePictureData": {
+            "type": "string",
+            "description": "Base 64 encoding of the image to upload.",
+            "format": "byte",
+            "example": "iVBORw0KGgoAAAANSUhEUgAAAlgAAAJ"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateWorkoutProgressRequest": {
+        "required": [
+          "routine"
+        ],
+        "type": "object",
+        "properties": {
+          "currentWeek": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Index of the current week the user is on.",
+            "format": "int32",
+            "example": 2
+          },
+          "currentDay": {
+            "maximum": 7,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Index of the current day of the current week the user is on.",
+            "format": "int32",
+            "example": 0
+          },
+          "routine": {
+            "$ref": "#/components/schemas/SetRoutineRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserAndWorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "workout": {
+            "$ref": "#/components/schemas/WorkoutResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the user",
+            "nullable": true,
+            "example": "f1e03cd1-e62c-4a53-84ed-498c72776fc2"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of the user.",
+            "nullable": true,
+            "example": "barbell_bill"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user.",
+            "nullable": true,
+            "example": "barbellB12@gmail.com"
+          },
+          "profilePicture": {
+            "type": "string",
+            "description": "File path of the user's profile picture.",
+            "nullable": true,
+            "example": "0f1d96c3-ca22-4657-9f9b-136bb4621985.jpg"
+          },
+          "firebaseMessagingToken": {
+            "type": "string",
+            "description": "Firebase token registered for the user's device to receive push notifications.",
+            "nullable": true,
+            "example": "c-Id_13FTDf5c5PZGjsmg9:APA91bFG4w3Qnd16l0WDZzFYco3_71-_X595oncjilyKhSJBZC9FUD4mjg2lE68HCcDQR80Y6GDTuz-zbXK69V9D-jTBs4aXhv7LBAUTGzoC8h91q_QV-H1vz6XUGF8Mcob84_2-izMI"
+          },
+          "premiumToken": {
+            "type": "string",
+            "description": "Token indicating the user has purchased LiteWeight premium. Currently not used.",
+            "nullable": true,
+            "example": "a704f441-8ee3-471b-ac8a-abb0b7d8249a"
+          },
+          "currentWorkoutId": {
+            "type": "string",
+            "description": "Workout Id that the user is currently on. Null signifies the user is not working on a workout.",
+            "nullable": true,
+            "example": "b209f062-36fa-4089-aca0-31df4815744f"
+          },
+          "workoutsSent": {
+            "type": "integer",
+            "description": "Total number of workouts sent.",
+            "format": "int32",
+            "example": 14
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnedExerciseResponse"
+            },
+            "description": "List of exercises the user owns.",
+            "nullable": true
+          },
+          "friendRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FriendRequestResponse"
+            },
+            "description": "List of pending friend requests for the user.",
+            "nullable": true
+          },
+          "friends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FriendResponse"
+            },
+            "description": "List of friends for the user.",
+            "nullable": true
+          },
+          "receivedWorkouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedWorkoutInfoResponse"
+            },
+            "description": "List of workouts sent to the user.",
+            "nullable": true
+          },
+          "settings": {
+            "$ref": "#/components/schemas/UserSettingsResponse"
+          },
+          "workouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkoutInfoResponse"
+            },
+            "description": "List of workouts the user owns.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "privateAccount": {
+            "type": "boolean",
+            "description": "If true, the user will not receive any friend requests or sent workouts from users who they are not friends with."
+          },
+          "updateDefaultWeightOnSave": {
+            "type": "boolean",
+            "description": "If true, the default value of exercises will be updated when saving a workout if the completed exercise's weight is greater than the default weight.",
+            "example": true
+          },
+          "updateDefaultWeightOnRestart": {
+            "type": "boolean",
+            "description": "If true, the default value of exercises will be updated when restarting a workout if the completed exercise's weight is greater than the default weight.",
+            "example": true
+          },
+          "metricUnits": {
+            "type": "boolean",
+            "description": "If true, display weights as metric (only used on the UI - values returned from this API are always in imperial units)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkoutInfoResponse": {
+        "type": "object",
+        "properties": {
+          "workoutId": {
+            "type": "string",
+            "description": "Id of the workout.",
+            "nullable": true,
+            "example": "84a34611-9f4c-443f-97f9-cbf5cde69c65"
+          },
+          "workoutName": {
+            "type": "string",
+            "description": "Name of the workout.",
+            "nullable": true,
+            "example": "3-Day Split"
+          },
+          "currentWeek": {
+            "type": "integer",
+            "description": "Index of the current week the user is on.",
+            "format": "int32",
+            "example": 2
+          },
+          "currentDay": {
+            "type": "integer",
+            "description": "Index of the current day of the current week the user is on.",
+            "format": "int32",
+            "example": 0
+          },
+          "lastSetAsCurrentUtc": {
+            "type": "string",
+            "description": "Timestamp of when the workout was last set as the current workout (UTC).",
+            "nullable": true,
+            "example": "2023-04-06T23:20:39.665047Z"
+          },
+          "timesRestarted": {
+            "type": "integer",
+            "description": "Total times the workout has been restarted.",
+            "format": "int32",
+            "example": 15
+          },
+          "averageWorkoutCompletion": {
+            "type": "number",
+            "description": "Average of the exercise completion percentages for all restarted iterations of this workout.",
+            "format": "double",
+            "example": 94.2
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkoutResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the workout.",
+            "nullable": true,
+            "example": "b7c3c321-d5a0-4448-978c-0a8b7709ceb2"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the workout.",
+            "nullable": true,
+            "example": "Main Workout"
+          },
+          "creationUtc": {
+            "type": "string",
+            "description": "Timestamp of when the workout was created (UTC).",
+            "nullable": true,
+            "example": "2023-04-23T16:49:02.310661Z"
+          },
+          "creatorId": {
+            "type": "string",
+            "description": "Id of the user who created the workout.",
+            "nullable": true,
+            "example": "a7be7348-bca5-466c-b290-55ae38e2bad0"
+          },
+          "routine": {
+            "$ref": "#/components/schemas/RoutineResponse"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "BearerDefinition": {
+        "type": "http",
+        "description": "Token authentication. \n\n 'Bearer TOKEN'\n\nBearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

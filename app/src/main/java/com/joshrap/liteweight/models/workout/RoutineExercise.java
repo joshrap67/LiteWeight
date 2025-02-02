@@ -45,25 +45,28 @@ public class RoutineExercise implements Cloneable {
     }
 
     public static boolean exercisesDifferent(RoutineExercise exercise1, RoutineExercise exercise2) {
-        boolean retVal = false;
         if (exercise1.isCompleted() != exercise2.isCompleted()) {
-            retVal = true;
+            return true;
         }
         if (!exercise1.getExerciseId().equals(exercise2.getExerciseId())) {
-            retVal = true;
+            return true;
         }
         if (exercise1.getWeight() != exercise2.getWeight()) {
-            retVal = true;
+            return true;
         }
         if (exercise1.getSets() != exercise2.getSets()) {
-            retVal = true;
+            return true;
         }
         if (exercise1.getReps() != exercise2.getReps()) {
-            retVal = true;
+            return true;
         }
-        if (!exercise1.getDetails().equals(exercise2.getDetails())) {
-            retVal = true;
+
+        if (exercise1.getDetails() == null && exercise2.getDetails() != null) {
+            return true;
+        } else if (exercise1.getDetails() != null && exercise2.getDetails() == null) {
+            return true;
+        } else {
+            return exercise1.getDetails() != null && !exercise1.getDetails().equals(exercise2.getDetails());
         }
-        return retVal;
     }
 }

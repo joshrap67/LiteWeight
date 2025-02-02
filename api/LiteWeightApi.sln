@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteWeightApi", "LiteWeightApi\LiteWeightApi.csproj", "{3205BDC6-0428-438C-9D8C-2460EEBECD59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteWeightApiTests", "LiteWeightApiTests\LiteWeightApiTests.csproj", "{9F859BA2-6FA2-459F-A649-933E1E6FCCD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteWeightApiDocumentation", "LiteWeightApiDocumentation\LiteWeightApiDocumentation.csproj", "{0E2B32C7-8121-4714-A1A7-F068E98F3070}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3205BDC6-0428-438C-9D8C-2460EEBECD59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3205BDC6-0428-438C-9D8C-2460EEBECD59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3205BDC6-0428-438C-9D8C-2460EEBECD59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3205BDC6-0428-438C-9D8C-2460EEBECD59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F859BA2-6FA2-459F-A649-933E1E6FCCD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F859BA2-6FA2-459F-A649-933E1E6FCCD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F859BA2-6FA2-459F-A649-933E1E6FCCD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F859BA2-6FA2-459F-A649-933E1E6FCCD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2B32C7-8121-4714-A1A7-F068E98F3070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2B32C7-8121-4714-A1A7-F068E98F3070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2B32C7-8121-4714-A1A7-F068E98F3070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2B32C7-8121-4714-A1A7-F068E98F3070}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

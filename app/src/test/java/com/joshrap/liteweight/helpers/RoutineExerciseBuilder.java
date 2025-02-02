@@ -56,7 +56,7 @@ public class RoutineExerciseBuilder {
         double weight = this.weight == null ? rng.nextDouble() * 300 : this.weight;
         int sets = this.sets == null ? rng.nextInt(100) : this.sets;
         int reps = this.reps == null ? rng.nextInt(100) : this.reps;
-        String details = this.details == null ? UUID.randomUUID().toString() : this.details;
+        String details = this.details == null ? null : this.details;
 
         return new RoutineExercise(completed, exerciseId, weight, sets, reps, details);
     }

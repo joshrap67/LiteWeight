@@ -8,33 +8,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.material.navigation.NavigationView;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
-
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -43,11 +19,47 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.fragments.*;
+import com.joshrap.liteweight.fragments.AboutFragment;
+import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
+import com.joshrap.liteweight.fragments.ChangePasswordFragment;
+import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
+import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
+import com.joshrap.liteweight.fragments.FaqFragment;
+import com.joshrap.liteweight.fragments.FriendsListFragment;
+import com.joshrap.liteweight.fragments.MyAccountFragment;
+import com.joshrap.liteweight.fragments.MyExercisesFragment;
+import com.joshrap.liteweight.fragments.MyWorkoutsFragment;
+import com.joshrap.liteweight.fragments.NewExerciseFragment;
+import com.joshrap.liteweight.fragments.PendingWorkoutFragment;
+import com.joshrap.liteweight.fragments.ReceivedWorkoutsFragment;
+import com.joshrap.liteweight.fragments.SettingsFragment;
+import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.messages.activitymessages.AcceptedFriendRequestMessage;
 import com.joshrap.liteweight.messages.activitymessages.CanceledFriendRequestMessage;
@@ -63,20 +75,16 @@ import com.joshrap.liteweight.messages.fragmentmessages.NewFriendRequestFragment
 import com.joshrap.liteweight.messages.fragmentmessages.ReceivedWorkoutFragmentMessage;
 import com.joshrap.liteweight.messages.fragmentmessages.RemovedFriendFragmentMessage;
 import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.workout.Workout;
-import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.services.SyncWorkoutService;
-import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.ImageUtils;
-import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.user.FriendRequest;
 import com.joshrap.liteweight.models.user.ReceivedWorkoutInfo;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.UserAndWorkout;
+import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.services.StopwatchService;
+import com.joshrap.liteweight.services.SyncWorkoutService;
 import com.joshrap.liteweight.services.TimerService;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 import com.squareup.picasso.NetworkPolicy;
@@ -322,9 +330,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 goToReceivedWorkouts();
                 break;
             case Variables.ACCEPTED_FRIEND_REQUEST_CLICK:
+                nav.setCheckedItem(R.id.nav_friends_list);
                 goToFriendsList(null);
                 break;
             case Variables.NEW_FRIEND_REQUEST_CLICK:
+                nav.setCheckedItem(R.id.nav_friends_list);
                 Bundle extrasFriendRequest = new Bundle(); // to start the fragment on the friend request tab
                 extrasFriendRequest.putInt(Variables.FRIEND_LIST_POSITION, FriendsListFragment.REQUESTS_POSITION);
                 goToFriendsList(extrasFriendRequest);
@@ -509,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     This would happen for example if clicking on notification when on the edit workout fragment. When clicking back the edit workout fragment
                     is immediately discarded it.
                  */
-	            getOnBackPressedDispatcher().onBackPressed();
+                getOnBackPressedDispatcher().onBackPressed();
                 break;
         }
     }
@@ -814,7 +824,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * the back stack appropriately.
      */
     public void finishFragment() {
-	    getOnBackPressedDispatcher().onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
     }
 
     public void updateFriendsListIndicator() {
