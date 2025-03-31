@@ -1,4 +1,5 @@
 using LiteWeightAPI.Domain;
+using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
 
@@ -56,6 +57,8 @@ public class UpdateExerciseHandler : ICommandHandler<UpdateExercise, bool>
 		var ownedExercise = user.Exercises.First(x => x.Id == command.ExerciseId);
 		ownedExercise.Update(command.Name, command.DefaultWeight, command.DefaultSets, command.DefaultReps,
 			command.DefaultDetails, command.VideoUrl, command.Focuses);
+
+		await _repository.ExecuteBatchWrite(usersToPut: new List<User> { user });
 
 		return true;
 	}

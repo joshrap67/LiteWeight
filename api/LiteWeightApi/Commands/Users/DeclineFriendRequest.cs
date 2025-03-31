@@ -42,7 +42,7 @@ public class DeclineFriendRequestHandler : ICommandHandler<DeclineFriendRequest,
 
 		await _repository.ExecuteBatchWrite(usersToPut: new List<User> { initiator, userToDecline });
 
-		// send a notification to the user who's friend request was declined
+		// send a notification to the user whose friend request was declined
 		await _pushNotificationService.SendFriendRequestDeclinedNotification(userToDecline, initiator);
 
 		return true;
