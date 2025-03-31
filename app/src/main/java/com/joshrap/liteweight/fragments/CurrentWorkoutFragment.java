@@ -228,9 +228,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         if (timer != null && timer.isTimerRunning()) {
             ((MainActivity) activity).cancelTimerService();
         }
-        // remove timer finished notification if user comes back to this page
-        NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(TimerService.timerFinishedId);
 
         if (stopwatch != null && stopwatch.isStopwatchRunning()) {
             ((MainActivity) activity).cancelStopwatchService();

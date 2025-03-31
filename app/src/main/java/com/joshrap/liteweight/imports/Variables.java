@@ -19,7 +19,7 @@ public class Variables {
     public static final int MAX_SETS_DIGITS = Integer.toString(MAX_SETS).length();
     public static final int MAX_REPS = 999;
     public static final int MAX_REPS_DIGITS = Integer.toString(MAX_REPS).length();
-    public static final int MAX_DETAILS_LENGTH = 120;
+    public static final int MAX_DETAILS_LENGTH = 500;
     public static final int MAX_URL_LENGTH = 200;
     public static final int MAX_USERNAME_LENGTH = 50;
     public static final int MIN_PASSWORD_LENGTH = 8;

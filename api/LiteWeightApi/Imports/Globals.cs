@@ -17,7 +17,7 @@ public static class Globals
 	public const double MaxWeight = 99999.0;
 	public const int MaxSets = 99;
 	public const int MaxReps = 999;
-	public const int MaxDetailsLength = 120;
+	public const int MaxDetailsLength = 500;
 	public const int MaxUrlLength = 200;
 	public const int MaxExerciseName = 40;
 	public const int MaxFocusesLength = 20;
