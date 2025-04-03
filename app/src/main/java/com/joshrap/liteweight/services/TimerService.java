@@ -12,9 +12,9 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.messages.activitymessages.TimerRestartMessage;
 import com.joshrap.liteweight.utils.TimeUtils;
 

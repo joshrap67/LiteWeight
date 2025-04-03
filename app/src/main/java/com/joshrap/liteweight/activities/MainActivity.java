@@ -593,6 +593,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void startTimerService() {
+        cancelTimerService();
         Intent serviceIntent = new Intent(this, TimerService.class);
         serviceIntent.putExtra(Variables.INTENT_ABSOLUTE_START_TIME, timer.startTimeAbsolute);
         serviceIntent.putExtra(Variables.INTENT_TIMER_INITIAL_TIME_REMAINING, timer.initialTimeRemaining);

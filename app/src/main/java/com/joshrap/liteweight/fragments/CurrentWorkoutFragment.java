@@ -1,23 +1,11 @@
 package com.joshrap.liteweight.fragments;
 
-import androidx.appcompat.app.AlertDialog;
+import static android.os.Looper.getMainLooper;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.AutoTransition;
-import androidx.transition.TransitionManager;
-
 import android.os.Handler;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
@@ -36,29 +24,38 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
+
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
-
+import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
+import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.injection.Injector;
+import com.joshrap.liteweight.interfaces.FragmentWithDialog;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.WorkoutManager;
+import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.workout.RoutineDay;
+import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.models.workout.RoutineWeek;
-import com.joshrap.liteweight.services.TimerService;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
-import com.joshrap.liteweight.injection.Injector;
-import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.user.OwnedExercise;
-import com.joshrap.liteweight.models.workout.RoutineExercise;
-import com.joshrap.liteweight.models.Result;
-import com.joshrap.liteweight.models.workout.Routine;
-import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.utils.WorkoutUtils;
-import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
@@ -71,8 +68,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import static android.os.Looper.getMainLooper;
 
 public class CurrentWorkoutFragment extends Fragment implements FragmentWithDialog {
     private Button forwardButton, backButton;
@@ -266,10 +261,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private void startTimer() {
+        ((MainActivity) requireActivity()).cancelTimerService();
         timer.startTimer();
     }
 
     private void stopTimer() {
+        ((MainActivity) requireActivity()).cancelTimerService();
         timer.stopTimer();
     }
 
@@ -428,8 +425,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Updates the progress of the current workout. Is called anytime an exercise is checked.
      */
     private void updateWorkoutProgressBar() {
-	    int percentage = getExerciseCompletedPercentage();
-	    workoutProgressBar.setProgress(percentage, true);
+        int percentage = getExerciseCompletedPercentage();
+        workoutProgressBar.setProgress(percentage, true);
         workoutProgressTV.setText(String.format(Locale.getDefault(), "Workout Progress - %d %%", percentage));
     }
 
@@ -489,9 +486,9 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Prompt the user if they wish to restart the current workout.
      */
     private void showRestartPopup() {
-	    int percentage = getExerciseCompletedPercentage();
+        int percentage = getExerciseCompletedPercentage();
 
-	    View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_restart_workout, null);
         ProgressBar progressBar = popupView.findViewById(R.id.workout_progress_bar);
         progressBar.setProgress(percentage);
         TextView progressTV = popupView.findViewById(R.id.progress_bar_tv);
@@ -506,23 +503,23 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         alertDialog.show();
     }
 
-	private int getExerciseCompletedPercentage() {
-		int exercisesCompleted = 0;
-		int totalExercises = 0;
-		for (RoutineWeek week : getRoutine()) {
-		    for (RoutineDay day : week) {
-		        for (RoutineExercise routineExercise : day) {
-		            totalExercises++;
-		            if (routineExercise.isCompleted()) {
-		                exercisesCompleted++;
-		            }
-		        }
-		    }
-		}
-		return (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
-	}
+    private int getExerciseCompletedPercentage() {
+        int exercisesCompleted = 0;
+        int totalExercises = 0;
+        for (RoutineWeek week : getRoutine()) {
+            for (RoutineDay day : week) {
+                for (RoutineExercise routineExercise : day) {
+                    totalExercises++;
+                    if (routineExercise.isCompleted()) {
+                        exercisesCompleted++;
+                    }
+                }
+            }
+        }
+        return (int) (((double) exercisesCompleted / (double) totalExercises) * 100);
+    }
 
-	private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
+    private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final CheckBox exerciseCheckbox;
