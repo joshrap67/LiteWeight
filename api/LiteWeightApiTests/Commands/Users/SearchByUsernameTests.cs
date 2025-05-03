@@ -1,7 +1,6 @@
 using LiteWeightAPI.Commands.Users;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
-using LiteWeightApiTests.TestHelpers;
 
 namespace LiteWeightApiTests.Commands.Users;
 
@@ -13,7 +12,7 @@ public class SearchByUsernameTests : BaseTest
 	public SearchByUsernameTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new SearchByUsernameHandler(_mockRepository.Object, DependencyHelper.GetMapper());
+		_handler = new SearchByUsernameHandler(_mockRepository.Object);
 	}
 
 	[Fact]

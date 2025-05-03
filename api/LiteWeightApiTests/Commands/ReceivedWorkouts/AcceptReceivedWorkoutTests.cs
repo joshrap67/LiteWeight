@@ -19,7 +19,7 @@ public class AcceptReceivedWorkoutTests : BaseTest
 	{
 		_mockRepository = new Mock<IRepository>();
 		var clock = new Mock<IClock>();
-		_handler = new AcceptReceivedWorkoutHandler(_mockRepository.Object, clock.Object, Mapper);
+		_handler = new AcceptReceivedWorkoutHandler(_mockRepository.Object, clock.Object);
 	}
 
 	[Fact]

@@ -27,8 +27,8 @@ public class ReceivedExerciseResponse
 	public int Reps { get; set; }
 
 	/// <summary>
-	/// Details of the exercise.
+	/// Optional instructions for this exercise.
 	/// </summary>
-	/// <example>Don't lock knees.</example>
-	public string? Details { get; set; }
+	/// <example>Rest for 90 seconds between sets.</example>
+	public string? Instructions { get; set; }
 }

@@ -15,7 +15,7 @@ public class CreateSelfTests : BaseTest
 	{
 		_mockRepository = new Mock<IRepository>();
 		var storageService = new Mock<IStorageService>().Object;
-		_handler = new CreateSelfHandler(_mockRepository.Object, storageService, Mapper);
+		_handler = new CreateSelfHandler(_mockRepository.Object, storageService);
 	}
 
 	[Fact]

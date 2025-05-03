@@ -14,7 +14,7 @@ public class CreateExerciseTests : BaseTest
 	public CreateExerciseTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new CreateExerciseHandler(_mockRepository.Object, Mapper);
+		_handler = new CreateExerciseHandler(_mockRepository.Object);
 	}
 
 	[Fact]
@@ -37,11 +37,16 @@ public class CreateExerciseTests : BaseTest
 		var createdExercise = await _handler.HandleAsync(command);
 
 		Assert.True(createdExercise.Name == command.Name);
-		Assert.True(createdExercise.DefaultDetails == command.DefaultDetails);
 		Assert.True(Math.Abs(createdExercise.DefaultWeight - command.DefaultWeight) < 0.01);
 		Assert.True(createdExercise.DefaultReps == command.DefaultReps);
 		Assert.True(createdExercise.DefaultSets == command.DefaultSets);
-		Assert.True(createdExercise.VideoUrl == command.VideoUrl);
+		foreach (var exerciseLink in createdExercise.Links)
+		{
+			Assert.Contains(command.Links, x => x.Label == exerciseLink.Label);
+			Assert.Contains(command.Links, x => x.Url == exerciseLink.Url);
+		}
+
+		Assert.True(createdExercise.Notes == command.Notes);
 		Assert.Equivalent(command.Focuses, createdExercise.Focuses);
 		Assert.Contains(user.Exercises, x => x.Id == createdExercise.Id);
 	}

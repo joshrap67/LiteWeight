@@ -13,7 +13,7 @@ public class GetSelfTests : BaseTest
 	public GetSelfTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new GetSelfHandler(_mockRepository.Object, Mapper);
+		_handler = new GetSelfHandler(_mockRepository.Object);
 	}
 
 	[Fact]

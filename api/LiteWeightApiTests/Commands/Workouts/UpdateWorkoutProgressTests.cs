@@ -14,7 +14,7 @@ public class UpdateWorkoutProgressTests : BaseTest
 	public UpdateWorkoutProgressTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new UpdateWorkoutProgressHandler(_mockRepository.Object, Mapper);
+		_handler = new UpdateWorkoutProgressHandler(_mockRepository.Object);
 	}
 
 	[Fact]

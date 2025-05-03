@@ -1,4 +1,6 @@
-﻿namespace LiteWeightAPI.Api.ReceivedWorkouts.Responses;
+﻿using LiteWeightAPI.Api.Exercises.Requests;
+
+namespace LiteWeightAPI.Api.ReceivedWorkouts.Responses;
 
 public class ReceivedWorkoutDistinctExerciseResponse
 {
@@ -7,12 +9,17 @@ public class ReceivedWorkoutDistinctExerciseResponse
 	/// </summary>
 	/// <example>Squat</example>
 	public string ExerciseName { get; set; } = null!;
+	
+	/// <summary>
+	/// Arbitrary notes detailing information such as hints/cues for certain exercises.
+	/// </summary>
+	/// <example>Ensure deep stretch. Don't over extend arms</example>
+	public string? Notes { get; set; }
 
 	/// <summary>
-	/// Video url of the exercise.
+	/// Links associated with this exercise.
 	/// </summary>
-	/// <example>https://www.youtube.com/watch?v=Dy28eq2PjcM</example>
-	public string? VideoUrl { get; set; }
+	public IList<LinkResponse> Links { get; set; } = new List<LinkResponse>();
 
 	/// <summary>
 	/// List of focuses of the exercise.

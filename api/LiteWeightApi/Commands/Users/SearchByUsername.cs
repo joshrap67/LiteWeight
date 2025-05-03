@@ -1,6 +1,6 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Users.Responses;
 using LiteWeightAPI.Domain;
+using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Users;
 
@@ -12,12 +12,10 @@ public class SearchByUsername : ICommand<SearchUserResponse?>
 
 public class SearchByUsernameHandler : ICommandHandler<SearchByUsername, SearchUserResponse?>
 {
-	private readonly IMapper _mapper;
 	private readonly IRepository _repository;
 
-	public SearchByUsernameHandler(IRepository repository, IMapper mapper)
+	public SearchByUsernameHandler(IRepository repository)
 	{
-		_mapper = mapper;
 		_repository = repository;
 	}
 
@@ -35,6 +33,6 @@ public class SearchByUsernameHandler : ICommandHandler<SearchByUsername, SearchU
 			return null;
 		}
 
-		return _mapper.Map<SearchUserResponse>(user);
+		return user.ToSearchResponse();
 	}
 }

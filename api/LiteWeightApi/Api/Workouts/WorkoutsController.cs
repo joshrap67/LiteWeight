@@ -1,10 +1,10 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Self.Requests;
 using LiteWeightAPI.Api.Workouts.Requests;
 using LiteWeightAPI.Api.Workouts.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Workouts;
 using LiteWeightAPI.Errors.Attributes;
+using LiteWeightAPI.Maps;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LiteWeightAPI.Api.Workouts;
@@ -14,12 +14,10 @@ namespace LiteWeightAPI.Api.Workouts;
 public class WorkoutsController : BaseController
 {
 	private readonly ICommandDispatcher _dispatcher;
-	private readonly IMapper _mapper;
 
-	public WorkoutsController(ICommandDispatcher dispatcher, IMapper mapper)
+	public WorkoutsController(ICommandDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
-		_mapper = mapper;
 	}
 
 	/// <summary>Create Workout</summary>
@@ -29,8 +27,7 @@ public class WorkoutsController : BaseController
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	public async Task<ActionResult<UserAndWorkoutResponse>> CreateWorkout(CreateWorkoutRequest request)
 	{
-		var command = _mapper.Map<CreateWorkout>(request);
-		command.UserId = CurrentUserId;
+		var command = request.ToCommand(CurrentUserId);
 
 		var response = await _dispatcher.DispatchAsync<CreateWorkout, UserAndWorkoutResponse>(command);
 		return new CreatedResult(new Uri($"/workouts/{response.Workout.Id}", UriKind.Relative), response);
@@ -83,7 +80,7 @@ public class WorkoutsController : BaseController
 	{
 		var response = await _dispatcher.DispatchAsync<UpdateRoutine, UserAndWorkoutResponse>(new UpdateRoutine
 		{
-			Routine = _mapper.Map<SetRoutine>(request),
+			Routine = request.ToCommand(),
 			UserId = CurrentUserId,
 			WorkoutId = workoutId
 		});
@@ -104,7 +101,7 @@ public class WorkoutsController : BaseController
 		{
 			WorkoutId = workoutId,
 			UserId = CurrentUserId,
-			Routine = _mapper.Map<SetRoutine>(request.Routine),
+			Routine = request.Routine.ToCommand(),
 			CurrentWeek = request.CurrentWeek,
 			CurrentDay = request.CurrentDay
 		};
@@ -146,7 +143,7 @@ public class WorkoutsController : BaseController
 		{
 			UserId = CurrentUserId,
 			WorkoutId = workoutId,
-			Routine = _mapper.Map<SetRoutine>(request.Routine)
+			Routine = request.Routine.ToCommand()
 		});
 		return response;
 	}

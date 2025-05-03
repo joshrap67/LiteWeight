@@ -15,7 +15,7 @@ public class RestartWorkoutTests : BaseTest
 	public RestartWorkoutTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new RestartWorkoutHandler(_mockRepository.Object, Mapper);
+		_handler = new RestartWorkoutHandler(_mockRepository.Object);
 	}
 
 	[Theory]

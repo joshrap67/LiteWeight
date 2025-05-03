@@ -40,11 +40,16 @@ public class UpdateExerciseTests : BaseTest
 		await _handler.HandleAsync(command);
 
 		Assert.True(exercise.Name == command.Name);
-		Assert.True(exercise.DefaultDetails == command.DefaultDetails);
 		Assert.True(Math.Abs(exercise.DefaultWeight - command.DefaultWeight) < 0.01);
 		Assert.True(exercise.DefaultReps == command.DefaultReps);
 		Assert.True(exercise.DefaultSets == command.DefaultSets);
-		Assert.True(exercise.VideoUrl == command.VideoUrl);
+		foreach (var exerciseLink in exercise.Links)
+		{
+			Assert.Contains(command.Links, x => x.Label == exerciseLink.Label);
+			Assert.Contains(command.Links, x => x.Url == exerciseLink.Url);
+		}
+
+		Assert.True(exercise.Notes == command.Notes);
 		Assert.Equivalent(command.Focuses, exercise.Focuses);
 		Assert.Contains(user.Exercises, x => x.Id == exercise.Id);
 	}
@@ -73,11 +78,14 @@ public class UpdateExerciseTests : BaseTest
 		await _handler.HandleAsync(command);
 
 		Assert.True(exercise.Name == command.Name);
-		Assert.True(exercise.DefaultDetails == command.DefaultDetails);
 		Assert.True(Math.Abs(exercise.DefaultWeight - command.DefaultWeight) < 0.01);
 		Assert.True(exercise.DefaultReps == command.DefaultReps);
 		Assert.True(exercise.DefaultSets == command.DefaultSets);
-		Assert.True(exercise.VideoUrl == command.VideoUrl);
+		foreach (var exerciseLink in exercise.Links)
+		{
+			Assert.Contains(command.Links, x => x.Label == exerciseLink.Label);
+			Assert.Contains(command.Links, x => x.Url == exerciseLink.Url);
+		}
 		Assert.Equivalent(command.Focuses, exercise.Focuses);
 		Assert.Contains(user.Exercises, x => x.Id == exercise.Id);
 	}

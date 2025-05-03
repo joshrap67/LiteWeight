@@ -14,7 +14,7 @@ public class GetWorkoutTests : BaseTest
 	public GetWorkoutTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new GetWorkoutHandler(_mockRepository.Object, Mapper);
+		_handler = new GetWorkoutHandler(_mockRepository.Object);
 	}
 
 	[Fact]

@@ -5,7 +5,6 @@ using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
 using LiteWeightAPI.Imports;
 using LiteWeightAPI.Services;
-using LiteWeightApiTests.TestHelpers;
 using NodaTime;
 
 namespace LiteWeightApiTests.Commands.Users;
@@ -21,7 +20,7 @@ public class SendFriendRequestTests : BaseTest
 		_mockRepository = new Mock<IRepository>();
 		_mockPushNotificationService = new Mock<IPushNotificationService>();
 		var clock = new Mock<IClock>().Object;
-		_handler = new SendFriendRequestHandler(_mockRepository.Object, DependencyHelper.GetMapper(), clock,
+		_handler = new SendFriendRequestHandler(_mockRepository.Object, clock,
 			_mockPushNotificationService.Object);
 	}
 

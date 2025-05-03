@@ -14,15 +14,19 @@ public class ReceivedWorkoutDistinctExercise
 	public ReceivedWorkoutDistinctExercise(OwnedExercise userExercise, string exerciseName)
 	{
 		ExerciseName = exerciseName;
-		VideoUrl = userExercise.VideoUrl;
+		Links = userExercise.Links;
 		Focuses = userExercise.Focuses;
+		Notes = userExercise.Notes;
 	}
 
 	[FirestoreProperty("exerciseName")]
 	public string ExerciseName { get; set; } = null!;
+	
+	[FirestoreProperty("notes")]
+	public string? Notes { get; set; }
 
 	[FirestoreProperty("videoUrl")]
-	public string? VideoUrl { get; set; }
+	public IList<Link> Links { get; set; }
 
 	[FirestoreProperty("focuses")]
 	public IList<string> Focuses { get; set; } = [];

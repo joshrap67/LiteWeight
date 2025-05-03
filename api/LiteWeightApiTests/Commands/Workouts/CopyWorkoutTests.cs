@@ -18,7 +18,7 @@ public class CopyWorkoutTests : BaseTest
 	{
 		_mockRepository = new Mock<IRepository>();
 		var clock = new Mock<IClock>();
-		_handler = new CopyWorkoutHandler(_mockRepository.Object, clock.Object, Mapper);
+		_handler = new CopyWorkoutHandler(_mockRepository.Object, clock.Object);
 	}
 
 	[Fact]

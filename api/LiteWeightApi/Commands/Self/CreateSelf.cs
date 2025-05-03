@@ -1,9 +1,9 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Services;
 
 namespace LiteWeightAPI.Commands.Self;
@@ -25,13 +25,11 @@ public class CreateSelfHandler : ICommandHandler<CreateSelf, UserResponse>
 {
 	private readonly IRepository _repository;
 	private readonly IStorageService _storageService;
-	private readonly IMapper _mapper;
 
-	public CreateSelfHandler(IRepository repository, IStorageService storageService, IMapper mapper)
+	public CreateSelfHandler(IRepository repository, IStorageService storageService)
 	{
 		_repository = repository;
 		_storageService = storageService;
-		_mapper = mapper;
 	}
 
 	public async Task<UserResponse> HandleAsync(CreateSelf command)
@@ -72,13 +70,12 @@ public class CreateSelfHandler : ICommandHandler<CreateSelf, UserResponse>
 			Email = command.UserEmail,
 			ProfilePicture = fileName,
 			Username = command.Username
-				.ToLowerInvariant(), // really dumb. But firestore doesn't allow for case insensitive searching
+				.ToLowerInvariant(), // really dumb. But firestore doesn't allow for case-insensitive searching
 			Settings = userPreferences,
 			Exercises = Defaults.GetDefaultExercises()
 		};
 		await _repository.CreateUser(user);
 
-		var retVal = _mapper.Map<UserResponse>(user);
-		return retVal;
+		return user.ToResponse();
 	}
 }

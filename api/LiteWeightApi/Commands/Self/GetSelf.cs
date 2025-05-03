@@ -1,7 +1,7 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Self;
 
@@ -12,12 +12,10 @@ public class GetSelf : ICommand<UserResponse>
 
 public class GetSelfHandler : ICommandHandler<GetSelf, UserResponse>
 {
-	private readonly IMapper _mapper;
 	private readonly IRepository _repository;
 
-	public GetSelfHandler(IRepository repository, IMapper mapper)
+	public GetSelfHandler(IRepository repository)
 	{
-		_mapper = mapper;
 		_repository = repository;
 	}
 
@@ -29,7 +27,6 @@ public class GetSelfHandler : ICommandHandler<GetSelf, UserResponse>
 			throw new ResourceNotFoundException("User");
 		}
 
-		var retVal = _mapper.Map<UserResponse>(user);
-		return retVal;
+		return user.ToResponse();
 	}
 }

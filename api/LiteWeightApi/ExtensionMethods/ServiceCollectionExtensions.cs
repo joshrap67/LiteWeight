@@ -32,7 +32,6 @@ public static class ServiceCollectionExtensions
 
 	public static void ConfigureDependencies(this IServiceCollection services)
 	{
-		services.AddAutoMapper(typeof(Program));
 		services.AddSingleton<IClock>(SystemClock.Instance);
 		// auto registers all classes that inherit from an interface as transient
 		services.RegisterAssemblyPublicNonGenericClasses().AsPublicImplementedInterfaces();

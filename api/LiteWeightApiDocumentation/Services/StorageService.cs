@@ -1,4 +1,5 @@
 using Google.Cloud.Storage.V1;
+using Object = Google.Apis.Storage.v1.Data.Object;
 
 namespace LiteWeightApiDocumentation.Services;
 
@@ -9,7 +10,7 @@ public static class StorageService
 		using var stream = new MemoryStream(fileData);
 		var storage = await StorageClient.CreateAsync();
 
-		var obj = new Google.Apis.Storage.v1.Data.Object
+		var obj = new Object
 		{
 			Bucket = "liteweight-api-documentation",
 			Name = fileName,
@@ -23,7 +24,7 @@ public static class StorageService
 	{
 		var storage = await StorageClient.CreateAsync();
 
-		var obj = new Google.Apis.Storage.v1.Data.Object
+		var obj = new Object
 		{
 			Bucket = "liteweight-api-documentation",
 			Name = fileName,

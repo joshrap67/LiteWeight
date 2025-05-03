@@ -17,7 +17,7 @@ public class ReceivedExercise
 		Weight = exercise.Weight;
 		Sets = exercise.Sets;
 		Reps = exercise.Reps;
-		Details = exercise.Details;
+		Instructions = exercise.Instructions;
 	}
 
 	[FirestoreProperty("exerciseName")]
@@ -32,6 +32,6 @@ public class ReceivedExercise
 	[FirestoreProperty("reps")]
 	public int Reps { get; set; }
 
-	[FirestoreProperty("details")]
-	public string? Details { get; set; }
+	[FirestoreProperty("instructions")]
+	public string? Instructions { get; set; }
 }

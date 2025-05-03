@@ -15,7 +15,7 @@ public class ReportUserTests : BaseTest
 	{
 		_mockRepository = new Mock<IRepository>();
 		var clockMock = new Mock<IClock>().Object;
-		_handler = new ReportUserHandler(_mockRepository.Object, clockMock, Mapper);
+		_handler = new ReportUserHandler(_mockRepository.Object, clockMock);
 	}
 
 	[Fact]

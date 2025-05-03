@@ -1,4 +1,5 @@
 ﻿using Google.Cloud.Storage.V1;
+using Object = Google.Apis.Storage.v1.Data.Object;
 
 namespace LiteWeightAPI.Services;
 
@@ -20,7 +21,7 @@ public class StorageService : IStorageService
 		using var stream = new MemoryStream(fileData);
 		var storage = await StorageClient.CreateAsync();
 
-		var obj = new Google.Apis.Storage.v1.Data.Object
+		var obj = new Object
 		{
 			Bucket = ProfilePictureBucket,
 			Name = fileName,

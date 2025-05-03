@@ -20,15 +20,15 @@ public class RoutineExercise
 	[FirestoreProperty("reps")]
 	public int Reps { get; set; }
 
-	[FirestoreProperty("details")]
-	public string? Details { get; set; }
+	[FirestoreProperty("instructions")]
+	public string? Instructions { get; set; }
 
 	public RoutineExercise Clone()
 	{
 		var copy = new RoutineExercise
 		{
 			Completed = Completed,
-			Details = Details,
+			Instructions = Instructions,
 			Reps = Reps,
 			Sets = Sets,
 			Weight = Weight,

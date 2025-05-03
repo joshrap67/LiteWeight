@@ -1,7 +1,9 @@
+using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Exercises;
 
@@ -19,11 +21,11 @@ public class UpdateExercise : ICommand<bool>
 
 	public int DefaultReps { get; set; }
 
+	public string? Notes { get; set; }
+
 	public IList<string> Focuses { get; set; } = new List<string>();
 
-	public string? DefaultDetails { get; set; }
-
-	public string? VideoUrl { get; set; }
+	public IList<SetLink> Links { get; set; } = new List<SetLink>();
 }
 
 public class UpdateExerciseHandler : ICommandHandler<UpdateExercise, bool>
@@ -56,7 +58,7 @@ public class UpdateExerciseHandler : ICommandHandler<UpdateExercise, bool>
 
 		var ownedExercise = user.Exercises.First(x => x.Id == command.ExerciseId);
 		ownedExercise.Update(command.Name, command.DefaultWeight, command.DefaultSets, command.DefaultReps,
-			command.DefaultDetails, command.VideoUrl, command.Focuses);
+			command.Links.Select(x => x.ToDomain()).ToList(), command.Notes, command.Focuses);
 
 		await _repository.ExecuteBatchWrite(usersToPut: new List<User> { user });
 

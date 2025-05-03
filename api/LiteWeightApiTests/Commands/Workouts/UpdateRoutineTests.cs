@@ -14,7 +14,7 @@ public class UpdateRoutineTests : BaseTest
 	public UpdateRoutineTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new UpdateRoutineHandler(_mockRepository.Object, Mapper);
+		_handler = new UpdateRoutineHandler(_mockRepository.Object);
 	}
 
 	[Theory]

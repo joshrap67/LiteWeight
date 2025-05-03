@@ -1,9 +1,9 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Exercises.Responses;
+using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Domain;
-using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Exercises;
 
@@ -21,20 +21,18 @@ public class CreateExercise : ICommand<OwnedExerciseResponse>
 
 	public IList<string> Focuses { get; set; } = new List<string>();
 
-	public string? DefaultDetails { get; set; }
+	public IList<SetLink> Links { get; set; } = new List<SetLink>();
 
-	public string? VideoUrl { get; set; }
+	public string? Notes { get; set; }
 }
 
 public class CreateExerciseHandler : ICommandHandler<CreateExercise, OwnedExerciseResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 
-	public CreateExerciseHandler(IRepository repository, IMapper mapper)
+	public CreateExerciseHandler(IRepository repository)
 	{
 		_repository = repository;
-		_mapper = mapper;
 	}
 
 	public async Task<OwnedExerciseResponse> HandleAsync(CreateExercise command)
@@ -57,12 +55,12 @@ public class CreateExerciseHandler : ICommandHandler<CreateExercise, OwnedExerci
 			throw new MaxLimitException("Max exercise limit reached");
 		}
 
-		var newExercise = _mapper.Map<OwnedExercise>(command);
+		var newExercise = command.ToDomain();
 		user.Exercises.Add(newExercise);
 
 		await _repository.PutUser(user);
 
-		var response = _mapper.Map<OwnedExerciseResponse>(newExercise);
+		var response = newExercise.ToResponse();
 		response.Id = newExercise.Id;
 		return response;
 	}

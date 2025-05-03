@@ -13,7 +13,7 @@ public class GetComplaintTests : BaseTest
 	public GetComplaintTests()
 	{
 		_mockRepository = new Mock<IRepository>();
-		_handler = new GetComplaintHandler(_mockRepository.Object, Mapper);
+		_handler = new GetComplaintHandler(_mockRepository.Object);
 	}
 	
 	[Fact]

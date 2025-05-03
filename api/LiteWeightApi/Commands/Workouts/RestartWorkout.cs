@@ -1,10 +1,9 @@
-using AutoMapper;
-using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Api.Workouts.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 
 namespace LiteWeightAPI.Commands.Workouts;
@@ -19,19 +18,17 @@ public class RestartWorkout : ICommand<UserAndWorkoutResponse>
 public class RestartWorkoutHandler : ICommandHandler<RestartWorkout, UserAndWorkoutResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 
-	public RestartWorkoutHandler(IRepository repository, IMapper mapper)
+	public RestartWorkoutHandler(IRepository repository)
 	{
 		_repository = repository;
-		_mapper = mapper;
 	}
 
 	public async Task<UserAndWorkoutResponse> HandleAsync(RestartWorkout command)
 	{
 		var user = (await _repository.GetUser(command.UserId))!;
 		var workout = await _repository.GetWorkout(command.WorkoutId);
-		var routine = _mapper.Map<Routine>(command.Routine);
+		var routine = command.Routine.ToDomain();
 		if (workout == null)
 		{
 			throw new ResourceNotFoundException("Workout");
@@ -90,8 +87,8 @@ public class RestartWorkoutHandler : ICommandHandler<RestartWorkout, UserAndWork
 
 		return new UserAndWorkoutResponse
 		{
-			User = _mapper.Map<UserResponse>(user),
-			Workout = _mapper.Map<WorkoutResponse>(workout)
+			User = user.ToResponse(),
+			Workout = workout.ToResponse()
 		};
 	}
 

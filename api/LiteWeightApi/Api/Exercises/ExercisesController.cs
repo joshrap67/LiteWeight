@@ -1,9 +1,9 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Exercises.Requests;
 using LiteWeightAPI.Api.Exercises.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Exercises;
 using LiteWeightAPI.Errors.Attributes;
+using LiteWeightAPI.Maps;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LiteWeightAPI.Api.Exercises;
@@ -13,12 +13,10 @@ namespace LiteWeightAPI.Api.Exercises;
 public class ExercisesController : BaseController
 {
 	private readonly ICommandDispatcher _dispatcher;
-	private readonly IMapper _mapper;
 
-	public ExercisesController(ICommandDispatcher dispatcher, IMapper mapper)
+	public ExercisesController(ICommandDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
-		_mapper = mapper;
 	}
 
 	/// <summary>Create Exercise</summary>
@@ -28,8 +26,7 @@ public class ExercisesController : BaseController
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	public async Task<ActionResult<OwnedExerciseResponse>> CreateExercise(SetExerciseRequest request)
 	{
-		var command = _mapper.Map<CreateExercise>(request);
-		command.UserId = CurrentUserId;
+		var command = request.ToCommand(CurrentUserId);
 
 		var response = await _dispatcher.DispatchAsync<CreateExercise, OwnedExerciseResponse>(command);
 		return new CreatedResult(new Uri($"/exercises/{response.Id}", UriKind.Relative), response);
@@ -45,9 +42,7 @@ public class ExercisesController : BaseController
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult> UpdateExercise(string exerciseId, SetExerciseRequest request)
 	{
-		var command = _mapper.Map<UpdateExercise>(request);
-		command.UserId = CurrentUserId;
-		command.ExerciseId = exerciseId;
+		var command = request.ToCommand(exerciseId, CurrentUserId);
 
 		await _dispatcher.DispatchAsync<UpdateExercise, bool>(command);
 		return NoContent();

@@ -32,7 +32,7 @@ public class Routine
 						Weight = receivedExercise.Weight,
 						Sets = receivedExercise.Reps,
 						Reps = receivedExercise.Reps,
-						Details = receivedExercise.Details
+						Instructions = receivedExercise.Instructions
 					};
 					routineDay.AppendExercise(routineExercise);
 				}
