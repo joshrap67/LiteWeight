@@ -12,7 +12,7 @@ public class RoutineExerciseBuilder {
     private Double weight;
     private Integer sets;
     private Integer reps;
-    private String details;
+    private String instructions;
 
     // any fields not specified will be random
     public RoutineExerciseBuilder() {
@@ -44,8 +44,8 @@ public class RoutineExerciseBuilder {
         return this;
     }
 
-    public RoutineExerciseBuilder withDetails(String details) {
-        this.details = details;
+    public RoutineExerciseBuilder withInstructions(String instructions) {
+        this.instructions = instructions;
         return this;
     }
 
@@ -56,8 +56,8 @@ public class RoutineExerciseBuilder {
         double weight = this.weight == null ? rng.nextDouble() * 300 : this.weight;
         int sets = this.sets == null ? rng.nextInt(100) : this.sets;
         int reps = this.reps == null ? rng.nextInt(100) : this.reps;
-        String details = this.details == null ? null : this.details;
+        String instructions = this.instructions == null ? null : this.instructions;
 
-        return new RoutineExercise(completed, exerciseId, weight, sets, reps, details);
+        return new RoutineExercise(completed, exerciseId, weight, sets, reps, instructions);
     }
 }

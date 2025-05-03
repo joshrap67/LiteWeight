@@ -1140,7 +1140,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 Executor executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
                     Result<OwnedExercise> result = selfManager.newExercise(
-                            exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", "");
+                            exerciseName, selectedFocuses, Variables.DEFAULT_WEIGHT, Variables.DEFAULT_SETS, Variables.DEFAULT_REPS, "", new ArrayList<>());
                     Handler handler = new Handler(getMainLooper());
                     handler.post(() -> {
                         loadingBar.setVisibility(View.GONE);

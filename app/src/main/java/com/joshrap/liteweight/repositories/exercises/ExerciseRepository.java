@@ -4,6 +4,7 @@ import static com.joshrap.liteweight.utils.NetworkUtils.getRoute;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshrap.liteweight.models.LiteWeightNetworkException;
+import com.joshrap.liteweight.models.user.Link;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.repositories.ApiGateway;
 import com.joshrap.liteweight.repositories.BodyRequest;
@@ -27,9 +28,9 @@ public class ExerciseRepository {
         this.objectMapper = objectMapper;
     }
 
-    public OwnedExercise newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String details, String videoURL)
+    public OwnedExercise newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String notes, List<Link> links)
             throws LiteWeightNetworkException, IOException {
-        BodyRequest body = new SetExerciseRequest(exerciseName, weight, sets, reps, focuses, details, videoURL);
+        BodyRequest body = new SetExerciseRequest(exerciseName, weight, sets, reps, focuses, links, notes);
 
         String apiResponse = this.apiGateway.post(exerciseRoute, body);
         return this.objectMapper.readValue(apiResponse, OwnedExercise.class);

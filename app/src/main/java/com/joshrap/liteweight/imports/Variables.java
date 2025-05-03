@@ -19,8 +19,11 @@ public class Variables {
     public static final int MAX_SETS_DIGITS = Integer.toString(MAX_SETS).length();
     public static final int MAX_REPS = 999;
     public static final int MAX_REPS_DIGITS = Integer.toString(MAX_REPS).length();
-    public static final int MAX_DETAILS_LENGTH = 500;
+    public static final int MAX_INSTRUCTIONS_LENGTH = 500;
+    public static final int MAX_NOTES_LENGTH = 5000;
+    public static final int MAX_LINKS = 10;
     public static final int MAX_URL_LENGTH = 200;
+    public static final int MAX_LABEL_LENGTH = 200;
     public static final int MAX_USERNAME_LENGTH = 50;
     public static final int MIN_PASSWORD_LENGTH = 8;
     public static final int MAX_PASSWORD_LENGTH = 120;
@@ -85,7 +88,6 @@ public class Variables {
     public static final String TIMER_ENABLED = "TimerEnabled";
     public static final String STOPWATCH_ENABLED = "StopwatchEnabled";
     public static final String LAST_CLOCK_MODE = "DefaultClock";
-    public static final String VIDEO_KEY = "Videos";
     public static final String STOPWATCH = "Stopwatch";
     public static final String TIMER = "Timer";
     public static final String WORKOUT_PROGRESS_KEY = "WorkoutProgressKey";

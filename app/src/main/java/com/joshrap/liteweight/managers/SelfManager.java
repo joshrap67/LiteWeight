@@ -8,6 +8,7 @@ import com.joshrap.liteweight.models.LiteWeightNetworkException;
 import com.joshrap.liteweight.models.Result;
 import com.joshrap.liteweight.models.UserAndWorkout;
 import com.joshrap.liteweight.models.user.FriendRequest;
+import com.joshrap.liteweight.models.user.Link;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.models.user.UserSettings;
@@ -115,13 +116,13 @@ public class SelfManager {
         return result;
     }
 
-    public Result<OwnedExercise> newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String details, String videoURL) {
+    public Result<OwnedExercise> newExercise(String exerciseName, List<String> focuses, double weight, int sets, int reps, String notes, List<Link> links) {
         Result<OwnedExercise> result = new Result<>();
 
         try {
             User user = currentUserModule.getUser();
 
-            OwnedExercise newExercise = exerciseRepository.newExercise(exerciseName, focuses, weight, sets, reps, details, videoURL);
+            OwnedExercise newExercise = exerciseRepository.newExercise(exerciseName, focuses, weight, sets, reps, notes, links);
             user.addExercise(newExercise);
             result.setData(newExercise);
         } catch (Exception e) {

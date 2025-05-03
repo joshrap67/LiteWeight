@@ -19,6 +19,7 @@ public static class Globals
 	public const int MaxReps = 999;
 	public const int MaxInstructionsLength = 500;
 	public const int MaxUrlLength = 200;
+	public const int MaxLabelLength = 100;
 	public const int MaxLinks = 10;
 	public const int MaxExerciseName = 40;
 	public const int MaxFocusesLength = 20;

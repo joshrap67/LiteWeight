@@ -1,5 +1,8 @@
 package com.joshrap.liteweight.models.receivedWorkout;
 
+
+import com.joshrap.liteweight.models.user.Link;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class ReceivedWorkoutDistinctExercise {
 
     private String exerciseName;
+    private String notes;
     private List<String> focuses = new ArrayList<>();
-    private String videoUrl;
+    private List<Link> links = new ArrayList<>();
 }

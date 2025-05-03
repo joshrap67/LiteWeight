@@ -111,7 +111,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -119,7 +119,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         routine1.addExercise(0, 0, exercise1);
         routine1.addExercise(0, 0, exercise2);
@@ -135,7 +135,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         RoutineExercise exercise4 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -143,7 +143,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         routine2.addExercise(0, 0, exercise3);
         routine2.addExercise(0, 0, exercise4);
@@ -198,7 +198,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -206,7 +206,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         routine1.addExercise(0, 0, exercise1);
         routine1.addExercise(0, 0, exercise2);
@@ -220,7 +220,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         RoutineExercise exercise4 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -228,7 +228,7 @@ public class RoutinesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("details")
+                .withInstructions("instructions")
                 .build();
         routine2.addExercise(0, 0, exercise3);
         routine2.addExercise(0, 0, exercise4);

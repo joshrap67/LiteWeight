@@ -2,7 +2,7 @@
 
 This app is a lightweight workout manager that allows for workouts to be created, managed, and shared. The application interacts with a [.Net Core backend hosted on Google Cloud](api/README.md).
 
-Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a URL associated with it for viewing a video on how to perform it while working out.
+Default exercises are provided for adding to workouts, and any custom exercises can be created if desired. All exercises can have a links associated with it for viewing videos on how to perform it while working out, or to link to articles on the exercise.
 
 Friend requests can be sent to any other LiteWeight user and workouts can additionally be sent to any user.
 

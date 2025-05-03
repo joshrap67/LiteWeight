@@ -88,14 +88,14 @@ public class ExercisesDifferentTests {
     }
 
     @Test
-    public void exercises_differ_by_details() {
+    public void exercises_differ_by_instructions() {
         RoutineExercise exercise1 = new RoutineExerciseBuilder()
                 .withCompleted(true)
                 .withExerciseId("exerciseId")
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("a")
+                .withInstructions("a")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -103,15 +103,15 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("b")
+                .withInstructions("b")
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
-        assertTrue("Exercises differ by details", doExercisesDiffer);
+        assertTrue("Exercises differ by instructions", doExercisesDiffer);
     }
 
     @Test
-    public void exercises_differ_by_details_one_null() {
+    public void exercises_differ_by_instructions_one_null() {
         RoutineExercise exercise1 = new RoutineExerciseBuilder()
                 .withCompleted(true)
                 .withExerciseId("exerciseId")
@@ -125,22 +125,22 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("test")
+                .withInstructions("test")
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
-        assertTrue("Exercises differ by details", doExercisesDiffer);
+        assertTrue("Exercises differ by instructions", doExercisesDiffer);
     }
 
     @Test
-    public void exercises_differ_by_details_other_null() {
+    public void exercises_differ_by_instructions_other_null() {
         RoutineExercise exercise1 = new RoutineExerciseBuilder()
                 .withCompleted(true)
                 .withExerciseId("exerciseId")
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("test")
+                .withInstructions("test")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -151,18 +151,18 @@ public class ExercisesDifferentTests {
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
-        assertTrue("Exercises differ by details", doExercisesDiffer);
+        assertTrue("Exercises differ by instructions", doExercisesDiffer);
     }
 
     @Test
-    public void exercises_do_not_differ_by_details() {
+    public void exercises_do_not_differ_by_instructions() {
         RoutineExercise exercise1 = new RoutineExerciseBuilder()
                 .withCompleted(true)
                 .withExerciseId("exerciseId")
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("test")
+                .withInstructions("test")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -170,15 +170,15 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("test")
+                .withInstructions("test")
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
-        assertFalse("Exercises do not differ by details", doExercisesDiffer);
+        assertFalse("Exercises do not differ by instructions", doExercisesDiffer);
     }
 
     @Test
-    public void exercises_do_not_differ_by_details_null() {
+    public void exercises_do_not_differ_by_instructions_null() {
         RoutineExercise exercise1 = new RoutineExerciseBuilder()
                 .withCompleted(true)
                 .withExerciseId("exerciseId")
@@ -195,7 +195,7 @@ public class ExercisesDifferentTests {
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);
-        assertFalse("Exercises do not differ by details", doExercisesDiffer);
+        assertFalse("Exercises do not differ by instructions", doExercisesDiffer);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("Details")
+                .withInstructions("Instructions")
                 .build();
         RoutineExercise exercise2 = new RoutineExerciseBuilder()
                 .withCompleted(true)
@@ -214,7 +214,7 @@ public class ExercisesDifferentTests {
                 .withWeight(24.0)
                 .withSets(3)
                 .withReps(15)
-                .withDetails("Details")
+                .withInstructions("Instructions")
                 .build();
 
         boolean doExercisesDiffer = RoutineExercise.exercisesDifferent(exercise1, exercise2);

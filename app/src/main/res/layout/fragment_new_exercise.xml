@@ -198,17 +198,17 @@
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/default_details_input_layout"
+                        android:id="@+id/notes_input_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/sets_reps_container"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
-                        android:hint="@string/default_details_hint"
+                        android:hint="@string/notes_hint"
                         app:expandedHintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/default_details_input"
+                            android:id="@+id/notes_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:imeOptions="actionDone"
@@ -220,57 +220,51 @@
                             app:autoSizeTextType="uniform" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/url_input_layout"
+                <RelativeLayout
+                    android:id="@+id/links_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/notes_input_layout"
+                    android:layout_marginVertical="8dp"
+                    android:animateLayoutChanges="true">
+
+                    <RelativeLayout
+                        android:id="@+id/links_title_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/default_details_input_layout"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:hint="@string/url_hint"
-                        app:autoSizeTextType="uniform"
-                        app:expandedHintEnabled="false">
+                        android:background="@drawable/bottom_border_selectable">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/url_input"
+                        <ImageButton
+                            android:id="@+id/add_link_icon_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="?android:selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/expand_collapse"
+                            android:focusable="true"
+                            android:src="@drawable/add_icon" />
+
+                        <TextView
+                            android:id="@+id/links_title_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:imeOptions="actionDone"
-                            android:inputType="textUri"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginBottom="4dp"
+                            android:layout_toStartOf="@id/add_link_icon_btn"
+                            android:text="@string/links"
+                            android:textColor="?attr/colorHint"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
 
-                <LinearLayout
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/exercise_links_recycler_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/url_input_layout"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-
-                    <Button
-                            android:id="@+id/copy_clipboard_btn"
-                            style="?android:attr/buttonBarButtonStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
-                            android:layout_weight="1"
-                            android:text="@string/copy_url"
-                            android:textColor="?attr/colorDefaultText"
-                            app:icon="@drawable/copy_icon" />
-
-                    <Button
-                            android:id="@+id/preview_video_btn"
-                            style="?android:attr/buttonBarButtonStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/preview_url"
-                            android:textColor="?attr/colorDefaultText"
-                            app:icon="@drawable/preview_icon" />
-                </LinearLayout>
+                        android:layout_below="@id/links_title_container"
+                        tools:itemCount="10"
+                        tools:listitem="@android:layout/simple_selectable_list_item"
+                        tools:visibility="visible" />
+                </RelativeLayout>
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
@@ -280,7 +274,6 @@
             android:id="@+id/save_btn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/save"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

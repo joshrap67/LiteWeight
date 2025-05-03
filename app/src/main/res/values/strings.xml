@@ -6,18 +6,15 @@
     <string name="workout_name_title">Workout Name</string>
     <string name="empty_workout_day">No exercises for this day</string>
     <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all changes will be lost!\n\nAre you sure you wish to quit?</string>
-    <string name="video_switch_description">Provides a button in the more details section for each exercise in the current workout page that, when
-    clicked, launches a video using the provided URL for the specific exercise.</string>
     <string name="metric_switch_description">Converts all units from imperial units (lb) to metric units (kg).</string>
     <string name="stopwatch_switch_description">Provides a stopwatch accessible from the bottom of the current workout page.</string>
     <string name="timer_switch_description">Provides a timer accessible from the bottom of the current workout page.</string>
     <string name="save">SAVE</string>
     <string name="select_focus_title">Select Focuses</string>
-    <string name="url_hint">Video URL (Leave empty for none)</string>
+    <string name="url_hint">URL *</string>
     <string name="name_hint">Exercise Name</string>
     <string name="delete">Delete</string>
     <string name="none">None</string>
-    <string name="video_switch">Videos</string>
     <string name="stopwatch_switch">Stopwatch</string>
     <string name="timer_switch">Timer</string>
     <string name="set_timer">Set Duration</string>
@@ -32,7 +29,6 @@
     <string name="nav_friends_list">Friend\'s List</string>
     <string name="default_sets_hint">Default Sets</string>
     <string name="default_reps_hint">Default Reps</string>
-    <string name="default_details_hint">Default Details</string>
     <string name="nav_about">About</string>
     <string name="restart_msg">Restart this workout and return to the first day of the workout with all exercises unchecked?
         \n\nThe statistics for this workout will be updated using the workout progress below.</string>
@@ -64,7 +60,7 @@
     <string name="app_purpose">LiteWeight is used for creating and tracking custom workouts. The \"Current Workout\" page contains the workout that you are currently working on. As you cycle through the days you can track which exercises you completed that day by checking the checkbox, and can update the weight, sets, or reps by expanding the row.\n\nWhenever you are ready you can restart the workout to be brought back to day one with all exercises ready to be completed again! Go to the \"My Workouts\" page to edit an existing workout or to create a new one. The \"My Exercises\" page contains a collection of all your exercises and the default values associated with them.\n\nAdd friends by going to the Friend\'s List page. You can send a friend request to any LiteWeight user. You can send your workout to any user either directly from your friend\'s list or from the \"My Workouts\" page.</string>
     <string name="current_workout_explanation">You are only able to work on one workout at a time. The current workout is the workout you are currently working on. You can change your current workout by going to the \"My Workouts\" page and clicking on any workouts you have in your list.\n\nAt this time the only workout you can edit is the current workout. To edit another workout you must select it as your current workout. Switching to a different workout will always save the progress of the old current workout.</string>
     <string name="send_workout_explanation">When you send a workout to another user, it sends a copy of the workout at the time of you sending it. Thus, any changes you make will not be reflected in the copy you sent them. You must send it again for them to get the updated changes.</string>
-    <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will default to the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets, reps, details), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account settings, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
+    <string name="default_explanation">Whenever you create a new workout or add exercises to an existing workout, the exercises will default to the value of the default values specified for that exercise. Changing the values of an exercise, (i.e. sets and reps), when they are in a workout will NOT update the default values.\n\nThe only default field that can change from changing it in an existing or new workout is weight. If enabled in your account settings, the default weight will automatically get updated upon saving or restarting a workout whenever the weight in that workout is higher than the current default weight.</string>
     <string name="cancel_friend_request">Cancel Friend Request</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="send_a_workout">Send a workout</string>
@@ -91,7 +87,7 @@
     <string name="sets">Sets</string>
     <string name="weight_lbs">Weight (lbs)</string>
     <string name="reps">Reps</string>
-    <string name="details">Details</string>
+    <string name="instructions">Instructions</string>
     <string name="request_sent">Request Sent…</string>
     <string name="new_indicator">*</string>
     <string name="click_for_more_details">Click for more details…</string>
@@ -120,7 +116,6 @@
     <string name="decline_friend_request">Decline Friend Request</string>
     <string name="create_workout">Create workout</string>
     <string name="save_workout">Save workout</string>
-    <string name="watch_video">Watch Video</string>
     <string name="delete_exercise">Delete exercise</string>
     <string name="done_all_caps">DONE</string>
     <string name="show_timer_stopwatch">Show Timer/Stopwatch</string>
@@ -141,7 +136,7 @@
     <string name="average_workout_completion">Avg Workout Completion</string>
     <string name="most_frequent_focus">Most frequent focus</string>
     <string name="day_details">Day Details</string>
-    <string name="launch_video_msg">Launch this video using an external application?</string>
+    <string name="launch_link_msg">Launch this link using an external application?</string>
     <string name="respond">Respond</string>
     <string name="copy_day_to_week_msg">Copy this day to one of the following weeks.\n\nNote that this will append the copied day to the end of the week.</string>
     <string name="move_day_msg">Move this day to the end of the selected week. After moving it, you can rearrange the routine to move the day within its new week.</string>
@@ -180,4 +175,9 @@
     <string name="dark_theme_switch_description">Enables dark theme for the app. Changes to this setting will take into effect after restarting the app.</string>
     <string name="dark_theme_switch">Dark Theme</string>
     <string name="app_settings_subtitle">App settings are not saved in the cloud.</string>
+    <string name="link_label">Label</string>
+    <string name="notes_hint">Notes</string>
+    <string name="links">Links</string>
+    <string name="edit">Edit</string>
+    <string name="exercise_details">Exercise Details</string>
 </resources>

@@ -1,4 +1,5 @@
-﻿using LiteWeightAPI.Api.Exercises.Requests;
+﻿using LiteWeightAPI.Api.Common.Responses;
+using LiteWeightAPI.Api.Exercises.Requests;
 
 namespace LiteWeightAPI.Api.Exercises.Responses;
 
@@ -35,15 +36,15 @@ public class OwnedExerciseResponse
 	public int DefaultReps { get; set; }
 
 	/// <summary>
-	/// Links associated with this exercise.
-	/// </summary>
-	public IList<LinkResponse> Links { get; set; } = new List<LinkResponse>();
-
-	/// <summary>
 	/// Arbitrary notes detailing information such as hints/cues for certain exercises.
 	/// </summary>
 	/// <example>Ensure deep stretch. Don't over extend arms</example>
 	public string? Notes { get; set; }
+
+	/// <summary>
+	/// Links associated with this exercise.
+	/// </summary>
+	public IList<LinkResponse> Links { get; set; } = new List<LinkResponse>();
 
 	/// <summary>
 	/// List of focuses of the exercise.

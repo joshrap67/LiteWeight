@@ -1,4 +1,5 @@
-﻿using LiteWeightAPI.Api.Exercises.Requests;
+﻿using LiteWeightAPI.Api.Common.Responses;
+using LiteWeightAPI.Api.Exercises.Requests;
 using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Domain.Users;
 

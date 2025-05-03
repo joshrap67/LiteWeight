@@ -18,8 +18,8 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
     private double defaultWeight; // stored in lbs
     private int defaultSets;
     private int defaultReps;
-    private String defaultDetails;
-    private String videoUrl;
+    private String notes;
+    private List<Link> links = new ArrayList<>();
     private List<String> focuses = new ArrayList<>();
     private List<OwnedExerciseWorkout> workouts = new ArrayList<>();
 
@@ -29,8 +29,8 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
         this.defaultWeight = ownedExercise.getDefaultWeight();
         this.defaultSets = ownedExercise.getDefaultSets();
         this.defaultReps = ownedExercise.getDefaultReps();
-        this.defaultDetails = ownedExercise.getDefaultDetails();
-        this.videoUrl = ownedExercise.getVideoUrl();
+        this.notes = ownedExercise.getNotes();
+        this.links = ownedExercise.getLinks();
         this.focuses = new ArrayList<>(ownedExercise.getFocuses());
         this.workouts = ownedExercise.getWorkouts().stream().map(OwnedExerciseWorkout::new).collect(Collectors.toList());
     }
@@ -40,9 +40,9 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
         this.defaultWeight = ownedExercise.defaultWeight;
         this.defaultSets = ownedExercise.defaultSets;
         this.defaultReps = ownedExercise.defaultReps;
-        this.defaultDetails = ownedExercise.defaultDetails;
+        this.notes = ownedExercise.notes;
         this.focuses = ownedExercise.focuses;
-        this.videoUrl = ownedExercise.videoUrl;
+        this.links = ownedExercise.links;
     }
 
     public void removeWorkout(String workoutId) {

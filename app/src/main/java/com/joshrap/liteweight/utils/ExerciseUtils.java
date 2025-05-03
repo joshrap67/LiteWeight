@@ -11,12 +11,12 @@ import java.util.List;
 public class ExerciseUtils {
 
     /**
-     * Attempts to launch a video of a given exercise with either the built in video app (like Youtube) or browser.
+     * Attempts to launch a link of a given exercise with either the built in app (like Youtube) or browser.
      *
-     * @param url     url of the video.
+     * @param url     url of the link.
      * @param context current context of the calling component.
      */
-    public static void launchVideo(String url, Context context) {
+    public static void launchLink(String url, Context context) {
         String errorMsg = ValidatorUtils.validUrl(url);
         if (errorMsg == null) {
             Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

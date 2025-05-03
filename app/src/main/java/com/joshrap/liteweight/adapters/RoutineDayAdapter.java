@@ -44,7 +44,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final RelativeLayout extraInfoContainer;
         final RelativeLayout rootLayout;
 
-        final EditText detailsInput;
+        final EditText instructionsInput;
         final EditText weightInput;
         final EditText setsInput;
         final EditText repsInput;
@@ -62,7 +62,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
 
             weightInput = itemView.findViewById(R.id.weight_input);
-            detailsInput = itemView.findViewById(R.id.details_input);
+            instructionsInput = itemView.findViewById(R.id.instructions_input);
             setsInput = itemView.findViewById(R.id.sets_input);
             repsInput = itemView.findViewById(R.id.reps_input);
 
@@ -136,7 +136,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
         Button expandButton = holder.expandButton;
         EditText weightInput = holder.weightInput;
-        EditText detailsInput = holder.detailsInput;
+        EditText instructionsInput = holder.instructionsInput;
         EditText repsInput = holder.repsInput;
         EditText setsInput = holder.setsInput;
 
@@ -145,11 +145,11 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
         setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
-        detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
+        instructionsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_INSTRUCTIONS_LENGTH)});
 
         AndroidUtils.setSetsTextWatcher(setsInput, exercise);
         AndroidUtils.setRepsTextWatcher(repsInput, exercise);
-        AndroidUtils.setDetailsTextWatcher(detailsInput, exercise);
+        AndroidUtils.setInstructionsTextWatcher(instructionsInput, exercise);
 
         weightInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -242,7 +242,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
         holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
         holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
-        holder.detailsInput.setText(exercise.getDetails());
+        holder.instructionsInput.setText(exercise.getInstructions());
     }
 
     @Override

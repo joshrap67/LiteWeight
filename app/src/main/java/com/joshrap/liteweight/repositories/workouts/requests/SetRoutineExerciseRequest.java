@@ -15,7 +15,7 @@ public class SetRoutineExerciseRequest {
     private double weight;
     private int sets;
     private int reps;
-    private String details;
+    private String instructions;
 
     public SetRoutineExerciseRequest(RoutineExercise routineExercise) {
         this.completed = routineExercise.isCompleted();
@@ -23,6 +23,6 @@ public class SetRoutineExerciseRequest {
         this.weight = routineExercise.getWeight();
         this.sets = routineExercise.getSets();
         this.reps = routineExercise.getReps();
-        this.details = routineExercise.getDetails();
+        this.instructions = routineExercise.getInstructions();
     }
 }

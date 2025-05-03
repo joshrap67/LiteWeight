@@ -1,3 +1,4 @@
+using LiteWeightAPI.Api.Common.Responses;
 using LiteWeightAPI.Api.Exercises.Requests;
 using LiteWeightAPI.Api.Exercises.Responses;
 using LiteWeightAPI.Commands.Common;

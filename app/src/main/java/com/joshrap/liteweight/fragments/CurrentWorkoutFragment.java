@@ -52,7 +52,6 @@ import com.joshrap.liteweight.models.workout.RoutineDay;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.models.workout.RoutineWeek;
 import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.ExerciseUtils;
 import com.joshrap.liteweight.utils.TimeUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
@@ -359,14 +358,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
-        boolean videosEnabled = sharedPreferences.getBoolean(Variables.VIDEO_KEY, true);
-
         List<RoutineRowModel> routineRowModels = new ArrayList<>();
         for (RoutineExercise exercise : getRoutine().exerciseListForDay(currentWeekIndex, currentDayIndex)) {
             RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
             routineRowModels.add(exerciseRowModel);
         }
-        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, isMetricUnits, videosEnabled);
+        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, isMetricUnits);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -527,11 +524,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             final RelativeLayout bottomContainer;
             final ConstraintLayout rootLayout;
 
-            final EditText detailsInput;
+            final EditText instructionsInput;
             final EditText weightInput;
             final EditText setsInput;
             final EditText repsInput;
-            final Button videoButton;
+            final Button detailsButton;
 
             final TextInputLayout weightInputLayout;
 
@@ -542,12 +539,12 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
                 exerciseCheckbox = itemView.findViewById(R.id.exercise_checkbox);
                 expandButton = itemView.findViewById(R.id.expand_btn);
-                videoButton = itemView.findViewById(R.id.launch_video_btn);
+                detailsButton = itemView.findViewById(R.id.launch_link_btn);
 
                 bottomContainer = itemView.findViewById(R.id.bottom_container);
 
                 weightInput = itemView.findViewById(R.id.weight_input);
-                detailsInput = itemView.findViewById(R.id.details_input);
+                instructionsInput = itemView.findViewById(R.id.instructions_input);
                 setsInput = itemView.findViewById(R.id.sets_input);
                 repsInput = itemView.findViewById(R.id.reps_input);
 
@@ -558,13 +555,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         private final List<RoutineRowModel> routineRowModels;
         private final Map<String, OwnedExercise> exerciseUserMap;
         private final boolean metricUnits;
-        private final boolean videosEnabled;
 
-        RoutineAdapter(List<RoutineRowModel> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits, boolean videosEnabled) {
+        RoutineAdapter(List<RoutineRowModel> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits) {
             this.routineRowModels = routineRowModels;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
-            this.videosEnabled = videosEnabled;
         }
 
         @NonNull
@@ -611,22 +606,22 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             Button expandButton = holder.expandButton;
             EditText weightInput = holder.weightInput;
-            EditText detailsInput = holder.detailsInput;
+            EditText instructionsInput = holder.instructionsInput;
             EditText repsInput = holder.repsInput;
             EditText setsInput = holder.setsInput;
 
-            Button videoButton = holder.videoButton;
-            videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
+            Button exerciseDetailsBtn = holder.detailsButton;
+            exerciseDetailsBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).goToExerciseDetails(exercise.getExerciseId()));
 
             weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
             setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
             repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
-            detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
+            instructionsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_INSTRUCTIONS_LENGTH)});
 
             AndroidUtils.setWeightTextWatcher(weightInput, exercise, isMetricUnits);
             AndroidUtils.setSetsTextWatcher(setsInput, exercise);
             AndroidUtils.setRepsTextWatcher(repsInput, exercise);
-            AndroidUtils.setDetailsTextWatcher(detailsInput, exercise);
+            AndroidUtils.setInstructionsTextWatcher(instructionsInput, exercise);
 
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
@@ -654,21 +649,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     notifyItemChanged(position, true);
                 }
             });
-
-            videoButton.setOnClickListener(v -> {
-                alertDialog = new AlertDialog.Builder(requireContext())
-                        .setTitle("Launch Video")
-                        .setMessage(R.string.launch_video_msg)
-                        .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(this.exerciseUserMap.get(exercise.getExerciseId()).getVideoUrl(), getContext()))
-                        .setNegativeButton("No", null)
-                        .create();
-                alertDialog.show();
-            });
         }
 
         private void setExpandedViews(ViewHolder holder, RoutineExercise exercise) {
             holder.bottomContainer.setVisibility(View.VISIBLE);
-            holder.videoButton.setVisibility((videosEnabled) ? View.VISIBLE : View.GONE);
+            holder.detailsButton.setVisibility(View.VISIBLE);
 
             holder.expandButton.setText(R.string.done_all_caps);
             holder.expandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up_arrow_small, 0);
@@ -692,7 +677,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
             holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
             holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
-            holder.detailsInput.setText(exercise.getDetails());
+            holder.instructionsInput.setText(exercise.getInstructions());
         }
 
         @Override
