@@ -9,15 +9,15 @@ namespace LiteWeightApiTests.Commands.Self;
 public class DeleteSelfTests : BaseTest
 {
 	private readonly DeleteSelfHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public DeleteSelfTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var storageService = new Mock<IStorageService>().Object;
-		var firebaseAuthService = new Mock<IFirebaseAuthService>().Object;
-		var pushNotificationService = new Mock<IPushNotificationService>().Object;
-		_handler = new DeleteSelfHandler(_mockRepository.Object, storageService, firebaseAuthService,
+		_mockRepository = Substitute.For<IRepository>();
+		var storageService = Substitute.For<IStorageService>();
+		var firebaseAuthService = Substitute.For<IFirebaseAuthService>();
+		var pushNotificationService = Substitute.For<IPushNotificationService>();
+		_handler = new DeleteSelfHandler(_mockRepository, storageService, firebaseAuthService,
 			pushNotificationService);
 	}
 
@@ -59,30 +59,28 @@ public class DeleteSelfTests : BaseTest
 
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == userWhoSentFriendRequestId)))
-			.ReturnsAsync(userWhoSentFriendRequest);
+			.GetUser(Arg.Is<string>(y => y == userWhoSentFriendRequestId))
+			.Returns(userWhoSentFriendRequest);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == friendOfUserId)))
-			.ReturnsAsync(friendOfUser);
+			.GetUser(Arg.Is<string>(y => y == friendOfUserId))
+			.Returns(friendOfUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == userWhoReceivedFriendRequestId)))
-			.ReturnsAsync(userWhoReceivedFriendRequest);
+			.GetUser(Arg.Is<string>(y => y == userWhoReceivedFriendRequestId))
+			.Returns(userWhoReceivedFriendRequest);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 
 		Assert.True(friendOfUser.Friends.All(x => x.UserId != userId));
 		Assert.True(userWhoSentFriendRequest.Friends.All(x => x.UserId != userId));
 		Assert.True(userWhoReceivedFriendRequest.FriendRequests.All(x => x.UserId != userId));
-		_mockRepository.Verify(
-			x => x.DeleteReceivedWorkout(It.IsAny<string>()), Times.Exactly(user.ReceivedWorkouts.Count));
-		_mockRepository.Verify(
-			x => x.DeleteWorkout(It.IsAny<string>()), Times.Exactly(user.Workouts.Count));
+		await _mockRepository.Received(user.ReceivedWorkouts.Count).DeleteReceivedWorkout(Arg.Any<string>());
+		await _mockRepository.Received(user.Workouts.Count).DeleteWorkout(Arg.Any<string>());
 	}
 
 	[Fact]
@@ -91,8 +89,8 @@ public class DeleteSelfTests : BaseTest
 		var command = Fixture.Create<DeleteSelf>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

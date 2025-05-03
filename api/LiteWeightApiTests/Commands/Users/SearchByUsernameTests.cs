@@ -7,12 +7,12 @@ namespace LiteWeightApiTests.Commands.Users;
 public class SearchByUsernameTests : BaseTest
 {
 	private readonly SearchByUsernameHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public SearchByUsernameTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new SearchByUsernameHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new SearchByUsernameHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -27,8 +27,8 @@ public class SearchByUsernameTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync(foundUser);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns(foundUser);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.NotNull(response);
@@ -48,8 +48,8 @@ public class SearchByUsernameTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync(foundUser);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns(foundUser);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.NotNull(response);
@@ -62,8 +62,8 @@ public class SearchByUsernameTests : BaseTest
 		var command = Fixture.Create<SearchByUsername>();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync((User?)null);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns((User?)null);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Null(response);
@@ -81,8 +81,8 @@ public class SearchByUsernameTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync(foundUser);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns(foundUser);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Null(response);

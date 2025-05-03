@@ -7,12 +7,12 @@ namespace LiteWeightApiTests.Commands.Self;
 public class SetAllFriendRequestsSeenTests : BaseTest
 {
 	private readonly SetAllFriendRequestsSeenHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public SetAllFriendRequestsSeenTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new SetAllFriendRequestsSeenHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new SetAllFriendRequestsSeenHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -30,8 +30,8 @@ public class SetAllFriendRequestsSeenTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		Assert.True(user.FriendRequests.All(x => x.Seen));
@@ -46,8 +46,8 @@ public class SetAllFriendRequestsSeenTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		Assert.True(user.FriendRequests.All(x => x.Seen));

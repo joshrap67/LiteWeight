@@ -9,14 +9,14 @@ namespace LiteWeightApiTests.Commands.Self;
 public class SetCurrentWorkoutTests : BaseTest
 {
 	private readonly SetCurrentWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
-	private readonly Mock<IClock> _mockClock;
+	private readonly IRepository _mockRepository;
+	private readonly IClock _mockClock;
 
 	public SetCurrentWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_mockClock = new Mock<IClock>();
-		_handler = new SetCurrentWorkoutHandler(_mockRepository.Object, _mockClock.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_mockClock = Substitute.For<IClock>();
+		_handler = new SetCurrentWorkoutHandler(_mockRepository, _mockClock);
 	}
 
 	[Fact]
@@ -30,11 +30,11 @@ public class SetCurrentWorkoutTests : BaseTest
 			.With(x => x.Workouts, [workoutInfo])
 			.Create();
 		var instant = Fixture.Create<Instant>();
-		_mockClock.Setup(x => x.GetCurrentInstant()).Returns(instant);
+		_mockClock.GetCurrentInstant().Returns(instant);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 
@@ -49,8 +49,8 @@ public class SetCurrentWorkoutTests : BaseTest
 		var user = Fixture.Build<User>().With(x => x.Id, command.UserId).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 
@@ -63,8 +63,8 @@ public class SetCurrentWorkoutTests : BaseTest
 		var command = Fixture.Create<SetCurrentWorkout>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Create<User>());
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Create<User>());
 
 		await Assert.ThrowsAsync<WorkoutNotFoundException>(() => _handler.HandleAsync(command));
 	}

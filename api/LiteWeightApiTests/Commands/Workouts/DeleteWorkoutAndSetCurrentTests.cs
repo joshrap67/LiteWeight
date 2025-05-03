@@ -12,14 +12,14 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class DeleteWorkoutAndSetCurrentTests : BaseTest
 {
 	private readonly DeleteWorkoutAndSetCurrentHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
-	private readonly Mock<IClock> _mockClock;
+	private readonly IRepository _mockRepository;
+	private readonly IClock _mockClock;
 
 	public DeleteWorkoutAndSetCurrentTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_mockClock = new Mock<IClock>();
-		_handler = new DeleteWorkoutAndSetCurrentHandler(_mockRepository.Object, _mockClock.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_mockClock = Substitute.For<IClock>();
+		_handler = new DeleteWorkoutAndSetCurrentHandler(_mockRepository, _mockClock);
 	}
 
 	[Theory]
@@ -69,15 +69,15 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 			.Create();
 
 		var instant = Fixture.Create<Instant>();
-		_mockClock.Setup(x => x.GetCurrentInstant()).Returns(instant);
+		_mockClock.GetCurrentInstant().Returns(instant);
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutToDeleteId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutToDeleteId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		// no exercise on the user should have this workout anymore
@@ -108,12 +108,12 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutToDeleteId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutToDeleteId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<WorkoutNotFoundException>(() => _handler.HandleAsync(command));
 	}
@@ -125,12 +125,12 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 		var user = Fixture.Create<User>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutToDeleteId)))
-			.ReturnsAsync(Fixture.Create<Workout>());
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutToDeleteId))
+			.Returns(Fixture.Create<Workout>());
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<ForbiddenException>(() => _handler.HandleAsync(command));
 	}
@@ -141,8 +141,8 @@ public class DeleteWorkoutAndSetCurrentTests : BaseTest
 		var command = Fixture.Create<DeleteWorkoutAndSetCurrent>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutToDeleteId)))
-			.ReturnsAsync((Workout?)null);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutToDeleteId))
+			.Returns((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

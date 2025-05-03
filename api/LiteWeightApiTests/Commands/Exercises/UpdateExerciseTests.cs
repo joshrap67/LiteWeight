@@ -9,12 +9,12 @@ namespace LiteWeightApiTests.Commands.Exercises;
 public class UpdateExerciseTests : BaseTest
 {
 	private readonly UpdateExerciseHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public UpdateExerciseTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new UpdateExerciseHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new UpdateExerciseHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -34,8 +34,8 @@ public class UpdateExerciseTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 
@@ -72,8 +72,8 @@ public class UpdateExerciseTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 
@@ -86,6 +86,7 @@ public class UpdateExerciseTests : BaseTest
 			Assert.Contains(command.Links, x => x.Label == exerciseLink.Label);
 			Assert.Contains(command.Links, x => x.Url == exerciseLink.Url);
 		}
+
 		Assert.Equivalent(command.Focuses, exercise.Focuses);
 		Assert.Contains(user.Exercises, x => x.Id == exercise.Id);
 	}
@@ -97,8 +98,8 @@ public class UpdateExerciseTests : BaseTest
 		command.ExerciseId = Fixture.Create<string>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Create<User>());
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Create<User>());
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}
@@ -122,8 +123,8 @@ public class UpdateExerciseTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}

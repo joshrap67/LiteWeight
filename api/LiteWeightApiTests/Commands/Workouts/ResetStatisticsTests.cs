@@ -9,12 +9,12 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class ResetStatisticsTests : BaseTest
 {
 	private readonly ResetStatisticsHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public ResetStatisticsTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new ResetStatisticsHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new ResetStatisticsHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -32,8 +32,8 @@ public class ResetStatisticsTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		Assert.Equal(0, user.Workouts.First(x => x.WorkoutId == command.WorkoutId).TimesRestarted);
@@ -47,8 +47,8 @@ public class ResetStatisticsTests : BaseTest
 		var command = Fixture.Create<ResetStatistics>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Create<User>());
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Create<User>());
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

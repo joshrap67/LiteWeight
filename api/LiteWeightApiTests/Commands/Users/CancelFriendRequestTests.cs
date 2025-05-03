@@ -9,13 +9,13 @@ namespace LiteWeightApiTests.Commands.Users;
 public class CancelFriendRequestTests : BaseTest
 {
 	private readonly CancelFriendRequestHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public CancelFriendRequestTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var pushNotificationService = new Mock<IPushNotificationService>().Object;
-		_handler = new CancelFriendRequestHandler(_mockRepository.Object, pushNotificationService);
+		_mockRepository = Substitute.For<IRepository>();
+		var pushNotificationService = Substitute.For<IPushNotificationService>();
+		_handler = new CancelFriendRequestHandler(_mockRepository, pushNotificationService);
 	}
 
 	[Fact]
@@ -44,11 +44,11 @@ public class CancelFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToCancel)))
-			.ReturnsAsync(canceledUser);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToCancel))
+			.Returns(canceledUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.True(response);
@@ -67,11 +67,11 @@ public class CancelFriendRequestTests : BaseTest
 		var canceledUser = Fixture.Build<User>().With(x => x.Id, command.UserIdToCancel).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToCancel)))
-			.ReturnsAsync(canceledUser);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToCancel))
+			.Returns(canceledUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.False(response);
@@ -83,8 +83,8 @@ public class CancelFriendRequestTests : BaseTest
 		var command = Fixture.Create<CancelFriendRequest>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToCancel)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToCancel))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

@@ -13,13 +13,13 @@ namespace LiteWeightApiTests.Commands.ReceivedWorkouts;
 public class AcceptReceivedWorkoutTests : BaseTest
 {
 	private readonly AcceptReceivedWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public AcceptReceivedWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var clock = new Mock<IClock>();
-		_handler = new AcceptReceivedWorkoutHandler(_mockRepository.Object, clock.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		var clock = Substitute.For<IClock>();
+		_handler = new AcceptReceivedWorkoutHandler(_mockRepository, clock);
 	}
 
 	[Fact]
@@ -45,12 +45,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Equal(originalExerciseCount + receivedWorkout.DistinctExercises.Count, user.Exercises.Count);
@@ -83,12 +83,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Equal(originalExerciseCount + receivedWorkout.DistinctExercises.Count, user.Exercises.Count);
@@ -104,8 +104,8 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var command = Fixture.Create<AcceptReceivedWorkout>();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync((ReceivedWorkout)null!);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns((ReceivedWorkout)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}
@@ -119,12 +119,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<ForbiddenException>(() => _handler.HandleAsync(command));
 	}
@@ -145,12 +145,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -170,12 +170,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -195,12 +195,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		var receivedWorkout = ReceivedWorkoutHelper.GetReceivedWorkout(command.UserId);
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -222,12 +222,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 		receivedWorkout.WorkoutName = workoutName;
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -256,12 +256,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -289,12 +289,12 @@ public class AcceptReceivedWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetReceivedWorkout(It.Is<string>(y => y == command.ReceivedWorkoutId)))
-			.ReturnsAsync(receivedWorkout);
+			.GetReceivedWorkout(Arg.Is<string>(y => y == command.ReceivedWorkoutId))
+			.Returns(receivedWorkout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}

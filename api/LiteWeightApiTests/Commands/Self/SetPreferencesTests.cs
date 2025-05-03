@@ -7,12 +7,12 @@ namespace LiteWeightApiTests.Commands.Self;
 public class SetPreferencesTests : BaseTest
 {
 	private readonly SetSettingsHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public SetPreferencesTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new SetSettingsHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new SetSettingsHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -25,8 +25,8 @@ public class SetPreferencesTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 

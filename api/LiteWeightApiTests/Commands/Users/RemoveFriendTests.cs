@@ -9,13 +9,13 @@ namespace LiteWeightApiTests.Commands.Users;
 public class RemoveFriendTests : BaseTest
 {
 	private readonly RemoveFriendHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public RemoveFriendTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var pushNotificationService = new Mock<IPushNotificationService>().Object;
-		_handler = new RemoveFriendHandler(_mockRepository.Object, pushNotificationService);
+		_mockRepository = Substitute.For<IRepository>();
+		var pushNotificationService = Substitute.For<IPushNotificationService>();
+		_handler = new RemoveFriendHandler(_mockRepository, pushNotificationService);
 	}
 
 	[Fact]
@@ -44,11 +44,11 @@ public class RemoveFriendTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RemovedUserId)))
-			.ReturnsAsync(removedFriend);
+			.GetUser(Arg.Is<string>(y => y == command.RemovedUserId))
+			.Returns(removedFriend);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.True(response);
@@ -67,11 +67,11 @@ public class RemoveFriendTests : BaseTest
 		var canceledUser = Fixture.Build<User>().With(x => x.Id, command.RemovedUserId).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RemovedUserId)))
-			.ReturnsAsync(canceledUser);
+			.GetUser(Arg.Is<string>(y => y == command.RemovedUserId))
+			.Returns(canceledUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.False(response);
@@ -83,8 +83,8 @@ public class RemoveFriendTests : BaseTest
 		var command = Fixture.Create<RemoveFriend>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RemovedUserId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.RemovedUserId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

@@ -12,16 +12,16 @@ namespace LiteWeightApiTests.Commands.Users;
 public class SendFriendRequestTests : BaseTest
 {
 	private readonly SendFriendRequestHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
-	private readonly Mock<IPushNotificationService> _mockPushNotificationService;
+	private readonly IRepository _mockRepository;
+	private readonly IPushNotificationService _mockPushNotificationService;
 
 	public SendFriendRequestTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_mockPushNotificationService = new Mock<IPushNotificationService>();
-		var clock = new Mock<IClock>().Object;
-		_handler = new SendFriendRequestHandler(_mockRepository.Object, clock,
-			_mockPushNotificationService.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_mockPushNotificationService = Substitute.For<IPushNotificationService>();
+		var clock = Substitute.For<IClock>();
+		_handler = new SendFriendRequestHandler(_mockRepository, clock,
+			_mockPushNotificationService);
 	}
 
 	[Fact]
@@ -40,16 +40,16 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(senderUser);
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(senderUser);
 
 		var response = await _handler.HandleAsync(command);
-		_mockPushNotificationService.Verify(
-			x => x.SendNewFriendRequestNotification(It.IsAny<User>(), It.IsAny<FriendRequest>()), Times.Once);
+		await _mockPushNotificationService.Received(1)
+			.SendNewFriendRequestNotification(Arg.Any<User>(), Arg.Any<FriendRequest>());
 		Assert.Equal(command.RecipientId, response.UserId);
 		Assert.Contains(recipientUser.FriendRequests, x => x.UserId == command.SenderId);
 		Assert.Contains(senderUser.Friends, x => x.UserId == command.RecipientId && !x.Confirmed);
@@ -72,16 +72,16 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(senderUser);
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(senderUser);
 
 		var response = await _handler.HandleAsync(command);
-		_mockPushNotificationService.Verify(
-			x => x.SendNewFriendRequestNotification(It.IsAny<User>(), It.IsAny<FriendRequest>()), Times.Never);
+		await _mockPushNotificationService.Received(0)
+			.SendNewFriendRequestNotification(Arg.Any<User>(), Arg.Any<FriendRequest>());
 		Assert.Equal(command.RecipientId, response.UserId);
 	}
 
@@ -116,12 +116,12 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(senderUser);
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(senderUser);
 
 		await Assert.ThrowsAsync<MiscErrorException>(() => _handler.HandleAsync(command));
 	}
@@ -146,12 +146,12 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(senderUser);
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(senderUser);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -177,12 +177,12 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(senderUser);
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(senderUser);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -199,12 +199,12 @@ public class SendFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync(recipientUser);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns(recipientUser);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.SenderId)))
-			.ReturnsAsync(Fixture.Create<User>());
+			.GetUser(Arg.Is<string>(y => y == command.SenderId))
+			.Returns(Fixture.Create<User>());
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}
@@ -215,8 +215,8 @@ public class SendFriendRequestTests : BaseTest
 		var command = Fixture.Create<SendFriendRequest>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.RecipientId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.RecipientId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

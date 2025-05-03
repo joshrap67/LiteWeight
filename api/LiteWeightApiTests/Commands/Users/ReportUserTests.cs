@@ -9,13 +9,13 @@ namespace LiteWeightApiTests.Commands.Users;
 public class ReportUserTests : BaseTest
 {
 	private readonly ReportUserHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public ReportUserTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var clockMock = new Mock<IClock>().Object;
-		_handler = new ReportUserHandler(_mockRepository.Object, clockMock);
+		_mockRepository = Substitute.For<IRepository>();
+		var clockMock = Substitute.For<IClock>();
+		_handler = new ReportUserHandler(_mockRepository, clockMock);
 	}
 
 	[Fact]
@@ -29,8 +29,8 @@ public class ReportUserTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.ReportedUserId)))
-			.ReturnsAsync(reportedUser);
+			.GetUser(Arg.Is<string>(y => y == command.ReportedUserId))
+			.Returns(reportedUser);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.Equal(command.ReportedUserId, response.ReportedUserId);
@@ -42,8 +42,8 @@ public class ReportUserTests : BaseTest
 		var command = Fixture.Create<ReportUser>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.ReportedUserId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.ReportedUserId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

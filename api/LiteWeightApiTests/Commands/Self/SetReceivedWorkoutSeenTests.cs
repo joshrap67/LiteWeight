@@ -7,12 +7,12 @@ namespace LiteWeightApiTests.Commands.Self;
 public class SetReceivedWorkoutSeenTests : BaseTest
 {
 	private readonly SetReceivedWorkoutSeenHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public SetReceivedWorkoutSeenTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new SetReceivedWorkoutSeenHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new SetReceivedWorkoutSeenHandler(_mockRepository);
 	}
 
 	[Theory]
@@ -32,8 +32,8 @@ public class SetReceivedWorkoutSeenTests : BaseTest
 		user.ReceivedWorkouts.Add(receivedWorkoutInfo);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		Assert.True(receivedWorkoutInfo.Seen);
@@ -49,8 +49,8 @@ public class SetReceivedWorkoutSeenTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.False(response);
