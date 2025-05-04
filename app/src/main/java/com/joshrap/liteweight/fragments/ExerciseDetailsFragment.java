@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -94,13 +93,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         exercise = new OwnedExercise(user.getExercise(exerciseId));
         metricUnits = user.getSettings().isMetricUnits();
 
-        return inflater.inflate(R.layout.fragment_edit_exercise, container, false);
+        return inflater.inflate(R.layout.fragment_exercise_details, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        FragmentActivity activity = requireActivity();
 
         List<String> workoutList = new ArrayList<>(exercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
         List<String> selectedFocuses = new ArrayList<>(exercise.getFocuses());
@@ -108,12 +106,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         focusesTV = view.findViewById(R.id.focus_list_tv);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
-
-        Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
-        deleteExercise.setOnClickListener(v -> {
-            ((MainActivity) activity).hideKeyboard();
-            promptDelete();
-        });
 
         ImageButton exerciseOptionsBtn = view.findViewById(R.id.exercise_options_btn);
         PopupMenu dropDownMenu = getPopupMenu(exerciseOptionsBtn);
@@ -132,6 +124,9 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
             workoutListTv.setText(workouts.toString());
         }
+
+        TextView notesTv = view.findViewById(R.id.exercise_notes_tv);
+        notesTv.setText(exercise.getNotes());
 
         RecyclerView linksRecyclerView = view.findViewById(R.id.exercise_links_recycler_view);
         ExerciseLinkAdapter linksAdapter = new ExerciseLinkAdapter(exercise.getLinks());
@@ -179,7 +174,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             switch (item.getItemId()) {
                 case editIndex:
                     dropDownMenu.dismiss();
-                    ((MainActivity) requireActivity()).goToExerciseDetails(exerciseId);
+                    ((MainActivity) requireActivity()).goToEditExercise(exerciseId);
                     return true;
                 case deleteIndex:
                     promptDelete();
@@ -258,7 +253,7 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
-            View focusView = inflater.inflate(R.layout.row_save_exercise_link, parent, false);
+            View focusView = inflater.inflate(R.layout.row_exercise_link, parent, false);
             return new ViewHolder(focusView);
         }
 

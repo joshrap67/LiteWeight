@@ -229,10 +229,11 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                 urlInputLayout.setError(urlMsg);
                 labelInputLayout.setError(labelMsg);
 
-                if (urlMsg != null && labelMsg != null) {
+                if (urlMsg == null && labelMsg == null) {
                     Link link = new Link(newUrl, newLabel);
                     links.add(link);
                     linksAdapter.notifyItemInserted(links.size() - 1);
+                    alertDialog.dismiss();
                 }
             });
         });

@@ -87,7 +87,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
 
         Injector.getInjector(getContext()).inject(this);
         ((MainActivity) activity).toggleBackButton(true);
-        ((MainActivity) activity).updateToolbarTitle(Variables.EXERCISE_DETAILS_TITLE);
+        ((MainActivity) activity).updateToolbarTitle(Variables.EDIT_EXERCISE_TITLE);
 
         if (this.getArguments() != null) {
             exerciseId = this.getArguments().getString(Variables.EXERCISE_ID);
@@ -311,10 +311,11 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
                 urlInputLayout.setError(urlMsg);
                 labelInputLayout.setError(labelMsg);
 
-                if (urlMsg != null && labelMsg != null) {
+                if (urlMsg == null && labelMsg == null) {
                     Link link = new Link(newUrl, newLabel);
                     exercise.getLinks().add(link);
                     linksAdapter.notifyItemInserted(exercise.getLinks().size() - 1);
+                    alertDialog.dismiss();
                 }
             });
         });

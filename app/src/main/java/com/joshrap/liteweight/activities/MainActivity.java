@@ -46,6 +46,7 @@ import com.joshrap.liteweight.fragments.AboutFragment;
 import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
 import com.joshrap.liteweight.fragments.ChangePasswordFragment;
 import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
+import com.joshrap.liteweight.fragments.EditExerciseFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
 import com.joshrap.liteweight.fragments.FaqFragment;
 import com.joshrap.liteweight.fragments.FriendsListFragment;
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ConstraintLayout navHeaderLayout;
     private ProgressBar loadingBar;
+    private String exerciseDetailId; // curse my legacy code
 
     @Getter
     private Timer timer;
@@ -510,6 +512,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case Variables.FAQ_TITLE:
                 goToFaq();
+                break;
+            case Variables.EXERCISE_DETAILS_TITLE:
+                goToExerciseDetails(exerciseDetailId);
                 break;
             default:
                 /*
@@ -943,6 +948,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void goToExerciseDetails(String exerciseId) {
+        exerciseDetailId = exerciseId;
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.EXERCISE_DETAILS_TITLE);
         fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
@@ -955,6 +961,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
+                .commit();
+    }
+
+    public void goToEditExercise(String exerciseId) {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.EDIT_EXERCISE_TITLE);
+        fragmentStack.add(0, Variables.EDIT_EXERCISE_TITLE);
+
+        Bundle arguments = new Bundle();
+        arguments.putString(Variables.EXERCISE_ID, exerciseId);
+        Fragment fragment = new EditExerciseFragment();
+        fragment.setArguments(arguments);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
+                .replace(R.id.fragment_container, fragment, Variables.EDIT_EXERCISE_TITLE)
                 .commit();
     }
 
