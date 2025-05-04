@@ -45,6 +45,7 @@
         <item name="colorCheckBox">@color/color_primary</item>
         <item name="colorChangeProfilePictureBackground">@color/color_change_profile_picture_background</item>
         <item name="colorChangeProfilePictureIcon">@android:color/white</item>
+        <item name="colorHyperLink">#007bff</item>
 
         <!--        widget styles-->
         <item name="colorControlActivated">@color/color_control_light</item>

@@ -234,23 +234,25 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/bottom_border_selectable">
 
-                        <ImageButton
-                            android:id="@+id/add_link_icon_btn"
+                        <Button
+                            android:id="@+id/add_link_btn"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:contentDescription="@string/expand_collapse"
-                            android:focusable="true"
-                            android:src="@drawable/add_icon" />
+                            android:text="@string/add_link"
+                            android:textColor="?attr/colorDefaultText"
+                            app:icon="@drawable/add_icon"
+                            app:iconTint="?attr/colorIconButton"
+                            tools:ignore="RelativeOverlap" />
 
                         <TextView
                             android:id="@+id/links_title_tv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
                             android:layout_marginBottom="4dp"
-                            android:layout_toStartOf="@id/add_link_icon_btn"
+                            android:layout_toStartOf="@id/add_link_btn"
                             android:text="@string/links"
                             android:textColor="?attr/colorHint"
                             android:textSize="12sp" />
@@ -259,7 +261,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/exercise_links_recycler_view"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_below="@id/links_title_container"
                         tools:itemCount="10"
                         tools:listitem="@android:layout/simple_selectable_list_item"

@@ -27,4 +27,5 @@
     <attr name="colorCheckBox" format="color" />
     <attr name="colorChangeProfilePictureIcon" format="color" />
     <attr name="colorChangeProfilePictureBackground" format="color" />
+    <attr name="colorHyperLink" format="color" />
 </resources>

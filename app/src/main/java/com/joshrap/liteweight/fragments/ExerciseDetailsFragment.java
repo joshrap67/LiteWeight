@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -45,6 +46,7 @@ import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
 import com.joshrap.liteweight.models.user.User;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -113,8 +115,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
 
         TextView exerciseNameTv = view.findViewById(R.id.exercise_name_tv);
         exerciseNameTv.setText(exercise.getName());
+
         TextView defaultsTv = view.findViewById(R.id.exercise_defaults_tv);
-        defaultsTv.setText(String.format("Default: %s%s %sx%s", exercise.getDefaultWeight(), metricUnits ? "kg" : "lb", exercise.getDefaultSets(), exercise.getDefaultReps()));
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
+        defaultsTv.setText(String.format("Default: %s %sx%s", formattedWeight, exercise.getDefaultSets(), exercise.getDefaultReps()));
+
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
             workoutListTv.setText(R.string.none);
@@ -266,7 +272,12 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
             if (link.getLabel() != null && !link.getLabel().isEmpty()) {
                 label = link.getLabel();
             }
-            linkTv.setText(label);
+
+            // underline text
+            SpannableString content = new SpannableString(label);
+            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+            linkTv.setText(content);
+
             linkTv.setOnClickListener(v -> {
                 alertDialog = new AlertDialog.Builder(requireContext())
                         .setTitle("Launch Link")

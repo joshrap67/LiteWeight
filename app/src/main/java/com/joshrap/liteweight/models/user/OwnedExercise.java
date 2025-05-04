@@ -30,7 +30,7 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
         this.defaultSets = ownedExercise.getDefaultSets();
         this.defaultReps = ownedExercise.getDefaultReps();
         this.notes = ownedExercise.getNotes();
-        this.links = ownedExercise.getLinks();
+        this.links = ownedExercise.getLinks().stream().map(Link::new).collect(Collectors.toList());
         this.focuses = new ArrayList<>(ownedExercise.getFocuses());
         this.workouts = ownedExercise.getWorkouts().stream().map(OwnedExerciseWorkout::new).collect(Collectors.toList());
     }

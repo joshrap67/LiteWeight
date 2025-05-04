@@ -11,4 +11,9 @@ public class Link {
 
     private String url;
     private String label;
+
+    public Link(Link link) {
+        this.url = link.getUrl();
+        this.label = link.getLabel();
+    }
 }

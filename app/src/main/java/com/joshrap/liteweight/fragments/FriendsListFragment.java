@@ -265,6 +265,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         if (index >= 0) {
             friendRequests.remove(index);
             friendRequestsAdapter.notifyItemRemoved(index);
+            friendRequestsAdapter.notifyItemRangeChanged(index, friendRequests.size());
         }
     }
 
@@ -341,6 +342,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         if (index >= 0) {
             friends.remove(index);
             friendsAdapter.notifyItemRemoved(index);
+            friendsAdapter.notifyItemRangeChanged(index, friends.size());
         }
     }
 
@@ -515,6 +517,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         // we assume it always succeeds
         FriendRequest friendRequest = friendRequests.remove(index);
         friendRequestsAdapter.notifyItemRemoved(index);
+        friendRequestsAdapter.notifyItemRangeChanged(index, friendRequests.size());
 
         Friend friend = new Friend(friendRequest.getUserId(), friendRequest.getUsername(), friendRequest.getProfilePicture(), true);
         friends.add(friend);
@@ -546,6 +549,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         // we assume it always succeeds
         FriendRequest friendRequest = friendRequests.remove(index);
         friendRequestsAdapter.notifyItemRemoved(index);
+        friendRequestsAdapter.notifyItemRangeChanged(index, friendRequests.size());
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -572,6 +576,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         // we assume it always succeeds
         Friend friend = friends.remove(index);
         friendsAdapter.notifyItemRemoved(index);
+        friendsAdapter.notifyItemRangeChanged(index, friends.size());
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -598,6 +603,7 @@ public class FriendsListFragment extends Fragment implements FragmentWithDialog 
         // we assume it always succeeds
         Friend friend = friends.remove(index);
         friendsAdapter.notifyItemRemoved(index);
+        friendRequestsAdapter.notifyItemRangeChanged(index, friendRequests.size());
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {

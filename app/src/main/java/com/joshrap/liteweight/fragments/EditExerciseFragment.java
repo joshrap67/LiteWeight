@@ -36,6 +36,7 @@ import com.joshrap.liteweight.adapters.SaveExerciseLinkAdapter;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.interfaces.LinkCallbacks;
 import com.joshrap.liteweight.managers.CurrentUserModule;
 import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.Result;
@@ -172,11 +173,23 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
         focusRowIcon.setOnClickListener(focusLayoutClicked);
 
         RecyclerView linksRecyclerView = view.findViewById(R.id.exercise_links_recycler_view);
-        linksAdapter = new SaveExerciseLinkAdapter(exercise.getLinks(), this::promptEditLink);
+        linksAdapter = new SaveExerciseLinkAdapter(exercise.getLinks(), new LinkCallbacks() {
+            @Override
+            public void onClear(Link link, int index) {
+                exercise.getLinks().remove(index);
+                linksAdapter.notifyItemRemoved(index);
+                linksAdapter.notifyItemRangeChanged(index, linksAdapter.getItemCount(), true);
+            }
+
+            @Override
+            public void onClick(Link link, int index) {
+                promptEditLink(link, index);
+            }
+        });
 
         linksRecyclerView.setAdapter(linksAdapter);
         linksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        ImageButton addLinkBtn = view.findViewById(R.id.add_link_icon_btn);
+        Button addLinkBtn = view.findViewById(R.id.add_link_btn);
         addLinkBtn.setOnClickListener(x -> promptAddLink());
 
         initViews();
@@ -322,7 +335,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
         alertDialog.show();
     }
 
-    private void promptEditLink(Link link) {
+    private void promptEditLink(Link link, int position) {
         View popupView = getLayoutInflater().inflate(R.layout.popup_save_link, null);
         EditText urlInput = popupView.findViewById(R.id.url_input);
         TextInputLayout urlInputLayout = popupView.findViewById(R.id.url_input_layout);
@@ -354,9 +367,12 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
                 urlInputLayout.setError(urlMsg);
                 labelInputLayout.setError(labelMsg);
 
-                if (urlMsg != null && labelMsg != null) {
+                if (urlMsg == null && labelMsg == null) {
                     link.setUrl(newUrl);
                     link.setLabel(newLabel);
+                    linksAdapter.notifyItemChanged(position, true);
+                    dialogInterface.dismiss();
+                    // TODO emulator specific bug? after saving the background color changes on the screen
                 }
             });
         });

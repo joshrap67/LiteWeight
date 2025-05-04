@@ -180,4 +180,5 @@
     <string name="links">Links</string>
     <string name="edit">Edit</string>
     <string name="exercise_details">Exercise Details</string>
+    <string name="add_link">Add Link</string>
 </resources>

@@ -34,6 +34,7 @@
         <item name="colorCheckBox">@color/color_accent</item>
         <item name="colorChangeProfilePictureBackground">@color/color_change_profile_picture_background</item>
         <item name="colorChangeProfilePictureIcon">@android:color/white</item>
+        <item name="colorHyperLink">#58a6ff</item>
 
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:textColor">@color/color_default_text</item>
