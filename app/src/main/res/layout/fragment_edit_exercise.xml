@@ -269,6 +269,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_below="@id/links_title_container"
+                        android:layout_marginTop="8dp"
                         tools:itemCount="10"
                         tools:listitem="@android:layout/simple_selectable_list_item"
                         tools:visibility="visible" />

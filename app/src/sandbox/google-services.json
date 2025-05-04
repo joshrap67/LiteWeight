@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "929931641278",
+    "project_id": "liteweight-sandbox",
+    "storage_bucket": "liteweight-sandbox.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929931641278:android:a4d5947f2f0dcb4decb9ef",
+        "android_client_info": {
+          "package_name": "com.joshrap.liteweight.sandbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929931641278-88gnp9fmll3d8h2r557shbv0cij1crk9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAttjkmy0APJucXhThdggKz6hNO4iv7-7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929931641278-88gnp9fmll3d8h2r557shbv0cij1crk9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

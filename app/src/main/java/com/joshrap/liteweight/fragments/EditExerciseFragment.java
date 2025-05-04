@@ -110,6 +110,8 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
         super.onViewCreated(view, savedInstanceState);
         FragmentActivity activity = requireActivity();
 
+        // TODO prompt if changes present?
+
         selectedFocuses = new ArrayList<>(exercise.getFocuses());
 
         focusesTV = view.findViewById(R.id.focus_list_tv);

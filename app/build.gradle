@@ -13,9 +13,25 @@ android {
         namespace "com.joshrap.liteweight"
         compileSdk 35
         targetSdkVersion 35
-        versionCode 18
-        versionName "3.0.4"
+        versionCode 19
+        versionName "3.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    flavorDimensions = ["env"]
+    productFlavors {
+        sandbox {
+            dimension = "env"
+            applicationIdSuffix = ".sandbox"
+            versionNameSuffix = ".sandbox"
+            manifestPlaceholders=[app_name: "LiteWeight Sandbox"]
+        }
+        prod {
+            dimension = "env"
+            manifestPlaceholders=[app_name: "LiteWeight"]
+        }
+    }
+    buildFeatures {
+        buildConfig true
     }
     buildTypes {
         release {

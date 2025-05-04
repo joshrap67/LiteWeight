@@ -23,6 +23,8 @@ Docker must be installed in order to build the container image to deploy.
 Below environment variables must be set
 
 - LiteWeight_Firebase__ProjectId
+- LiteWeight_Firebase__ProfilePictureBucket
+- LiteWeight_Firebase__DefaultProfilePictureBucket
 - LiteWeight_Jwt__AuthorityUrl
 
 
@@ -38,7 +40,7 @@ To deploy a new docker image to Google Cloud run the following commands in the r
 
 Note that this will create a new image digest in Artifact Registry. After a couple or so docker pushes it may be prudent to go to Artifact Registry to clean up unused images.
 
-To deploy the API, assuming the API is already initialized in Goolge Cloud Run, run the following command:
+To deploy the API, assuming the API is already initialized in Google Cloud Run, run the following command:
 
 `run deploy liteweightapi --image=us-east1-docker.pkg.dev/liteweight-faa1a/liteweight-api/api-image --region us-central1`
 

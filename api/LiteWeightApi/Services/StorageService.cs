@@ -1,4 +1,6 @@
 ﻿using Google.Cloud.Storage.V1;
+using LiteWeightAPI.Options;
+using Microsoft.Extensions.Options;
 using Object = Google.Apis.Storage.v1.Data.Object;
 
 namespace LiteWeightAPI.Services;
@@ -12,9 +14,16 @@ public interface IStorageService
 
 public class StorageService : IStorageService
 {
-	private const string ProfilePictureBucket = "liteweight-profile-pictures";
-	private const string DefaultProfilePictureBucket = "liteweight-private-images";
 	private const string DefaultProfilePictureObject = "DefaultProfilePicture.jpg";
+
+	private readonly string _defaultProfilePictureBucket;
+	private readonly string _profilePictureBucket;
+
+	public StorageService(IOptions<FirebaseOptions> firebaseOptions)
+	{
+		_profilePictureBucket = firebaseOptions.Value.ProfilePictureBucket;
+		_defaultProfilePictureBucket = firebaseOptions.Value.DefaultProfilePictureBucket;
+	}
 
 	public async Task UploadProfilePicture(byte[] fileData, string fileName)
 	{
@@ -23,7 +32,7 @@ public class StorageService : IStorageService
 
 		var obj = new Object
 		{
-			Bucket = ProfilePictureBucket,
+			Bucket = _profilePictureBucket,
 			Name = fileName,
 			ContentType = "image/jpeg",
 			CacheControl = "public,max-age=0"
@@ -35,7 +44,7 @@ public class StorageService : IStorageService
 	public async Task DeleteProfilePicture(string fileName)
 	{
 		var storage = await StorageClient.CreateAsync();
-		await storage.DeleteObjectAsync(ProfilePictureBucket, fileName);
+		await storage.DeleteObjectAsync(_profilePictureBucket, fileName);
 	}
 
 	public async Task<string> UploadDefaultProfilePicture(string fileName)
@@ -43,7 +52,7 @@ public class StorageService : IStorageService
 		var storage = await StorageClient.CreateAsync();
 
 		var memoryStream = new MemoryStream();
-		await storage.DownloadObjectAsync(DefaultProfilePictureBucket, DefaultProfilePictureObject, memoryStream);
+		await storage.DownloadObjectAsync(_defaultProfilePictureBucket, DefaultProfilePictureObject, memoryStream);
 		var bytes = memoryStream.ToArray();
 
 		await UploadProfilePicture(bytes, fileName);
