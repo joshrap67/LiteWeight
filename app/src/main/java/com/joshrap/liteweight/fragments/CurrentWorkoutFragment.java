@@ -218,6 +218,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     public void onResume() {
         super.onResume();
         FragmentActivity activity = requireActivity();
+        ((MainActivity) requireActivity()).setEditWorkoutButtonVisibility(View.VISIBLE);
+
         // when this fragment is visible again, the timer/stopwatch service is no longer needed so cancel it
         if (timer != null && timer.isTimerRunning()) {
             ((MainActivity) activity).cancelTimerService();
@@ -231,6 +233,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     @Override
     public void onPause() {
         super.onPause();
+        ((MainActivity) requireActivity()).setEditWorkoutButtonVisibility(View.GONE);
 
         // as soon as this fragment isn't visible, start any running clock as a service
         if (timer != null && timer.isTimerRunning()) {

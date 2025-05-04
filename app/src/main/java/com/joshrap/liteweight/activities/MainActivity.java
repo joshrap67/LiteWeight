@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered, shouldFinish;
     private TextView toolbarTitleTV, usernameTV;
+    private Button editWorkoutButton;
     private NavigationView nav;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
@@ -155,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
+        editWorkoutButton = findViewById(R.id.toolbar_edit_workout_btn);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         View headerView = nav.getHeaderView(0);
@@ -170,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this, "Certain features of this app will not work without notifications.", Toast.LENGTH_LONG).show();
             }
         });
+
+        editWorkoutButton.setOnClickListener(v -> goToEditWorkout());
 
         loadCurrentUserAndWorkout();
     }
@@ -810,6 +815,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     public void updateToolbarTitle(String title) {
         toolbarTitleTV.setText(title);
+    }
+
+    public void setEditWorkoutButtonVisibility(int visibility) {
+        editWorkoutButton.setVisibility(visibility);
     }
 
     public void updateProfilePicture(Uri uri) {
