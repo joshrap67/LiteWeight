@@ -8,7 +8,7 @@ import com.joshrap.liteweight.models.workout.RoutineExercise;
 
 import org.junit.Test;
 
-public class ExercisesDifferentTests {
+public class RoutineExercisesDifferentTests {
 
     @Test
     public void exercises_differ_by_completed() {

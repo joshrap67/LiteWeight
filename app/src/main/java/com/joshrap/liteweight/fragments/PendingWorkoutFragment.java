@@ -252,12 +252,12 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
                     alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("Unsaved Changes")
-                            .setMessage(R.string.unsaved_workout_msg)
-                            .setPositiveButton("Yes", (dialog, which) -> {
+                            .setMessage(R.string.unsaved_changes_msg)
+                            .setPositiveButton("Leave", (dialog, which) -> {
                                 remove();
                                 activity.getOnBackPressedDispatcher().onBackPressed();
                             })
-                            .setNegativeButton("No", null)
+                            .setNegativeButton("Stay", null)
                             .create();
                     alertDialog.show();
                 } else {

@@ -16,4 +16,8 @@ public class Link {
         this.url = link.getUrl();
         this.label = link.getLabel();
     }
+
+    public static boolean linksEqual(Link link1, Link link2) {
+        return link1.getUrl().equals(link2.getUrl()) && link1.getLabel().equals(link2.getLabel());
+    }
 }

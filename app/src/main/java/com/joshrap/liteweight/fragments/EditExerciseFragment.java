@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -60,7 +61,7 @@ import javax.inject.Inject;
 public class EditExerciseFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
-    private OwnedExercise exercise;
+    private OwnedExercise originalExercise, exercise;
     private String exerciseId;
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, notesLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, notesInput;
@@ -72,6 +73,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
     private final List<String> existingExerciseNames = new ArrayList<>();
     private SaveExerciseLinkAdapter linksAdapter;
+    private OnBackPressedCallback backPressedCallback;
 
     @Inject
     AlertDialog loadingDialog;
@@ -98,6 +100,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
 
         User user = currentUserModule.getUser();
         exercise = new OwnedExercise(user.getExercise(exerciseId));
+        originalExercise = new OwnedExercise(user.getExercise(exerciseId));
         metricUnits = user.getSettings().isMetricUnits();
         existingExerciseNames.addAll(user.getExercises().stream().map(OwnedExercise::getName).collect(Collectors.toList()));
         focusList = Variables.FOCUS_LIST;
@@ -109,8 +112,6 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         FragmentActivity activity = requireActivity();
-
-        // TODO prompt if changes present?
 
         selectedFocuses = new ArrayList<>(exercise.getFocuses());
 
@@ -195,14 +196,43 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
         addLinkBtn.setOnClickListener(x -> promptAddLink());
 
         initViews();
+
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                boolean exerciseModified = OwnedExercise.exercisesDifferent(getExerciseFromInputs(), originalExercise);
+                if (exerciseModified) {
+                    hideAllDialogs(); // since user could spam back button and cause multiple ones to show
+                    alertDialog = new AlertDialog.Builder(requireContext())
+                            .setTitle("Unsaved Changes")
+                            .setMessage(R.string.unsaved_changes_msg)
+                            .setPositiveButton("Leave", (dialog, which) -> {
+                                remove();
+                                activity.getOnBackPressedDispatcher().onBackPressed();
+                            })
+                            .setNegativeButton("Stay", null)
+                            .create();
+                    alertDialog.show();
+                } else {
+                    remove();
+                    activity.getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
     }
 
-    private void setFocusTextView(String title) {
-        if (title == null) {
-            focusesTV.setText(R.string.none);
-        } else {
-            focusesTV.setText(title);
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (backPressedCallback != null) {
+            addBackPressedCallback();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        backPressedCallback.remove();
     }
 
     @Override
@@ -215,12 +245,41 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
         }
     }
 
+    private void setFocusTextView(String title) {
+        if (title == null) {
+            focusesTV.setText(R.string.none);
+        } else {
+            focusesTV.setText(title);
+        }
+    }
+
+    private void addBackPressedCallback() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(backPressedCallback);
+    }
+
     private void initViews() {
         exerciseNameInput.setText(exercise.getName());
         weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight())));
         setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultSets())));
         repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultReps())));
         notesInput.setText(exercise.getNotes());
+    }
+
+    private OwnedExercise getExerciseFromInputs() {
+        double weight = Double.parseDouble(weightInput.getText().toString().trim());
+        if (metricUnits) {
+            weight = WeightUtils.metricWeightToImperial(weight);
+        }
+
+        OwnedExercise updatedExercise = new OwnedExercise();
+        updatedExercise.setName(exerciseNameInput.getText().toString().trim());
+        updatedExercise.setDefaultWeight(weight);
+        updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
+        updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
+        updatedExercise.setNotes(notesInput.getText().toString().trim());
+        updatedExercise.setLinks(exercise.getLinks().stream().map(x -> new Link(x.getUrl(), x.getLabel())).collect(Collectors.toList()));
+        updatedExercise.setFocuses(selectedFocuses);
+        return updatedExercise;
     }
 
     private void saveExercise() {
@@ -264,19 +323,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
 
         if (renameError == null && weightError == null && setsError == null &&
                 repsError == null && notesError == null && !urlError && !focusError) {
-            double weight = Double.parseDouble(weightInput.getText().toString().trim());
-            if (metricUnits) {
-                weight = WeightUtils.metricWeightToImperial(weight);
-            }
-
-            OwnedExercise updatedExercise = new OwnedExercise();
-            updatedExercise.setName(exerciseNameInput.getText().toString().trim());
-            updatedExercise.setDefaultWeight(weight);
-            updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
-            updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
-            updatedExercise.setNotes(notesInput.getText().toString().trim());
-            updatedExercise.setLinks(exercise.getLinks().stream().map(x -> new Link(x.getUrl(), x.getLabel())).collect(Collectors.toList()));
-            updatedExercise.setFocuses(selectedFocuses);
+            OwnedExercise updatedExercise = getExerciseFromInputs();
 
             // no errors, so go ahead and save
             AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
@@ -288,6 +335,7 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
                         Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
+                        originalExercise = new OwnedExercise(result.getData());
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
                     }
@@ -374,7 +422,6 @@ public class EditExerciseFragment extends Fragment implements FragmentWithDialog
                     link.setLabel(newLabel);
                     linksAdapter.notifyItemChanged(position, true);
                     dialogInterface.dismiss();
-                    // TODO emulator specific bug? after saving the background color changes on the screen
                 }
             });
         });

@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -72,6 +73,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
     private final List<String> existingExerciseNames = new ArrayList<>();
     private SaveExerciseLinkAdapter linksAdapter;
+    private OnBackPressedCallback backPressedCallback;
 
     @Inject
     AlertDialog loadingDialog;
@@ -105,6 +107,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        FragmentActivity activity = requireActivity();
 
         focusCountTV = view.findViewById(R.id.focus_count_text_view);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
@@ -190,6 +193,49 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         linksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         Button addLinkBtn = view.findViewById(R.id.add_link_btn);
         addLinkBtn.setOnClickListener(x -> promptAddLink());
+
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                boolean isModified = !exerciseNameInput.getText().toString().isEmpty()
+                        || !weightInput.getText().toString().equals(Integer.toString(Variables.DEFAULT_WEIGHT))
+                        || !setsInput.getText().toString().equals(Integer.toString(Variables.DEFAULT_SETS))
+                        || !repsInput.getText().toString().equals(Integer.toString(Variables.DEFAULT_REPS))
+                        || !notesInput.getText().toString().isEmpty()
+                        || !selectedFocuses.isEmpty()
+                        || !links.isEmpty();
+                if (isModified) {
+                    hideAllDialogs(); // since user could spam back button and cause multiple ones to show
+                    alertDialog = new AlertDialog.Builder(requireContext())
+                            .setTitle("Unsaved Changes")
+                            .setMessage(R.string.unsaved_changes_msg)
+                            .setPositiveButton("Leave", (dialog, which) -> {
+                                remove();
+                                activity.getOnBackPressedDispatcher().onBackPressed();
+                            })
+                            .setNegativeButton("Stay", null)
+                            .create();
+                    alertDialog.show();
+                } else {
+                    remove();
+                    activity.getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (backPressedCallback != null) {
+            addBackPressedCallback();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        backPressedCallback.remove();
     }
 
     @Override
@@ -200,6 +246,10 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
+    }
+
+    private void addBackPressedCallback() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     private void setFocusTextView(String title) {

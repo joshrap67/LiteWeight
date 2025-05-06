@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -288,7 +289,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 alertDialog.show();
             });
             copyLinkBtn.setOnClickListener(v -> {
-                clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", link.getUrl())));
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    // after 31 toast shows be default in android
+                    clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", link.getUrl())));
+                }
                 Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
             });
         }

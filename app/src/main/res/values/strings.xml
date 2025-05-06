@@ -5,7 +5,7 @@
     <string name="nav_draw_close">Close Nav</string>
     <string name="workout_name_title">Workout Name</string>
     <string name="empty_workout_day">No exercises for this day</string>
-    <string name="unsaved_workout_msg">Your workout is not yet saved. If you quit now, all changes will be lost!\n\nAre you sure you wish to quit?</string>
+    <string name="unsaved_changes_msg">You have unsaved changes. Are you sure you want to leave?</string>
     <string name="metric_switch_description">Converts all units from imperial units (lb) to metric units (kg).</string>
     <string name="stopwatch_switch_description">Provides a stopwatch accessible from the bottom of the current workout page.</string>
     <string name="timer_switch_description">Provides a timer accessible from the bottom of the current workout page.</string>

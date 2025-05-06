@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered, shouldFinish;
     private TextView toolbarTitleTV, usernameTV;
-    private Button editWorkoutButton;
+    private ImageButton editWorkoutButton;
     private NavigationView nav;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
