@@ -182,4 +182,5 @@
     <string name="exercise_details">Exercise Details</string>
     <string name="add_link">Add Link</string>
     <string name="edit_workout">Edit Workout</string>
+    <string name="defaults">Defaults</string>
 </resources>

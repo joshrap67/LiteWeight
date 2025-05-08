@@ -31,29 +31,17 @@
                 android:id="@+id/exercise_name_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp">
+                android:layout_marginHorizontal="18dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/exercise_name_tv"
                     android:layout_width="match_parent"
-                    android:orientation="vertical"
                     android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/exercise_options_btn">
-
-                    <TextView
-                        android:id="@+id/exercise_name_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_thin"
-                        android:text="@string/workout_name_title"
-                        android:textSize="32sp"
-                        tools:text="Barbell Curl" />
-
-                    <TextView
-                        android:id="@+id/exercise_defaults_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="Default: 30 lb 3x12"/>
-                </LinearLayout>
+                    android:layout_toStartOf="@id/exercise_options_btn"
+                    android:fontFamily="@font/roboto_thin"
+                    android:text="@string/workout_name_title"
+                    android:textSize="32sp"
+                    tools:text="Barbell Curl" />
 
                 <ImageButton
                     android:id="@+id/exercise_options_btn"
@@ -124,11 +112,40 @@
                         tools:text="Josh's Workout, Strength Workout, High Intensity Workout, +5 more" />
             </LinearLayout>
 
+            <RelativeLayout
+                android:id="@+id/default_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/workout_container"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="8dp"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/bottom_border_selectable">
+
+                <TextView
+                    android:id="@+id/defaults_title_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/defaults"
+                    android:textColor="?attr/colorHint"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/defaults_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/defaults_title_tv"
+                    android:text="@string/focus_label"
+                    android:textSize="19sp"
+                    tools:text="30 lb 3x12" />
+            </RelativeLayout>
+
             <LinearLayout
                 android:id="@+id/notes_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/workout_container"
+                android:layout_below="@id/default_container"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="20dp"

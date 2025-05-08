@@ -20,7 +20,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -117,10 +119,10 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         TextView exerciseNameTv = view.findViewById(R.id.exercise_name_tv);
         exerciseNameTv.setText(exercise.getName());
 
-        TextView defaultsTv = view.findViewById(R.id.exercise_defaults_tv);
+        TextView defaultsTv = view.findViewById(R.id.defaults_tv);
         double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight());
         String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
-        defaultsTv.setText(String.format("Default: %s %sx%s", formattedWeight, exercise.getDefaultSets(), exercise.getDefaultReps()));
+        defaultsTv.setText(String.format("%s %sx%s", formattedWeight, exercise.getDefaultSets(), exercise.getDefaultReps()));
 
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
@@ -139,6 +141,16 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         ExerciseLinkAdapter linksAdapter = new ExerciseLinkAdapter(exercise.getLinks());
         linksRecyclerView.setAdapter(linksAdapter);
         linksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        LinearLayout notesLayout = view.findViewById(R.id.notes_container);
+        if (exercise.getNotes() == null || exercise.getNotes().isEmpty()) {
+            notesLayout.setVisibility(View.GONE);
+        }
+
+        RelativeLayout linksLayout = view.findViewById(R.id.links_container);
+        if (exercise.getLinks() == null || exercise.getLinks().isEmpty()) {
+            linksLayout.setVisibility(View.GONE);
+        }
     }
 
     private static StringBuilder getWorkoutsDisplay(List<String> workoutList) {

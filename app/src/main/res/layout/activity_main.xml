@@ -41,12 +41,14 @@
                     android:id="@+id/toolbar_edit_workout_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="?android:selectableItemBackgroundBorderless"
                     android:contentDescription="@string/edit_workout"
-                    app:srcCompat="@drawable/edit_icon" />
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/edit_icon"
+                    tools:visibility="visible" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
