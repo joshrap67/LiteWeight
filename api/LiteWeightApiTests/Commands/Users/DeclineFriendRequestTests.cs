@@ -9,13 +9,13 @@ namespace LiteWeightApiTests.Commands.Users;
 public class DeclineFriendRequestTests : BaseTest
 {
 	private readonly DeclineFriendRequestHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public DeclineFriendRequestTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var pushNotificationService = new Mock<IPushNotificationService>().Object;
-		_handler = new DeclineFriendRequestHandler(_mockRepository.Object, pushNotificationService);
+		_mockRepository = Substitute.For<IRepository>();
+		var pushNotificationService = Substitute.For<IPushNotificationService>();
+		_handler = new DeclineFriendRequestHandler(_mockRepository, pushNotificationService);
 	}
 
 	[Fact]
@@ -43,11 +43,11 @@ public class DeclineFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToDecline)))
-			.ReturnsAsync(declinedUser);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToDecline))
+			.Returns(declinedUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.True(response);
@@ -66,11 +66,11 @@ public class DeclineFriendRequestTests : BaseTest
 		var declinedUser = Fixture.Build<User>().With(x => x.Id, command.UserIdToDecline).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToDecline)))
-			.ReturnsAsync(declinedUser);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToDecline))
+			.Returns(declinedUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.False(response);
@@ -82,8 +82,8 @@ public class DeclineFriendRequestTests : BaseTest
 		var command = Fixture.Create<DeclineFriendRequest>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserIdToDecline)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.UserIdToDecline))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

@@ -1,4 +1,7 @@
-﻿namespace LiteWeightAPI.Api.Exercises.Responses;
+﻿using LiteWeightAPI.Api.Common.Responses;
+using LiteWeightAPI.Api.Exercises.Requests;
+
+namespace LiteWeightAPI.Api.Exercises.Responses;
 
 public class OwnedExerciseResponse
 {
@@ -33,16 +36,15 @@ public class OwnedExerciseResponse
 	public int DefaultReps { get; set; }
 
 	/// <summary>
-	/// Default details of the exercise. Value that the exercise will be defaulted to when adding it to a workout.
+	/// Arbitrary notes detailing information such as hints/cues for certain exercises.
 	/// </summary>
-	/// <example>Don't overextend arms.</example>
-	public string? DefaultDetails { get; set; }
+	/// <example>Ensure deep stretch. Don't over extend arms</example>
+	public string? Notes { get; set; }
 
 	/// <summary>
-	/// Video url of the exercise. Suggested use case is a video of how to perform the exercise.
+	/// Links associated with this exercise.
 	/// </summary>
-	/// <example>https://www.youtube.com/watch?v=kwG2ipFRgfo</example>
-	public string? VideoUrl { get; set; }
+	public IList<LinkResponse> Links { get; set; } = new List<LinkResponse>();
 
 	/// <summary>
 	/// List of focuses of the exercise.

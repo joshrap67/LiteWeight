@@ -18,7 +18,7 @@ public class RoutineExercise implements Cloneable {
     private double weight;
     private int sets;
     private int reps;
-    private String details;
+    private String instructions;
 
     @NonNull
     public Object clone() throws CloneNotSupportedException {
@@ -32,7 +32,7 @@ public class RoutineExercise implements Cloneable {
         this.weight = toBeCopied.weight;
         this.sets = toBeCopied.sets;
         this.reps = toBeCopied.reps;
-        this.details = toBeCopied.details;
+        this.instructions = toBeCopied.instructions;
     }
 
     public RoutineExercise(OwnedExercise ownedExercise, String exerciseId) {
@@ -41,7 +41,6 @@ public class RoutineExercise implements Cloneable {
         this.weight = ownedExercise.getDefaultWeight();
         this.sets = ownedExercise.getDefaultSets();
         this.reps = ownedExercise.getDefaultReps();
-        this.details = ownedExercise.getDefaultDetails();
     }
 
     public static boolean exercisesDifferent(RoutineExercise exercise1, RoutineExercise exercise2) {
@@ -61,12 +60,12 @@ public class RoutineExercise implements Cloneable {
             return true;
         }
 
-        if (exercise1.getDetails() == null && exercise2.getDetails() != null) {
+        if (exercise1.getInstructions() == null && exercise2.getInstructions() != null) {
             return true;
-        } else if (exercise1.getDetails() != null && exercise2.getDetails() == null) {
+        } else if (exercise1.getInstructions() != null && exercise2.getInstructions() == null) {
             return true;
         } else {
-            return exercise1.getDetails() != null && !exercise1.getDetails().equals(exercise2.getDetails());
+            return exercise1.getInstructions() != null && !exercise1.getInstructions().equals(exercise2.getInstructions());
         }
     }
 }

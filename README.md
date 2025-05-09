@@ -6,7 +6,7 @@ LiteWeight is a lightweight workout manager that allows for workouts to be creat
 
 [Mobile App Readme](app/README.md)
 
-[Demo of v3.0.0](https://youtu.be/eTNm_Hre1ns)
+[Demo of v3.0.0](https://youtube.com/watch?v=JwR2EJi_Pgs)
 
 Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on the application logic.
 

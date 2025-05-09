@@ -10,13 +10,13 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class CreateWorkoutTests : BaseTest
 {
 	private readonly CreateWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public CreateWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var clock = new Mock<IClock>();
-		_handler = new CreateWorkoutHandler(_mockRepository.Object, clock.Object, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		var clock = Substitute.For<IClock>();
+		_handler = new CreateWorkoutHandler(_mockRepository, clock);
 	}
 
 	[Theory]
@@ -48,8 +48,8 @@ public class CreateWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		// all exercises of workout should have this workout after the copy
@@ -78,8 +78,8 @@ public class CreateWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -97,8 +97,8 @@ public class CreateWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -117,8 +117,8 @@ public class CreateWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}

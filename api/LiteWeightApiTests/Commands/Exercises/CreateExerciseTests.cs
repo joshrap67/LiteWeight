@@ -9,12 +9,12 @@ namespace LiteWeightApiTests.Commands.Exercises;
 public class CreateExerciseTests : BaseTest
 {
 	private readonly CreateExerciseHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public CreateExerciseTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new CreateExerciseHandler(_mockRepository.Object, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new CreateExerciseHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -31,17 +31,22 @@ public class CreateExerciseTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var createdExercise = await _handler.HandleAsync(command);
 
 		Assert.True(createdExercise.Name == command.Name);
-		Assert.True(createdExercise.DefaultDetails == command.DefaultDetails);
 		Assert.True(Math.Abs(createdExercise.DefaultWeight - command.DefaultWeight) < 0.01);
 		Assert.True(createdExercise.DefaultReps == command.DefaultReps);
 		Assert.True(createdExercise.DefaultSets == command.DefaultSets);
-		Assert.True(createdExercise.VideoUrl == command.VideoUrl);
+		foreach (var exerciseLink in createdExercise.Links)
+		{
+			Assert.Contains(command.Links, x => x.Label == exerciseLink.Label);
+			Assert.Contains(command.Links, x => x.Url == exerciseLink.Url);
+		}
+
+		Assert.True(createdExercise.Notes == command.Notes);
 		Assert.Equivalent(command.Focuses, createdExercise.Focuses);
 		Assert.Contains(user.Exercises, x => x.Id == createdExercise.Id);
 	}
@@ -53,8 +58,8 @@ public class CreateExerciseTests : BaseTest
 		command.Name = "Name";
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Build<User>()
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Build<User>()
 				.With(x => x.Exercises, [new OwnedExercise { Name = "Name" }])
 				.Create()
 			);
@@ -71,8 +76,8 @@ public class CreateExerciseTests : BaseTest
 			.ToList();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Build<User>()
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Build<User>()
 				.With(x => x.Exercises, exercises)
 				.With(x => x.PremiumToken, (string?)null)
 				.Create());
@@ -89,8 +94,8 @@ public class CreateExerciseTests : BaseTest
 			.ToList();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Build<User>()
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Build<User>()
 				.With(x => x.Exercises, exercises)
 				.With(x => x.PremiumToken, Fixture.Create<string>())
 				.Create());

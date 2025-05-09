@@ -12,448 +12,468 @@ public static class Defaults
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Arnold Press",
-				VideoUrl = "https://www.youtube.com/watch?v=odhXwoS3mDA",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=odhXwoS3mDA", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Back Extension",
-				VideoUrl = "https://youtu.be/ph3pddpKzzw?t=32",
+				Links = new List<Link> { new() { Url = "https://youtu.be/ph3pddpKzzw?t=32", Label = "Example Video" } },
 				Focuses = new List<string> { "Back" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Barbell Curl",
-				VideoUrl = "https://www.youtube.com/watch?v=FAEWpmb9YQs",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=FAEWpmb9YQs", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps", "Forearms", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Bench Press",
-				VideoUrl = "https://www.youtube.com/watch?v=gRVjAtPip0Y",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=gRVjAtPip0Y", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Bent Over Row",
-				VideoUrl = "https://youtu.be/QFq5jdwWwX4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/QFq5jdwWwX4", Label = "Example Video" } },
 				Focuses = new List<string> { "Back" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Burpee",
-				VideoUrl = "https://www.youtube.com/watch?v=dZgVxmf6jkA",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=dZgVxmf6jkA", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio", "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Cable Fly",
-				VideoUrl = "https://youtu.be/Iwe6AmxVf7o?t=16",
+				Links = new List<Link> { new() { Url = "https://youtu.be/Iwe6AmxVf7o?t=16", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Calf Raise",
-				VideoUrl = "https://youtu.be/-M4-G8p8fmc?t=4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/-M4-G8p8fmc?t=4", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Chin Up",
-				VideoUrl = "https://www.youtube.com/watch?v=qVztO-F-IwI",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=qVztO-F-IwI", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Close Grip Bench",
-				VideoUrl = "https://youtu.be/nEF0bv2FW94?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/nEF0bv2FW94?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Concentration Curl",
-				VideoUrl = "https://youtu.be/Jvj2wV0vOYU?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/Jvj2wV0vOYU?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Cycling",
-				VideoUrl = "https://www.youtube.com/watch?v=Ovlm9wWTk7Y",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=Ovlm9wWTk7Y", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Deadlift",
-				VideoUrl = "https://youtu.be/-4qRntuXBSc?t=7",
+				Links = new List<Link> { new() { Url = "https://youtu.be/-4qRntuXBSc?t=7", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Core", "Legs", "Shoulders", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Decline Bench Press",
-				VideoUrl = "https://youtu.be/LfyQBUKR8SE?t=16",
+				Links = new List<Link> { new() { Url = "https://youtu.be/LfyQBUKR8SE?t=16", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Dumbbell Curl",
-				VideoUrl = "https://youtu.be/ykJmrZ5v0Oo?t=7",
+				Links = new List<Link> { new() { Url = "https://youtu.be/ykJmrZ5v0Oo?t=7", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps", "Forearms" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Dumbbell Fly",
-				VideoUrl = "https://youtu.be/Iwe6AmxVf7o?t=17",
+				Links = new List<Link> { new() { Url = "https://youtu.be/Iwe6AmxVf7o?t=17", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps", "Chest" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Dumbbell Kickback",
-				VideoUrl = "https://youtu.be/ZO81bExngMI?t=6",
+				Links = new List<Link> { new() { Url = "https://youtu.be/ZO81bExngMI?t=6", Label = "Example Video" } },
 				Focuses = new List<string> { "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Dumbbell Chest Press",
-				VideoUrl = "https://youtu.be/VmB1G1K7v94?t=4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/VmB1G1K7v94?t=4", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Strength Training", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Elliptical",
-				VideoUrl = "https://www.youtube.com/watch?v=E15Q3Z9J-Zg",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=E15Q3Z9J-Zg", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Farmer Walk",
-				VideoUrl = "https://youtu.be/Fkzk_RqlYig?t=7",
+				Links = new List<Link> { new() { Url = "https://youtu.be/Fkzk_RqlYig?t=7", Label = "Example Video" } },
 				Focuses = new List<string> { "Forearms", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Front Deltoid Raise",
-				VideoUrl = "https://youtu.be/-t7fuZ0KhDA?t=6",
+				Links = new List<Link> { new() { Url = "https://youtu.be/-t7fuZ0KhDA?t=6", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Front Squat",
-				VideoUrl = "https://www.youtube.com/watch?v=VfBOBhwXbro",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=VfBOBhwXbro", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Good Morning",
-				VideoUrl = "https://www.youtube.com/watch?v=YA-h3n9L4YU",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=YA-h3n9L4YU", Label = "Example Video" } },
 				Focuses = new List<string> { "Back" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Hack Squat",
-				VideoUrl = "https://www.youtube.com/watch?v=EdtaJRBqwes",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=EdtaJRBqwes", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Hammer Curl",
-				VideoUrl = "https://youtu.be/zC3nLlEvin4?t=17",
+				Links = new List<Link> { new() { Url = "https://youtu.be/zC3nLlEvin4?t=17", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Incline Bench Press",
-				VideoUrl = "https://www.youtube.com/watch?v=jPLdzuHckI8",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=jPLdzuHckI8", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Strength Training", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Incline Dumbbell Curl",
-				VideoUrl = "https://youtu.be/soxrZlIl35U?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/soxrZlIl35U?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Incline Dumbbell Fly",
-				VideoUrl = "https://youtu.be/bDaIL_zKbGs?t=15",
+				Links = new List<Link> { new() { Url = "https://youtu.be/bDaIL_zKbGs?t=15", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps", "Chest" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Incline Dumbbell Press",
-				VideoUrl = "https://youtu.be/8iPEnn-ltC8?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/8iPEnn-ltC8?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Strength Training", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Jogging",
-				VideoUrl = "https://youtu.be/vKNl8II2B-k?t=34",
+				Links = new List<Link> { new() { Url = "https://youtu.be/vKNl8II2B-k?t=34", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Lat Pulldown",
-				VideoUrl = "https://youtu.be/0oeIB6wi3es?t=122",
+				Links = new List<Link>
+					{ new() { Url = "https://youtu.be/0oeIB6wi3es?t=122", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Leg Curl",
-				VideoUrl = "https://www.youtube.com/watch?v=ELOCsoDSmrg",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=ELOCsoDSmrg", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Leg Extension",
-				VideoUrl = "https://www.youtube.com/watch?v=YyvSfVjQeL0",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=YyvSfVjQeL0", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Leg Raise",
-				VideoUrl = "https://youtu.be/JB2oyawG9KI?t=6",
+				Links = new List<Link> { new() { Url = "https://youtu.be/JB2oyawG9KI?t=6", Label = "Example Video" } },
 				Focuses = new List<string> { "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Leg Press",
-				VideoUrl = "https://youtu.be/IZxyjW7MPJQ?t=14",
+				Links = new List<Link> { new() { Url = "https://youtu.be/IZxyjW7MPJQ?t=14", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Lunge",
-				VideoUrl = "https://youtu.be/D7KaRcUTQeE?t=20",
+				Links = new List<Link> { new() { Url = "https://youtu.be/D7KaRcUTQeE?t=20", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Lying Side Deltoid Raise",
-				VideoUrl = "https://youtu.be/6I6AlMABLL8?t=20",
+				Links = new List<Link> { new() { Url = "https://youtu.be/6I6AlMABLL8?t=20", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Military Press",
-				VideoUrl = "https://youtu.be/2yjwXTZQDDI?t=20",
+				Links = new List<Link> { new() { Url = "https://youtu.be/2yjwXTZQDDI?t=20", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "One Arm Dumbbell Row",
-				VideoUrl = "https://youtu.be/pYcpY20QaE8?t=15",
+				Links = new List<Link> { new() { Url = "https://youtu.be/pYcpY20QaE8?t=15", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "One Arm Triceps Extension",
-				VideoUrl = "https://youtu.be/_gsUck-7M74?t=5",
+				Links = new List<Link> { new() { Url = "https://youtu.be/_gsUck-7M74?t=5", Label = "Example Video" } },
 				Focuses = new List<string> { "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Plank",
-				VideoUrl = "https://youtu.be/DHvSGdCIZyQ?t=11",
+				Links = new List<Link> { new() { Url = "https://youtu.be/DHvSGdCIZyQ?t=11", Label = "Example Video" } },
 				Focuses = new List<string> { "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Power Clean",
-				VideoUrl = "https://youtu.be/O32-Ae8SNIc?t=4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/O32-Ae8SNIc?t=4", Label = "Example Video" } },
 				Focuses = new List<string> { "Core", "Legs", "Shoulders", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Preacher Curl",
-				VideoUrl = "https://www.youtube.com/watch?v=vngli9UR6Hw",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=vngli9UR6Hw", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Prone Leg Curl",
-				VideoUrl = "https://youtu.be/MxJ0Tq6ldkU?t=10",
+				Links = new List<Link> { new() { Url = "https://youtu.be/MxJ0Tq6ldkU?t=10", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Pull-Up",
-				VideoUrl = "https://youtu.be/nVJWf-Llf8k?t=11",
+				Links = new List<Link> { new() { Url = "https://youtu.be/nVJWf-Llf8k?t=11", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Biceps", "Shoulders", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Push-Up",
-				VideoUrl = "https://www.youtube.com/watch?v=_l3ySVKYVJ8",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=_l3ySVKYVJ8", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Strength Training", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Reverse Barbell Curl",
-				VideoUrl = "https://youtu.be/nRgxYX2Ve9w?t=4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/nRgxYX2Ve9w?t=4", Label = "Example Video" } },
 				Focuses = new List<string> { "Biceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Reverse Grip Wrist Curl",
-				VideoUrl = "https://youtu.be/FW7URAaC-vE?t=17",
+				Links = new List<Link> { new() { Url = "https://youtu.be/FW7URAaC-vE?t=17", Label = "Example Video" } },
 				Focuses = new List<string> { "Forearms" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Reverse Shrug",
-				VideoUrl = "https://youtu.be/GaHtS9SUqh4?t=20",
+				Links = new List<Link> { new() { Url = "https://youtu.be/GaHtS9SUqh4?t=20", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Rowing",
-				VideoUrl = "https://youtu.be/H0r_ZPXJLtg?t=7",
+				Links = new List<Link> { new() { Url = "https://youtu.be/H0r_ZPXJLtg?t=7", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Cardio", "Core", "Legs" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Sprinting",
-				VideoUrl = "https://www.youtube.com/watch?v=6BmtGNjm7BE",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=6BmtGNjm7BE", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Shrug",
-				VideoUrl = "https://youtu.be/cJRVVxmytaM?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/cJRVVxmytaM?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Side Lateral Raise",
-				VideoUrl = "https://youtu.be/3VcKaXpzqRo?t=22",
+				Links = new List<Link> { new() { Url = "https://youtu.be/3VcKaXpzqRo?t=22", Label = "Example Video" } },
 				Focuses = new List<string> { "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Sit-Up",
-				VideoUrl = "https://youtu.be/1fbU_MkV7NE?t=6",
+				Links = new List<Link> { new() { Url = "https://youtu.be/1fbU_MkV7NE?t=6", Label = "Example Video" } },
 				Focuses = new List<string> { "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Sitting Cable Row",
-				VideoUrl = "https://youtu.be/GZbfZ033f74?t=18",
+				Links = new List<Link> { new() { Url = "https://youtu.be/GZbfZ033f74?t=18", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Skull Crusher",
-				VideoUrl = "https://youtu.be/d_KZxkY_0cM?t=17",
+				Links = new List<Link> { new() { Url = "https://youtu.be/d_KZxkY_0cM?t=17", Label = "Example Video" } },
 				Focuses = new List<string> { "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Squat",
-				VideoUrl = "https://www.youtube.com/watch?v=MVMNk0HiTMg",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=MVMNk0HiTMg", Label = "Example Video" } },
 				Focuses = new List<string> { "Legs", "Strength Training" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Swimming",
-				VideoUrl = "https://www.youtube.com/watch?v=5HLW2AI1Ink",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=5HLW2AI1Ink", Label = "Example Video" } },
 				Focuses = new List<string> { "Cardio", "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "T-Bar Row",
-				VideoUrl = "https://youtu.be/j3Igk5nyZE4?t=19",
+				Links = new List<Link> { new() { Url = "https://youtu.be/j3Igk5nyZE4?t=19", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Triceps Dip",
-				VideoUrl = "https://youtu.be/0326dy_-CzM?t=10",
+				Links = new List<Link> { new() { Url = "https://youtu.be/0326dy_-CzM?t=10", Label = "Example Video" } },
 				Focuses = new List<string> { "Chest", "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Triceps Pushdown",
-				VideoUrl = "https://youtu.be/2-LAMcpzODU?t=15",
+				Links = new List<Link> { new() { Url = "https://youtu.be/2-LAMcpzODU?t=15", Label = "Example Video" } },
 				Focuses = new List<string> { "Triceps" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Upright Row",
-				VideoUrl = "https://www.youtube.com/watch?v=VIoihl5ZZzM",
+				Links = new List<Link>
+					{ new() { Url = "https://www.youtube.com/watch?v=VIoihl5ZZzM", Label = "Example Video" } },
 				Focuses = new List<string> { "Back", "Shoulders" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Weighted Oblique Twist",
-				VideoUrl = "https://youtu.be/pDTHSnoGoEc?t=6",
+				Links = new List<Link> { new() { Url = "https://youtu.be/pDTHSnoGoEc?t=6", Label = "Example Video" } },
 				Focuses = new List<string> { "Core" }
 			},
 			new()
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = "Weighted Sit-Up",
-				VideoUrl = "https://youtu.be/kZvSaq192cg?t=4",
+				Links = new List<Link> { new() { Url = "https://youtu.be/kZvSaq192cg?t=4", Label = "Example Video" } },
 				Focuses = new List<string> { "Core", "Strength Training" }
 			}
 		};

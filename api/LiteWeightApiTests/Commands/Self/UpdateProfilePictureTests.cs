@@ -8,13 +8,13 @@ namespace LiteWeightApiTests.Commands.Self;
 public class UpdateProfilePictureTests : BaseTest
 {
 	private readonly UpdateProfilePictureHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public UpdateProfilePictureTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var storageService = new Mock<IStorageService>();
-		_handler = new UpdateProfilePictureHandler(_mockRepository.Object, storageService.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		var storageService = Substitute.For<IStorageService>();
+		_handler = new UpdateProfilePictureHandler(_mockRepository, storageService);
 	}
 
 	[Fact]
@@ -27,8 +27,8 @@ public class UpdateProfilePictureTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.True(response);

@@ -8,12 +8,12 @@ namespace LiteWeightApiTests.Commands.Self;
 public class GetSelfTests : BaseTest
 {
 	private readonly GetSelfHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public GetSelfTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new GetSelfHandler(_mockRepository.Object, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new GetSelfHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -24,8 +24,8 @@ public class GetSelfTests : BaseTest
 		var user = Fixture.Build<User>().With(x => x.Id, command.UserId).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 
@@ -38,8 +38,8 @@ public class GetSelfTests : BaseTest
 		var command = Fixture.Create<GetSelf>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

@@ -1,7 +1,4 @@
-using AutoMapper;
-using LiteWeightAPI.Api.Exercises.Responses;
 using LiteWeightAPI.Api.ReceivedWorkouts.Responses;
-using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.ReceivedWorkouts;
 using LiteWeightAPI.Domain.Users;
@@ -9,6 +6,7 @@ using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 using NodaTime;
 
@@ -25,13 +23,11 @@ public class AcceptReceivedWorkoutHandler : ICommandHandler<AcceptReceivedWorkou
 {
 	private readonly IRepository _repository;
 	private readonly IClock _clock;
-	private readonly IMapper _mapper;
 
-	public AcceptReceivedWorkoutHandler(IRepository repository, IClock clock, IMapper mapper)
+	public AcceptReceivedWorkoutHandler(IRepository repository, IClock clock)
 	{
 		_repository = repository;
 		_clock = clock;
-		_mapper = mapper;
 	}
 
 	public async Task<AcceptReceivedWorkoutResponse> HandleAsync(AcceptReceivedWorkout command)
@@ -113,8 +109,8 @@ public class AcceptReceivedWorkoutHandler : ICommandHandler<AcceptReceivedWorkou
 
 		return new AcceptReceivedWorkoutResponse
 		{
-			NewWorkoutInfo = _mapper.Map<WorkoutInfoResponse>(workoutInfo),
-			UserExercises = _mapper.Map<IList<OwnedExerciseResponse>>(user.Exercises)
+			NewWorkoutInfo = workoutInfo.ToResponse(),
+			UserExercises = user.Exercises.Select(x => x.ToResponse())
 		};
 	}
 
@@ -144,7 +140,7 @@ public class AcceptReceivedWorkoutHandler : ICommandHandler<AcceptReceivedWorkou
 			{
 				Name = exerciseName,
 				Focuses = receivedExercises.Focuses,
-				VideoUrl = receivedExercises.VideoUrl
+				Links = receivedExercises.Links
 			};
 			newExercises.Add(ownedExercise);
 		}

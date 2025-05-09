@@ -20,11 +20,11 @@ public class OwnedExercise
 	[FirestoreProperty("defaultReps")]
 	public int DefaultReps { get; set; } = 15;
 
-	[FirestoreProperty("defaultDetails")]
-	public string? DefaultDetails { get; set; }
+	[FirestoreProperty("links")]
+	public IList<Link> Links { get; set; } = new List<Link>();
 
-	[FirestoreProperty("videoUrl")]
-	public string? VideoUrl { get; set; }
+	[FirestoreProperty("notes")]
+	public string? Notes { get; set; }
 
 	[FirestoreProperty("focuses")]
 	public IList<string> Focuses { get; set; } = new List<string>();
@@ -33,14 +33,14 @@ public class OwnedExercise
 	public IList<OwnedExerciseWorkout> Workouts { get; set; } = new List<OwnedExerciseWorkout>();
 
 	public void Update(string exerciseName, double defaultWeight, int defaultSets, int defaultReps,
-		string? defaultDetails, string? videoUrl, IList<string> focuses)
+		IList<Link> links, string? notes, IList<string> focuses)
 	{
 		Name = exerciseName;
 		DefaultWeight = defaultWeight;
 		DefaultSets = defaultSets;
 		DefaultReps = defaultReps;
-		DefaultDetails = defaultDetails;
-		VideoUrl = videoUrl;
+		Links = links;
 		Focuses = focuses;
+		Notes = notes;
 	}
 }

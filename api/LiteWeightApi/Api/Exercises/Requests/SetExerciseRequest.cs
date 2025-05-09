@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using LiteWeightAPI.Api.Common.Responses;
 using LiteWeightAPI.Imports;
 
 namespace LiteWeightAPI.Api.Exercises.Requests;
@@ -36,6 +37,13 @@ public class SetExerciseRequest
 	[Required]
 	[Range(0, Globals.MaxReps)]
 	public int DefaultReps { get; set; }
+	
+	/// <summary>
+	/// Arbitrary notes detailing information such as hints/cues for certain exercises.
+	/// </summary>
+	/// <example>Ensure deep stretch. Don't over extend arms</example>
+	[MaxLength(Globals.MaxNotesLength)]
+	public string? Notes { get; set; }
 
 	/// <summary>
 	/// List of focuses of the exercise.
@@ -47,16 +55,8 @@ public class SetExerciseRequest
 	public IList<string> Focuses { get; set; } = new List<string>();
 
 	/// <summary>
-	/// Default details of the exercise. Value that the exercise will be defaulted to when adding it to a workout.
+	/// Links to associate with this exercise.
 	/// </summary>
-	/// <example>Make sure to get a spotter.</example>
-	[MaxLength(Globals.MaxDetailsLength)]
-	public string? DefaultDetails { get; set; }
-
-	/// <summary>
-	/// Video URL of the exercise. Suggested use case is a video of how to perform the exercise.
-	/// </summary>
-	/// <example>https://www.youtube.com/watch?v=rT7DgCr-3pg</example>
-	[MaxLength(Globals.MaxUrlLength)]
-	public string? VideoUrl { get; set; }
+	[MaxLength(Globals.MaxLinks)]
+	public IList<LinkResponse> Links { get; set; } = new List<LinkResponse>();
 }

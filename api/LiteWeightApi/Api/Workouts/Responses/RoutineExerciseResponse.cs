@@ -38,9 +38,9 @@ public class RoutineExerciseResponse
 	public int Reps { get; set; }
 
 	/// <summary>
-	/// Details of the exercise.
+	/// Optional instructions for this exercise.
 	/// </summary>
-	/// <example>Don't overextend arms.</example>
-	[MaxLength(Globals.MaxDetailsLength)]
-	public string? Details { get; set; }
+	/// <example>Rest for 90 seconds between sets.</example>
+	[MaxLength(Globals.MaxInstructionsLength)]
+	public string? Instructions { get; set; }
 }

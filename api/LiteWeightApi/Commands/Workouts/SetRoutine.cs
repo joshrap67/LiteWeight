@@ -23,5 +23,5 @@ public class SetRoutineExercise
 	public double Weight { get; set; }
 	public int Sets { get; set; }
 	public int Reps { get; set; }
-	public string? Details { get; set; }
+	public string? Instructions { get; set; }
 }

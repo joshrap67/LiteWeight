@@ -138,7 +138,6 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
                 (buttonView, isChecked) -> saveChanged = isChecked != userSettings.isUpdateDefaultWeightOnSave());
 
         // app settings
-        SwitchCompat videoSwitch = view.findViewById(R.id.video_switch);
         SwitchCompat stopwatchSwitch = view.findViewById(R.id.stopwatch_switch);
         SwitchCompat timerSwitch = view.findViewById(R.id.timer_switch);
         SwitchCompat darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
@@ -169,13 +168,6 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
             ((MainActivity) fragmentActivity).cancelTimerService();
             ((MainActivity) fragmentActivity).getTimer().stopTimer();
             editor.putBoolean(Variables.TIMER_ENABLED, isChecked);
-            editor.apply();
-        });
-        LinearLayout videoLayout = view.findViewById(R.id.video_layout);
-        videoLayout.setOnClickListener(view1 -> videoSwitch.performClick());
-        videoSwitch.setChecked(sharedPreferences.getBoolean(Variables.VIDEO_KEY, true));
-        videoSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            editor.putBoolean(Variables.VIDEO_KEY, isChecked);
             editor.apply();
         });
 

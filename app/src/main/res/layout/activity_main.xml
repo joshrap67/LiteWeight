@@ -13,22 +13,43 @@
             android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?colorPrimary"
-                android:theme="@style/ToolBarTheme"
-                android:elevation="4dp">
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ToolBarTheme">
 
-            <TextView
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="24sp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/toolbar_edit_workout_btn"
                     android:textColor="?attr/colorToolBarText"
+                    android:textSize="24sp"
                     app:autoSizeMinTextSize="10sp"
                     app:autoSizeTextType="uniform"
                     tools:text="LiteWeight" />
+
+                <ImageButton
+                    android:id="@+id/toolbar_edit_workout_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/edit_workout"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/edit_icon"
+                    tools:visibility="visible" />
+            </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout

@@ -244,34 +244,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                        android:id="@+id/video_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bottom_border_selectable"
-                        android:clickable="true"
-                        android:descendantFocusability="blocksDescendants"
-                        android:focusable="true"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp">
-
-                    <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/video_switch"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="false"
-                            android:text="@string/video_switch"
-                            android:textSize="16sp"
-                            tools:checked="true" />
-
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/video_switch_description"
-                            android:textColor="?attr/colorSubtitle" />
-                </LinearLayout>
-
-                <LinearLayout
                         android:id="@+id/workout_progress_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

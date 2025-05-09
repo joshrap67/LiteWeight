@@ -361,6 +361,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
         if (index >= 0) {
             this.receivedWorkouts.remove(index);
             receivedWorkoutsAdapter.notifyItemRemoved(index);
+            receivedWorkoutsAdapter.notifyItemRangeChanged(index, this.receivedWorkouts.size());
         }
     }
 

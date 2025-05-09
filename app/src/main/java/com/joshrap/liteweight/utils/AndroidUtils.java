@@ -114,7 +114,7 @@ public class AndroidUtils {
         input.addTextChangedListener(textWatcher);
     }
 
-    public static void setDetailsTextWatcher(final EditText input, final RoutineExercise exercise) {
+    public static void setInstructionsTextWatcher(final EditText input, final RoutineExercise exercise) {
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -122,9 +122,9 @@ public class AndroidUtils {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String details = input.getText().toString().trim();
-                if (details.length() <= Variables.MAX_DETAILS_LENGTH) {
-                    exercise.setDetails(details);
+                String instructions = input.getText().toString().trim();
+                if (instructions.length() <= Variables.MAX_INSTRUCTIONS_LENGTH) {
+                    exercise.setInstructions(instructions);
                 }
             }
 

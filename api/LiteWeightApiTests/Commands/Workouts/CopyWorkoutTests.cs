@@ -12,13 +12,13 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class CopyWorkoutTests : BaseTest
 {
 	private readonly CopyWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public CopyWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var clock = new Mock<IClock>();
-		_handler = new CopyWorkoutHandler(_mockRepository.Object, clock.Object, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		var clock = Substitute.For<IClock>();
+		_handler = new CopyWorkoutHandler(_mockRepository, clock);
 	}
 
 	[Fact]
@@ -49,12 +49,12 @@ public class CopyWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		var response = await _handler.HandleAsync(command);
 		// all exercises of workout should have this workout after the copy
@@ -83,12 +83,12 @@ public class CopyWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -109,12 +109,12 @@ public class CopyWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -136,12 +136,12 @@ public class CopyWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}
@@ -153,12 +153,12 @@ public class CopyWorkoutTests : BaseTest
 		var user = Fixture.Create<User>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(Fixture.Create<Workout>());
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(Fixture.Create<Workout>());
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<ForbiddenException>(() => _handler.HandleAsync(command));
 	}
@@ -169,8 +169,8 @@ public class CopyWorkoutTests : BaseTest
 		var command = Fixture.Create<CopyWorkout>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync((Workout?)null);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

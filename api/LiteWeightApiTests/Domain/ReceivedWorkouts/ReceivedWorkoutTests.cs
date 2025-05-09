@@ -35,8 +35,14 @@ public class ReceivedWorkoutTests : BaseTest
 		foreach (var distinctExercise in receivedWorkout.DistinctExercises)
 		{
 			var ownedExercise = exerciseNameToExercise[distinctExercise.ExerciseName];
-			Assert.Equal(ownedExercise.VideoUrl, distinctExercise.VideoUrl);
+			foreach (var link in ownedExercise.Links)
+			{
+				Assert.Contains(distinctExercise.Links, x => x.Label == link.Label);
+				Assert.Contains(distinctExercise.Links, x => x.Url == link.Url);
+			}
+
 			Assert.Equal(ownedExercise.Focuses, distinctExercise.Focuses);
+			Assert.Equal(ownedExercise.Notes, distinctExercise.Notes);
 		}
 
 		for (var i = 0; i < receivedWorkout.Routine.Weeks.Count; i++)
@@ -59,7 +65,7 @@ public class ReceivedWorkoutTests : BaseTest
 					Assert.Equal(expectedExercise.Weight, actualExercise.Weight);
 					Assert.Equal(expectedExercise.Sets, actualExercise.Sets);
 					Assert.Equal(expectedExercise.Reps, actualExercise.Reps);
-					Assert.Equal(expectedExercise.Details, actualExercise.Details);
+					Assert.Equal(expectedExercise.Instructions, actualExercise.Instructions);
 				}
 			}
 		}

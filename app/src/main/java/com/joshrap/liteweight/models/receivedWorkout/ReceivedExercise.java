@@ -13,5 +13,5 @@ public class ReceivedExercise {
     private double weight;
     private int sets;
     private int reps;
-    private String details;
+    private String instructions;
 }

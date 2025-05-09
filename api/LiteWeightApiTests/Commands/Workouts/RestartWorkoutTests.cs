@@ -10,12 +10,12 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class RestartWorkoutTests : BaseTest
 {
 	private readonly RestartWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public RestartWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new RestartWorkoutHandler(_mockRepository.Object, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new RestartWorkoutHandler(_mockRepository);
 	}
 
 	[Theory]
@@ -149,12 +149,12 @@ public class RestartWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		Assert.Equal(3, previousInfo.TimesRestarted);
@@ -187,12 +187,12 @@ public class RestartWorkoutTests : BaseTest
 		var user = Fixture.Create<User>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(Fixture.Create<Workout>());
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(Fixture.Create<Workout>());
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<ForbiddenException>(() => _handler.HandleAsync(command));
 	}
@@ -203,8 +203,8 @@ public class RestartWorkoutTests : BaseTest
 		var command = Fixture.Create<RestartWorkout>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync((Workout?)null);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

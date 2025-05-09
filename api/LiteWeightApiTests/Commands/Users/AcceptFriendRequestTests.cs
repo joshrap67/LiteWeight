@@ -11,13 +11,13 @@ namespace LiteWeightApiTests.Commands.Users;
 public class AcceptFriendRequestTests : BaseTest
 {
 	private readonly AcceptFriendRequestHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public AcceptFriendRequestTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var pushNotificationService = new Mock<IPushNotificationService>().Object;
-		_handler = new AcceptFriendRequestHandler(_mockRepository.Object, pushNotificationService);
+		_mockRepository = Substitute.For<IRepository>();
+		var pushNotificationService = Substitute.For<IPushNotificationService>();
+		_handler = new AcceptFriendRequestHandler(_mockRepository, pushNotificationService);
 	}
 
 	[Fact]
@@ -49,11 +49,11 @@ public class AcceptFriendRequestTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.AcceptedUserId)))
-			.ReturnsAsync(acceptedUser);
+			.GetUser(Arg.Is<string>(y => y == command.AcceptedUserId))
+			.Returns(acceptedUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.True(response);
@@ -77,11 +77,11 @@ public class AcceptFriendRequestTests : BaseTest
 		var acceptedUser = Fixture.Build<User>().With(x => x.Id, command.AcceptedUserId).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.AcceptedUserId)))
-			.ReturnsAsync(acceptedUser);
+			.GetUser(Arg.Is<string>(y => y == command.AcceptedUserId))
+			.Returns(acceptedUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		var response = await _handler.HandleAsync(command);
 		Assert.False(response);
@@ -93,8 +93,8 @@ public class AcceptFriendRequestTests : BaseTest
 		var command = Fixture.Create<AcceptFriendRequest>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.AcceptedUserId)))
-			.ReturnsAsync((User)null!);
+			.GetUser(Arg.Is<string>(y => y == command.AcceptedUserId))
+			.Returns((User)null!);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}
@@ -114,11 +114,11 @@ public class AcceptFriendRequestTests : BaseTest
 		var acceptedUser = Fixture.Build<User>().With(x => x.Id, command.AcceptedUserId).Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.AcceptedUserId)))
-			.ReturnsAsync(acceptedUser);
+			.GetUser(Arg.Is<string>(y => y == command.AcceptedUserId))
+			.Returns(acceptedUser);
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.InitiatorUserId)))
-			.ReturnsAsync(initiator);
+			.GetUser(Arg.Is<string>(y => y == command.InitiatorUserId))
+			.Returns(initiator);
 
 		await Assert.ThrowsAsync<MaxLimitException>(() => _handler.HandleAsync(command));
 	}

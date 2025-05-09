@@ -1,10 +1,10 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Services;
 using NodaTime;
 
@@ -19,15 +19,13 @@ public class SendFriendRequest : ICommand<FriendResponse>
 public class SendFriendRequestHandler : ICommandHandler<SendFriendRequest, FriendResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 	private readonly IClock _clock;
 	private readonly IPushNotificationService _pushNotificationService;
 
-	public SendFriendRequestHandler(IRepository repository, IMapper mapper, IClock clock,
+	public SendFriendRequestHandler(IRepository repository, IClock clock,
 		IPushNotificationService pushNotificationService)
 	{
 		_repository = repository;
-		_mapper = mapper;
 		_clock = clock;
 		_pushNotificationService = pushNotificationService;
 	}
@@ -76,7 +74,7 @@ public class SendFriendRequestHandler : ICommandHandler<SendFriendRequest, Frien
 		var existingFriend = senderUser.Friends.FirstOrDefault(x => x.UserId == recipientId);
 		if (existingFriend != null)
 		{
-			return _mapper.Map<FriendResponse>(existingFriend);
+			return existingFriend.ToResponse();
 		}
 
 		var friendToAdd = new Friend
@@ -101,6 +99,6 @@ public class SendFriendRequestHandler : ICommandHandler<SendFriendRequest, Frien
 		// send a notification to the user that received the friend request
 		await _pushNotificationService.SendNewFriendRequestNotification(recipientUser, friendRequest);
 
-		return _mapper.Map<FriendResponse>(friendToAdd);
+		return friendToAdd.ToResponse();
 	}
 }

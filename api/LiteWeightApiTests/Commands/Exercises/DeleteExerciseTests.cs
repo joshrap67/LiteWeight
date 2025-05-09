@@ -9,12 +9,12 @@ namespace LiteWeightApiTests.Commands.Exercises;
 public class DeleteExerciseTests : BaseTest
 {
 	private readonly DeleteExerciseHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public DeleteExerciseTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new DeleteExerciseHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new DeleteExerciseHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -53,11 +53,11 @@ public class DeleteExerciseTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => exercise.Workouts.Any(z => z.WorkoutId == y))))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => exercise.Workouts.Any(z => z.WorkoutId == y)))
+			.Returns(workout);
 
 		await _handler.HandleAsync(command);
 
@@ -74,8 +74,8 @@ public class DeleteExerciseTests : BaseTest
 		command.ExerciseId = Fixture.Create<string>();
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(Fixture.Create<User>());
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(Fixture.Create<User>());
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

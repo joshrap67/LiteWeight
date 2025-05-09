@@ -1,5 +1,6 @@
 package com.joshrap.liteweight.repositories.exercises.requests;
 
+import com.joshrap.liteweight.models.user.Link;
 import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.repositories.BodyRequest;
 
@@ -21,8 +22,8 @@ public class SetExerciseRequest extends BodyRequest {
     private int defaultSets;
     private int defaultReps;
     private List<String> focuses;
-    private String defaultDetails;
-    private String videoUrl;
+    private List<Link> links;
+    private String notes;
 
     public SetExerciseRequest(OwnedExercise ownedExercise) {
         this.name = ownedExercise.getName();
@@ -30,7 +31,7 @@ public class SetExerciseRequest extends BodyRequest {
         this.defaultSets = ownedExercise.getDefaultSets();
         this.defaultReps = ownedExercise.getDefaultReps();
         this.focuses = ownedExercise.getFocuses();
-        this.defaultDetails = ownedExercise.getDefaultDetails();
-        this.videoUrl = ownedExercise.getVideoUrl();
+        this.notes = ownedExercise.getNotes();
+        this.links = ownedExercise.getLinks();
     }
 }

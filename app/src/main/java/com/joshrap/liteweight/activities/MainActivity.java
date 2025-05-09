@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,6 +48,7 @@ import com.joshrap.liteweight.fragments.AboutFragment;
 import com.joshrap.liteweight.fragments.BrowseReceivedWorkoutFragment;
 import com.joshrap.liteweight.fragments.ChangePasswordFragment;
 import com.joshrap.liteweight.fragments.CurrentWorkoutFragment;
+import com.joshrap.liteweight.fragments.EditExerciseFragment;
 import com.joshrap.liteweight.fragments.ExerciseDetailsFragment;
 import com.joshrap.liteweight.fragments.FaqFragment;
 import com.joshrap.liteweight.fragments.FriendsListFragment;
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle toggle;
     private boolean drawerListenerIsRegistered, shouldFinish;
     private TextView toolbarTitleTV, usernameTV;
+    private ImageButton editWorkoutButton;
     private NavigationView nav;
     private Toolbar toolbar;
     private FragmentManager fragmentManager;
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ConstraintLayout navHeaderLayout;
     private ProgressBar loadingBar;
+    private String exerciseDetailId; // curse my legacy code
 
     @Getter
     private Timer timer;
@@ -153,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolbar = findViewById(R.id.toolbar);
         toolbarTitleTV = findViewById(R.id.toolbar_title);
+        editWorkoutButton = findViewById(R.id.toolbar_edit_workout_btn);
         drawer = findViewById(R.id.drawer);
         nav = findViewById(R.id.nav_view);
         View headerView = nav.getHeaderView(0);
@@ -168,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this, "Certain features of this app will not work without notifications.", Toast.LENGTH_LONG).show();
             }
         });
+
+        editWorkoutButton.setOnClickListener(v -> goToEditWorkout());
 
         loadCurrentUserAndWorkout();
     }
@@ -511,6 +519,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case Variables.FAQ_TITLE:
                 goToFaq();
                 break;
+            case Variables.EXERCISE_DETAILS_TITLE:
+                goToExerciseDetails(exerciseDetailId);
+                break;
             default:
                 /*
                     If the fragment now currently on the backstack is a fragment that I don't want the user to get back to,
@@ -807,6 +818,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbarTitleTV.setText(title);
     }
 
+    public void setEditWorkoutButtonVisibility(int visibility) {
+        editWorkoutButton.setVisibility(visibility);
+    }
+
     public void updateProfilePicture(Uri uri) {
         profilePicture.setImageURI(uri);
     }
@@ -943,6 +958,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void goToExerciseDetails(String exerciseId) {
+        exerciseDetailId = exerciseId;
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.EXERCISE_DETAILS_TITLE);
         fragmentStack.add(0, Variables.EXERCISE_DETAILS_TITLE);
@@ -955,6 +971,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
                 .replace(R.id.fragment_container, fragment, Variables.EXERCISE_DETAILS_TITLE)
+                .commit();
+    }
+
+    public void goToEditExercise(String exerciseId) {
+        saveCurrentFragmentState();
+        fragmentStack.remove(Variables.EDIT_EXERCISE_TITLE);
+        fragmentStack.add(0, Variables.EDIT_EXERCISE_TITLE);
+
+        Bundle arguments = new Bundle();
+        arguments.putString(Variables.EXERCISE_ID, exerciseId);
+        Fragment fragment = new EditExerciseFragment();
+        fragment.setArguments(arguments);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.zoom_out, R.anim.fragment_exit)
+                .replace(R.id.fragment_container, fragment, Variables.EDIT_EXERCISE_TITLE)
                 .commit();
     }
 

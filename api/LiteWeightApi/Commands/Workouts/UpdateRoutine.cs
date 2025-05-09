@@ -1,10 +1,9 @@
-using AutoMapper;
-using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Api.Workouts.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 
 namespace LiteWeightAPI.Commands.Workouts;
@@ -19,19 +18,17 @@ public class UpdateRoutine : ICommand<UserAndWorkoutResponse>
 public class UpdateRoutineHandler : ICommandHandler<UpdateRoutine, UserAndWorkoutResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 
-	public UpdateRoutineHandler(IRepository repository, IMapper mapper)
+	public UpdateRoutineHandler(IRepository repository)
 	{
 		_repository = repository;
-		_mapper = mapper;
 	}
 
 	public async Task<UserAndWorkoutResponse> HandleAsync(UpdateRoutine command)
 	{
 		var user = (await _repository.GetUser(command.UserId))!;
 		var workout = await _repository.GetWorkout(command.WorkoutId);
-		var routine = _mapper.Map<Routine>(command.Routine);
+		var routine = command.Routine.ToDomain();
 
 		if (workout == null)
 		{
@@ -51,8 +48,8 @@ public class UpdateRoutineHandler : ICommandHandler<UpdateRoutine, UserAndWorkou
 
 		return new UserAndWorkoutResponse
 		{
-			User = _mapper.Map<UserResponse>(user),
-			Workout = _mapper.Map<WorkoutResponse>(workout)
+			User = user.ToResponse(),
+			Workout = workout.ToResponse()
 		};
 	}
 

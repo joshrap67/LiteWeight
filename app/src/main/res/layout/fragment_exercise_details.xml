@@ -17,7 +17,7 @@
             android:layout_height="0dp"
             android:fadeScrollbars="true"
             android:fillViewport="true"
-            app:layout_constraintBottom_toTopOf="@id/bottom_container"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -27,93 +27,60 @@
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true">
 
-            <LinearLayout
-                    android:id="@+id/exercise_name_container"
+            <RelativeLayout
+                android:id="@+id/exercise_name_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="18dp">
+
+                <TextView
+                    android:id="@+id/exercise_name_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="8dp"
-                    android:orientation="vertical">
+                    android:layout_toStartOf="@id/exercise_options_btn"
+                    android:fontFamily="@font/roboto_thin"
+                    android:text="@string/workout_name_title"
+                    android:textSize="32sp"
+                    tools:text="Barbell Curl" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/exercise_name_input_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/name_hint"
-                        app:autoSizeTextType="uniform"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/exercise_name_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:imeOptions="actionDone"
-                            android:inputType="textCapSentences|textNoSuggestions"
-                            android:maxLines="1"
-                            android:minWidth="75dp"
-                            android:singleLine="true"
-                            app:autoSizeTextType="uniform" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                <ImageButton
+                    android:id="@+id/exercise_options_btn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/more_options"
+                    android:src="@drawable/more_icon" />
+            </RelativeLayout>
 
             <RelativeLayout
-                    android:id="@+id/focus_container"
+                android:id="@+id/focus_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/exercise_name_container"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="8dp"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/bottom_border_selectable">
+
+                <TextView
+                    android:id="@+id/focus_title_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/exercise_name_container"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginVertical="8dp"
-                    android:animateLayoutChanges="true">
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/focuses"
+                    android:textColor="?attr/colorHint"
+                    android:textSize="12sp" />
 
-                <RelativeLayout
-                        android:id="@+id/focus_title_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bottom_border_selectable">
-
-                    <TextView
-                            android:id="@+id/focus_title_tv"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="4dp"
-                            android:layout_toStartOf="@id/focus_icon_btn"
-                            android:text="@string/focuses"
-                            android:textColor="?attr/colorHint"
-                            android:textSize="12sp" />
-
-                    <TextView
-                            android:id="@+id/focus_list_tv"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/focus_title_tv"
-                            android:layout_toStartOf="@id/focus_icon_btn"
-                            android:text="@string/focus_label"
-                            android:textSize="19sp"
-                            tools:text="Back, Cardio" />
-
-                    <ImageButton
-                            android:id="@+id/focus_icon_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:contentDescription="@string/expand_collapse"
-                            android:focusable="true"
-                            android:src="@drawable/down_arrow_small" />
-                </RelativeLayout>
-
-
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/pick_focuses_recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/focus_title_container"
-                        android:visibility="gone"
-                        tools:itemCount="1"
-                        tools:listitem="@android:layout/simple_selectable_list_item"
-                        tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/focus_list_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/focus_title_tv"
+                    android:text="@string/focus_label"
+                    android:textSize="19sp"
+                    tools:text="Back, Cardio" />
             </RelativeLayout>
 
             <LinearLayout
@@ -143,204 +110,94 @@
                         android:text="@string/workout_name"
                         android:textSize="19sp"
                         tools:text="Josh's Workout, Strength Workout, High Intensity Workout, +5 more" />
-
             </LinearLayout>
 
             <RelativeLayout
+                android:id="@+id/default_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/workout_container"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="8dp"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/bottom_border_selectable">
+
+                <TextView
+                    android:id="@+id/defaults_title_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/workout_container"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/defaults"
+                    android:textColor="?attr/colorHint"
+                    android:textSize="12sp" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/default_weight_input_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        app:expandedHintEnabled="false"
-                        tools:hint="Default Weight (lb)"
-                        tools:style="@style/TextInputLayoutStyle">
+                <TextView
+                    android:id="@+id/defaults_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/defaults_title_tv"
+                    android:text="@string/focus_label"
+                    android:textSize="19sp"
+                    tools:text="30 lb 3x12" />
+            </RelativeLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/default_weight_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:imeOptions="actionDone"
-                            android:inputType="numberDecimal"
-                            android:maxLines="1"
-                            android:minWidth="75dp"
-                            android:selectAllOnFocus="true"
-                            android:singleLine="true"
-                            app:autoSizeTextType="uniform" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:id="@+id/notes_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/default_container"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bottom_border_selectable"
+                android:orientation="vertical">
 
-                <LinearLayout
-                        android:id="@+id/sets_reps_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/default_weight_input_layout"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:baselineAligned="false">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/notes_hint"
+                    android:textColor="?attr/colorHint"
+                    android:textSize="12sp" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/default_sets_input_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight=".67"
-                            android:hint="@string/default_sets_hint"
-                            app:expandedHintEnabled="false"
-                            tools:style="@style/TextInputLayoutStyle">
+                <TextView
+                    android:id="@+id/exercise_notes_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="19sp"
+                    tools:text="Make sure to get a good stretch and maintain neutral spine." />
+            </LinearLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/default_sets_input"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionDone"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:minWidth="75dp"
-                                android:selectAllOnFocus="true"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform" />
-                    </com.google.android.material.textfield.TextInputLayout>
+            <RelativeLayout
+                android:id="@+id/links_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/notes_container"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="8dp"
+                android:animateLayoutChanges="true">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/default_reps_input_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight=".67"
-                            android:hint="@string/default_reps_hint"
-                            app:expandedHintEnabled="false"
-                            tools:style="@style/TextInputLayoutStyle">
+                <TextView
+                    android:id="@+id/links_title_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/links"
+                    android:textColor="?attr/colorHint"
+                    android:textSize="12sp" />
 
-                        <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/default_reps_input"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionDone"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:minWidth="75dp"
-                                android:selectAllOnFocus="true"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/default_details_input_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/sets_reps_container"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:hint="@string/default_details_hint"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/default_details_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:imeOptions="actionDone"
-                            android:inputType="textMultiLine"
-                            android:maxLines="5"
-                            android:minWidth="75dp"
-                            android:scrollbars="vertical"
-                            android:scrollHorizontally="false"
-                            app:autoSizeTextType="uniform" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/url_input_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/default_details_input_layout"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:hint="@string/url_hint"
-                        app:autoSizeTextType="uniform"
-                        app:expandedHintEnabled="false"
-                        tools:style="@style/TextInputLayoutStyle">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/url_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:imeOptions="actionDone"
-                            android:inputType="textUri"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/url_input_layout"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-
-                    <Button
-                            android:id="@+id/copy_clipboard_btn"
-                            style="?android:attr/buttonBarButtonStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
-                            android:layout_weight="1"
-                            android:text="@string/copy_url"
-                            android:textColor="?attr/colorDefaultText"
-                            app:icon="@drawable/copy_icon" />
-
-                    <Button
-                            android:id="@+id/preview_video_btn"
-                            style="?android:attr/buttonBarButtonStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/preview_url"
-                            android:textColor="?attr/colorDefaultText"
-                            app:icon="@drawable/preview_icon" />
-                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/exercise_links_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/links_title_tv"
+                    tools:itemCount="10"
+                    tools:listitem="@layout/row_exercise_link"
+                    tools:visibility="visible" />
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
-
-    <LinearLayout
-            android:id="@+id/bottom_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:orientation="horizontal"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
-            android:weightSum="2"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view">
-
-        <Button
-                android:id="@+id/delete_exercise_icon_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:text="@string/delete"
-                android:textColor="@android:color/white"
-                app:backgroundTint="?attr/colorDangerZone" />
-
-        <Button
-                android:id="@+id/save_fab"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/save" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -113,16 +113,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/details_input_layout"
+                android:id="@+id/instructions_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/weight_input_layout"
                 android:layout_marginTop="4dp"
-                android:hint="@string/details"
+                android:hint="@string/instructions"
                 app:autoSizeTextType="uniform">
 
             <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/details_input"
+                    android:id="@+id/instructions_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"
@@ -133,12 +133,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-                android:id="@+id/launch_video_btn"
+                android:id="@+id/launch_link_btn"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/details_input_layout"
-                android:text="@string/watch_video"
+                android:layout_below="@id/instructions_input_layout"
+                android:text="@string/exercise_details"
                 android:textColor="?attr/colorDefaultText" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

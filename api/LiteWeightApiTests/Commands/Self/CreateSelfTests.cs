@@ -9,13 +9,13 @@ namespace LiteWeightApiTests.Commands.Self;
 public class CreateSelfTests : BaseTest
 {
 	private readonly CreateSelfHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public CreateSelfTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		var storageService = new Mock<IStorageService>().Object;
-		_handler = new CreateSelfHandler(_mockRepository.Object, storageService, Mapper);
+		_mockRepository = Substitute.For<IRepository>();
+		var storageService = Substitute.For<IStorageService>();
+		_handler = new CreateSelfHandler(_mockRepository, storageService);
 	}
 
 	[Fact]
@@ -24,12 +24,12 @@ public class CreateSelfTests : BaseTest
 		var command = Fixture.Create<CreateSelf>();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync((User)null!);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns((User)null!);
 
 		_mockRepository
-			.Setup(x => x.GetUserByEmail(It.Is<string>(y => y == command.UserEmail)))
-			.ReturnsAsync((User)null!);
+			.GetUserByEmail(Arg.Is<string>(y => y == command.UserEmail))
+			.Returns((User)null!);
 
 		var createdUser = await _handler.HandleAsync(command);
 		Assert.Equal(command.Username.ToLowerInvariant(), createdUser.Username);
@@ -49,8 +49,8 @@ public class CreateSelfTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUserByUsername(It.Is<string>(y => y == command.Username)))
-			.ReturnsAsync(user);
+			.GetUserByUsername(Arg.Is<string>(y => y == command.Username))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -65,8 +65,8 @@ public class CreateSelfTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetUserByEmail(It.Is<string>(y => y == command.UserEmail)))
-			.ReturnsAsync(user);
+			.GetUserByEmail(Arg.Is<string>(y => y == command.UserEmail))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}

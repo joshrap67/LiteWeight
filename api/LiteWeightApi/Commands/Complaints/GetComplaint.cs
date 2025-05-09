@@ -1,7 +1,7 @@
-using AutoMapper;
 using LiteWeightAPI.Api.Complaints.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Complaints;
 
@@ -14,12 +14,10 @@ public class GetComplaint : ICommand<ComplaintResponse>
 public class GetComplaintHandler : ICommandHandler<GetComplaint, ComplaintResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 
-	public GetComplaintHandler(IRepository repository, IMapper mapper)
+	public GetComplaintHandler(IRepository repository)
 	{
 		_repository = repository;
-		_mapper = mapper;
 	}
 
 	public async Task<ComplaintResponse> HandleAsync(GetComplaint command)
@@ -35,6 +33,6 @@ public class GetComplaintHandler : ICommandHandler<GetComplaint, ComplaintRespon
 			throw new ForbiddenException("Missing permissions");
 		}
 
-		return _mapper.Map<ComplaintResponse>(complaint);
+		return complaint.ToResponse();
 	}
 }

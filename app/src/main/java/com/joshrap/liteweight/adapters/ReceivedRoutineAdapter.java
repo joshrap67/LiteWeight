@@ -17,8 +17,8 @@ import androidx.transition.TransitionManager;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
-import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +30,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         final RelativeLayout extraInfoContainer;
         final RelativeLayout rootLayout;
 
-        final EditText detailsInput;
+        final EditText instructionsInput;
         final EditText weightInput;
         final EditText setsInput;
         final EditText repsInput;
@@ -47,7 +47,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
             extraInfoContainer = itemView.findViewById(R.id.extra_info_container);
 
             weightInput = itemView.findViewById(R.id.weight_input);
-            detailsInput = itemView.findViewById(R.id.details_input);
+            instructionsInput = itemView.findViewById(R.id.instructions_input);
             setsInput = itemView.findViewById(R.id.sets_input);
             repsInput = itemView.findViewById(R.id.reps_input);
 
@@ -62,7 +62,6 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         this.receivedRoutineRowModels = receivedRoutineRowModels;
         this.metricUnits = metricUnits;
     }
-
 
     @NonNull
     @Override
@@ -103,14 +102,14 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
 
         final Button expandButton = holder.expandButton;
         final EditText weightInput = holder.weightInput;
-        final EditText detailsInput = holder.detailsInput;
+        final EditText instructionsInput = holder.instructionsInput;
         final EditText repsInput = holder.repsInput;
         final EditText setsInput = holder.setsInput;
 
         weightInput.setEnabled(false);
         setsInput.setEnabled(false);
         repsInput.setEnabled(false);
-        detailsInput.setEnabled(false);
+        instructionsInput.setEnabled(false);
 
         if (isExpanded) {
             setExpandedViews(holder, exercise);
@@ -139,7 +138,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         holder.weightInput.setText(WeightUtils.getFormattedWeightForEditText(weight));
         holder.setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getSets())));
         holder.repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getReps())));
-        holder.detailsInput.setText(exercise.getDetails());
+        holder.instructionsInput.setText(exercise.getInstructions());
     }
 
     private void setExpandedViews(ReceivedRoutineAdapter.ViewHolder holder, ReceivedExercise exercise) {

@@ -21,7 +21,7 @@ public class ReceivedWorkout
 		SenderUsername = sender.Username;
 		Routine = new ReceivedRoutine(workout.Routine, sender.Exercises);
 
-		// preserve the focuses and video url of the exercises since recipient user might not have the same exercises
+		// preserve the focuses and links of the exercises since recipient user might not have the same exercises
 		DistinctExercises = new List<ReceivedWorkoutDistinctExercise>();
 		var exerciseIdToExercise = sender.Exercises.ToDictionary(x => x.Id, x => x);
 		var exercisesOfWorkout = workout.Routine.Weeks

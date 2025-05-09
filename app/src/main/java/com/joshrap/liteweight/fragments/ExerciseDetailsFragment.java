@@ -1,83 +1,74 @@
 package com.joshrap.liteweight.fragments;
 
-import androidx.appcompat.app.AlertDialog;
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.os.Looper.getMainLooper;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.AutoTransition;
-import androidx.transition.TransitionManager;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
-import com.joshrap.liteweight.adapters.FocusAdapter;
-import com.joshrap.liteweight.managers.SelfManager;
-import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
-import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.ExerciseUtils;
-import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.WeightUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
-import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.SelfManager;
 import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.Link;
+import com.joshrap.liteweight.models.user.OwnedExercise;
+import com.joshrap.liteweight.models.user.OwnedExerciseWorkout;
 import com.joshrap.liteweight.models.user.User;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ExerciseUtils;
+import com.joshrap.liteweight.utils.WeightUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.os.Looper.getMainLooper;
-
 public class ExerciseDetailsFragment extends Fragment implements FragmentWithDialog {
 
     private AlertDialog alertDialog;
     private OwnedExercise exercise;
     private String exerciseId;
-    private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, detailsLayout, urlLayout;
-    private EditText exerciseNameInput, weightInput, setsInput, repsInput, detailsInput, urlInput;
     private boolean metricUnits;
     private ClipboardManager clipboard;
-    private List<String> focusList, selectedFocuses;
-    private int focusRotationAngle;
-    private RelativeLayout focusRelativeLayout;
     private TextView focusesTV;
     private final MutableLiveData<String> focusTitle = new MutableLiveData<>();
-    private final List<String> existingExerciseNames = new ArrayList<>();
 
     @Inject
     AlertDialog loadingDialog;
@@ -106,8 +97,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         User user = currentUserModule.getUser();
         exercise = new OwnedExercise(user.getExercise(exerciseId));
         metricUnits = user.getSettings().isMetricUnits();
-        existingExerciseNames.addAll(user.getExercises().stream().map(OwnedExercise::getName).collect(Collectors.toList()));
-        focusList = Variables.FOCUS_LIST;
 
         return inflater.inflate(R.layout.fragment_exercise_details, container, false);
     }
@@ -115,136 +104,104 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        FragmentActivity activity = requireActivity();
 
         List<String> workoutList = new ArrayList<>(exercise.getWorkouts()).stream().map(OwnedExerciseWorkout::getWorkoutName).collect(Collectors.toList());
-        selectedFocuses = new ArrayList<>(exercise.getFocuses());
+        List<String> selectedFocuses = new ArrayList<>(exercise.getFocuses());
 
         focusesTV = view.findViewById(R.id.focus_list_tv);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
         focusTitle.observe(getViewLifecycleOwner(), this::setFocusTextView);
 
-        Button deleteExercise = view.findViewById(R.id.delete_exercise_icon_btn);
-        deleteExercise.setOnClickListener(v -> {
-            ((MainActivity) activity).hideKeyboard();
-            promptDelete();
-        });
+        ImageButton exerciseOptionsBtn = view.findViewById(R.id.exercise_options_btn);
+        PopupMenu dropDownMenu = getPopupMenu(exerciseOptionsBtn);
+        exerciseOptionsBtn.setOnClickListener(v -> dropDownMenu.show());
 
-        exerciseNameLayout = view.findViewById(R.id.exercise_name_input_layout);
-        weightLayout = view.findViewById(R.id.default_weight_input_layout);
-        weightLayout.setHint(String.format("Default Weight (%s", metricUnits ? "kg)" : "lb)"));
-        setsLayout = view.findViewById(R.id.default_sets_input_layout);
-        repsLayout = view.findViewById(R.id.default_reps_input_layout);
-        detailsLayout = view.findViewById(R.id.default_details_input_layout);
-        urlLayout = view.findViewById(R.id.url_input_layout);
+        TextView exerciseNameTv = view.findViewById(R.id.exercise_name_tv);
+        exerciseNameTv.setText(exercise.getName());
 
-        exerciseNameInput = view.findViewById(R.id.exercise_name_input);
-        exerciseNameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_EXERCISE_NAME)});
-        exerciseNameInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(exerciseNameLayout));
-
-        weightInput = view.findViewById(R.id.default_weight_input);
-        weightInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_WEIGHT_DIGITS)});
-        weightInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(weightLayout));
-
-        setsInput = view.findViewById(R.id.default_sets_input);
-        setsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_SETS_DIGITS)});
-        setsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(setsLayout));
-
-        repsInput = view.findViewById(R.id.default_reps_input);
-        repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_REPS_DIGITS)});
-        repsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(repsLayout));
-
-        detailsInput = view.findViewById(R.id.default_details_input);
-        detailsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_DETAILS_LENGTH)});
-        detailsInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(detailsLayout));
-
-        urlInput = view.findViewById(R.id.url_input);
-        urlInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Variables.MAX_URL_LENGTH)});
-        urlInput.addTextChangedListener(AndroidUtils.hideErrorTextWatcher(urlLayout));
-
-        Button clipboardBtn = view.findViewById(R.id.copy_clipboard_btn);
-        Button previewBtn = view.findViewById(R.id.preview_video_btn);
-        previewBtn.setOnClickListener(v -> {
-            alertDialog = new AlertDialog.Builder(requireContext())
-                    .setTitle("Launch Video")
-                    .setMessage(R.string.launch_video_msg)
-                    .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchVideo(urlInput.getText().toString().trim(), getContext()))
-                    .setNegativeButton("No", null)
-                    .create();
-            alertDialog.show();
-        });
-        clipboardBtn.setOnClickListener(v -> {
-            ((MainActivity) activity).hideKeyboard();
-            clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", urlInput.getText().toString().trim())));
-            Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
-        });
+        TextView defaultsTv = view.findViewById(R.id.defaults_tv);
+        double weight = WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight());
+        String formattedWeight = WeightUtils.getFormattedWeightWithUnits(weight, metricUnits);
+        defaultsTv.setText(String.format("%s %sx%s", formattedWeight, exercise.getDefaultSets(), exercise.getDefaultReps()));
 
         TextView workoutListTv = view.findViewById(R.id.workout_list_tv);
         if (workoutList.isEmpty()) {
             workoutListTv.setText(R.string.none);
         } else {
             workoutList.sort(Comparator.comparing(String::toLowerCase));
-	        StringBuilder workouts = getWorkoutsDisplay(workoutList);
+            StringBuilder workouts = getWorkoutsDisplay(workoutList);
 
-	        workoutListTv.setText(workouts.toString());
+            workoutListTv.setText(workouts.toString());
         }
 
-        Button saveButton = view.findViewById(R.id.save_fab);
-        saveButton.setOnClickListener(v -> {
-            ((MainActivity) activity).hideKeyboard();
-            saveExercise();
-        });
+        TextView notesTv = view.findViewById(R.id.exercise_notes_tv);
+        notesTv.setText(exercise.getNotes());
 
-        RecyclerView focusRecyclerView = view.findViewById(R.id.pick_focuses_recycler_view);
-        FocusAdapter addFocusAdapter = new FocusAdapter(focusList, selectedFocuses, focusTitle);
+        RecyclerView linksRecyclerView = view.findViewById(R.id.exercise_links_recycler_view);
+        ExerciseLinkAdapter linksAdapter = new ExerciseLinkAdapter(exercise.getLinks());
+        linksRecyclerView.setAdapter(linksAdapter);
+        linksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        focusRecyclerView.setAdapter(addFocusAdapter);
-        focusRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        ImageButton focusRowIcon = view.findViewById(R.id.focus_icon_btn);
-        focusRelativeLayout = view.findViewById(R.id.focus_title_container);
+        LinearLayout notesLayout = view.findViewById(R.id.notes_container);
+        if (exercise.getNotes() == null || exercise.getNotes().isEmpty()) {
+            notesLayout.setVisibility(View.GONE);
+        }
 
-        View.OnClickListener focusLayoutClicked = v -> {
-            ((MainActivity) activity).hideKeyboard();
-            boolean visible = focusRecyclerView.getVisibility() == View.VISIBLE;
-            focusRecyclerView.setVisibility(visible ? View.GONE : View.VISIBLE);
-            focusRotationAngle = focusRotationAngle == 0 ? 180 : 0;
-            focusRowIcon.animate().rotation(focusRotationAngle).setDuration(400).start();
-            if (visible) {
-                // provide smooth animation when closing
-                TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), new AutoTransition());
-            }
-        };
-        focusRelativeLayout.setOnClickListener(focusLayoutClicked);
-        focusRowIcon.setOnClickListener(focusLayoutClicked);
-
-        initViews();
+        RelativeLayout linksLayout = view.findViewById(R.id.links_container);
+        if (exercise.getLinks() == null || exercise.getLinks().isEmpty()) {
+            linksLayout.setVisibility(View.GONE);
+        }
     }
 
-	private static StringBuilder getWorkoutsDisplay(List<String> workoutList) {
-		StringBuilder workouts = new StringBuilder();
-		int maxSize = 5; // only show 5 workouts
-		if (workoutList.size() <= maxSize) {
-		    // don't append the "+ x more"
-		    for (int i = 0; i < workoutList.size(); i++) {
-		        // don't have comma at last entry
-		        workouts.append(workoutList.get(i)).append((i < workoutList.size() - 1) ? ", " : "");
-		    }
-		} else {
-		    for (int i = 0; i < maxSize; i++) {
-		        // don't have comma at last entry
-		        workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
-		    }
-		    workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
-		}
-		return workouts;
-	}
+    private static StringBuilder getWorkoutsDisplay(List<String> workoutList) {
+        StringBuilder workouts = new StringBuilder();
+        int maxSize = 5; // only show 5 workouts
+        if (workoutList.size() <= maxSize) {
+            // don't append the "+ x more"
+            for (int i = 0; i < workoutList.size(); i++) {
+                // don't have comma at last entry
+                workouts.append(workoutList.get(i)).append((i < workoutList.size() - 1) ? ", " : "");
+            }
+        } else {
+            for (int i = 0; i < maxSize; i++) {
+                // don't have comma at last entry
+                workouts.append(workoutList.get(i)).append((i < maxSize - 1) ? ", " : "");
+            }
+            workouts.append("\n + ").append(workoutList.size() - maxSize).append(" more");
+        }
+        return workouts;
+    }
 
-	private void setFocusTextView(String title) {
+    private void setFocusTextView(String title) {
         if (title == null) {
             focusesTV.setText(R.string.none);
         } else {
             focusesTV.setText(title);
         }
+    }
+
+    private PopupMenu getPopupMenu(ImageButton exerciseOptionsButton) {
+        PopupMenu dropDownMenu = new PopupMenu(getContext(), exerciseOptionsButton);
+        Menu menu = dropDownMenu.getMenu();
+        final int editIndex = 0;
+        final int deleteIndex = 1;
+
+        menu.add(0, editIndex, 0, "Edit Exercise");
+        menu.add(0, deleteIndex, 0, "Delete Exercise");
+
+        dropDownMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case editIndex:
+                    dropDownMenu.dismiss();
+                    ((MainActivity) requireActivity()).goToEditExercise(exerciseId);
+                    return true;
+                case deleteIndex:
+                    promptDelete();
+                    return true;
+            }
+            return false;
+        });
+        return dropDownMenu;
     }
 
     @Override
@@ -257,91 +214,6 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
         }
     }
 
-    private void initViews() {
-        exerciseNameInput.setText(exercise.getName());
-        weightInput.setText(WeightUtils.getFormattedWeightForEditText(WeightUtils.getConvertedWeight(metricUnits, exercise.getDefaultWeight())));
-        setsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultSets())));
-        repsInput.setText(String.format(Locale.getDefault(), Integer.toString(exercise.getDefaultReps())));
-        detailsInput.setText(exercise.getDefaultDetails());
-        urlInput.setText(exercise.getVideoUrl());
-    }
-
-    private void saveExercise() {
-        String renameError = null;
-        String weightError;
-        String setsError;
-        String repsError;
-        String detailsError;
-        String urlError = null;
-        boolean focusError = false;
-
-        if (!exerciseNameInput.getText().toString().equals(exercise.getName())) {
-            // make sure that if the user doesn't change the name that they can still update other fields
-            renameError = ValidatorUtils.validNewExerciseName(exerciseNameInput.getText().toString().trim(), existingExerciseNames);
-            exerciseNameLayout.setError(renameError);
-        }
-
-        weightError = ValidatorUtils.validWeight(weightInput.getText().toString().trim());
-        weightLayout.setError(weightError);
-
-        setsError = ValidatorUtils.validSets(setsInput.getText().toString().trim());
-        setsLayout.setError(setsError);
-
-        repsError = ValidatorUtils.validReps(repsInput.getText().toString().trim());
-        repsLayout.setError(repsError);
-
-        detailsError = ValidatorUtils.validDetails(detailsInput.getText().toString().trim());
-        detailsLayout.setError(detailsError);
-
-        if (!urlInput.getText().toString().isEmpty()) {
-            // try to validate the url if user has inputted something
-            urlError = ValidatorUtils.validUrl(urlInput.getText().toString().trim());
-        }
-        urlLayout.setError(urlError);
-
-        if (selectedFocuses.isEmpty()) {
-            focusError = true;
-            focusRelativeLayout.startAnimation(AndroidUtils.shakeError(4));
-            Toast.makeText(getContext(), "Must select at least one focus.", Toast.LENGTH_LONG).show();
-        }
-
-        if (renameError == null && weightError == null && setsError == null &&
-                repsError == null && detailsError == null && urlError == null && !focusError) {
-            double weight = Double.parseDouble(weightInput.getText().toString().trim());
-            if (metricUnits) {
-                weight = WeightUtils.metricWeightToImperial(weight);
-            }
-
-            OwnedExercise updatedExercise = new OwnedExercise();
-            updatedExercise.setName(exerciseNameInput.getText().toString().trim());
-            updatedExercise.setDefaultWeight(weight);
-            updatedExercise.setDefaultSets(Integer.parseInt(setsInput.getText().toString().trim()));
-            updatedExercise.setDefaultReps(Integer.parseInt(repsInput.getText().toString().trim()));
-            updatedExercise.setDefaultDetails(detailsInput.getText().toString().trim());
-            updatedExercise.setVideoUrl(urlInput.getText().toString().trim());
-            updatedExercise.setFocuses(selectedFocuses);
-
-            // no errors, so go ahead and save
-            AndroidUtils.showLoadingDialog(loadingDialog, "Saving...");
-            Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> {
-                Result<OwnedExercise> result = this.selfManager.updateExercise(exerciseId, updatedExercise);
-                Handler handler = new Handler(getMainLooper());
-                handler.post(() -> {
-                    loadingDialog.dismiss();
-                    if (result.isSuccess()) {
-                        Toast.makeText(getContext(), "Exercise successfully updated.", Toast.LENGTH_LONG).show();
-                    } else {
-                        AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
-                    }
-                });
-            });
-        }
-    }
-
-    /**
-     * Prompt user if they actually want to delete the currently selected workout
-     */
     private void promptDelete() {
         // exercise name is italicized
         SpannableString span1 = new SpannableString("Are you sure you wish to permanently delete ");
@@ -375,5 +247,71 @@ public class ExerciseDetailsFragment extends Fragment implements FragmentWithDia
                 }
             });
         });
+    }
+
+    private class ExerciseLinkAdapter extends RecyclerView.Adapter<ExerciseLinkAdapter.ViewHolder> {
+        class ViewHolder extends RecyclerView.ViewHolder {
+            final TextView linkTv;
+            final ImageButton copyLinkBtn;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                linkTv = itemView.findViewById(R.id.link_tv);
+                copyLinkBtn = itemView.findViewById(R.id.copy_link_icon_btn);
+            }
+        }
+
+        private final List<Link> links;
+
+        public ExerciseLinkAdapter(List<Link> links) {
+            this.links = links;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            Context context = parent.getContext();
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View focusView = inflater.inflate(R.layout.row_exercise_link, parent, false);
+            return new ViewHolder(focusView);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            Link link = links.get(position);
+            TextView linkTv = holder.linkTv;
+            ImageButton copyLinkBtn = holder.copyLinkBtn;
+            String label = link.getUrl();
+            if (link.getLabel() != null && !link.getLabel().isEmpty()) {
+                label = link.getLabel();
+            }
+
+            // underline text
+            SpannableString content = new SpannableString(label);
+            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+            linkTv.setText(content);
+
+            linkTv.setOnClickListener(v -> {
+                alertDialog = new AlertDialog.Builder(requireContext())
+                        .setTitle("Launch Link")
+                        .setMessage(R.string.launch_link_msg)
+                        .setPositiveButton("Yes", (dialog, which) -> ExerciseUtils.launchLink(link.getUrl(), getContext()))
+                        .setNegativeButton("No", null)
+                        .create();
+                alertDialog.show();
+            });
+            copyLinkBtn.setOnClickListener(v -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    // after 31 toast shows be default in android
+                    clipboard.setPrimaryClip(new ClipData(ClipData.newPlainText("url", link.getUrl())));
+                }
+                Toast.makeText(getContext(), "Link copied to clipboard.", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return links.size();
+        }
     }
 }

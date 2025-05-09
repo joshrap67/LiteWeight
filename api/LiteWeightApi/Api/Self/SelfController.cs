@@ -1,11 +1,11 @@
 using System.Text.Json.Nodes;
-using AutoMapper;
 using LiteWeightAPI.Api.Self.Requests;
 using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Self;
 using LiteWeightAPI.Errors.Attributes;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +16,10 @@ namespace LiteWeightAPI.Api.Self;
 public class SelfController : BaseController
 {
 	private readonly ICommandDispatcher _dispatcher;
-	private readonly IMapper _mapper;
 
-	public SelfController(ICommandDispatcher dispatcher, IMapper mapper)
+	public SelfController(ICommandDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
-		_mapper = mapper;
 	}
 
 	/// <summary>Get Self</summary>
@@ -57,9 +55,7 @@ public class SelfController : BaseController
 			currentUserEmail = email ?? "";
 		}
 
-		var command = _mapper.Map<CreateSelf>(request);
-		command.UserEmail = currentUserEmail;
-		command.UserId = CurrentUserId;
+		var command = request.ToCommand(CurrentUserId, currentUserEmail);
 
 		var user = await _dispatcher.DispatchAsync<CreateSelf, UserResponse>(command);
 		return new CreatedResult(new Uri("/self", UriKind.Relative), user);
@@ -116,8 +112,7 @@ public class SelfController : BaseController
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult> SetSettings(UserSettingsResponse request)
 	{
-		var command = _mapper.Map<SetSettings>(request);
-		command.UserId = CurrentUserId;
+		var command = request.ToCommand(CurrentUserId);
 
 		await _dispatcher.DispatchAsync<SetSettings, bool>(command);
 		return NoContent();

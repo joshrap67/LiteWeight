@@ -11,12 +11,12 @@ namespace LiteWeightApiTests.Commands.Workouts;
 public class RenameWorkoutTests : BaseTest
 {
 	private readonly RenameWorkoutHandler _handler;
-	private readonly Mock<IRepository> _mockRepository;
+	private readonly IRepository _mockRepository;
 
 	public RenameWorkoutTests()
 	{
-		_mockRepository = new Mock<IRepository>();
-		_handler = new RenameWorkoutHandler(_mockRepository.Object);
+		_mockRepository = Substitute.For<IRepository>();
+		_handler = new RenameWorkoutHandler(_mockRepository);
 	}
 
 	[Fact]
@@ -58,12 +58,12 @@ public class RenameWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await _handler.HandleAsync(command);
 		// all exercises of workout should have this new name workout after the rename
@@ -90,12 +90,12 @@ public class RenameWorkoutTests : BaseTest
 			.Create();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(workout);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(workout);
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<AlreadyExistsException>(() => _handler.HandleAsync(command));
 	}
@@ -107,12 +107,12 @@ public class RenameWorkoutTests : BaseTest
 		var user = Fixture.Create<User>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync(Fixture.Create<Workout>());
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns(Fixture.Create<Workout>());
 
 		_mockRepository
-			.Setup(x => x.GetUser(It.Is<string>(y => y == command.UserId)))
-			.ReturnsAsync(user);
+			.GetUser(Arg.Is<string>(y => y == command.UserId))
+			.Returns(user);
 
 		await Assert.ThrowsAsync<ForbiddenException>(() => _handler.HandleAsync(command));
 	}
@@ -123,8 +123,8 @@ public class RenameWorkoutTests : BaseTest
 		var command = Fixture.Create<RenameWorkout>();
 
 		_mockRepository
-			.Setup(x => x.GetWorkout(It.Is<string>(y => y == command.WorkoutId)))
-			.ReturnsAsync((Workout?)null);
+			.GetWorkout(Arg.Is<string>(y => y == command.WorkoutId))
+			.Returns((Workout?)null);
 
 		await Assert.ThrowsAsync<ResourceNotFoundException>(() => _handler.HandleAsync(command));
 	}

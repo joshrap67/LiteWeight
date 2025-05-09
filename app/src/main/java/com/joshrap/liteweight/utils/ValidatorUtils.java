@@ -36,6 +36,21 @@ public class ValidatorUtils {
     }
 
     /**
+     * Ensures that a label is valid. Note that no input is valid.
+     *
+     * @param label label getting validated.
+     * @return If no error, return null. Else return specific error.
+     */
+    public static String validLinkLabel(String label) {
+        label = label.trim();
+        String retVal = null;
+        if (label.length() > Variables.MAX_LABEL_LENGTH) {
+            retVal = String.format("Enter value between 0-%s.", Variables.MAX_LABEL_LENGTH);
+        }
+        return retVal;
+    }
+
+    /**
      * Ensures that the workout name is valid and doesn't already exist in a given list.
      *
      * @param workoutName      workout name getting validated.
@@ -164,16 +179,31 @@ public class ValidatorUtils {
     }
 
     /**
-     * Ensures that a given set of details are valid. Note that no input is valid.
+     * Ensures that a given set of instructions are valid. Note that no input is valid.
      *
-     * @param details details getting validated.
+     * @param instructions instructions getting validated.
      * @return If no error, return null. Else return specific error.
      */
-    public static String validDetails(String details) {
-        details = details.trim();
+    public static String validInstructions(String instructions) {
+        instructions = instructions.trim();
         String retVal = null;
-        if (details.length() > Variables.MAX_DETAILS_LENGTH) {
-            retVal = String.format("Enter value between 0-%s.", Variables.MAX_DETAILS_LENGTH);
+        if (instructions.length() > Variables.MAX_INSTRUCTIONS_LENGTH) {
+            retVal = String.format("Enter value between 0-%s.", Variables.MAX_INSTRUCTIONS_LENGTH);
+        }
+        return retVal;
+    }
+
+    /**
+     * Ensures that a given note is valid. No input is valid.
+     *
+     * @param notes notes getting validated.
+     * @return If no error, return null. Else return specific error.
+     */
+    public static String validNotes(String notes) {
+        notes = notes.trim();
+        String retVal = null;
+        if (notes.length() > Variables.MAX_NOTES_LENGTH) {
+            retVal = String.format("Enter value between 0-%s.", Variables.MAX_NOTES_LENGTH);
         }
         return retVal;
     }

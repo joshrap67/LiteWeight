@@ -1,5 +1,3 @@
-using AutoMapper;
-using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Api.Workouts.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
@@ -7,6 +5,7 @@ using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
 using LiteWeightAPI.Imports;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 using NodaTime;
 
@@ -23,13 +22,11 @@ public class CopyWorkoutHandler : ICommandHandler<CopyWorkout, UserAndWorkoutRes
 {
 	private readonly IRepository _repository;
 	private readonly IClock _clock;
-	private readonly IMapper _mapper;
 
-	public CopyWorkoutHandler(IRepository repository, IClock clock, IMapper mapper)
+	public CopyWorkoutHandler(IRepository repository, IClock clock)
 	{
 		_repository = repository;
 		_clock = clock;
-		_mapper = mapper;
 	}
 
 	public async Task<UserAndWorkoutResponse> HandleAsync(CopyWorkout command)
@@ -83,8 +80,8 @@ public class CopyWorkoutHandler : ICommandHandler<CopyWorkout, UserAndWorkoutRes
 
 		return new UserAndWorkoutResponse
 		{
-			User = _mapper.Map<UserResponse>(user),
-			Workout = _mapper.Map<WorkoutResponse>(newWorkout)
+			User = user.ToResponse(),
+			Workout = newWorkout.ToResponse()
 		};
 	}
 }

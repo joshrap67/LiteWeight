@@ -1,7 +1,7 @@
-using AutoMapper;
 using LiteWeightAPI.Api.ReceivedWorkouts.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
+using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 
 namespace LiteWeightAPI.Commands.ReceivedWorkouts;
@@ -15,12 +15,10 @@ public class GetReceivedWorkout : ICommand<ReceivedWorkoutResponse>
 public class GetReceivedWorkoutHandler : ICommandHandler<GetReceivedWorkout, ReceivedWorkoutResponse>
 {
 	private readonly IRepository _repository;
-	private readonly IMapper _mapper;
 
-	public GetReceivedWorkoutHandler(IRepository repository, IMapper mapper)
+	public GetReceivedWorkoutHandler(IRepository repository)
 	{
 		_repository = repository;
-		_mapper = mapper;
 	}
 
 	public async Task<ReceivedWorkoutResponse> HandleAsync(GetReceivedWorkout command)
@@ -33,6 +31,6 @@ public class GetReceivedWorkoutHandler : ICommandHandler<GetReceivedWorkout, Rec
 
 		ValidationUtils.EnsureReceivedWorkoutOwnership(command.UserId, receivedWorkout);
 
-		return _mapper.Map<ReceivedWorkoutResponse>(receivedWorkout);
+		return receivedWorkout.ToResponse();
 	}
 }
