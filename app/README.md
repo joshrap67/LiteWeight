@@ -12,7 +12,7 @@ Refer to the [Wiki](https://github.com/joshrap67/LiteWeight/wiki) for details on
 
 ## Prerequisites
 
-This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 26. The targeted SDK for this application is: 34.
+This application is currently only available on Android devices. The minimum SDK version that this application can run on is: 26. The targeted SDK for this application is: 35.
 
 An internet connection is required to run this application.
 
@@ -21,6 +21,17 @@ If pulling from this repository, Android Studio is required in order to run the 
 ## Deployment
 
 Build the app APK using the proper keys in Android Studio. The app is no longer deployed to Google Play thanks to Google requiring me to submit my address and phone number.
+
+There are two flavors: sandbox and prod. Switch build profiles on Android Studio to build to a specific flavor. When generating a prod APK you must ensure there is a signing.properties file (ignored by git) in the app directory. That file should have the following setup:
+
+```
+STORE_FILE=
+STORE_PASSWORD=
+KEY_ALIAS=
+KEY_PASSWORD=
+```
+
+When switching build profiles just remember to reassemble the project.
 
 ## Built With
 

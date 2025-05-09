@@ -55,6 +55,8 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
 
     public static boolean exercisesDifferent(OwnedExercise exercise1, OwnedExercise exercise2) {
         // these are the only fields that matter for comparison. can modify in the future if necessary to include id/workout list
+        String exercise1Notes = exercise1.getNotes() == null ? "" : exercise1.getNotes();
+        String exercise2Notes = exercise2.getNotes() == null ? "" : exercise2.getNotes();
         if (!exercise1.getName().equals(exercise2.getName())) {
             return true;
         } else if (exercise1.getDefaultWeight() != exercise2.getDefaultWeight()) {
@@ -63,7 +65,7 @@ public class OwnedExercise implements Comparable<OwnedExercise> {
             return true;
         } else if (exercise1.getDefaultReps() != exercise2.getDefaultReps()) {
             return true;
-        } else if (!exercise1.getNotes().equals(exercise2.getNotes())) {
+        } else if (!exercise1Notes.equals(exercise2Notes)) {
             return true;
         } else if (!focusesEqual(exercise1.getFocuses(), exercise2.getFocuses())) {
             return true;

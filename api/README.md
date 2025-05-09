@@ -30,7 +30,9 @@ Below environment variables must be set
 
 ## Deployment
 
-Can't be bothered to do proper CI/CD at the moment considering the app is not used by anyone other than me, and also because I update it like once a year. The below steps can be followed to publish or the publish powershell script can be executed.
+There are currently two environments: Prod and Sandbox (dev). It is important to switch to the proper environment whenever deploying. Until I get the drive to do proper CI/CD, there are two powershell scripts that handle everything for deploying the API.
+
+If not using those scripts the commands below can be used assuming the current project is properly set. The examples below use prod as the project id.
 
 To deploy a new docker image to Google Cloud run the following commands in the root of the API directory (same hierarchy as the Dockerfile)
 
