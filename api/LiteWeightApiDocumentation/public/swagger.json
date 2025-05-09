@@ -3312,13 +3312,16 @@
         "additionalProperties": false
       },
       "LinkResponse": {
+        "required": [
+          "url"
+        ],
         "type": "object",
         "properties": {
           "url": {
             "maxLength": 200,
+            "minLength": 1,
             "type": "string",
             "description": "Full url of the link. Suggested use case is a video of how to perform the exercise or pictures of muscles worked.",
-            "nullable": true,
             "example": "https://www.youtube.com/watch?v=rT7DgCr-3pg"
           },
           "label": {

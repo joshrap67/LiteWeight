@@ -10,6 +10,7 @@ public class LinkResponse
 	/// </summary>
 	/// <example>https://www.youtube.com/watch?v=rT7DgCr-3pg</example>
 	[MaxLength(Globals.MaxUrlLength)]
+	[Required]
 	public string Url { get; set; } = null!;
 
 	/// <summary>
