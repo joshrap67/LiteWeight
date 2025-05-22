@@ -63,7 +63,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
 
     private TextInputLayout exerciseNameLayout, weightLayout, setsLayout, repsLayout, notesLayout;
     private EditText exerciseNameInput, weightInput, setsInput, repsInput, notesInput;
-    private boolean metricUnits;
+    private boolean metricUnits, exerciseCreated;
     private List<String> focusList, selectedFocuses;
     private List<Link> links;
     private int focusRotationAngle;
@@ -108,6 +108,8 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         FragmentActivity activity = requireActivity();
+
+        exerciseCreated = false;
 
         focusCountTV = view.findViewById(R.id.focus_count_text_view);
         focusTitle.setValue(ExerciseUtils.getFocusTitle(selectedFocuses));
@@ -204,7 +206,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                         || !notesInput.getText().toString().isEmpty()
                         || !selectedFocuses.isEmpty()
                         || !links.isEmpty();
-                if (isModified) {
+                if (isModified && !exerciseCreated) {
                     hideAllDialogs(); // since user could spam back button and cause multiple ones to show
                     alertDialog = new AlertDialog.Builder(requireContext())
                             .setTitle("Unsaved Changes")
@@ -400,6 +402,7 @@ public class NewExerciseFragment extends Fragment implements FragmentWithDialog 
                 handler.post(() -> {
                     loadingDialog.dismiss();
                     if (result.isSuccess()) {
+                        exerciseCreated = true;
                         ((MainActivity) requireActivity()).finishFragment();
                     } else {
                         AndroidUtils.showErrorDialog(result.getErrorMessage(), getContext());
