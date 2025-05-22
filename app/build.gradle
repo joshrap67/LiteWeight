@@ -13,8 +13,8 @@ android {
         namespace "com.joshrap.liteweight"
         compileSdk 35
         targetSdkVersion 35
-        versionCode 19
-        versionName "3.1.0"
+        versionCode 20
+        versionName "3.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     flavorDimensions = ["env"]
@@ -84,7 +84,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     implementation 'com.github.yalantis:ucrop:2.2.6'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation platform('com.google.firebase:firebase-bom:33.13.0')
+    implementation platform('com.google.firebase:firebase-bom:33.14.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-analytics'

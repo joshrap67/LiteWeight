@@ -2,8 +2,6 @@ package com.joshrap.liteweight.utils;
 
 import static com.joshrap.liteweight.utils.ValidatorUtils.passwordNotMatchingMsg;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,8 +9,13 @@ import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.base.Strings;
+import com.google.firebase.FirebaseApp;
+import com.joshrap.liteweight.BuildConfig;
+import com.joshrap.liteweight.imports.BackendConfig;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 
@@ -248,5 +251,19 @@ public class AndroidUtils {
                 .setPositiveButton("Ok", null)
                 .create();
         alertDialog.show();
+    }
+
+    public static void initializeApp(Context context) {
+        FirebaseApp.initializeApp(context);
+        if (BuildConfig.FLAVOR.equalsIgnoreCase("sandbox")) {
+            //http://10.0.2.2:5174/ for localhost. then remember to allow plaintext in android manifest
+            BackendConfig.googleSignInClientId = "929931641278-88gnp9fmll3d8h2r557shbv0cij1crk9.apps.googleusercontent.com";
+            BackendConfig.profilePictureBaseUrl = "https://storage.googleapis.com/liteweight-sandbox-profile-pictures/";
+            BackendConfig.baseUrl = "https://liteweightapi-929931641278.us-central1.run.app/";
+        } else if (BuildConfig.FLAVOR.equalsIgnoreCase("prod")) {
+            BackendConfig.googleSignInClientId = "990471046455-g5s0mqhm6sm3b66ki7fle6n2ud0msim1.apps.googleusercontent.com";
+            BackendConfig.profilePictureBaseUrl = "https://storage.googleapis.com/liteweight-profile-pictures/";
+            BackendConfig.baseUrl = "https://liteweightapi-bxtag6fcfa-uc.a.run.app/";
+        }
     }
 }

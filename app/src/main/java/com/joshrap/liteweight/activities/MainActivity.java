@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -145,6 +144,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(null); // bit of a hack, but don't want to used save instance state since if app killed by OS I get NPEs from fragments
         Injector.getInjector(this).inject(this);
+
+        // dirty hack but if app was killed and brought back, static variables will be wrong since it will start back on this activity
+        AndroidUtils.initializeApp(this);
 
         boolean darkThemeEnabled = sharedPreferences.getBoolean(Variables.DARK_THEME_ENABLED, true);
         if (darkThemeEnabled) {
