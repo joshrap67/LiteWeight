@@ -11,12 +11,12 @@ public class RoutineDay
 	[FirestoreProperty("tag")]
 	public string? Tag { get; set; }
 
-	public RoutineDay Clone()
+	public RoutineDay Clone(bool copyCompleted = false)
 	{
 		var clonedDay = new RoutineDay { Tag = Tag };
 		foreach (var exercise in Exercises)
 		{
-			clonedDay.Exercises.Add(exercise.Clone());
+			clonedDay.Exercises.Add(exercise.Clone(copyCompleted));
 		}
 
 		return clonedDay;

@@ -65,7 +65,7 @@ public class Routine
 		}
 	}
 
-	public Routine Clone()
+	public Routine Clone(bool copyCompleted = false)
 	{
 		var copy = new Routine
 		{
@@ -76,7 +76,7 @@ public class Routine
 			var routineWeek = new RoutineWeek();
 			foreach (var day in week.Days)
 			{
-				routineWeek.AppendDay(day.Clone());
+				routineWeek.AppendDay(day.Clone(copyCompleted));
 			}
 
 			copy.Weeks.Add(routineWeek);

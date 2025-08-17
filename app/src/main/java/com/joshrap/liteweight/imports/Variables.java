@@ -35,7 +35,7 @@ public class Variables {
     public static final int MAX_WORKOUTS = 20;
     public static final int DEFAULT_WEIGHT = 0;
     public static final int DEFAULT_SETS = 3;
-    public static final int DEFAULT_REPS = 15;
+    public static final int DEFAULT_REPS = 12;
 
     public static final List<String> FOCUS_LIST = Arrays.asList(
             "Back",
