@@ -65,7 +65,7 @@ public class Routine
 		}
 	}
 
-	public Routine Clone(bool copyCompleted = false)
+	public Routine Clone()
 	{
 		var copy = new Routine
 		{
@@ -76,12 +76,26 @@ public class Routine
 			var routineWeek = new RoutineWeek();
 			foreach (var day in week.Days)
 			{
-				routineWeek.AppendDay(day.Clone(copyCompleted));
+				routineWeek.AppendDay(day.Clone());
 			}
 
 			copy.Weeks.Add(routineWeek);
 		}
 
 		return copy;
+	}
+
+	public void Restart()
+	{
+		foreach (var week in Weeks)
+		{
+			foreach (var day in week.Days)
+			{
+				foreach (var exercise in day.Exercises)
+				{
+					exercise.Completed = false;
+				}
+			}
+		}
 	}
 }

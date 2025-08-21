@@ -23,11 +23,11 @@ public class RoutineExercise
 	[FirestoreProperty("instructions")]
 	public string? Instructions { get; set; }
 
-	public RoutineExercise Clone(bool copyCompleted = false)
+	public RoutineExercise Clone()
 	{
 		var copy = new RoutineExercise
 		{
-			Completed = copyCompleted && Completed,
+			Completed = Completed,
 			Instructions = Instructions,
 			Reps = Reps,
 			Sets = Sets,

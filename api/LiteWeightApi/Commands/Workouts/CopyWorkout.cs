@@ -56,6 +56,7 @@ public class CopyWorkoutHandler : ICommandHandler<CopyWorkout, UserAndWorkoutRes
 		var newWorkoutId = Guid.NewGuid().ToString();
 		var now = _clock.GetCurrentInstant();
 		var newRoutine = workoutToCopy.Routine.Clone();
+		newRoutine.Restart(); // don't want to copy over progress of the routine
 		var newWorkout = new Workout
 		{
 			Id = newWorkoutId,

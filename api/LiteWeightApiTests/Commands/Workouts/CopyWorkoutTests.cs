@@ -28,8 +28,28 @@ public class CopyWorkoutTests : BaseTest
 		var workouts = Enumerable.Range(0, Globals.MaxFreeWorkouts / 2)
 			.Select(_ => Fixture.Create<WorkoutInfo>())
 			.ToList();
+		var routine = Fixture.Build<Routine>()
+			.With(x => x.Weeks, new List<RoutineWeek>
+			{
+				new()
+				{
+					Days = new List<RoutineDay>
+					{
+						new()
+						{
+							Exercises = new List<RoutineExercise>
+							{
+								Fixture.Build<RoutineExercise>().With(x => x.Completed, true).Create(),
+								Fixture.Build<RoutineExercise>().Create(),
+								Fixture.Build<RoutineExercise>().Create(),
+							}
+						}
+					}
+				}
+			}).Create();
 		var workout = Fixture.Build<Workout>()
 			.With(x => x.CreatorId, command.UserId)
+			.With(x => x.Routine, routine)
 			.Create();
 		var exercisesOfWorkout = workout.Routine.Weeks
 			.SelectMany(x => x.Days)
@@ -60,10 +80,12 @@ public class CopyWorkoutTests : BaseTest
 		// all exercises of workout should have this workout after the copy
 		Assert.True(user.Exercises.Where(x => exercisesOfWorkout.Contains(x.Id))
 			.All(x => x.Workouts.Any(y => y.WorkoutId == response.Workout.Id)));
-		// exercises not apart of the workout should not have changed
+		// exercises not a part of the workout should not have changed
 		Assert.True(user.Exercises.Where(x => !exercisesOfWorkout.Contains(x.Id))
 			.All(x => x.Workouts.All(y => y.WorkoutId != response.Workout.Id)));
 		Assert.Contains(user.Workouts, x => x.WorkoutId == response.Workout.Id);
+		Assert.True(response.Workout.Routine.Weeks.SelectMany(x => x.Days).SelectMany(x => x.Exercises)
+			.All(x => x.Completed == false));
 	}
 
 	[Fact]
