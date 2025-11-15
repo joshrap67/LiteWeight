@@ -23,21 +23,20 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
+import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.utils.AndroidUtils;
 import com.joshrap.liteweight.utils.WeightUtils;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import lombok.Data;
-
 public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.ViewHolder> {
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView exerciseTV;
         final Button expandButton;
         final ImageButton deleteButton;
@@ -75,9 +74,11 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private final Routine pendingRoutine;
     private final int currentWeek;
     private final int currentDay;
-    public final List<RoutineRowModel> routineRowModels;
+    private final List<RoutineExercise> exercises;
     private final Activity activity;
     private final boolean metricUnits;
+    private final Map<String, Boolean> expandedExercises;
+
 
     public RoutineDayAdapter(Map<String, String> exerciseIdToName, Map<String, Double> exerciseIdToCurrentMaxWeight,
                              Routine routine, int currentWeek, int currentDay, boolean metricUnits, Activity activity) {
@@ -88,13 +89,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.currentDay = currentDay;
         this.metricUnits = metricUnits;
         this.activity = activity;
-
-        List<RoutineRowModel> routineRowModels = new ArrayList<>();
-        for (RoutineExercise exercise : routine.exerciseListForDay(currentWeek, currentDay)) {
-            RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
-            routineRowModels.add(exerciseRowModel);
-        }
-        this.routineRowModels = routineRowModels;
+        this.expandedExercises = new HashMap<>();
+        this.exercises = routine.exerciseListForDay(currentWeek, currentDay);
     }
 
     @NonNull
@@ -110,9 +106,8 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
         // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            final RoutineRowModel routineRowModel = routineRowModels.get(position);
-            final RoutineExercise exercise = routineRowModel.routineExercise;
-            boolean isExpanded = routineRowModel.isExpanded;
+            final RoutineExercise exercise = exercises.get(position);
+            boolean isExpanded = Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()));
 
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
@@ -126,9 +121,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
 
     @Override
     public void onBindViewHolder(RoutineDayAdapter.ViewHolder holder, int position) {
-        final RoutineRowModel rowModel = routineRowModels.get(position);
-        final RoutineExercise exercise = rowModel.routineExercise;
-        boolean isExpanded = rowModel.isExpanded;
+        final RoutineExercise exercise = exercises.get(position);
 
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         TextView exerciseTV = holder.exerciseTV;
@@ -151,7 +144,12 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         AndroidUtils.setRepsTextWatcher(repsInput, exercise);
         AndroidUtils.setInstructionsTextWatcher(instructionsInput, exercise);
 
-        weightInput.addTextChangedListener(new TextWatcher() {
+        if (weightInput.getTag() instanceof TextWatcher) {
+            // clear any existing watcher
+            weightInput.removeTextChangedListener((TextWatcher) weightInput.getTag());
+        }
+
+        TextWatcher weightWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -179,34 +177,38 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
             @Override
             public void afterTextChanged(Editable editable) {
             }
-        });
+        };
+        weightInput.addTextChangedListener(weightWatcher);
+        weightInput.setTag(weightWatcher);
 
-        if (isExpanded) {
+        if (Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()))) {
             setExpandedViews(holder, exercise);
         } else {
             setCollapsedViews(holder, exercise);
         }
 
         deleteButton.setOnClickListener(v -> {
+            RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
             ((MainActivity) activity).hideKeyboard();
-            pendingRoutine.removeExercise(currentWeek, currentDay, exercise.getExerciseId());
-            routineRowModels.remove(rowModel);
+            pendingRoutine.removeExercise(currentWeek, currentDay, _exercise.getExerciseId());
+            exercises.remove(_exercise);
             notifyItemRemoved(holder.getAdapterPosition());
             notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount(), true); // payload avoids flicker for items below removed one
         });
 
         expandButton.setOnClickListener((v) -> {
+            RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
             ((MainActivity) activity).hideKeyboard();
 
-            if (rowModel.isExpanded) {
-                rowModel.isExpanded = false;
+            if (Boolean.TRUE.equals(expandedExercises.get(_exercise.getExerciseId()))) {
+                expandedExercises.put(_exercise.getExerciseId(), false);
 
                 notifyItemChanged(holder.getAdapterPosition(), true);
                 ((MainActivity) activity).hideKeyboard();
 
             } else {
                 // show all the extra details for this exercise so the user can edit/read them
-                rowModel.isExpanded = true;
+                expandedExercises.put(_exercise.getExerciseId(), true);
 
                 // wait for recycler view to stop animating before changing the visibility
                 AutoTransition autoTransition = new AutoTransition();
@@ -245,20 +247,20 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         holder.instructionsInput.setText(exercise.getInstructions());
     }
 
-    @Override
-    public int getItemCount() {
-        return routineRowModels.size();
+    private RoutineExercise getExercise(int position) {
+        return exercises.get(position);
     }
 
-    // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
-    @Data
-    public static class RoutineRowModel {
-        private final RoutineExercise routineExercise;
-        private boolean isExpanded;
+    @Override
+    public int getItemCount() {
+        return exercises.size();
+    }
 
-        public RoutineRowModel(RoutineExercise routineExercise, boolean isExpanded) {
-            this.routineExercise = routineExercise;
-            this.isExpanded = isExpanded;
-        }
+    public void addExercise(RoutineExercise exercise) {
+        this.exercises.add(exercise);
+    }
+
+    public void removeExercise(OwnedExercise exercise) {
+        this.exercises.removeIf(x -> x.getExerciseId().equals(exercise.getId()));
     }
 }

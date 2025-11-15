@@ -38,7 +38,6 @@ import com.joshrap.liteweight.adapters.ReceivedRoutineAdapter;
 import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
 import com.joshrap.liteweight.managers.UserManager;
 import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
 import com.joshrap.liteweight.models.receivedWorkout.ReceivedWeek;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
 import com.joshrap.liteweight.managers.CurrentUserModule;
@@ -321,13 +320,7 @@ public class BrowseReceivedWorkoutFragment extends Fragment implements FragmentW
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
-        List<ReceivedRoutineAdapter.ReceivedRoutineRowModel> receivedRoutineRowModels = new ArrayList<>();
-        for (ReceivedExercise exercise : receivedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex)) {
-            ReceivedRoutineAdapter.ReceivedRoutineRowModel exerciseRowModel = new ReceivedRoutineAdapter.ReceivedRoutineRowModel(exercise, false);
-            receivedRoutineRowModels.add(exerciseRowModel);
-        }
-
-        ReceivedRoutineAdapter routineAdapter = new ReceivedRoutineAdapter(receivedRoutineRowModels, isMetricUnits);
+        ReceivedRoutineAdapter routineAdapter = new ReceivedRoutineAdapter(receivedRoutine.getExerciseListForDay(currentWeekIndex, currentDayIndex), isMetricUnits);
         browseRecyclerView.setAdapter(routineAdapter);
         browseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

@@ -1172,8 +1172,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
         }
 
         int newPosition = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
-        // adapter uses list of separate models to maintain expanded state, need to add it there too
-        routineDayAdapter.routineRowModels.add(new RoutineDayAdapter.RoutineRowModel(exercise, false));
+        routineDayAdapter.addExercise(exercise);
         routineDayAdapter.notifyItemInserted(newPosition);
         routineDayRecyclerView.scrollToPosition(newPosition);
     }
@@ -1292,7 +1291,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                     } else {
                         pendingRoutine.removeExercise(currentWeekIndex, currentDayIndex, ownedExercise.getId());
                         // adapter uses list of separate models to maintain expanded state, need to remove it there too
-                        routineDayAdapter.routineRowModels.removeIf(x -> x.getRoutineExercise().getExerciseId().equals(ownedExercise.getId()));
+                        routineDayAdapter.removeExercise(ownedExercise);
                         // too much of a pain to get the index in that adapter that this exercise could have been removed from
                         routineDayAdapter.notifyDataSetChanged();
                     }

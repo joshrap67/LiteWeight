@@ -59,6 +59,7 @@ import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -361,12 +362,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
      * Updates the list of displayed exercises in the workout depending on the current day.
      */
     private void updateRoutineListUI(AnimationDirection animationDirection) {
-        List<RoutineRowModel> routineRowModels = new ArrayList<>();
-        for (RoutineExercise exercise : getRoutine().exerciseListForDay(currentWeekIndex, currentDayIndex)) {
-            RoutineRowModel exerciseRowModel = new RoutineRowModel(exercise, false);
-            routineRowModels.add(exerciseRowModel);
-        }
-        RoutineAdapter routineAdapter = new RoutineAdapter(routineRowModels, exerciseIdToExercise, isMetricUnits);
+        RoutineAdapter routineAdapter = new RoutineAdapter(getRoutine().exerciseListForDay(currentWeekIndex, currentDayIndex), exerciseIdToExercise, isMetricUnits);
 
         recyclerView.setAdapter(routineAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -520,7 +516,6 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
     }
 
     private class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.ViewHolder> {
-
         class ViewHolder extends RecyclerView.ViewHolder {
             final CheckBox exerciseCheckbox;
             final Button expandButton;
@@ -555,12 +550,15 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             }
         }
 
-        private final List<RoutineRowModel> routineRowModels;
+        private final List<RoutineExercise> exercises;
         private final Map<String, OwnedExercise> exerciseUserMap;
         private final boolean metricUnits;
+        private final Map<String, Boolean> expandedExercises;
 
-        RoutineAdapter(List<RoutineRowModel> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits) {
-            this.routineRowModels = routineRowModels;
+
+        RoutineAdapter(List<RoutineExercise> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits) {
+            this.expandedExercises = new HashMap<>();
+            this.exercises = routineRowModels;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
         }
@@ -578,9 +576,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
             if (!payloads.isEmpty()) {
                 // needed to prevent weird flicker on visibility changes
-                final RoutineRowModel routineRowModel = routineRowModels.get(position);
-                final RoutineExercise exercise = routineRowModel.routineExercise;
-                boolean isExpanded = routineRowModel.isExpanded;
+                final RoutineExercise exercise = exercises.get(position);
+                boolean isExpanded = Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()));
 
                 if (isExpanded) {
                     setExpandedViews(holder, exercise);
@@ -594,16 +591,14 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final RoutineRowModel rowModel = routineRowModels.get(position);
-            final RoutineExercise exercise = rowModel.routineExercise;
-            boolean isExpanded = rowModel.isExpanded;
+            final RoutineExercise exercise = exercises.get(position);
 
             String currentExerciseName = this.exerciseUserMap.get(exercise.getExerciseId()).getName();
             CheckBox exerciseCheckbox = holder.exerciseCheckbox;
             exerciseCheckbox.setText(currentExerciseName);
             exerciseCheckbox.setChecked(exercise.isCompleted());
             exerciseCheckbox.setOnClickListener(v -> {
-                exercise.setCompleted(exerciseCheckbox.isChecked());
+                getExercise(holder.getAdapterPosition()).setCompleted(exerciseCheckbox.isChecked());
                 updateWorkoutProgressBar();
             });
 
@@ -626,7 +621,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             AndroidUtils.setRepsTextWatcher(repsInput, exercise);
             AndroidUtils.setInstructionsTextWatcher(instructionsInput, exercise);
 
-            if (isExpanded) {
+            if (Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()))) {
                 setExpandedViews(holder, exercise);
             } else {
                 setCollapsedViews(holder, exercise);
@@ -635,21 +630,22 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             expandButton.setOnClickListener((v) -> {
                 ((MainActivity) requireActivity()).hideKeyboard();
 
-                if (rowModel.isExpanded) {
-                    rowModel.isExpanded = false;
+                RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
+                if (Boolean.TRUE.equals(expandedExercises.get(_exercise.getExerciseId()))) {
+                    expandedExercises.put(_exercise.getExerciseId(), false);
 
-                    notifyItemChanged(position, true);
+                    notifyItemChanged(holder.getAdapterPosition(), true);
                     ((MainActivity) requireActivity()).hideKeyboard();
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
-                    rowModel.isExpanded = true;
+                    expandedExercises.put(_exercise.getExerciseId(), true);
 
                     // wait for recycler view to stop animating before changing the visibility
                     AutoTransition autoTransition = new AutoTransition();
                     autoTransition.setDuration(100);
                     TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
 
-                    notifyItemChanged(position, true);
+                    notifyItemChanged(holder.getAdapterPosition(), true);
                 }
             });
         }
@@ -685,18 +681,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
         @Override
         public int getItemCount() {
-            return routineRowModels.size();
+            return exercises.size();
         }
-    }
-
-    // separate class that wraps the routine exercise and holds data about the state of the row in the recycler view
-    private static class RoutineRowModel {
-        private final RoutineExercise routineExercise;
-        private boolean isExpanded;
-
-        public RoutineRowModel(RoutineExercise routineExercise, boolean isExpanded) {
-            this.routineExercise = routineExercise;
-            this.isExpanded = isExpanded;
+        
+        private RoutineExercise getExercise(int position){
+            return exercises.get(position);
         }
     }
 }
