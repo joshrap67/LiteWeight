@@ -23,7 +23,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.imports.Variables;
-import com.joshrap.liteweight.models.user.OwnedExercise;
 import com.joshrap.liteweight.models.workout.Routine;
 import com.joshrap.liteweight.models.workout.RoutineExercise;
 import com.joshrap.liteweight.utils.AndroidUtils;
@@ -260,7 +259,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.exercises.add(exercise);
     }
 
-    public void removeExercise(OwnedExercise exercise) {
-        this.exercises.removeIf(x -> x.getExerciseId().equals(exercise.getId()));
+    public void removeExercise(String exerciseId) {
+        this.exercises.removeIf(x -> x.getExerciseId().equals(exerciseId));
     }
 }
