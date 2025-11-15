@@ -630,15 +630,15 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             expandButton.setOnClickListener((v) -> {
                 ((MainActivity) requireActivity()).hideKeyboard();
 
-                RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
-                if (Boolean.TRUE.equals(expandedExercises.get(_exercise.getExerciseId()))) {
-                    expandedExercises.put(_exercise.getExerciseId(), false);
+                RoutineExercise routineExercise = getExercise(holder.getAdapterPosition());
+                if (Boolean.TRUE.equals(expandedExercises.get(routineExercise.getExerciseId()))) {
+                    expandedExercises.put(routineExercise.getExerciseId(), false);
 
                     notifyItemChanged(holder.getAdapterPosition(), true);
                     ((MainActivity) requireActivity()).hideKeyboard();
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
-                    expandedExercises.put(_exercise.getExerciseId(), true);
+                    expandedExercises.put(routineExercise.getExerciseId(), true);
 
                     // wait for recycler view to stop animating before changing the visibility
                     AutoTransition autoTransition = new AutoTransition();

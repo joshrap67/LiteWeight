@@ -188,27 +188,27 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         }
 
         deleteButton.setOnClickListener(v -> {
-            RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
+            RoutineExercise routineExercise = getExercise(holder.getAdapterPosition());
             ((MainActivity) activity).hideKeyboard();
-            pendingRoutine.removeExercise(currentWeek, currentDay, _exercise.getExerciseId());
-            exercises.remove(_exercise);
+            pendingRoutine.removeExercise(currentWeek, currentDay, routineExercise.getExerciseId());
+            exercises.remove(routineExercise);
             notifyItemRemoved(holder.getAdapterPosition());
             notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount(), true); // payload avoids flicker for items below removed one
         });
 
         expandButton.setOnClickListener((v) -> {
-            RoutineExercise _exercise = getExercise(holder.getAdapterPosition());
+            RoutineExercise routineExercise = getExercise(holder.getAdapterPosition());
             ((MainActivity) activity).hideKeyboard();
 
-            if (Boolean.TRUE.equals(expandedExercises.get(_exercise.getExerciseId()))) {
-                expandedExercises.put(_exercise.getExerciseId(), false);
+            if (Boolean.TRUE.equals(expandedExercises.get(routineExercise.getExerciseId()))) {
+                expandedExercises.put(routineExercise.getExerciseId(), false);
 
                 notifyItemChanged(holder.getAdapterPosition(), true);
                 ((MainActivity) activity).hideKeyboard();
 
             } else {
                 // show all the extra details for this exercise so the user can edit/read them
-                expandedExercises.put(_exercise.getExerciseId(), true);
+                expandedExercises.put(routineExercise.getExerciseId(), true);
 
                 // wait for recycler view to stop animating before changing the visibility
                 AutoTransition autoTransition = new AutoTransition();
