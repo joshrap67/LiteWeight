@@ -20,11 +20,13 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutineAdapter.ViewHolder> {
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final CheckBox exerciseName; // checkbox just to make layout consistent
         final Button expandButton;
         final RelativeLayout extraInfoContainer;
@@ -55,12 +57,14 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         }
     }
 
-    private final List<ReceivedRoutineRowModel> receivedRoutineRowModels;
+    private final List<ReceivedExercise> receivedExercises;
     private final boolean metricUnits;
+    private final Map<ReceivedExercise, Boolean> expandedExercises;
 
-    public ReceivedRoutineAdapter(List<ReceivedRoutineRowModel> receivedRoutineRowModels, boolean metricUnits) {
-        this.receivedRoutineRowModels = receivedRoutineRowModels;
+    public ReceivedRoutineAdapter(List<ReceivedExercise> receivedExercises, boolean metricUnits) {
+        this.receivedExercises = receivedExercises;
         this.metricUnits = metricUnits;
+        this.expandedExercises = new HashMap<>();
     }
 
     @NonNull
@@ -76,9 +80,8 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, List<Object> payloads) {
         // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
-            final ReceivedRoutineRowModel routineRowModel = receivedRoutineRowModels.get(position);
-            final ReceivedExercise exercise = routineRowModel.receivedExercise;
-            boolean isExpanded = routineRowModel.isExpanded;
+            final ReceivedExercise exercise = receivedExercises.get(position);
+            boolean isExpanded = Boolean.TRUE.equals(expandedExercises.get(exercise));
 
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
@@ -92,9 +95,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
 
     @Override
     public void onBindViewHolder(ReceivedRoutineAdapter.ViewHolder holder, int position) {
-        final ReceivedRoutineRowModel rowModel = receivedRoutineRowModels.get(position);
-        final ReceivedExercise exercise = rowModel.receivedExercise;
-        boolean isExpanded = rowModel.isExpanded;
+        final ReceivedExercise exercise = receivedExercises.get(position);
 
         final String currentExercise = exercise.getExerciseName();
         final TextView exerciseName = holder.exerciseName;
@@ -111,23 +112,25 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         repsInput.setEnabled(false);
         instructionsInput.setEnabled(false);
 
-        if (isExpanded) {
+        if (Boolean.TRUE.equals(expandedExercises.get(exercise))) {
             setExpandedViews(holder, exercise);
         } else {
             setCollapsedViews(holder, exercise);
         }
 
         expandButton.setOnClickListener((v) -> {
-            rowModel.isExpanded = !rowModel.isExpanded;
+            ReceivedExercise receivedExercise = receivedExercises.get(holder.getAdapterPosition());
+            boolean newExpandedVal = !Boolean.TRUE.equals(expandedExercises.get(receivedExercise));
+            expandedExercises.put(receivedExercise, newExpandedVal);
 
-            if (rowModel.isExpanded) {
+            if (newExpandedVal) {
                 // wait for recycler view to stop animating before changing the visibility (only for expand since otherwise wierd flicker is shown)
                 AutoTransition autoTransition = new AutoTransition();
                 autoTransition.setDuration(100);
                 TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
             }
 
-            notifyItemChanged(position, true);
+            notifyItemChanged(holder.getAdapterPosition(), true);
         });
     }
 
@@ -159,17 +162,6 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
 
     @Override
     public int getItemCount() {
-        return receivedRoutineRowModels.size();
-    }
-
-    // separate class that wraps the received exercise and holds data about the state of the row in the recycler view
-    public static class ReceivedRoutineRowModel {
-        private final ReceivedExercise receivedExercise;
-        private boolean isExpanded;
-
-        public ReceivedRoutineRowModel(ReceivedExercise receivedExercise, boolean isExpanded) {
-            this.receivedExercise = receivedExercise;
-            this.isExpanded = isExpanded;
-        }
+        return receivedExercises.size();
     }
 }

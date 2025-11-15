@@ -19,7 +19,7 @@ import com.joshrap.liteweight.models.user.Link;
 import java.util.List;
 
 public class SaveExerciseLinkAdapter extends RecyclerView.Adapter<SaveExerciseLinkAdapter.ViewHolder> {
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView linkTv;
         final ImageButton deleteLinkBtn;
 
@@ -50,7 +50,7 @@ public class SaveExerciseLinkAdapter extends RecyclerView.Adapter<SaveExerciseLi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty()) {
-            setViews(holder, links.get(position), position);
+            setViews(holder, links.get(position));
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -58,12 +58,12 @@ public class SaveExerciseLinkAdapter extends RecyclerView.Adapter<SaveExerciseLi
 
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Link link = links.get(position);
-        setViews(holder, link, position);
+        setViews(holder, link);
     }
 
-    private void setViews(ViewHolder holder, Link link, int position) {
+    private void setViews(ViewHolder holder, Link link) {
         TextView linkTv = holder.linkTv;
         ImageButton deleteLinkBtn = holder.deleteLinkBtn;
         String label = link.getUrl();
@@ -76,8 +76,8 @@ public class SaveExerciseLinkAdapter extends RecyclerView.Adapter<SaveExerciseLi
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
         linkTv.setText(content);
 
-        linkTv.setOnClickListener(v -> linkCallbacks.onClick(link, position));
-        deleteLinkBtn.setOnClickListener(v -> linkCallbacks.onClear(link, position));
+        linkTv.setOnClickListener(v -> linkCallbacks.onClick(link, holder.getAdapterPosition()));
+        deleteLinkBtn.setOnClickListener(v -> linkCallbacks.onClear(link, holder.getAdapterPosition()));
     }
 
     @Override

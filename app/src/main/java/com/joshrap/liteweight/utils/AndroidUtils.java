@@ -48,6 +48,11 @@ public class AndroidUtils {
     }
 
     public static void setWeightTextWatcher(final EditText input, final RoutineExercise exercise, boolean metricUnits) {
+        if (input.getTag() instanceof TextWatcher) {
+            // clear any existing watcher
+            input.removeTextChangedListener((TextWatcher) input.getTag());
+        }
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -71,9 +76,15 @@ public class AndroidUtils {
             }
         };
         input.addTextChangedListener(textWatcher);
+        input.setTag(textWatcher);
     }
 
     public static void setRepsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        if (input.getTag() instanceof TextWatcher) {
+            // clear any existing watcher
+            input.removeTextChangedListener((TextWatcher) input.getTag());
+        }
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -93,9 +104,15 @@ public class AndroidUtils {
             }
         };
         input.addTextChangedListener(textWatcher);
+        input.setTag(textWatcher);
     }
 
     public static void setSetsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        if (input.getTag() instanceof TextWatcher) {
+            // clear any existing watcher
+            input.removeTextChangedListener((TextWatcher) input.getTag());
+        }
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -115,9 +132,15 @@ public class AndroidUtils {
             }
         };
         input.addTextChangedListener(textWatcher);
+        input.setTag(textWatcher);
     }
 
     public static void setInstructionsTextWatcher(final EditText input, final RoutineExercise exercise) {
+        if (input.getTag() instanceof TextWatcher) {
+            // clear any existing watcher
+            input.removeTextChangedListener((TextWatcher) input.getTag());
+        }
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -136,6 +159,7 @@ public class AndroidUtils {
             }
         };
         input.addTextChangedListener(textWatcher);
+        input.setTag(textWatcher);
     }
 
     public static void setPasswordRequirementsWatcher(EditText input1, TextInputLayout layout1, EditText input2, TextInputLayout layout2) {
