@@ -8,7 +8,7 @@ using LiteWeightAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using NetCore.AutoRegisterDi;
 using NodaTime;
 

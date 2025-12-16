@@ -3371,7 +3371,7 @@
             "type": "number",
             "description": "Default weight of the exercise (lb). Value that the exercise will be defaulted to when adding it to a workout.",
             "format": "double",
-            "example": 65
+            "example": 65.0
           },
           "defaultSets": {
             "type": "integer",
@@ -3500,7 +3500,7 @@
             "type": "number",
             "description": "Weight of the exercise (lb).",
             "format": "double",
-            "example": 215
+            "example": 215.0
           },
           "sets": {
             "type": "integer",
@@ -3788,7 +3788,7 @@
             "type": "number",
             "description": "Weight of the exercise (lb).",
             "format": "double",
-            "example": 30
+            "example": 30.0
           },
           "sets": {
             "maximum": 99,
@@ -4053,7 +4053,7 @@
             "type": "number",
             "description": "Weight of the exercise.",
             "format": "double",
-            "example": 30
+            "example": 30.0
           },
           "sets": {
             "maximum": 99,
@@ -4405,5 +4405,25 @@
         "bearerFormat": "JWT"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Complaints"
+    },
+    {
+      "name": "Exercises"
+    },
+    {
+      "name": "ReceivedWorkouts"
+    },
+    {
+      "name": "Self"
+    },
+    {
+      "name": "Users"
+    },
+    {
+      "name": "Workouts"
+    }
+  ]
 }

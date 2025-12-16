@@ -1,6 +1,6 @@
 using LiteWeightAPI.Errors.Responses;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace LiteWeightAPI.Swagger;
