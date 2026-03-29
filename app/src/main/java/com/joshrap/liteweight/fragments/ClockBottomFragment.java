@@ -68,7 +68,7 @@ public class ClockBottomFragment extends BottomSheetDialogFragment {
         editor = sharedPreferences.edit();
 
         View view = inflater.inflate(R.layout.bottom_sheet_clock, container, false);
-        // get the views and attach the callbacks
+        // get the views and attach the listener
         stopwatchLayout = view.findViewById(R.id.stopwatch_layout);
         timerContainer = view.findViewById(R.id.timer_container);
 
