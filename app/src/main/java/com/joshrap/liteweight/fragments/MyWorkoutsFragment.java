@@ -1,20 +1,10 @@
 package com.joshrap.liteweight.fragments;
 
-import androidx.appcompat.app.AlertDialog;
+import static android.os.Looper.getMainLooper;
 
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-
 import android.os.Handler;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -39,27 +29,35 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.joshrap.liteweight.*;
+import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.activities.MainActivity;
 import com.joshrap.liteweight.adapters.WorkoutsAdapter;
-import com.joshrap.liteweight.managers.CurrentUserModule;
-import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
-import com.joshrap.liteweight.managers.WorkoutManager;
-import com.joshrap.liteweight.models.user.Friend;
-import com.joshrap.liteweight.utils.AndroidUtils;
-import com.joshrap.liteweight.utils.ImageUtils;
-import com.joshrap.liteweight.utils.TimeUtils;
-import com.joshrap.liteweight.utils.ValidatorUtils;
-import com.joshrap.liteweight.utils.StatisticsUtils;
 import com.joshrap.liteweight.imports.Variables;
 import com.joshrap.liteweight.injection.Injector;
 import com.joshrap.liteweight.interfaces.FragmentWithDialog;
+import com.joshrap.liteweight.managers.CurrentUserModule;
+import com.joshrap.liteweight.managers.ReceivedWorkoutManager;
+import com.joshrap.liteweight.managers.WorkoutManager;
 import com.joshrap.liteweight.models.Result;
+import com.joshrap.liteweight.models.user.Friend;
 import com.joshrap.liteweight.models.user.User;
-import com.joshrap.liteweight.models.workout.Workout;
 import com.joshrap.liteweight.models.user.WorkoutInfo;
+import com.joshrap.liteweight.models.workout.Workout;
+import com.joshrap.liteweight.utils.AndroidUtils;
+import com.joshrap.liteweight.utils.ImageUtils;
+import com.joshrap.liteweight.utils.StatisticsUtils;
+import com.joshrap.liteweight.utils.TimeUtils;
+import com.joshrap.liteweight.utils.ValidatorUtils;
 import com.joshrap.liteweight.utils.WorkoutUtils;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -77,8 +75,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
-
-import static android.os.Looper.getMainLooper;
 
 public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
     private TextView selectedWorkoutTV, timesCompletedTV, completionRateTV, totalDaysTV, mostFrequentFocusTV;
@@ -155,8 +151,8 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
      */
     private void initViews(View view) {
         ImageButton workoutOptionsButton = view.findViewById(R.id.workout_options_btn);
-	    PopupMenu dropDownMenu = getPopupMenu(workoutOptionsButton);
-	    workoutOptionsButton.setOnClickListener(v -> dropDownMenu.show());
+        PopupMenu dropDownMenu = getPopupMenu(workoutOptionsButton);
+        workoutOptionsButton.setOnClickListener(v -> dropDownMenu.show());
 
         workoutListView = view.findViewById(R.id.workout_list_view);
         selectedWorkoutTV = view.findViewById(R.id.selected_workout_tv);
@@ -189,60 +185,60 @@ public class MyWorkoutsFragment extends Fragment implements FragmentWithDialog {
         workoutListView.setItemChecked(0, true); // programmatically select current workout in list
     }
 
-	private PopupMenu getPopupMenu(ImageButton workoutOptionsButton) {
-		PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
-		Menu menu = dropDownMenu.getMenu();
-		final int editIndex = 0;
-		final int sendIndex = 1;
-		final int copyIndex = 2;
-		final int renameIndex = 3;
-		final int resetIndex = 4;
-		final int deleteIndex = 5;
-		menu.add(0, editIndex, 0, "Edit Workout");
-		menu.add(0, sendIndex, 0, "Send Workout");
-		menu.add(0, copyIndex, 0, "Copy Workout");
-		menu.add(0, renameIndex, 0, "Rename Workout");
-		menu.add(0, resetIndex, 0, "Reset Statistics");
-		menu.add(0, deleteIndex, 0, "Delete Workout");
+    private PopupMenu getPopupMenu(ImageButton workoutOptionsButton) {
+        PopupMenu dropDownMenu = new PopupMenu(getContext(), workoutOptionsButton);
+        Menu menu = dropDownMenu.getMenu();
+        final int editIndex = 0;
+        final int sendIndex = 1;
+        final int copyIndex = 2;
+        final int renameIndex = 3;
+        final int resetIndex = 4;
+        final int deleteIndex = 5;
+        menu.add(0, editIndex, 0, "Edit Workout");
+        menu.add(0, sendIndex, 0, "Send Workout");
+        menu.add(0, copyIndex, 0, "Copy Workout");
+        menu.add(0, renameIndex, 0, "Rename Workout");
+        menu.add(0, resetIndex, 0, "Reset Statistics");
+        menu.add(0, deleteIndex, 0, "Delete Workout");
 
-		dropDownMenu.setOnMenuItemClickListener(item -> {
-		    switch (item.getItemId()) {
-		        case editIndex:
-		            dropDownMenu.dismiss();
-		            ((MainActivity) requireActivity()).goToEditWorkout();
-		            return true;
-		        case renameIndex:
-		            promptRename();
-		            return true;
-		        case resetIndex:
-		            promptResetStatistics();
-		            return true;
-		        case deleteIndex:
-		            promptDelete();
-		            return true;
-		        case sendIndex:
-		            if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
-		                promptSend();
-		            } else {
-		                AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
-		            }
-		            return true;
-		        case copyIndex:
-		            if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
-		                AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
-		            } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
-		                AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
-		            } else {
-		                promptCopy();
-		            }
-		            return true;
-		    }
-		    return false;
-		});
-		return dropDownMenu;
-	}
+        dropDownMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case editIndex:
+                    dropDownMenu.dismiss();
+                    ((MainActivity) requireActivity()).goToEditWorkout(false);
+                    return true;
+                case renameIndex:
+                    promptRename();
+                    return true;
+                case resetIndex:
+                    promptResetStatistics();
+                    return true;
+                case deleteIndex:
+                    promptDelete();
+                    return true;
+                case sendIndex:
+                    if (isPremium || currentUserModule.getUser().getWorkoutsSent() < Variables.MAX_FREE_WORKOUTS_SENT) {
+                        promptSend();
+                    } else {
+                        AndroidUtils.showErrorDialog("You have sent the maximum allowed amount of workouts.", getContext());
+                    }
+                    return true;
+                case copyIndex:
+                    if (!isPremium && workoutList.size() >= Variables.MAX_FREE_WORKOUTS) {
+                        AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
+                    } else if (isPremium && workoutList.size() >= Variables.MAX_WORKOUTS) {
+                        AndroidUtils.showErrorDialog("Copying this workout would put you over the maximum amount of workouts you can own. Delete some of your other ones if you wish to copy this workout.", getContext());
+                    } else {
+                        promptCopy();
+                    }
+                    return true;
+            }
+            return false;
+        });
+        return dropDownMenu;
+    }
 
-	/**
+    /**
      * Updates all UI with the newly changed current workout.
      */
     private void updateUI() {

@@ -41,6 +41,10 @@ public class RoutineDay implements Iterable<RoutineExercise> {
         this.exercises.add(routineExercise);
     }
 
+    void replaceExercise(int index, RoutineExercise routineExercise) {
+        this.exercises.set(index, routineExercise);
+    }
+
     public int totalNumberOfExercises() {
         return this.exercises.size();
     }

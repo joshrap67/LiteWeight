@@ -7,7 +7,7 @@
     <color name="color_row_activated">#414141</color>
     <color name="color_options_background">#303030</color>
     <color name="color_window_background">#121212</color>
-    <color name="color_dialog_window_background">#424242</color>
+    <color name="color_dialog_window_background">#2a2a2a</color>
     <color name="color_logo_background">#0b2027</color>
 
     <color name="color_default_text">#FFFFFF</color>

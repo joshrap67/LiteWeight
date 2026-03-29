@@ -77,10 +77,14 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
     private final Activity activity;
     private final boolean metricUnits;
     private final Map<String, Boolean> expandedExercises;
+    private final OnExerciseClickedListener listener;
 
+    public interface OnExerciseClickedListener {
+        void onExerciseClicked(int position, String exerciseId);
+    }
 
     public RoutineDayAdapter(Map<String, String> exerciseIdToName, Map<String, Double> exerciseIdToCurrentMaxWeight,
-                             Routine routine, int currentWeek, int currentDay, boolean metricUnits, Activity activity) {
+                             Routine routine, int currentWeek, int currentDay, boolean metricUnits, Activity activity, OnExerciseClickedListener listener) {
         this.exerciseIdToName = exerciseIdToName;
         this.exerciseIdToCurrentMaxWeight = exerciseIdToCurrentMaxWeight;
         this.pendingRoutine = routine;
@@ -90,6 +94,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.activity = activity;
         this.expandedExercises = new HashMap<>();
         this.exercises = routine.exerciseListForDay(currentWeek, currentDay);
+        this.listener = listener;
     }
 
     @NonNull
@@ -125,6 +130,7 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         final String currentExercise = this.exerciseIdToName.get(exercise.getExerciseId());
         TextView exerciseTV = holder.exerciseTV;
         exerciseTV.setText(currentExercise);
+        exerciseTV.setOnClickListener(v -> this.listener.onExerciseClicked(holder.getAdapterPosition(), exercise.getExerciseId()));
 
         Button expandButton = holder.expandButton;
         EditText weightInput = holder.weightInput;
@@ -259,7 +265,9 @@ public class RoutineDayAdapter extends RecyclerView.Adapter<RoutineDayAdapter.Vi
         this.exercises.add(exercise);
     }
 
-    public void removeExercise(String exerciseId) {
-        this.exercises.removeIf(x -> x.getExerciseId().equals(exerciseId));
+    public void replaceExercise(int index, Routine routine){
+        this.exercises.clear();
+        this.exercises.addAll(routine.exerciseListForDay(currentWeek, currentDay));
+        notifyItemChanged(index);
     }
 }

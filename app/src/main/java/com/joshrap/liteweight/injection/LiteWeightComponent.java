@@ -22,6 +22,9 @@ import com.joshrap.liteweight.fragments.NewExerciseFragment;
 import com.joshrap.liteweight.fragments.PendingWorkoutFragment;
 import com.joshrap.liteweight.fragments.ReceivedWorkoutsFragment;
 import com.joshrap.liteweight.fragments.SettingsFragment;
+import com.joshrap.liteweight.fragments.dialogs.CreateExerciseDialog;
+import com.joshrap.liteweight.fragments.dialogs.PickExercisesDialog;
+import com.joshrap.liteweight.fragments.dialogs.ReplaceExerciseDialog;
 import com.joshrap.liteweight.services.MyFirebaseMessagingService;
 import com.joshrap.liteweight.services.SyncWorkoutService;
 
@@ -44,6 +47,12 @@ public interface LiteWeightComponent {
     void inject(ExerciseDetailsFragment exerciseDetailsFragment);
 
     void inject(NewExerciseFragment newExerciseFragment);
+
+    void inject(ReplaceExerciseDialog replaceExerciseDialog);
+
+    void inject(CreateExerciseDialog createExerciseDialog);
+
+    void inject(PickExercisesDialog pickExercisesDialog);
 
     void inject(EditExerciseFragment editExerciseFragment);
 
