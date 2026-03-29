@@ -102,7 +102,7 @@ public class CreateExerciseDialog extends DialogFragment {
 
         Bundle args = requireArguments();
         String title = args.getString(TITLE, "Create New Exercise");
-        String positiveBtn = args.getString(POSITIVE_BTN, "Create and Add");
+        String positiveBtn = args.getString(POSITIVE_BTN, "Create");
         String negativeBtn = args.getString(NEGATIVE_BTN, "Cancel");
         String initialExerciseName = args.getString(INITIAL_EXERCISE_NAME, null);
 

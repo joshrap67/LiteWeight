@@ -126,7 +126,7 @@ public class ReplaceExerciseDialog extends DialogFragment {
         List<OwnedExercise> allExercises = user.getExercises().stream().map(OwnedExercise::new).sorted().collect(Collectors.toList());
 
         String title = args.getString(TITLE, "");
-        String positiveBtn = args.getString(POSITIVE_BTN, "Replace");
+        String positiveBtn = args.getString(POSITIVE_BTN, "Save");
         String negativeBtn = args.getString(NEGATIVE_BTN, "Cancel");
         String initialExerciseId = args.getString(INITIAL_EXERCISE_ID);
         selectedExercise = allExercises.stream().filter(x -> x.getId().equals(initialExerciseId)).findFirst().orElse(null);

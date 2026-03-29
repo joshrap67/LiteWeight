@@ -977,7 +977,7 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
     private void popupSelectExercises() {
         pickExercisesDialog = new PickExercisesDialog.Builder()
                 .title("Select Exercises")
-                .listener(new PickExercisesDialog.Listener() {
+                .callbacks(new PickExercisesDialog.Callbacks() {
                     @Override
                     public void submit(List<OwnedExercise> pickedExercises) {
                         onExercisesPicked(pickedExercises);
@@ -1016,10 +1016,9 @@ public class PendingWorkoutFragment extends Fragment implements FragmentWithDial
                 exercise.setWeight(exerciseIdToCurrentMaxWeight.get(pickedExercise.getId()));
             }
 
-            int newPosition = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
             routineDayAdapter.addExercise(exercise);
-            routineDayRecyclerView.scrollToPosition(newPosition);
         }
+
         routineDayAdapter.notifyDataSetChanged();
         int newPosition = pendingRoutine.exerciseListForDay(currentWeekIndex, currentDayIndex).size() - 1;
         routineDayRecyclerView.scrollToPosition(newPosition);

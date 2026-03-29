@@ -51,7 +51,7 @@ public class PickExercisesDialog extends DialogFragment {
     private static final String POSITIVE_BTN = "positive_btn";
     private static final String NEGATIVE_BTN = "negative_btn";
 
-    private PickExercisesDialog.Listener listener;
+    private Callbacks callbacks;
     private CreateExerciseDialog createExerciseDialog;
     private RecyclerView pickExerciseRecyclerView;
     private String selectedFocus;
@@ -66,7 +66,7 @@ public class PickExercisesDialog extends DialogFragment {
     @Inject
     CurrentUserModule currentUserModule;
 
-    public interface Listener {
+    public interface Callbacks {
         void submit(List<OwnedExercise> pickedExercises);
 
         void exerciseCreated(OwnedExercise createdExercise);
@@ -74,15 +74,15 @@ public class PickExercisesDialog extends DialogFragment {
 
     public static final class Builder {
         private String title = "";
-        private PickExercisesDialog.Listener listener = null;
+        private Callbacks callbacks = null;
 
         public PickExercisesDialog.Builder title(@NonNull String title) {
             this.title = title;
             return this;
         }
 
-        public PickExercisesDialog.Builder listener(@Nullable PickExercisesDialog.Listener listener) {
-            this.listener = listener;
+        public PickExercisesDialog.Builder callbacks(@Nullable Callbacks callbacks) {
+            this.callbacks = callbacks;
             return this;
         }
 
@@ -95,7 +95,7 @@ public class PickExercisesDialog extends DialogFragment {
             args.putString(NEGATIVE_BTN, "Cancel");
             fragment.setArguments(args);
 
-            fragment.listener = listener;
+            fragment.callbacks = callbacks;
             return fragment;
         }
     }
@@ -117,7 +117,7 @@ public class PickExercisesDialog extends DialogFragment {
         exercisesToAdd = new ArrayList<>();
 
         String title = args.getString(TITLE, "");
-        String positiveBtn = args.getString(POSITIVE_BTN, "Replace");
+        String positiveBtn = args.getString(POSITIVE_BTN, "Save");
         String negativeBtn = args.getString(NEGATIVE_BTN, "Cancel");
 
         View popupView = getLayoutInflater().inflate(R.layout.popup_pick_exercise, null);
@@ -218,8 +218,8 @@ public class PickExercisesDialog extends DialogFragment {
                 .setTitle(title)
                 .setView(popupView)
                 .setPositiveButton(positiveBtn, (dialog, which) -> {
-                    if (listener != null) {
-                        listener.submit(exercisesToAdd);
+                    if (callbacks != null) {
+                        callbacks.submit(exercisesToAdd);
                     }
                 })
                 .setNegativeButton(negativeBtn, (dialog, which) -> dialog.dismiss())
@@ -253,7 +253,7 @@ public class PickExercisesDialog extends DialogFragment {
         }
 
         updateExerciseChoices();
-        listener.exerciseCreated(newExercise);
+        callbacks.exerciseCreated(newExercise);
     }
 
     private void popupCreateExercise() {
