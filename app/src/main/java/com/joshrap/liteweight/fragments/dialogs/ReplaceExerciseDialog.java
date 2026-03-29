@@ -260,6 +260,7 @@ public class ReplaceExerciseDialog extends DialogFragment {
         }
         Collections.sort(sortedExercises);
         adapter.updateDisplayExercises(sortedExercises);
+        exerciseRecyclerView.scrollToPosition(0);
     }
 
     private class SelectExerciseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
