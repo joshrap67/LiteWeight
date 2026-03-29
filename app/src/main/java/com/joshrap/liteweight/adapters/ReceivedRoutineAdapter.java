@@ -119,7 +119,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         }
 
         expandButton.setOnClickListener((v) -> {
-            ReceivedExercise receivedExercise = receivedExercises.get(holder.getAdapterPosition());
+            ReceivedExercise receivedExercise = receivedExercises.get(holder.getBindingAdapterPosition());
             boolean newExpandedVal = !Boolean.TRUE.equals(expandedExercises.get(receivedExercise));
             expandedExercises.put(receivedExercise, newExpandedVal);
 
@@ -130,7 +130,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
                 TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
             }
 
-            notifyItemChanged(holder.getAdapterPosition(), true);
+            notifyItemChanged(holder.getBindingAdapterPosition(), true);
         });
     }
 

@@ -546,7 +546,7 @@ public class ReceivedWorkoutsFragment extends Fragment implements FragmentWithDi
             rootLayout.setOnClickListener(v -> {
                 if (!receivedWorkout.isSeen()) {
                     // when user clicks on the workout, mark it as seen
-                    setReceivedWorkoutSeen(holder.getAdapterPosition(), receivedWorkout.getReceivedWorkoutId());
+                    setReceivedWorkoutSeen(holder.getBindingAdapterPosition(), receivedWorkout.getReceivedWorkoutId());
                 }
 
                 bottomSheetDialog = new BottomSheetDialog(requireContext());

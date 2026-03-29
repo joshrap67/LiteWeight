@@ -598,7 +598,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             exerciseCheckbox.setText(currentExerciseName);
             exerciseCheckbox.setChecked(exercise.isCompleted());
             exerciseCheckbox.setOnClickListener(v -> {
-                getExercise(holder.getAdapterPosition()).setCompleted(exerciseCheckbox.isChecked());
+                getExercise(holder.getBindingAdapterPosition()).setCompleted(exerciseCheckbox.isChecked());
                 updateWorkoutProgressBar();
             });
 
@@ -630,11 +630,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             expandButton.setOnClickListener((v) -> {
                 ((MainActivity) requireActivity()).hideKeyboard();
 
-                RoutineExercise routineExercise = getExercise(holder.getAdapterPosition());
+                RoutineExercise routineExercise = getExercise(holder.getBindingAdapterPosition());
                 if (Boolean.TRUE.equals(expandedExercises.get(routineExercise.getExerciseId()))) {
                     expandedExercises.put(routineExercise.getExerciseId(), false);
 
-                    notifyItemChanged(holder.getAdapterPosition(), true);
+                    notifyItemChanged(holder.getBindingAdapterPosition(), true);
                     ((MainActivity) requireActivity()).hideKeyboard();
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
@@ -645,7 +645,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
                     autoTransition.setDuration(100);
                     TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
 
-                    notifyItemChanged(holder.getAdapterPosition(), true);
+                    notifyItemChanged(holder.getBindingAdapterPosition(), true);
                 }
             });
         }

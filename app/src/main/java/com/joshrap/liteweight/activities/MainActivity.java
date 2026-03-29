@@ -821,7 +821,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setEditWorkoutButtonVisibility(int visibility) {
-        editWorkoutButton.setVisibility(visibility);
+        if (currentUserModule.isWorkoutPresent()) {
+            editWorkoutButton.setVisibility(visibility);
+        }
     }
 
     public void updateProfilePicture(Uri uri) {

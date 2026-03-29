@@ -225,8 +225,8 @@ public class ReplaceExerciseDialog extends DialogFragment {
         ArrayAdapter<String> focusAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, focusList);
         focusSpinner.setAdapter(focusAdapter);
         focusSpinner.setOnItemSelectedListener(new FocusSpinnerListener());
-        // initially select first item from spinner, then always select the one the user last clicked. Note this auto calls the method to update exercises for this focus
-        focusSpinner.setSelection((selectedFocus == null) ? 0 : focusList.indexOf(selectedFocus));
+        // initially select first item from spinner. Note this auto calls the method to update exercises for this focus
+        focusSpinner.setSelection(0);
         exerciseRecyclerView.scrollToPosition(adapter.displayedExercises.indexOf(selectedExercise));
 
         return new AlertDialog.Builder(requireContext())

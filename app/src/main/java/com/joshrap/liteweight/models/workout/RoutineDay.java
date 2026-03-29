@@ -69,6 +69,10 @@ public class RoutineDay implements Iterable<RoutineExercise> {
         this.exercises.removeIf(x -> (x.getExerciseId().equals(exerciseId)));
     }
 
+    public void deleteExerciseByIndex(int index) {
+        this.exercises.remove(index);
+    }
+
     @NonNull
     @Override
     public Iterator<RoutineExercise> iterator() {

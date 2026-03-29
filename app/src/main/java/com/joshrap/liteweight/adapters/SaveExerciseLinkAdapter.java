@@ -76,8 +76,8 @@ public class SaveExerciseLinkAdapter extends RecyclerView.Adapter<SaveExerciseLi
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
         linkTv.setText(content);
 
-        linkTv.setOnClickListener(v -> linkCallbacks.onClick(link, holder.getAdapterPosition()));
-        deleteLinkBtn.setOnClickListener(v -> linkCallbacks.onClear(link, holder.getAdapterPosition()));
+        linkTv.setOnClickListener(v -> linkCallbacks.onClick(link, holder.getBindingAdapterPosition()));
+        deleteLinkBtn.setOnClickListener(v -> linkCallbacks.onClear(link, holder.getBindingAdapterPosition()));
     }
 
     @Override
