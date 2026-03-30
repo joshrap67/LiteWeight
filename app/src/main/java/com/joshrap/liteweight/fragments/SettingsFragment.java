@@ -277,7 +277,7 @@ public class SettingsFragment extends Fragment implements FragmentWithDialog {
 
     private void handleGoogleSignInResult(GoogleIdTokenCredential googleIdTokenCredential) {
         try {
-            if (!googleIdTokenCredential.getId().equals(currentUserModule.getUser().getEmail())) {
+            if (!googleIdTokenCredential.getEmail().equals(currentUserModule.getUser().getEmail())) {
                 Toast.makeText(getContext(), "Gmail does not match email of user.", Toast.LENGTH_SHORT).show();
                 googleSignOut();
                 return;

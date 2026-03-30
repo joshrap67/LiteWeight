@@ -148,8 +148,12 @@ public class Routine implements Iterable<RoutineWeek> {
         this.get(week, day).insertNewExercise(routineExercise);
     }
 
-    public void removeExercise(int week, int day, String exerciseId) {
-        this.get(week, day).deleteExercise(exerciseId);
+    public void replaceExercise(int week, int day, int index, final RoutineExercise routineExercise) {
+        this.get(week, day).replaceExercise(index, routineExercise);
+    }
+
+    public void removeExercise(int week, int day, int index) {
+        this.get(week, day).deleteExerciseByIndex(index);
     }
 
     public void deleteExerciseFromRoutine(final String exerciseId) {

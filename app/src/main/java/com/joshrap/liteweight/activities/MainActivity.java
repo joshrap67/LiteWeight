@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        editWorkoutButton.setOnClickListener(v -> goToEditWorkout());
+        editWorkoutButton.setOnClickListener(v -> goToEditWorkout(true));
 
         loadCurrentUserAndWorkout();
     }
@@ -821,7 +821,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setEditWorkoutButtonVisibility(int visibility) {
-        editWorkoutButton.setVisibility(visibility);
+        if (currentUserModule.isWorkoutPresent()) {
+            editWorkoutButton.setVisibility(visibility);
+        }
     }
 
     public void updateProfilePicture(Uri uri) {
@@ -930,13 +932,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    public void goToEditWorkout() {
+    public void goToEditWorkout(boolean useCurrentWeekAndDay) {
         saveCurrentFragmentState();
         fragmentStack.remove(Variables.EDIT_WORKOUT_TITLE);
         fragmentStack.add(0, Variables.EDIT_WORKOUT_TITLE);
 
         Bundle arguments = new Bundle();
         arguments.putBoolean(Variables.EXISTING_WORKOUT, true);
+        if (useCurrentWeekAndDay) {
+            arguments.putInt(Variables.CURRENT_WEEK, currentUserModule.getCurrentWeek());
+            arguments.putInt(Variables.CURRENT_DAY, currentUserModule.getCurrentDay());
+        }
+
         Fragment fragment = new PendingWorkoutFragment();
         fragment.setArguments(arguments);
 

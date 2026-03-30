@@ -41,6 +41,10 @@ public class RoutineDay implements Iterable<RoutineExercise> {
         this.exercises.add(routineExercise);
     }
 
+    void replaceExercise(int index, RoutineExercise routineExercise) {
+        this.exercises.set(index, routineExercise);
+    }
+
     public int totalNumberOfExercises() {
         return this.exercises.size();
     }
@@ -63,6 +67,10 @@ public class RoutineDay implements Iterable<RoutineExercise> {
 
     public void deleteExercise(String exerciseId) {
         this.exercises.removeIf(x -> (x.getExerciseId().equals(exerciseId)));
+    }
+
+    public void deleteExerciseByIndex(int index) {
+        this.exercises.remove(index);
     }
 
     @NonNull

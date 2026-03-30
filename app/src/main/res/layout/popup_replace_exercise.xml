@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="?attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
+
+    <RelativeLayout
+            android:id="@+id/top_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <Spinner
+                android:id="@+id/focus_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_toStartOf="@id/search_icon_button"
+                android:spinnerMode="dropdown"
+                tools:visibility="invisible" />
+
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_exercises_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_toStartOf="@id/search_icon_button"
+                android:hint="@string/search_exercise_hint"
+                android:visibility="invisible"
+                app:endIconMode="clear_text"
+                app:expandedHintEnabled="false"
+                tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_exercises_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+                android:id="@+id/search_icon_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="16dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/search_exercises_description"
+                android:src="@drawable/search_icon" />
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pick_exercise_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_below="@id/top_container"
+        android:layout_margin="8dp"
+        android:layout_marginTop="8dp"
+        android:choiceMode="singleChoice"
+        android:scrollbarStyle="outsideInset"
+        android:scrollbars="vertical"
+        tools:listitem="@android:layout/simple_list_item_activated_1" />
+</RelativeLayout>

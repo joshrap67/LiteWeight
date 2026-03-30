@@ -59,10 +59,11 @@ import com.joshrap.liteweight.widgets.Stopwatch;
 import com.joshrap.liteweight.widgets.Timer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -553,11 +554,11 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         private final List<RoutineExercise> exercises;
         private final Map<String, OwnedExercise> exerciseUserMap;
         private final boolean metricUnits;
-        private final Map<String, Boolean> expandedExercises;
+        private final Set<Integer> expandedExerciseIndices;
 
 
         RoutineAdapter(List<RoutineExercise> routineRowModels, Map<String, OwnedExercise> exerciseIdToName, boolean metricUnits) {
-            this.expandedExercises = new HashMap<>();
+            this.expandedExerciseIndices = new HashSet<>();
             this.exercises = routineRowModels;
             this.exerciseUserMap = exerciseIdToName;
             this.metricUnits = metricUnits;
@@ -577,7 +578,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             if (!payloads.isEmpty()) {
                 // needed to prevent weird flicker on visibility changes
                 final RoutineExercise exercise = exercises.get(position);
-                boolean isExpanded = Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()));
+                boolean isExpanded = expandedExerciseIndices.contains(holder.getBindingAdapterPosition());
 
                 if (isExpanded) {
                     setExpandedViews(holder, exercise);
@@ -598,7 +599,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             exerciseCheckbox.setText(currentExerciseName);
             exerciseCheckbox.setChecked(exercise.isCompleted());
             exerciseCheckbox.setOnClickListener(v -> {
-                getExercise(holder.getAdapterPosition()).setCompleted(exerciseCheckbox.isChecked());
+                getExercise(holder.getBindingAdapterPosition()).setCompleted(exerciseCheckbox.isChecked());
                 updateWorkoutProgressBar();
             });
 
@@ -621,7 +622,7 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
             AndroidUtils.setRepsTextWatcher(repsInput, exercise);
             AndroidUtils.setInstructionsTextWatcher(instructionsInput, exercise);
 
-            if (Boolean.TRUE.equals(expandedExercises.get(exercise.getExerciseId()))) {
+            if (expandedExerciseIndices.contains(holder.getBindingAdapterPosition())) {
                 setExpandedViews(holder, exercise);
             } else {
                 setCollapsedViews(holder, exercise);
@@ -629,23 +630,21 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
 
             expandButton.setOnClickListener((v) -> {
                 ((MainActivity) requireActivity()).hideKeyboard();
+                if (expandedExerciseIndices.contains(holder.getBindingAdapterPosition())) {
+                    expandedExerciseIndices.remove(holder.getBindingAdapterPosition());
 
-                RoutineExercise routineExercise = getExercise(holder.getAdapterPosition());
-                if (Boolean.TRUE.equals(expandedExercises.get(routineExercise.getExerciseId()))) {
-                    expandedExercises.put(routineExercise.getExerciseId(), false);
-
-                    notifyItemChanged(holder.getAdapterPosition(), true);
+                    notifyItemChanged(holder.getBindingAdapterPosition(), true);
                     ((MainActivity) requireActivity()).hideKeyboard();
                 } else {
                     // show all the extra details for this exercise so the user can edit/read them
-                    expandedExercises.put(routineExercise.getExerciseId(), true);
+                    expandedExerciseIndices.add(holder.getBindingAdapterPosition());
 
                     // wait for recycler view to stop animating before changing the visibility
                     AutoTransition autoTransition = new AutoTransition();
                     autoTransition.setDuration(100);
                     TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
 
-                    notifyItemChanged(holder.getAdapterPosition(), true);
+                    notifyItemChanged(holder.getBindingAdapterPosition(), true);
                 }
             });
         }
@@ -683,8 +682,8 @@ public class CurrentWorkoutFragment extends Fragment implements FragmentWithDial
         public int getItemCount() {
             return exercises.size();
         }
-        
-        private RoutineExercise getExercise(int position){
+
+        private RoutineExercise getExercise(int position) {
             return exercises.get(position);
         }
     }

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomSortAdapter extends RecyclerView.Adapter<CustomSortAdapter.ViewHolder> {
-    static class ViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements DraggableViewHolder {
         final TextView exerciseTV;
         final Button weightButton;
         final RelativeLayout rootLayout;

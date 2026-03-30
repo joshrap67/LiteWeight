@@ -84,6 +84,8 @@ public class Variables {
     public static final String NOTIFICATION_ACTION = "NotificationAction";
     public static final String EXERCISE_ID = "exerciseId";
     public static final String EXISTING_WORKOUT = "existingWorkout";
+    public static final String CURRENT_WEEK = "currentWeek";
+    public static final String CURRENT_DAY = "currentDay";
 
     // shared pref keys/values
     public static final String TIMER_ENABLED = "TimerEnabled";

@@ -20,10 +20,10 @@ import com.joshrap.liteweight.R;
 import com.joshrap.liteweight.models.receivedWorkout.ReceivedExercise;
 import com.joshrap.liteweight.utils.WeightUtils;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 
 public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutineAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -59,12 +59,12 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
 
     private final List<ReceivedExercise> receivedExercises;
     private final boolean metricUnits;
-    private final Map<ReceivedExercise, Boolean> expandedExercises;
+    private final Set<Integer> expandedExerciseIndices;
 
     public ReceivedRoutineAdapter(List<ReceivedExercise> receivedExercises, boolean metricUnits) {
         this.receivedExercises = receivedExercises;
         this.metricUnits = metricUnits;
-        this.expandedExercises = new HashMap<>();
+        this.expandedExerciseIndices = new HashSet<>();
     }
 
     @NonNull
@@ -81,7 +81,7 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         // this overload is needed since if you rebind with the intention to only collapse, the layout is overridden causing weird animation bugs
         if (!payloads.isEmpty()) {
             final ReceivedExercise exercise = receivedExercises.get(position);
-            boolean isExpanded = Boolean.TRUE.equals(expandedExercises.get(exercise));
+            boolean isExpanded = expandedExerciseIndices.contains(holder.getBindingAdapterPosition());
 
             if (isExpanded) {
                 setExpandedViews(holder, exercise);
@@ -112,25 +112,25 @@ public class ReceivedRoutineAdapter extends RecyclerView.Adapter<ReceivedRoutine
         repsInput.setEnabled(false);
         instructionsInput.setEnabled(false);
 
-        if (Boolean.TRUE.equals(expandedExercises.get(exercise))) {
+        if (expandedExerciseIndices.contains(holder.getBindingAdapterPosition())) {
             setExpandedViews(holder, exercise);
         } else {
             setCollapsedViews(holder, exercise);
         }
 
         expandButton.setOnClickListener((v) -> {
-            ReceivedExercise receivedExercise = receivedExercises.get(holder.getAdapterPosition());
-            boolean newExpandedVal = !Boolean.TRUE.equals(expandedExercises.get(receivedExercise));
-            expandedExercises.put(receivedExercise, newExpandedVal);
-
-            if (newExpandedVal) {
+            boolean isExpanded = expandedExerciseIndices.contains(holder.getBindingAdapterPosition());
+            if (isExpanded) {
+                expandedExerciseIndices.remove(holder.getBindingAdapterPosition());
+            } else {
+                expandedExerciseIndices.add(holder.getBindingAdapterPosition());
                 // wait for recycler view to stop animating before changing the visibility (only for expand since otherwise wierd flicker is shown)
                 AutoTransition autoTransition = new AutoTransition();
                 autoTransition.setDuration(100);
                 TransitionManager.beginDelayedTransition(holder.rootLayout, autoTransition);
             }
 
-            notifyItemChanged(holder.getAdapterPosition(), true);
+            notifyItemChanged(holder.getBindingAdapterPosition(), true);
         });
     }
 
