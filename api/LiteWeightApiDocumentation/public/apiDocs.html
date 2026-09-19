@@ -1,42 +1,115 @@
 <!doctype html>
-<html lang="en-US">
+<html>
 <head>
-    <title>LiteWeight API Reference</title>
-    <meta charset="utf-8">
-    <link href="favicon.ico" rel="icon">
-    <script type="module" src="https://unpkg.com/rapidoc@9.3.8/dist/rapidoc-min.js"></script>
+	<title>LiteWeight API Reference</title>
+	<meta charset="utf-8"/>
+	<link href="favicon.ico" rel="icon">
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
 </head>
 
 <style>
-    rapi-doc::part(section-overview-title) { /* rapidoc for some reason puts negative margin on api-info. This title (above the api-info) is only easily changeable style */
-        margin-left: -15px;
-    }
+	:root {
+		--scalar-custom-header-height: 50px;
+	}
+
+	.light-mode {
+		--scalar-color-1: #121212;
+		--scalar-color-2: rgba(0, 0, 0, 0.6);
+		--scalar-color-3: rgba(0, 0, 0, 0.4);
+		--scalar-color-accent: #006B55;
+		--scalar-background-1: #fff;
+		--scalar-background-2: #f6f5f4;
+		--scalar-background-3: #f1ede9;
+		--scalar-background-accent: #5369d20f;
+		--scalar-border-color: rgba(0, 0, 0, 0.08);
+	}
+
+	.dark-mode {
+		--scalar-color-1: rgba(255, 255, 255, 0.81);
+		--scalar-color-2: rgba(255, 255, 255, 0.443);
+		--scalar-color-3: rgba(255, 255, 255, 0.282);
+		--scalar-color-accent: #53DCB7;
+		--scalar-background-1: #2f343a;
+		--scalar-background-2: #4a4d55;
+		--scalar-background-3: #333333;
+		--scalar-background-accent: #8ab4f81f;
+	}
+
+	.error-container {
+		background-color: var(--scalar-background-1);
+		padding: 12px 0px 12px 12px;
+		border-left: 5px solid #F90258;
+	}
+
+	.custom-header {
+		height: var(--scalar-custom-header-height);
+		background-color: var(--scalar-background-1);
+		box-shadow: inset 0 -1px 0 var(--scalar-border-color);
+		color: var(--scalar-color-1);
+		font-size: var(--scalar-font-size-2);
+		padding: 0 18px;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+	}
+
 </style>
-<body style="background-color:#121212;">
-<rapi-doc
-        allow-authentication="false"
-        allow-server-selection="false"
-        allow-spec-file-download="false"
-        allow-spec-file-load="false"
-        allow-try="false"
-        css-classes="#api-info"
-        default-schema-tab="schema"
-        info-description-headings-in-navbar="true"
-        nav-accent-color="#02F88F"
-        primary-color="#2B8366"
-        regular-font="Open Sans"
-        render-style="focused"
-        schema-description-expanded="true"
-        schema-style="table"
-        show-header="false"
-        show-method-in-nav-bar="as-colored-text"
-        sort-endpoints-by="summary"
-        spec-url="https://storage.googleapis.com/liteweight-api-documentation/swagger.json"
-        theme="dark">
-    <div slot="nav-logo" style="display: flex; align-items: center; justify-content: center; ">
-        <img src="https://liteweight-documentation.s3.amazonaws.com/LiteWeight_Icon.png"
-             style="width:60px; border-radius: 40%; margin-right: 20px"> <span style="color:#fff"> <b>LiteWeight API</b> </span>
-    </div>
-</rapi-doc>
+
+<header class="custom-header scalar-app">
+	<img src="https://storage.googleapis.com/liteweight-api-documentation/LiteWeight_Icon.png"
+		style="width:40px; border-radius: 40%; margin-right: 10px">
+	<b>LiteWeight API Reference</b>
+</header>
+
+<body>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+<script>
+	Scalar.createApiReference('#app', {
+		"layout": "modern",
+		"hideClientButton": true,
+		"hideTestRequestButton": true,
+		"theme": "fastify",
+		"showSidebar": true,
+		"showDeveloperTools": "localhost",
+		"showToolbar": "localhost",
+		"operationTitleSource": "summary",
+		"persistAuth": false,
+		"telemetry": true,
+		"agent": {
+			"disabled": true,
+		},
+		"externalUrls": {
+			"dashboardUrl": "https://dashboard.scalar.com",
+			"registryUrl": "https://registry.scalar.com",
+			"proxyUrl": "https://proxy.scalar.com",
+			"apiBaseUrl": "https://api.scalar.com"
+		},
+		"default": false,
+		"isEditable": false,
+		"hideModels": false,
+		"documentDownloadType": "both",
+		"hideSearch": false,
+		"showOperationId": false,
+		"darkMode": true,
+		"hideDarkModeToggle": false,
+		"withDefaultFonts": true,
+		"defaultOpenFirstTag": true,
+		"defaultOpenAllTags": false,
+		"expandAllModelSections": false,
+		"expandAllResponses": false,
+		"expandAllSchemaProperties": false,
+		"orderSchemaPropertiesBy": "preserve",
+		"orderRequiredPropertiesFirst": true,
+		"proxyUrl": "https://proxy.scalar.com", // Avoid CORS issues
+		"modelsSectionLabel": "Models",
+		"url": 'https://storage.googleapis.com/liteweight-api-documentation/swagger.json',
+		"slug": "liteweight-api",
+		"title": "LiteWeight API Reference",
+	})
+</script>
 </body>
 </html>

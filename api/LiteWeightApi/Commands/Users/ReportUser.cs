@@ -2,7 +2,7 @@ using LiteWeightAPI.Api.Complaints.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Complaints;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using NodaTime;
 
 namespace LiteWeightAPI.Commands.Users;

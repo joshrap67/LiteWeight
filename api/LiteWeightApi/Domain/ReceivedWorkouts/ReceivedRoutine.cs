@@ -37,7 +37,7 @@ public class ReceivedRoutine
 	}
 
 	[FirestoreProperty("weeks")]
-	public IList<ReceivedWeek> Weeks { get; set; }
+	public IList<ReceivedWeek> Weeks { get; set; } = [];
 
 	private void AppendWeek(ReceivedWeek receivedWeek)
 	{

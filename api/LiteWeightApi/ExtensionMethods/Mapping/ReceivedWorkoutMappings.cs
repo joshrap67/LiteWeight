@@ -1,9 +1,9 @@
 ﻿using LiteWeightAPI.Api.ReceivedWorkouts.Responses;
 using LiteWeightAPI.Domain.ReceivedWorkouts;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class ReceivedWorkoutMaps
+public static class ReceivedWorkoutMappings
 {
 	public static ReceivedWorkoutResponse ToResponse(this ReceivedWorkout receivedWorkout)
 	{

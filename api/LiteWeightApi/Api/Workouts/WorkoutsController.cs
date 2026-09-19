@@ -4,7 +4,7 @@ using LiteWeightAPI.Api.Workouts.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Workouts;
 using LiteWeightAPI.Errors.Attributes;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LiteWeightAPI.Api.Workouts;
