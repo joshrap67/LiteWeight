@@ -4,8 +4,8 @@ using LiteWeightAPI.Api.Self.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Self;
 using LiteWeightAPI.Errors.Attributes;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using LiteWeightAPI.Imports;
-using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 

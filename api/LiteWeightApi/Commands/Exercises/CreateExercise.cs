@@ -2,8 +2,8 @@ using LiteWeightAPI.Api.Exercises.Responses;
 using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using LiteWeightAPI.Imports;
-using LiteWeightAPI.Maps;
 
 namespace LiteWeightAPI.Commands.Exercises;
 

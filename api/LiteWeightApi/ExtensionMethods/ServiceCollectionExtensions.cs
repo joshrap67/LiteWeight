@@ -1,9 +1,8 @@
-﻿using System.Reflection;
-using System.Threading.RateLimiting;
+﻿using System.Threading.RateLimiting;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Responses;
+using LiteWeightAPI.OpenApi.Transformers;
 using LiteWeightAPI.Options;
-using LiteWeightAPI.Swagger;
 using LiteWeightAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -71,35 +70,23 @@ public static class ServiceCollectionExtensions
 		});
 	}
 
-	public static void ConfigureSwagger(this IServiceCollection services)
+	public static void ConfigureOpenApi(this IServiceCollection services)
 	{
-		services.AddSwaggerGen(options =>
+		services.AddOpenApi(options =>
 		{
-			// generate docs from xml comments on methods/models
-			var assemblyXml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-			var assemblyXmlPath = Path.Combine(AppContext.BaseDirectory, assemblyXml);
-			options.IncludeXmlComments(assemblyXmlPath);
+			options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
 
 			// generate default responses for all endpoints
-			options.OperationFilter<DefaultResponsesOperationFilter>();
+			options.AddOperationTransformer<DefaultResponsesTransformer>();
 
 			// append any error types that are attributed to each endpoint
-			options.OperationFilter<AppendErrorTypesOperationFilter>();
+			options.AddOperationTransformer<AppendErrorTypesTransformer>();
 
 			// append an indicator of which actions send a push notification
-			options.OperationFilter<AppendPushNotificationIndicatorOperationFilter>();
+			options.AddOperationTransformer<AppendPushNotificationIndicatorTransformer>();
 
-			const string bearerDefinition = "BearerDefinition";
-			options.AddSecurityDefinition(bearerDefinition, new OpenApiSecurityScheme
-			{
-				BearerFormat = "JWT",
-				Description =
-					"Token authentication. \n\n 'Bearer TOKEN'\n\nBearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-				In = ParameterLocation.Header,
-				Name = "Authorization",
-				Scheme = "Bearer",
-				Type = SecuritySchemeType.Http
-			});
+			// add default security scheme
+			options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 		});
 	}
 

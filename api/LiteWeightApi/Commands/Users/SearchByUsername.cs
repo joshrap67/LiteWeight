@@ -1,6 +1,6 @@
 using LiteWeightAPI.Api.Users.Responses;
 using LiteWeightAPI.Domain;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 
 namespace LiteWeightAPI.Commands.Users;
 

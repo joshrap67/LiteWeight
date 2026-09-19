@@ -3,7 +3,7 @@ using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Errors.Exceptions;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 
 namespace LiteWeightAPI.Commands.Exercises;
 

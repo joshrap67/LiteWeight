@@ -1,11 +1,10 @@
 ﻿using LiteWeightAPI.Api.Common.Responses;
-using LiteWeightAPI.Api.Exercises.Requests;
 using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Domain.Users;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class SharedMaps
+public static class CommonMappings
 {
 	public static Link ToDomain(this SetLink command)
 	{

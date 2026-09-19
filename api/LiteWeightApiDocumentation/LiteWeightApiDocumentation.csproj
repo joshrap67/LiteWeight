@@ -10,16 +10,12 @@
 
     <ItemGroup>
         <PackageReference Include="Google.Cloud.Storage.V1" Version="4.13.0" />
-        <PackageReference Include="Microsoft.OpenApi" Version="1.6.24" />
-        <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.24" />
+		<PackageReference Include="Microsoft.OpenApi" Version="2.11.0" />
         <PackageReference Include="NodaTime" Version="3.2.3" />
     </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Include="Markdown\InfoDescription.md">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </EmbeddedResource>
-        <EmbeddedResource Include="public\swagger.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </EmbeddedResource>
         <None Remove="public\favicon.ico" />

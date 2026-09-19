@@ -1,7 +1,7 @@
 using LiteWeightAPI.Api.ReceivedWorkouts.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using LiteWeightAPI.Utils;
 
 namespace LiteWeightAPI.Commands.ReceivedWorkouts;

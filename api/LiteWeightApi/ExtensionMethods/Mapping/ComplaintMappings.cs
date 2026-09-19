@@ -2,9 +2,9 @@ using LiteWeightAPI.Api.Complaints.Responses;
 using LiteWeightAPI.Domain.Complaints;
 using LiteWeightAPI.Utils;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class ComplaintMaps
+public static class ComplaintMappings
 {
 	public static ComplaintResponse ToResponse(this Complaint complaint)
 	{

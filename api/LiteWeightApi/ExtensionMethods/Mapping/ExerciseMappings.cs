@@ -5,9 +5,9 @@ using LiteWeightAPI.Commands.Common;
 using LiteWeightAPI.Commands.Exercises;
 using LiteWeightAPI.Domain.Users;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class ExerciseMaps
+public static class ExerciseMappings
 {
 	public static CreateExercise ToCommand(this SetExerciseRequest request, string userId)
 	{

@@ -3,8 +3,8 @@ using LiteWeightAPI.Domain;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Errors.Exceptions;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using LiteWeightAPI.Imports;
-using LiteWeightAPI.Maps;
 using LiteWeightAPI.Utils;
 using NodaTime;
 

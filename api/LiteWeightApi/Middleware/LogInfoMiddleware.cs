@@ -18,8 +18,8 @@ public class LogInfoMiddleware
 	{
 		var version = context.Request.Headers[RequestFields.VersionNameHeader].ToString();
 		var versionCodeString = context.Request.Headers[RequestFields.AndroidVersionCodeHeader].ToString();
-		_logger.Information($"LiteWeight version code for request: {version}");
-		_logger.Information($"LiteWeight android version number for request: {versionCodeString}");
+		_logger.Information("LiteWeight version code for request: {Version}", version);
+		_logger.Information("LiteWeight android version number for request: {VersionCodeString}", versionCodeString);
 
 		await _next(context);
 	}

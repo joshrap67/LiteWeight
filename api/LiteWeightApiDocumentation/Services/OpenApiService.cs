@@ -1,15 +1,16 @@
 using System.Reflection;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
 using NodaTime;
 
 namespace LiteWeightApiDocumentation.Services;
 
-public static class SwaggerService
+public static class OpenApiService
 {
-	public static OpenApiDocument GetOpenApiDocument()
+	public static async Task<OpenApiDocument> GetOpenApiDocument(string openApiFilePath)
 	{
-		var openApiDocument = GetOpenApiDoc();
+		var (document, _) = await OpenApiDocument.LoadAsync(openApiFilePath);
+		var openApiDocument = document ?? throw new Exception("OpenApiDocument is null");
+
 		openApiDocument.Info.Description = GetDescription();
 		openApiDocument.Info.Contact = new OpenApiContact
 		{
@@ -18,14 +19,6 @@ public static class SwaggerService
 			Url = new Uri("https://github.com/joshrap67")
 		};
 		return openApiDocument;
-	}
-
-	private static OpenApiDocument GetOpenApiDoc()
-	{
-		var assembly = Assembly.GetExecutingAssembly();
-		return new OpenApiStreamReader().Read(
-			assembly.GetManifestResourceStream("LiteWeightApiDocumentation.public.swagger.json"),
-			out _);
 	}
 
 	private static string GetDescription()

@@ -4,9 +4,9 @@ using LiteWeightAPI.Commands.Workouts;
 using LiteWeightAPI.Domain.Workouts;
 using LiteWeightAPI.Utils;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class WorkoutMaps
+public static class WorkoutMappings
 {
 	public static CreateWorkout ToCommand(this CreateWorkoutRequest request, string userId)
 	{

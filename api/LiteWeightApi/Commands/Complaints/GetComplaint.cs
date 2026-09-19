@@ -1,7 +1,7 @@
 using LiteWeightAPI.Api.Complaints.Responses;
 using LiteWeightAPI.Domain;
 using LiteWeightAPI.Errors.Exceptions.BaseExceptions;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 
 namespace LiteWeightAPI.Commands.Complaints;
 

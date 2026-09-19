@@ -3,7 +3,7 @@ using LiteWeightAPI.Api.Exercises.Responses;
 using LiteWeightAPI.Commands;
 using LiteWeightAPI.Commands.Exercises;
 using LiteWeightAPI.Errors.Attributes;
-using LiteWeightAPI.Maps;
+using LiteWeightAPI.ExtensionMethods.Mapping;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LiteWeightAPI.Api.Exercises;

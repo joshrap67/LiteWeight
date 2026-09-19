@@ -5,9 +5,9 @@ using LiteWeightAPI.Commands.Self;
 using LiteWeightAPI.Domain.Users;
 using LiteWeightAPI.Utils;
 
-namespace LiteWeightAPI.Maps;
+namespace LiteWeightAPI.ExtensionMethods.Mapping;
 
-public static class UserAndSelfMaps
+public static class UserAndSelfMappings
 {
 	public static UserResponse ToResponse(this User user)
 	{
